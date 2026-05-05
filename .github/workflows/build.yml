@@ -86,7 +86,7 @@ jobs:
         working-directory: frontend
 
       - name: Type check
-        run: pnpm type-check
+        run: pnpm typecheck
         working-directory: frontend
 
       - name: Format check
