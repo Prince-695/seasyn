@@ -12,10 +12,6 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,26 +26,30 @@ jobs:
       # ✅ Download dependencies
       - name: Download dependencies
         run: go mod tidy
+        working-directory: backend
 
       # ✅ Format check
       - name: Check formatting
         run: |
-          if [ -n "$(gofmt -l .)" ]; then
+          if [ -n "$(gofmt -l backend)" ]; then
             echo "Go files are not formatted:"
-            gofmt -l .
+            gofmt -l backend
             exit 1
           fi
 
       # ✅ Vet
       - name: Run go vet
         run: go vet ./...
+        working-directory: backend
 
-      # ✅ Lint
+      # ✅ Lint (FIXED PROPERLY)
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           working-directory: backend
+          args: ./...
 
       # ✅ Build check
       - name: Build
         run: go build ./...
+        working-directory: backend
