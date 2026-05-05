@@ -25,23 +25,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache: true
 
-      # ✅ Cache Go modules (faster CI)
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      # ✅ Install dependencies
+      # ✅ Download dependencies
       - name: Download dependencies
         run: go mod tidy
 
-      # ✅ Format check (fails if not formatted)
+      # ✅ Format check
       - name: Check formatting
         run: |
           if [ -n "$(gofmt -l .)" ]; then
@@ -50,20 +40,16 @@ jobs:
             exit 1
           fi
 
-      # ✅ Vet (basic static analysis)
+      # ✅ Vet
       - name: Run go vet
         run: go vet ./...
 
-      # ✅ Install golangci-lint
-      - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
-          sudo mv ./bin/golangci-lint /usr/local/bin/
-
-      # ✅ Run lint
+      # ✅ Lint
       - name: Run golangci-lint
-        run: golangci-lint run
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: backend
 
-      # ✅ Build check (no binary stored)
+      # ✅ Build check
       - name: Build
         run: go build ./...
