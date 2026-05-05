@@ -6,16 +6,17 @@ on:
       - main
 
 jobs:
-  build:
+
+  # ======================
+  # 🔵 BACKEND JOB
+  # ======================
+  backend:
+    name: Backend Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # ======================
-      # 🔵 BACKEND (Go)
-      # ======================
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -23,11 +24,11 @@ jobs:
           go-version: '1.22'
           cache: true
 
-      - name: Backend - Install dependencies
+      - name: Install dependencies
         run: go mod tidy
         working-directory: backend
 
-      - name: Backend - Format check
+      - name: Format check
         run: |
           if [ -n "$(gofmt -l backend)" ]; then
             echo "Go files are not formatted:"
@@ -35,53 +36,63 @@ jobs:
             exit 1
           fi
 
-      - name: Backend - Vet
+      - name: Vet
         run: go vet ./...
         working-directory: backend
 
-      - name: Backend - Install lint
+      - name: Install lint
         run: |
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Backend - Lint
+      - name: Lint
         run: golangci-lint run ./...
         working-directory: backend
 
-      - name: Backend - Build
+      - name: Build
         run: go build ./...
         working-directory: backend
 
 
-      # ======================
-      # 🟡 FRONTEND (pnpm)
-      # ======================
+  # ======================
+  # 🟡 FRONTEND JOB
+  # ======================
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Frontend - Install deps
+      - name: Install dependencies
         run: pnpm install
         working-directory: frontend
 
-      - name: Frontend - Lint
+      - name: Lint
         run: pnpm lint
         working-directory: frontend
 
-      - name: Frontend - Type check
+      - name: Type check
         run: pnpm type-check
         working-directory: frontend
 
-      - name: Frontend - Format check
+      - name: Format check
         run: pnpm format:check
         working-directory: frontend
 
-      - name: Frontend - Build
+      - name: Build
         run: pnpm build
         working-directory: frontend
