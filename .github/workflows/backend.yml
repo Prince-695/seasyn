@@ -12,25 +12,48 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ✅ Setup Go
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache: true
 
-      - name: Install dependencies
+      # ✅ Install dependencies
+      - name: Download dependencies
         run: go mod tidy
+        working-directory: backend
 
+      # ✅ Format check
+      - name: Check formatting
+        run: |
+          if [ -n "$(gofmt -l backend)" ]; then
+            echo "Go files are not formatted:"
+            gofmt -l backend
+            exit 1
+          fi
+
+      # ✅ Vet
+      - name: Run go vet
+        run: go vet ./...
+        working-directory: backend
+
+      # ✅ Install golangci-lint (STABLE METHOD)
+      - name: Install golangci-lint
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      # ✅ Run lint
+      - name: Run golangci-lint
+        run: golangci-lint run ./...
+        working-directory: backend
+
+      # ✅ Build
       - name: Build
         run: go build ./...
-
-      - name: Lint
-        run: |
-          go vet ./...
+        working-directory: backend
