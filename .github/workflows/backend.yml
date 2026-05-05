@@ -23,7 +23,7 @@ jobs:
           go-version: '1.22'
           cache: true
 
-      # ✅ Download dependencies
+      # ✅ Install dependencies
       - name: Download dependencies
         run: go mod tidy
         working-directory: backend
@@ -42,14 +42,18 @@ jobs:
         run: go vet ./...
         working-directory: backend
 
-      # ✅ Lint (FIXED PROPERLY)
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          working-directory: backend
-          args: ./...
+      # ✅ Install golangci-lint (STABLE METHOD)
+      - name: Install golangci-lint
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      # ✅ Build check
+      # ✅ Run lint
+      - name: Run golangci-lint
+        run: golangci-lint run ./...
+        working-directory: backend
+
+      # ✅ Build
       - name: Build
         run: go build ./...
         working-directory: backend
