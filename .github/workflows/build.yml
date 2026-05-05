@@ -1,0 +1,87 @@
+name: Full Build (Main)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ======================
+      # 🔵 BACKEND (Go)
+      # ======================
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Backend - Install dependencies
+        run: go mod tidy
+        working-directory: backend
+
+      - name: Backend - Format check
+        run: |
+          if [ -n "$(gofmt -l backend)" ]; then
+            echo "Go files are not formatted:"
+            gofmt -l backend
+            exit 1
+          fi
+
+      - name: Backend - Vet
+        run: go vet ./...
+        working-directory: backend
+
+      - name: Backend - Install lint
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Backend - Lint
+        run: golangci-lint run ./...
+        working-directory: backend
+
+      - name: Backend - Build
+        run: go build ./...
+        working-directory: backend
+
+
+      # ======================
+      # 🟡 FRONTEND (pnpm)
+      # ======================
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Frontend - Install deps
+        run: pnpm install
+        working-directory: frontend
+
+      - name: Frontend - Lint
+        run: pnpm lint
+        working-directory: frontend
+
+      - name: Frontend - Type check
+        run: pnpm type-check
+        working-directory: frontend
+
+      - name: Frontend - Format check
+        run: pnpm format:check
+        working-directory: frontend
+
+      - name: Frontend - Build
+        run: pnpm build
+        working-directory: frontend
