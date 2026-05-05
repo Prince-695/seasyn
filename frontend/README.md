@@ -1,1 +1,1 @@
-Hello Seasyn frontend
+Hello Seasyn Frontend
