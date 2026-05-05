@@ -51,7 +51,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { CopyIcon, CircleAlertIcon, TrashIcon, ShareIcon, ShoppingBagIcon, MoreHorizontalIcon, Loader2Icon, PlusIcon, MinusIcon, ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, SearchIcon, SettingsIcon, ChevronUpIcon } from "lucide-react"
+import {
+  CopyIcon,
+  CircleAlertIcon,
+  TrashIcon,
+  ShareIcon,
+  ShoppingBagIcon,
+  MoreHorizontalIcon,
+  Loader2Icon,
+  PlusIcon,
+  MinusIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  SearchIcon,
+  SettingsIcon,
+  ChevronUpIcon,
+} from "lucide-react"
 
 export function Demo() {
   const [sliderValue, setSliderValue] = React.useState<number[]>([500])
@@ -118,68 +136,52 @@ export function Demo() {
             <CardContent>
               <div className="grid grid-cols-8 place-items-center gap-4">
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <CopyIcon
-                  />
+                  <CopyIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <CircleAlertIcon
-                  />
+                  <CircleAlertIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <TrashIcon
-                  />
+                  <TrashIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <ShareIcon
-                  />
+                  <ShareIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <ShoppingBagIcon
-                  />
+                  <ShoppingBagIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <MoreHorizontalIcon
-                  />
+                  <MoreHorizontalIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <Loader2Icon
-                  />
+                  <Loader2Icon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <PlusIcon
-                  />
+                  <PlusIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <MinusIcon
-                  />
+                  <MinusIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <ArrowLeftIcon
-                  />
+                  <ArrowLeftIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <ArrowRightIcon
-                  />
+                  <ArrowRightIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <CheckIcon
-                  />
+                  <CheckIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <ChevronDownIcon
-                  />
+                  <ChevronDownIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <ChevronRightIcon
-                  />
+                  <ChevronRightIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <SearchIcon
-                  />
+                  <SearchIcon />
                 </Card>
                 <Card className="flex size-8 items-center justify-center p-0 shadow-none *:[svg]:size-4">
-                  <SettingsIcon
-                  />
+                  <SettingsIcon />
                 </Card>
               </div>
             </CardContent>
@@ -224,8 +226,7 @@ export function Demo() {
                     <InputGroupInput placeholder="Name" />
                     <InputGroupAddon align="inline-end">
                       <InputGroupText>
-                        <SearchIcon
-                        />
+                        <SearchIcon />
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
@@ -280,8 +281,7 @@ export function Demo() {
                     <DropdownMenuTrigger
                       render={<Button variant="outline" size="icon" />}
                     >
-                      <ChevronUpIcon
-                      />
+                      <ChevronUpIcon />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
