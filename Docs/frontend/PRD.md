@@ -1,10 +1,11 @@
 # SEASYN — Frontend Product Requirements Document (PRD)
 
-**Version:** 1.0  
-**Framework:** Next.js 14 (App Router)  
+**Version:** 1.1  
+**Framework:** React 18 + Vite 5  
 **Styling:** Tailwind CSS + shadcn/ui  
-**State:** Zustand + React Query (TanStack Query)  
-**Structure:** Monorepo (Turborepo)  
+**State:** Zustand + TanStack Query v5  
+**Router:** React Router v6  
+**Structure:** Standard single-app repository  
 **Status:** Draft
 
 ---
@@ -12,9 +13,9 @@
 ## Table of Contents
 
 1. [Executive Summary](#1-executive-summary)
-2. [Monorepo vs Normal Structure — Decision](#2-monorepo-vs-normal-structure--decision)
+2. [Structure Decision — Why Standard React + Vite](#2-structure-decision--why-standard-react--vite)
 3. [Tech Stack Decisions](#3-tech-stack-decisions)
-4. [Monorepo Structure](#4-monorepo-structure)
+4. [Project Structure](#4-project-structure)
 5. [Application Architecture](#5-application-architecture)
 6. [Pages & Routes Specification](#6-pages--routes-specification)
 7. [Component Specifications](#7-component-specifications)
@@ -30,53 +31,46 @@
 
 ## 1. Executive Summary
 
-SEASYN's frontend is a **Next.js 14 web application** that provides:
+SEASYN's frontend is a **React 18 + Vite 5 single-page application** that provides:
 
 1. A **Dashboard** for managing projects and migration jobs
 2. A **Connection Wizard** for inputting database credentials (never stored)
 3. A **Migration Studio** for configuring and monitoring migrations in real-time
 4. A **Database Editor** for CRUD operations on live databases
 
-The frontend uses a **Turborepo monorepo** housing both the Next.js app and shared packages (UI components, API client, types). This structure is chosen over a plain repo because SEASYN plans a future CLI, a docs site, and potentially a mobile app — all of which can share the same types and API client.
+The frontend lives in a single, self-contained repository with no monorepo tooling. This keeps the setup fast to understand, easy to deploy, and free of unnecessary complexity for a project at this stage. Everything — components, API layer, types, stores — lives in one `src/` directory with clear internal conventions.
 
 **Critical frontend principle:** Credentials entered by users exist **only in component state** during a session. They are sent directly to the backend per-request and never written to `localStorage`, `sessionStorage`, cookies, or any persistent browser storage.
 
 ---
 
-## 2. Monorepo vs Normal Structure — Decision
+## 2. Structure Decision — Why Standard React + Vite
 
-### Verdict: **Use a Turborepo Monorepo**
+### Verdict: Standard React + Vite, single repository
 
-Here is the honest breakdown:
+### Why Vite over Next.js
 
-### Why NOT a plain repo
+SEASYN's frontend has no need for server-side rendering or static site generation at this stage. The entire app is behind authentication — search engines do not index it, and there is no public-facing content that needs SEO. Next.js would add complexity (server components, route handlers, build-time vs runtime behavior) without any benefit.
 
-- You will inevitably need to share TypeScript types between the frontend app and any future CLI or docs site
-- You will need a shared API client (`@seasyn/api`) that can be used across contexts
-- A shared design system (`@seasyn/ui`) means you're not copy-pasting components
-- Turborepo's build caching is essentially free performance — a plain repo has no equivalent
+Vite gives:
+- Near-instant dev server startup (under 500ms)
+- Lightning-fast hot module replacement
+- Simple, predictable build output (static files)
+- Zero server to maintain — deploy to any CDN or object storage
 
-### Why NOT a full enterprise monorepo (nx, Bazel)
+### Why NOT a monorepo
 
-- Overkill for a personal project / early startup
-- Turborepo is simple enough to set up in an afternoon
-- The mental overhead is low compared to the value gained
+A monorepo makes sense when multiple separate applications need to share code. SEASYN currently has one frontend application. Adding Turborepo or pnpm workspaces for a single app introduces extra tooling to learn and maintain, workspace linking errors that can waste hours, more config files, and a steeper onboarding experience for contributors.
 
-### Trade-offs to accept
+When SEASYN grows to need a CLI or a separate docs site, migrating from a standard repo to a monorepo is a one-day task. Building on top of unnecessary monorepo tooling from day one is a permanent cost with no current payoff.
 
-| Trade-off | Impact |
-|-----------|--------|
-| Slightly more complex initial setup | One-time, ~2 hours of setup |
-| Need to understand workspace linking | `pnpm workspaces` — learnable in 30 minutes |
-| Turborepo config | A 20-line `turbo.json` file |
+### Trade-offs accepted
 
-### Monorepo gives you
-
-- `@seasyn/types` — shared TypeScript types between all packages
-- `@seasyn/api` — shared API client (used by both web app and future CLI)
-- `@seasyn/ui` — shared design system components
-- Turborepo's intelligent caching (only rebuild what changed)
-- Single `pnpm install` for everything
+| Trade-off | Mitigation |
+|-----------|-----------|
+| Types not shared with a future CLI | Types isolated in `src/types/` — easy to extract to a package later |
+| No cross-package build caching | Vite's native build is fast enough for this project size |
+| Single `package.json` | Actually a benefit — clear, auditable dependency list |
 
 ---
 
@@ -84,152 +78,194 @@ Here is the honest breakdown:
 
 | Concern | Choice | Why |
 |---------|--------|-----|
-| Framework | Next.js 14 (App Router) | SSR for dashboard, RSC for data fetching, API routes available |
-| Package Manager | pnpm | Fast, native workspace support, disk efficient |
-| Monorepo Tool | Turborepo | Simple, powerful caching, low overhead |
-| Styling | Tailwind CSS v3 | Utility-first, pairs well with shadcn |
-| Component Library | shadcn/ui | Copy-paste components, full ownership, built on Radix UI |
+| Framework | React 18 | Stable, best ecosystem, hooks-based |
+| Build Tool | Vite 5 | Fast dev server, native ESM, minimal config |
+| Language | TypeScript 5.x (strict mode) | No `any`, catches bugs at compile time |
+| Package Manager | npm (or pnpm) | No workspace features needed |
+| Routing | React Router v6 | Industry standard SPA routing |
+| Styling | Tailwind CSS v3 | Utility-first, excellent with shadcn |
+| Component Library | shadcn/ui | Copy-paste Radix UI components, full ownership |
 | Icons | Lucide React | Consistent, tree-shakeable |
 | Server State | TanStack Query v5 | Caching, background refetch, optimistic updates |
-| Client State | Zustand | Minimal, no boilerplate, TypeScript-native |
+| Client State | Zustand | Minimal boilerplate, TypeScript-native |
 | Forms | React Hook Form + Zod | Type-safe validation, minimal re-renders |
-| Tables | TanStack Table v8 | Headless, works with shadcn |
-| SSE (live migration) | native EventSource | Browser-native, no library needed |
-| HTTP Client | Axios (wrapped) | Interceptors for auth, error normalization |
-| Testing | Vitest + Testing Library | Fast, Vite-based, same as Jest API |
-| E2E | Playwright | Cross-browser, network mocking |
-| Linting | ESLint + Prettier | Standard setup |
-| Type Checking | TypeScript 5.x strict mode | No `any`, no shortcuts |
+| Tables | TanStack Table v8 | Headless, composable with shadcn |
+| SSE | Native `EventSource` | Browser-native, no library needed |
+| HTTP Client | Axios (thin wrapper) | Interceptors for auth + error normalization |
+| Testing | Vitest + Testing Library | Fast, Vite-native, Jest-compatible API |
+| E2E | Playwright | Cross-browser, reliable |
+| Linting | ESLint + Prettier | Standard TypeScript rules |
 
 ---
 
-## 4. Monorepo Structure
+## 4. Project Structure
 
 ```
-seasyn/                              # Root of monorepo
-├── apps/
-│   └── web/                         # Main Next.js application
-│       ├── app/                     # App Router directory
-│       │   ├── (auth)/              # Route group: public auth pages
-│       │   │   ├── login/
-│       │   │   │   └── page.tsx
-│       │   │   └── register/
-│       │   │       └── page.tsx
-│       │   ├── (dashboard)/         # Route group: protected pages
-│       │   │   ├── layout.tsx       # Dashboard shell (sidebar + header)
-│       │   │   ├── page.tsx         # /dashboard — overview
-│       │   │   ├── projects/
-│       │   │   │   ├── page.tsx     # /projects — list
-│       │   │   │   ├── new/
-│       │   │   │   │   └── page.tsx # /projects/new
-│       │   │   │   └── [id]/
-│       │   │   │       └── page.tsx # /projects/:id
-│       │   │   ├── migrations/
-│       │   │   │   ├── page.tsx     # /migrations — history
-│       │   │   │   ├── new/
-│       │   │   │   │   └── page.tsx # /migrations/new — migration studio
-│       │   │   │   └── [id]/
-│       │   │   │       └── page.tsx # /migrations/:id — live status
-│       │   │   └── editor/
-│       │   │       └── page.tsx     # /editor — database editor
-│       │   ├── api/                 # Next.js route handlers (BFF proxy)
-│       │   │   └── [...path]/
-│       │   │       └── route.ts     # Proxies to backend, adds auth header
-│       │   ├── layout.tsx           # Root layout (fonts, providers)
-│       │   └── globals.css
-│       ├── components/              # App-specific components
-│       │   ├── migration/
-│       │   ├── editor/
-│       │   ├── project/
-│       │   └── connection/
-│       ├── hooks/                   # App-specific custom hooks
-│       ├── lib/                     # App utilities (auth helpers, etc.)
-│       ├── store/                   # Zustand stores
-│       ├── next.config.ts
-│       ├── tailwind.config.ts
-│       └── package.json
+seasyn-frontend/
+├── public/
+│   ├── favicon.ico
+│   └── logo.svg
 │
-├── packages/
-│   ├── types/                       # @seasyn/types
-│   │   ├── src/
-│   │   │   ├── database.ts          # DBType, ConnectionConfig, Schema, etc.
-│   │   │   ├── migration.ts         # MigrationJob, MigrationStatus, etc.
-│   │   │   ├── project.ts
-│   │   │   └── index.ts
-│   │   ├── tsconfig.json
-│   │   └── package.json
+├── src/
+│   ├── main.tsx                     # Entry point (ReactDOM.createRoot)
+│   ├── App.tsx                      # Root component: router + providers
 │   │
-│   ├── api/                         # @seasyn/api
-│   │   ├── src/
-│   │   │   ├── client.ts            # Axios instance + interceptors
-│   │   │   ├── auth.ts              # Auth API calls
-│   │   │   ├── migrations.ts        # Migration API calls
-│   │   │   ├── editor.ts            # Editor API calls
-│   │   │   ├── projects.ts          # Project API calls
-│   │   │   ├── schema.ts            # Schema inspection API calls
-│   │   │   └── index.ts
-│   │   ├── tsconfig.json
-│   │   └── package.json
+│   ├── types/                       # All TypeScript interfaces and types
+│   │   ├── database.ts              # DBType, ConnectionConfig, Schema, ColumnSchema
+│   │   ├── migration.ts             # MigrationJob, MigrationStatus, MigrationOptions
+│   │   ├── project.ts               # Project, ConnectionMeta
+│   │   ├── auth.ts                  # User, AuthState
+│   │   └── index.ts                 # Re-exports all types
 │   │
-│   └── ui/                          # @seasyn/ui
-│       ├── src/
-│       │   ├── components/          # Shared shadcn-based components
-│       │   │   ├── button.tsx
-│       │   │   ├── input.tsx
-│       │   │   ├── card.tsx
-│       │   │   ├── badge.tsx
-│       │   │   ├── data-table.tsx   # Generic table with TanStack Table
-│       │   │   ├── connection-form.tsx
-│       │   │   └── ...
-│       │   └── index.ts
-│       ├── tsconfig.json
-│       └── package.json
+│   ├── api/                         # All backend communication lives here
+│   │   ├── client.ts                # Axios instance + request/response interceptors
+│   │   ├── auth.ts                  # Login, register, refresh, logout, me
+│   │   ├── projects.ts              # CRUD for projects
+│   │   ├── migrations.ts            # Start, status, cancel, list migrations
+│   │   ├── editor.ts                # Query, insert, update, delete via editor
+│   │   ├── schema.ts                # Schema inspect, table list, preview
+│   │   └── index.ts                 # Re-exports all api modules
+│   │
+│   ├── store/                       # Zustand stores (client-only state)
+│   │   ├── authStore.ts             # Authenticated user metadata
+│   │   ├── migrationWizardStore.ts  # Wizard state — NO persist middleware
+│   │   └── uiStore.ts               # Sidebar, theme — persisted safely
+│   │
+│   ├── hooks/                       # Custom React hooks
+│   │   ├── useMigrationSSE.ts       # EventSource subscription for live progress
+│   │   ├── useConnectionTest.ts     # Test-connection mutation + state management
+│   │   ├── useSchema.ts             # TanStack Query hook: schema inspection
+│   │   ├── useProjects.ts           # TanStack Query hooks: projects CRUD
+│   │   └── useMigrations.ts         # TanStack Query hooks: migrations
+│   │
+│   ├── lib/                         # Pure utilities (no side effects)
+│   │   ├── queryClient.ts           # TanStack QueryClient configuration
+│   │   ├── queryKeys.ts             # Query key factory functions
+│   │   ├── validators.ts            # Zod schemas for all forms
+│   │   ├── typeMapping.ts           # DBType -> display name, icon, color helpers
+│   │   └── formatters.ts            # Duration, row counts, date display
+│   │
+│   ├── components/
+│   │   ├── ui/                      # shadcn/ui base components (auto-generated via CLI)
+│   │   │   ├── button.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── badge.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── tabs.tsx
+│   │   │   ├── progress.tsx
+│   │   │   ├── skeleton.tsx
+│   │   │   ├── switch.tsx
+│   │   │   ├── slider.tsx
+│   │   │   └── toast.tsx
+│   │   │
+│   │   ├── layout/
+│   │   │   ├── AppLayout.tsx        # Sidebar + header shell for protected pages
+│   │   │   ├── Sidebar.tsx          # Navigation links, logo, collapse toggle
+│   │   │   ├── Header.tsx           # User avatar, breadcrumb, theme toggle
+│   │   │   └── ProtectedRoute.tsx   # Redirects unauthenticated users to /login
+│   │   │
+│   │   ├── connection/
+│   │   │   ├── ConnectionForm.tsx   # Universal DB connection input form
+│   │   │   ├── DBTypeSelector.tsx   # PostgreSQL / MySQL / MongoDB / SQLite picker
+│   │   │   └── ConnectionStatus.tsx # Ping result display (success / fail / loading)
+│   │   │
+│   │   ├── migration/
+│   │   │   ├── MigrationWizard.tsx  # Orchestrates the 4-step wizard UI
+│   │   │   ├── WizardStep1.tsx      # Source DB selection + test
+│   │   │   ├── WizardStep2.tsx      # Destination DB selection + test
+│   │   │   ├── WizardStep3.tsx      # Schema mapping + options
+│   │   │   ├── WizardStep4.tsx      # Review summary + launch
+│   │   │   ├── SchemaMappingTable.tsx
+│   │   │   ├── MigrationProgressCard.tsx
+│   │   │   └── TerminalLog.tsx      # SSE-powered dark terminal log viewer
+│   │   │
+│   │   ├── editor/
+│   │   │   ├── EditorLayout.tsx     # Horizontal split panel layout
+│   │   │   ├── SchemaTree.tsx       # Left panel: collapsible table/column tree
+│   │   │   ├── DataGrid.tsx         # Right panel: paginated editable data table
+│   │   │   ├── InsertRowModal.tsx   # Modal form for inserting a new row
+│   │   │   └── FilterBar.tsx        # Column-based filter controls
+│   │   │
+│   │   └── shared/
+│   │       ├── StatusBadge.tsx      # Colored badge: Pending / Running / Completed / Failed
+│   │       ├── EmptyState.tsx       # Placeholder for empty lists/tables
+│   │       ├── ErrorBoundary.tsx
+│   │       └── PageHeader.tsx       # Title + optional action button slot
+│   │
+│   └── pages/                       # One file per route
+│       ├── LoginPage.tsx
+│       ├── RegisterPage.tsx
+│       ├── DashboardPage.tsx
+│       ├── ProjectsPage.tsx
+│       ├── ProjectDetailPage.tsx
+│       ├── MigrationNewPage.tsx     # Hosts MigrationWizard
+│       ├── MigrationMonitorPage.tsx # Live migration status view
+│       ├── MigrationsHistoryPage.tsx
+│       └── EditorPage.tsx
 │
-├── turbo.json                        # Turborepo pipeline config
-├── pnpm-workspace.yaml               # Workspace definition
-├── package.json                      # Root package
-└── tsconfig.base.json                # Shared TS config
+├── index.html                       # Vite HTML entry
+├── vite.config.ts
+├── tailwind.config.ts
+├── tsconfig.json
+├── .env.example
+├── .eslintrc.cjs
+├── .prettierrc
+└── package.json
 ```
 
 ### Key Config Files
 
-**pnpm-workspace.yaml**
-```yaml
-packages:
-  - "apps/*"
-  - "packages/*"
+**vite.config.ts**
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: { '@': path.resolve(__dirname, './src') },
+  },
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    sourcemap: true,
+  },
+});
 ```
 
-**turbo.json**
+**tsconfig.json**
 ```json
 {
-  "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {},
-    "test": {}
-  }
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }
+  },
+  "include": ["src"]
 }
 ```
 
-**Root package.json scripts**
-```json
-{
-  "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "typecheck": "turbo run typecheck"
-  }
-}
+**.env.example**
+```env
+VITE_API_BASE_URL=http://localhost:8080/api/v1
 ```
 
 ---
@@ -242,68 +278,107 @@ packages:
 User Input (Browser)
      │
      ▼
-React Components (UI layer)
+React Components
      │
-     ├── Server Components (RSC) ──▶ Next.js BFF Route Handler ──▶ Backend API
-     │        (initial data, SEO)         (adds auth token)
+     ├── TanStack Query hooks ──▶ src/api/ (Axios) ──▶ Vite dev proxy ──▶ Go Backend
+     │        (server state + caching)
      │
-     └── Client Components ──▶ TanStack Query ──▶ @seasyn/api ──▶ Backend API
-              (interactivity)    (cache + refetch)   (Axios)
+     ├── Zustand stores (wizard state, UI, auth metadata)
+     │
+     └── EventSource (SSE) ──▶ Go Backend /migrations/:id/logs
 ```
 
-### 5.2 Authentication Flow
+### 5.2 Router Setup (`src/App.tsx`)
+
+```typescript
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
+import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { lazy, Suspense } from 'react';
+
+const LoginPage             = lazy(() => import('@/pages/LoginPage'));
+const RegisterPage          = lazy(() => import('@/pages/RegisterPage'));
+const DashboardPage         = lazy(() => import('@/pages/DashboardPage'));
+const ProjectsPage          = lazy(() => import('@/pages/ProjectsPage'));
+const ProjectDetailPage     = lazy(() => import('@/pages/ProjectDetailPage'));
+const MigrationNewPage      = lazy(() => import('@/pages/MigrationNewPage'));
+const MigrationMonitorPage  = lazy(() => import('@/pages/MigrationMonitorPage'));
+const MigrationsHistoryPage = lazy(() => import('@/pages/MigrationsHistoryPage'));
+const EditorPage            = lazy(() => import('@/pages/EditorPage'));
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Suspense fallback={<FullPageSpinner />}>
+          <Routes>
+            <Route path="/login"    element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/"                   element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard"           element={<DashboardPage />} />
+                <Route path="/projects"            element={<ProjectsPage />} />
+                <Route path="/projects/:id"        element={<ProjectDetailPage />} />
+                <Route path="/migrations"          element={<MigrationsHistoryPage />} />
+                <Route path="/migrations/new"      element={<MigrationNewPage />} />
+                <Route path="/migrations/:id"      element={<MigrationMonitorPage />} />
+                <Route path="/editor"              element={<EditorPage />} />
+              </Route>
+            </Route>
+
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+}
+```
+
+### 5.3 Authentication Flow
+
+Since this is a plain SPA (no BFF), the JWT access token is stored in an **in-memory Axios module variable** — never in `localStorage`. The backend sets a `httpOnly` refresh token cookie.
 
 ```
-User logs in
-     │
-     ▼
-POST /api/auth/login (Next.js BFF)
-     │
-     ▼
-Backend returns JWT
-     │
-     ▼
-BFF sets httpOnly cookie (not accessible via JS)
-     │
-     ▼
-Subsequent requests: cookie sent automatically
-     │
-     ▼
-Next.js BFF reads cookie, injects Authorization header
-     │
-     ▼
-Backend validates JWT
+POST /api/v1/auth/login
+  └─▶ Backend sets httpOnly refresh token cookie
+  └─▶ Returns short-lived access token in body
+
+Frontend stores access token in Axios module variable (memory only)
+
+Every request: Axios interceptor attaches token as Authorization header
+
+On 401: Axios interceptor calls POST /api/v1/auth/refresh (cookie auto-sent)
+  └─▶ New access token received → retry original request
+  └─▶ On refresh failure → clear state → redirect to /login
 ```
 
-**Why BFF?** The frontend never touches the JWT directly. It lives in an httpOnly cookie handled by the Next.js BFF (Backend For Frontend) layer. This prevents XSS from stealing tokens.
-
-### 5.3 Credential Flow (Critical)
+### 5.4 Credential Flow (Critical Security Invariant)
 
 ```
-User enters DB credentials in ConnectionForm
-     │
-     ▼
-Credentials stored in React component state ONLY
-     │
-     ▼
-User triggers action (test connection / start migration / editor query)
-     │
-     ▼
-Credentials sent in POST request body to Next.js BFF
-     │
-     ▼
-BFF forwards to backend
-     │
-     ▼
-Backend uses credentials, closes connection
-     │
-CREDENTIALS NEVER WRITTEN TO:
+User types credentials into ConnectionForm
+   (stored in React Hook Form local state)
+         │
+         ▼
+User clicks "Test Connection" or "Start Migration" or editor action
+         │
+         ▼
+Credentials read from form state → sent in POST request body
+         │
+         ▼
+Backend uses credentials → closes connection → returns result
+         │
+CREDENTIALS ARE NEVER WRITTEN TO:
   ✗ localStorage
   ✗ sessionStorage
-  ✗ Cookies
-  ✗ Zustand persist
-  ✗ URL params
-  ✗ Any browser storage
+  ✗ Any cookie
+  ✗ Zustand stores (wizard store holds ConnectionConfig only for active session)
+  ✗ URL query parameters
+  ✗ Window history state
 ```
 
 ---
@@ -312,202 +387,133 @@ CREDENTIALS NEVER WRITTEN TO:
 
 ### 6.1 Login Page (`/login`)
 
-**Purpose:** Authenticate existing users  
-**Route type:** Public (redirect to dashboard if already authenticated)
+**Access:** Public; redirect to `/dashboard` if already authenticated
 
-**UI Elements:**
-- SEASYN logo + tagline
-- Email input
-- Password input
-- "Sign in" button
+**UI:**
+- SEASYN logo centered
+- Email input, password input with show/hide toggle
+- "Sign in" button with loading spinner state
+- Error alert (red, dismissable) for bad credentials
 - "Don't have an account? Register" link
-- Error message display
 
-**Behavior:**
-- On submit: POST to `/api/auth/login`
-- On success: redirect to `/dashboard`
-- On failure: display error message
-- Form validated with Zod: email format, password min 8 chars
+**Behavior:** Zod validation on submit (email format, password min 8 chars). On success: store token, navigate to `/dashboard`.
 
 ---
 
 ### 6.2 Register Page (`/register`)
 
-**Purpose:** Create new account  
-**UI Elements:**
-- Email, password, confirm password inputs
-- "Create account" button
-- Validation: real-time Zod schema feedback
+**UI:** Email, password, confirm-password inputs. Real-time Zod validation per field (border turns red + message appears). "Create account" button. Link back to login.
 
 ---
 
 ### 6.3 Dashboard (`/dashboard`)
 
-**Purpose:** Overview of user's activity
-
 **Sections:**
-- **Stats bar:** Total projects | Active migrations | Completed migrations | Failed migrations
-- **Recent Projects:** Card grid, last 5 projects with link to open
-- **Recent Migrations:** Table of last 10 migration jobs with status badges
-- **Quick Action buttons:** "New Project" | "Start Migration" | "Open Editor"
 
-**Data fetching:** React Server Component fetches stats on load; client components poll active migration count every 10s.
+- **Stats bar** (4 stat cards): Total Projects | Running Migrations | Completed | Failed
+- **Recent Projects** (6 cards): Name, description, migration count, date, "Open" button
+- **Recent Migrations** (table, last 10): Source → Dest | Rows | Status | Date | "View" link
+- **Quick Actions**: "New Project" | "Start Migration" | "Open Editor" buttons
+
+Data refetches every 30 seconds.
 
 ---
 
 ### 6.4 Projects List (`/projects`)
 
-**Purpose:** Manage all user projects
-
-**UI Elements:**
-- Search bar (client-side filter)
-- "New Project" button
-- Project cards in a grid:
-  - Project name
-  - Description
-  - Number of past migrations
-  - Created date
-  - Actions: Open | Delete
-
-**Data:** TanStack Query, refetch on window focus
+**UI:** Page header with "New Project" button (opens modal). Client-side search. Project card grid with name, description, migration count, date, "Open" and "Delete" (confirmation dialog) actions. Empty state illustration when list is empty.
 
 ---
 
 ### 6.5 Project Detail (`/projects/:id`)
 
-**Purpose:** View a single project and its migration history
-
-**Sections:**
-- Project metadata (name, description, edit inline)
-- Migration history table for this project:
-  - Job ID | Source → Destination | Rows | Status | Date
-- "Start New Migration" button (navigates to `/migrations/new?project=:id`)
+**UI:** Editable project name and description (click to edit, auto-save on blur). "Start New Migration" button (navigates to `/migrations/new?projectId=:id`). Migration history table for this project. "Delete Project" button with name-confirmation modal.
 
 ---
 
-### 6.6 Migration Studio (`/migrations/new`) ⭐ Core Feature
+### 6.6 Migration Studio (`/migrations/new`) — Core Feature
 
-**Purpose:** Configure and launch a database migration
+Multi-step wizard. Steps shown in a progress indicator at the top.
 
-**This is the most complex page in the app.** It uses a multi-step wizard UI.
+**Step 1 — Source Database:**
+- `DBTypeSelector`: PostgreSQL | MySQL | MongoDB | SQLite
+- `ConnectionForm`: dynamic fields by DB type
+- "Test Connection" button → `ConnectionStatus` shows latency + table count preview
 
-#### Step 1: Select Source Database
+**Step 2 — Destination Database:**
+- Identical to Step 1 but for the destination
+- Both must pass a connection test before Step 3 is reachable
 
-- DB Type selector: PostgreSQL | MySQL | MongoDB | SQLite (radio buttons with icons)
-- Dynamic connection form based on selected type:
-  - For SQL: Host, Port, Database, Username, Password, SSL toggle
-  - For MongoDB: Connection string OR host/port/db/user/pass
-- "Test Connection" button → calls `/api/connections/test` → shows latency + green check or error
-- On success: show detected tables/collections as a preview list
+**Step 3 — Configure Migration:**
+- Source table dropdown (from Step 1 schema)
+- Destination table/collection name input (editable, pre-filled)
+- `SchemaMappingTable`: per-column mapping, type overrides, include/exclude toggles
+- Options panel: batch size slider, truncate toggle (with orange warning), create-if-not-exists toggle
 
-#### Step 2: Select Destination Database
-
-- Same form as Step 1 but for destination
-- "Test Connection" same behavior
-- Show detected tables/collections
-
-#### Step 3: Configure Migration
-
-- Source table selector (dropdown populated from Step 1 result)
-- Destination table/collection input (pre-filled with source name, editable)
-- Schema mapping table (see component spec below)
-- Options:
-  - Batch size slider (100 – 2000, default 500)
-  - Truncate destination toggle (with warning)
-  - Create if not exists toggle
-
-#### Step 4: Review & Launch
-
-- Summary card: source → destination, table, row estimate, options
-- "Start Migration" button
-- On launch: redirect to `/migrations/:id` for live monitoring
-
-**Important:** At no point are credentials stored. They live in the wizard's Zustand store scoped to the session only. When the page unloads, they're gone.
+**Step 4 — Review & Launch:**
+- Summary card: source info, dest info, options, row estimate
+- "Start Migration" → `POST /api/v1/migrations` → navigate to `/migrations/:id`
 
 ---
 
-### 6.7 Migration Monitor (`/migrations/:id`) ⭐ Core Feature
+### 6.7 Migration Monitor (`/migrations/:id`) — Core Feature
 
-**Purpose:** Real-time monitoring of a running migration
+**UI:**
+- Status header: Job ID (monospace) | Status badge | Source → Destination labels
+- Animated progress bar: `3,500 / 10,000 rows`
+- Stats row: Rows Migrated | Rows/sec | Elapsed | ETA
+- `TerminalLog`: dark terminal, SSE-powered, auto-scrolling
+- Cancel button (only when running)
+- Retry button (only when failed)
 
-**UI Elements:**
-
-- **Status header:** Job ID | Status badge (Pending / Running / Completed / Failed / Cancelled)
-- **Progress bar:** Animated, shows `migrated / total` rows
-- **Stats row:** Rows migrated | Rows/sec | Elapsed time | ETA
-- **Live log stream:** SSE-powered terminal-style log viewer
-  - Auto-scroll to bottom
-  - Each line timestamped
-  - Color-coded: info (white), warning (yellow), error (red), success (green)
-- **Cancel button:** Only visible when status = "running"
-- **Retry button:** Only visible when status = "failed"
-
-**SSE Implementation:**
+**SSE hook (`src/hooks/useMigrationSSE.ts`):**
 ```typescript
-// hooks/useMigrationSSE.ts
 export function useMigrationSSE(jobId: string) {
   const [progress, setProgress] = useState<MigrationProgress | null>(null);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    const es = new EventSource(`/api/migrations/${jobId}/logs`);
+    const url = `${import.meta.env.VITE_API_BASE_URL}/migrations/${jobId}/logs`;
+    const es = new EventSource(url, { withCredentials: true });
 
-    es.addEventListener('progress', (e) => {
-      setProgress(JSON.parse(e.data));
-    });
-
-    es.addEventListener('log', (e) => {
-      setLogs(prev => [...prev, e.data]);
-    });
-
-    es.addEventListener('complete', () => {
-      es.close();
-    });
+    es.addEventListener('progress', (e) => setProgress(JSON.parse(e.data)));
+    es.addEventListener('log', (e) => setLogs((p) => [...p, JSON.parse(e.data)]));
+    es.addEventListener('complete', () => { setIsComplete(true); es.close(); });
+    es.addEventListener('error', () => { setIsComplete(true); es.close(); });
 
     return () => es.close();
   }, [jobId]);
 
-  return { progress, logs };
+  return { progress, logs, isComplete };
 }
 ```
 
 ---
 
-### 6.8 Database Editor (`/editor`) ⭐ Core Feature
+### 6.8 Database Editor (`/editor`) — Core Feature
 
-**Purpose:** Browse and edit live database data without storing credentials
+**Layout:** Horizontal split — left panel 280px, right panel fills remaining space.
 
-**Layout:** Split panel
+**Left Panel:**
+- `DBTypeSelector`
+- `ConnectionForm`
+- "Connect" button → fetches schema → populates tree
+- `SchemaTree`: collapsible table/collection list → click to load data
 
-- **Left panel (Connection + Schema Tree):**
-  - Connection form (same as migration wizard Step 1)
-  - "Connect" button → fetches schema
-  - Collapsible tree: Tables → Columns
-  - Click table → loads data in right panel
+**Right Panel:**
+- Toolbar: table name | row count | "Add Row" | "Refresh"
+- `FilterBar`: column + value filter
+- `DataGrid`: paginated (50 rows), sortable columns, click-to-edit cells, per-row delete
+- Pagination controls
 
-- **Right panel (Data Grid):**
-  - Paginated data table (50 rows per page)
-  - Column headers with type badges
-  - Inline edit cells (click to edit, Enter to save, Escape to cancel)
-  - "Add Row" button → opens a modal form
-  - "Delete Row" button per row (with confirmation)
-  - Filter bar: filter by column value
-  - Sort by column header click
-  - Pagination controls
-
-**Credentials behavior:** Credentials entered in the left panel live in local component state. Each action (load table, insert, update, delete) sends them in the request body. Refreshing the page clears them.
+Credentials live in `ConnectionForm` RHF state. Every grid action sends them fresh in the request body.
 
 ---
 
 ### 6.9 Migrations History (`/migrations`)
 
-**Purpose:** View all past migration jobs across all projects
-
-**UI Elements:**
-- Filter bar: by project | by status | by date range
-- Table: Job ID | Project | Source DB | Dest DB | Rows | Status | Duration | Date
-- Clickable rows → `/migrations/:id`
-- Export as CSV button
+Table of all migrations across all projects. Filterable by project, status, date range. Sortable columns. "Export CSV" button (client-side generation). Clickable rows navigate to monitor page.
 
 ---
 
@@ -515,64 +521,56 @@ export function useMigrationSSE(jobId: string) {
 
 ### 7.1 ConnectionForm
 
-**Reused in:** Migration Studio (Step 1 & 2), Database Editor
-
 ```typescript
 interface ConnectionFormProps {
-  onSuccess: (connection: ConnectionConfig, schema: Schema) => void;
-  onError: (error: string) => void;
+  onSuccess: (config: ConnectionConfig, schema: Schema) => void;
+  onError: (message: string) => void;
+  defaultValues?: Partial<ConnectionConfig>;
   disabled?: boolean;
 }
 ```
 
-**Internal behavior:**
-- DBType selector changes which fields are shown
-- "Test Connection" button submits form data to backend
-- State: form values stay in RHF state; never persisted
-- Shows loading spinner during test, then success/error indicator
+Uses RHF + Zod. `DBTypeSelector` drives conditional field rendering. "Test Connection" calls `POST /api/v1/connections/test` using current `getValues()`. On success, calls `onSuccess` with config and schema — parent decides what to do.
 
 ---
 
 ### 7.2 SchemaMappingTable
 
-**Used in:** Migration Studio Step 3
-
-**Purpose:** Allow users to map source columns to destination columns and override types
-
 ```typescript
 interface SchemaMappingTableProps {
-  sourceSchema: TableSchema;
+  sourceColumns: ColumnSchema[];
   destDBType: DBType;
-  onChange: (mapping: SchemaMapping) => void;
+  onChange: (mappings: ColumnMapping[]) => void;
+}
+
+interface ColumnMapping {
+  sourceColumn: string;
+  destColumn: string;
+  destType: string;
+  include: boolean;
 }
 ```
 
-**UI:**
-- Table with rows: `[Source Column] [Source Type] → [Dest Column (editable)] [Dest Type (select)] [Include toggle]`
-- Auto-populated with detected columns
-- Editable destination column names
-- Type override dropdown per column
+Table with one row per source column. Each row: source name (read-only) | source type badge | arrow | dest column name input (editable) | dest type select | include toggle. Auto-populated with smart type mapping suggestions.
 
 ---
 
 ### 7.3 MigrationProgressCard
 
-**Used in:** Migration Monitor, Dashboard
-
 ```typescript
 interface MigrationProgressCardProps {
-  job: MigrationJob;
-  live?: boolean; // If true, subscribes to SSE
+  jobId: string;
+  sourceName: string;
+  destName: string;
+  live?: boolean;  // If true, polls every 3s (for dashboard)
 }
 ```
 
-**Shows:** Progress bar + stats + status badge
+Shows progress bar, migrated/total rows, status badge, elapsed time.
 
 ---
 
 ### 7.4 DataGrid
-
-**Used in:** Database Editor
 
 ```typescript
 interface DataGridProps {
@@ -581,96 +579,108 @@ interface DataGridProps {
   totalCount: number;
   page: number;
   pageSize: number;
+  isLoading: boolean;
   onPageChange: (page: number) => void;
-  onEdit: (rowId: string, field: string, value: unknown) => Promise<void>;
-  onDelete: (rowId: string) => Promise<void>;
-  onInsert: (row: Record<string, unknown>) => Promise<void>;
-  isLoading?: boolean;
+  onCellEdit: (rowIndex: number, column: string, value: unknown) => Promise<void>;
+  onDeleteRow: (row: Record<string, unknown>) => Promise<void>;
+  onInsertRow: (row: Record<string, unknown>) => Promise<void>;
 }
 ```
 
-Built on TanStack Table v8. Inline editing uses a custom cell renderer that switches between display mode and input mode.
+Built on TanStack Table. Cells switch between `<span>` and `<input>` on click. Enter confirms, Escape cancels. `React.memo` on row components prevents full re-render on single-cell edits.
 
 ---
 
 ### 7.5 TerminalLog
 
-**Used in:** Migration Monitor
-
 ```typescript
 interface TerminalLogProps {
   logs: LogEntry[];
   autoScroll?: boolean;
-}
-
-interface LogEntry {
-  timestamp: string;
-  level: 'info' | 'warn' | 'error' | 'success';
-  message: string;
+  maxVisible?: number;  // Default 500 — only render last N lines for DOM safety
 }
 ```
 
-Dark background (`bg-neutral-950`), monospace font, color-coded by level, auto-scroll to bottom on new entry.
+Dark background `bg-neutral-950`, `font-mono`. Colors: info = `text-neutral-300`, warn = `text-amber-400`, error = `text-red-400`, success = `text-green-400`. Auto-scroll via `useEffect` + `scrollIntoView` on the last-entry ref.
+
+---
+
+### 7.6 ProtectedRoute
+
+```typescript
+export function ProtectedRoute() {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  if (isLoading) return <FullPageSpinner />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+```
+
+On mount, fires `GET /api/v1/auth/me`. 401 clears auth state and redirects.
 
 ---
 
 ## 8. State Management Design
 
-### 8.1 What goes in Zustand vs TanStack Query
+### 8.1 What Goes Where
 
-| Data | Storage |
-|------|---------|
-| Auth user info | Zustand (`useAuthStore`) |
-| Active connection configs (during wizard) | Zustand (`useMigrationWizardStore`) — **never persisted** |
-| Editor connection config | Local component state only |
-| Projects list | TanStack Query |
-| Migration jobs | TanStack Query |
-| Schema data (from inspect) | TanStack Query (cached, short TTL) |
-| Migration progress | Custom hook (SSE) |
-| UI state (sidebar open, theme) | Zustand (`useUIStore`) |
+| Data | Storage | Reason |
+|------|---------|--------|
+| Access token | Axios module variable (memory) | XSS-safe; clears on refresh |
+| User metadata | Zustand `authStore` with `persist` | Safe (no secrets) |
+| Wizard in-progress state | Zustand `migrationWizardStore` — **no persist** | Must clear on refresh |
+| DB credentials | React Hook Form local state | Never leaves component |
+| Projects list | TanStack Query cache | Server state |
+| Migration jobs | TanStack Query cache | Server state |
+| Schema data | TanStack Query (5 min TTL) | Server state |
+| Live progress | `useMigrationSSE` local state | Ephemeral stream |
+| Sidebar / theme | Zustand `uiStore` with `persist` | Safe to persist |
 
-### 8.2 Zustand Store Definitions
-
-```typescript
-// store/migrationWizardStore.ts
-interface MigrationWizardState {
-  step: 1 | 2 | 3 | 4;
-  sourceConfig: ConnectionConfig | null;
-  sourceSchema: Schema | null;
-  destConfig: ConnectionConfig | null;
-  destSchema: Schema | null;
-  migrationOptions: MigrationOptions;
-
-  setStep: (step: number) => void;
-  setSourceConfig: (cfg: ConnectionConfig) => void;
-  setSourceSchema: (schema: Schema) => void;
-  setDestConfig: (cfg: ConnectionConfig) => void;
-  setDestSchema: (schema: Schema) => void;
-  setMigrationOptions: (opts: Partial<MigrationOptions>) => void;
-  reset: () => void;  // Call when wizard closes or migration starts
-}
-
-// CRITICAL: This store uses NO persist middleware
-export const useMigrationWizardStore = create<MigrationWizardState>()(
-  (set) => ({ /* ... */ })
-  // NO persist() wrapper here — credentials must not survive page refresh
-);
-```
+### 8.2 Store Definitions
 
 ```typescript
-// store/authStore.ts
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  setUser: (user: User | null) => void;
-  logout: () => void;
-}
-
-// Auth store can persist user metadata (NOT token — that's in httpOnly cookie)
+// store/authStore.ts — persisted, no secrets
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({ /* ... */ }),
-    { name: 'seasyn-auth', partialize: (state) => ({ user: state.user }) }
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      setUser: (user) => set({ user, isAuthenticated: !!user, isLoading: false }),
+      logout: () => set({ user: null, isAuthenticated: false }),
+    }),
+    {
+      name: 'seasyn-auth',
+      partialize: (s) => ({ user: s.user, isAuthenticated: s.isAuthenticated }),
+    }
+  )
+);
+
+// store/migrationWizardStore.ts — NO persist, intentionally
+export const useMigrationWizardStore = create<MigrationWizardState>()((set) => ({
+  currentStep: 1,
+  sourceConfig: null,   // ConnectionConfig — set from ConnectionForm onSuccess
+  sourceSchema: null,
+  destConfig: null,
+  destSchema: null,
+  migrationOptions: { batchSize: 500, truncateDestination: false, createIfNotExists: true, schemaMapping: {} },
+  goToStep: (step) => set({ currentStep: step as 1|2|3|4 }),
+  setSource: (config, schema) => set({ sourceConfig: config, sourceSchema: schema }),
+  setDest: (config, schema) => set({ destConfig: config, destSchema: schema }),
+  setOptions: (opts) => set((s) => ({ migrationOptions: { ...s.migrationOptions, ...opts } })),
+  reset: () => set({ currentStep: 1, sourceConfig: null, sourceSchema: null, destConfig: null, destSchema: null }),
+}));
+
+// store/uiStore.ts — safe to persist
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      sidebarOpen: true,
+      theme: 'dark' as const,
+      toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+      setTheme: (theme) => set({ theme }),
+    }),
+    { name: 'seasyn-ui' }
   )
 );
 ```
@@ -679,59 +689,56 @@ export const useAuthStore = create<AuthState>()(
 
 ## 9. API Integration Layer
 
-### 9.1 Axios Client (`packages/api/src/client.ts`)
+### 9.1 Axios Client (`src/api/client.ts`)
 
 ```typescript
 import axios from 'axios';
 
-const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? '/api',
-  timeout: 30000,
-  withCredentials: true,  // Send httpOnly cookie
+let accessToken: string | null = null;
+export const setAccessToken = (token: string | null) => { accessToken = token; };
+
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 30_000,
+  withCredentials: true,
 });
 
-// Request interceptor — add correlation ID for debugging
-client.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config) => {
+  if (accessToken) config.headers['Authorization'] = `Bearer ${accessToken}`;
   config.headers['X-Request-ID'] = crypto.randomUUID();
   return config;
 });
 
-// Response interceptor — normalize errors
-client.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message = error.response?.data?.error?.message ?? 'An unexpected error occurred';
-    const code = error.response?.data?.error?.code ?? 'UNKNOWN_ERROR';
-    throw new AppError(message, code, error.response?.status ?? 500);
+apiClient.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const original = error.config;
+    if (error.response?.status === 401 && !original._retry) {
+      original._retry = true;
+      try {
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        setAccessToken(data.token);
+        original.headers['Authorization'] = `Bearer ${data.token}`;
+        return apiClient(original);
+      } catch {
+        setAccessToken(null);
+        window.location.href = '/login';
+      }
+    }
+    const msg = error.response?.data?.error?.message ?? 'Unexpected error';
+    const code = error.response?.data?.error?.code ?? 'UNKNOWN';
+    return Promise.reject({ message: msg, code, status: error.response?.status ?? 500 });
   }
 );
-
-export { client };
 ```
 
-### 9.2 TanStack Query Setup
+### 9.2 Query Key Factory (`src/lib/queryKeys.ts`)
 
 ```typescript
-// app/providers.tsx
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30 * 1000,       // 30 seconds
-      gcTime: 5 * 60 * 1000,      // 5 minutes
-      retry: 2,
-      refetchOnWindowFocus: true,
-    },
-    mutations: {
-      retry: 0,  // Don't retry mutations (idempotency not guaranteed)
-    },
-  },
-});
-```
-
-### 9.3 Query Keys Convention
-
-```typescript
-// lib/queryKeys.ts
 export const queryKeys = {
   projects: {
     all: ['projects'] as const,
@@ -754,64 +761,61 @@ export const queryKeys = {
 
 ### 10.1 Visual Language
 
-SEASYN targets a **dark-mode-first, technical, minimal** aesthetic. Think Vercel dashboard meets database tooling.
+Dark-mode-first, technical, minimal. Clean like Vercel, functional like a database tool.
 
-- **Primary brand color:** Electric blue `#3B82F6` (Tailwind `blue-500`)
-- **Background:** `#0A0A0A` (near black)
-- **Surface:** `#111111` (cards, sidebars)
+- **Primary:** `#3B82F6` (blue-500)
+- **Background:** `#0A0A0A`
+- **Surface:** `#111111`
+- **Surface elevated:** `#1A1A1A`
 - **Border:** `#222222`
 - **Text primary:** `#F5F5F5`
 - **Text secondary:** `#888888`
-- **Success:** `#22C55E` (green-500)
-- **Error:** `#EF4444` (red-500)
-- **Warning:** `#F59E0B` (amber-500)
-- **Font:** Inter (UI), JetBrains Mono (code, terminal, data)
+- **Success:** `#22C55E`
+- **Error:** `#EF4444`
+- **Warning:** `#F59E0B`
+- **UI Font:** Inter (via `@fontsource/inter`)
+- **Code/Data Font:** JetBrains Mono (via `@fontsource/jetbrains-mono`)
 
-### 10.2 Status Badge Colors
+### 10.2 Status Badges
 
-| Status | Color | Tailwind |
-|--------|-------|----------|
-| Pending | Gray | `bg-neutral-500` |
-| Running | Blue (animated pulse) | `bg-blue-500 animate-pulse` |
-| Completed | Green | `bg-green-500` |
-| Failed | Red | `bg-red-500` |
-| Cancelled | Orange | `bg-orange-500` |
+| Status | Classes |
+|--------|---------|
+| Pending | `bg-neutral-800 text-neutral-400` |
+| Running | `bg-blue-900 text-blue-300 animate-pulse` |
+| Completed | `bg-green-900 text-green-300` |
+| Failed | `bg-red-900 text-red-300` |
+| Cancelled | `bg-orange-900 text-orange-300` |
 
 ### 10.3 Layout
 
-- **Sidebar width:** 240px (collapsible to 60px icon-only mode)
-- **Header height:** 56px
-- **Content max-width:** 1280px (centered)
-- **Card border-radius:** `rounded-xl` (12px)
-- **Responsive breakpoints:** sm (640), md (768), lg (1024), xl (1280)
+- Sidebar: 240px (collapsed: 60px icon-only)
+- Header: 56px
+- Content padding: 24px
+- Card radius: `rounded-xl`
+- Max content width: 1280px centered
 
-### 10.4 Animation
+### 10.4 shadcn/ui Init
 
-- Page transitions: `fade` (150ms ease-out)
-- Sidebar collapse: `slide` (200ms ease-in-out)
-- Progress bar: smooth continuous animation via CSS
-- Loading states: skeleton placeholders (not spinners) for content areas
+```bash
+npx shadcn@latest init
+# Style: Default, Base color: Slate, CSS variables: Yes
+```
+
+Override CSS variables in `src/index.css` to match SEASYN palette.
 
 ---
 
 ## 11. Security on the Frontend
 
-### 11.1 Rules
-
 | Rule | Implementation |
 |------|----------------|
-| No credentials in localStorage | `useMigrationWizardStore` has no `persist` middleware |
-| No credentials in URL | Connection forms never PUT data in query strings |
-| No credentials in Zustand devtools | Use `devtools` middleware only in dev mode; credential stores excluded |
-| XSS protection | All user content rendered via React (auto-escaping); no `dangerouslySetInnerHTML` |
-| CSP headers | Strict Content-Security-Policy via `next.config.ts` headers |
-| CSRF protection | httpOnly cookie + SameSite=Strict; all state-mutating requests include custom header |
-
-### 11.2 Input Sanitization
-
-- All user inputs validated client-side with Zod before submission
-- Server-side validation is the source of truth; client validation is UX only
-- Connection string inputs are not previewed or echoed back in logs
+| Token in memory only | Module-scoped variable in `client.ts`, never in Web Storage |
+| Refresh token inaccessible | httpOnly cookie; JS cannot read it |
+| No credentials in stores | `migrationWizardStore` has no `persist`; credentials stay in RHF |
+| No credentials in URLs | Navigation never includes password or connection string in query params |
+| XSS prevention | React auto-escaping; no `dangerouslySetInnerHTML` |
+| Sensitive data stripped from logs | `console.log` stripped from production build via Vite |
+| CORS handled by backend | Frontend makes no cross-origin requests in production (same origin or configured CORS) |
 
 ---
 
@@ -819,20 +823,14 @@ SEASYN targets a **dark-mode-first, technical, minimal** aesthetic. Think Vercel
 
 | Metric | Target |
 |--------|--------|
-| Largest Contentful Paint (LCP) | < 2.5s |
-| Time to Interactive (TTI) | < 3.5s |
-| First Contentful Paint (FCP) | < 1.2s |
-| Bundle size (initial JS) | < 200KB gzipped |
-| DataGrid rendering (1000 rows) | < 100ms |
-| SSE reconnection on drop | < 3 seconds |
+| Largest Contentful Paint | < 2.5s |
+| Time to Interactive | < 3.5s |
+| Initial JS bundle | < 200KB gzipped |
+| DataGrid (1000 rows) | < 100ms render |
+| SSE reconnect on drop | < 3 seconds |
+| Vite dev server cold start | < 500ms |
 
-### Strategies
-
-- Route-based code splitting (automatic with App Router)
-- Lazy load heavy components: `DataGrid`, `TerminalLog`, schema tree
-- Virtualize long lists (react-virtual for log viewer with 10k+ entries)
-- Image optimization via `next/image`
-- Font subsetting via `next/font`
+**Strategies:** React Router lazy loading for all pages, `React.memo` on DataGrid rows, `TerminalLog` limited to last 500 visible lines, TanStack Table for virtual DOM efficiency, fontsource packages for no-CDN font loading.
 
 ---
 
@@ -840,23 +838,24 @@ SEASYN targets a **dark-mode-first, technical, minimal** aesthetic. Think Vercel
 
 ### Unit Tests (Vitest + Testing Library)
 
-- Every custom hook has unit tests (mock API, mock stores)
-- Form validation logic tested with Zod schemas
-- `ConnectionForm`: test all DB type variants, test error states
-- `SchemaMappingTable`: test mapping changes, type overrides
-- `DataGrid`: test edit, delete, pagination interactions
+- All custom hooks tested with `msw` (Mock Service Worker)
+- `ConnectionForm`: DB type variants, validation errors, test-connection states
+- `SchemaMappingTable`: mapping changes, type override, include toggle
+- `DataGrid`: pagination, inline edit, delete confirmation
+- `TerminalLog`: auto-scroll behavior, level color classes
+- All Zustand stores: isolated action and state tests
 
 ### Integration Tests
 
-- Migration wizard: full 4-step flow with mock API
-- Auth flow: login → redirect → session → logout
-- Editor: connect → load table → edit row → delete row
+- Full 4-step wizard with MSW intercepting API
+- Auth: login → protected access → logout → redirect
+- Editor: connect → load table → edit → delete
 
-### E2E Tests (Playwright)
+### E2E (Playwright)
 
-- Happy path: register → create project → run Postgres → Postgres migration → view result
-- Error paths: invalid credentials, connection timeout, migration failure
-- Editor: connect to test DB, insert and delete a row
+- Full happy path: register → project → migration → monitor → complete
+- Editor: connect → insert → edit → delete
+- Error path: invalid credentials → error shown, form intact
 
 ---
 
@@ -865,13 +864,13 @@ SEASYN targets a **dark-mode-first, technical, minimal** aesthetic. Think Vercel
 | Requirement | Target |
 |-------------|--------|
 | Browser support | Chrome 110+, Firefox 110+, Safari 16+, Edge 110+ |
-| Accessibility | WCAG 2.1 AA minimum (keyboard navigation, ARIA labels) |
-| Dark/light mode | Dark mode default; light mode toggle stored in localStorage |
-| Responsive | Fully functional on 1024px+; graceful degradation on 768px |
-| Internationalization | English only (MVP); i18n-ready via next-intl structure |
+| Accessibility | WCAG 2.1 AA (keyboard nav, ARIA via Radix UI primitives) |
+| Default theme | Dark mode; light mode toggle persisted in `uiStore` |
+| Responsive | Fully functional at 1024px+; sidebar collapses at 768px |
 | Node.js version | 18 LTS or 20 LTS |
-| Build time | < 60 seconds for production build |
+| Build output | Pure static files — deployable to Cloudflare Pages, Vercel, S3, or any CDN |
+| i18n readiness | English only for MVP; no hardcoded strings in non-component files |
 
 ---
 
-*End of SEASYN Frontend PRD v1.0*
+*End of SEASYN Frontend PRD v1.1*
