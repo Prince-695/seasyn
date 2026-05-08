@@ -3,6 +3,7 @@
 **Version:** 1.0  
 **Language:** Go  
 **Architecture:** Clean Architecture + Dependency Injection  
+**Internal DB ORM:** GORM for SEASYN-owned PostgreSQL metadata  
 **Status:** Draft
 
 ---
@@ -45,7 +46,7 @@ The backend is built around **Clean Architecture** principles with **explicit De
 - Provide a live database editor (CRUD) via API without persisting user data
 - Be horizontally scalable and stateless (no session state on server)
 - Enforce security: credentials never logged, never stored in plaintext
-- Support project-level metadata stored in SEASYN's own internal Postgres instance (user accounts, project names, migration history — NOT user DB data)
+- Support project-level metadata stored in SEASYN's own internal Postgres instance using GORM models/repositories (user accounts, project names, migration history — NOT user DB data)
 
 ### Non-Goals
 
@@ -71,7 +72,7 @@ The backend is built around **Clean Architecture** principles with **explicit De
 │  └─────────────┘   └──────────────┘   │ SQLite           │  │
 │                                        └──────────────────┘  │
 │  ┌────────────────────────────────────────────────────────┐  │
-│  │              SEASYN Internal DB (Postgres)             │  │
+│  │        SEASYN Internal DB (Postgres + GORM)            │  │
 │  │  Users | Projects | MigrationJobs | AuditLogs          │  │
 │  └────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────┘
@@ -153,7 +154,7 @@ func main() {
     cfg := config.Load()
 
     // Infrastructure layer
-    internalDB := postgres.NewInternalDB(cfg.DatabaseURL)
+    internalDB := repository.NewInternalDB(cfg.DatabaseURL) // returns *gorm.DB
     logger := logger.NewZapLogger(cfg.LogLevel)
     encryptor := crypto.NewAESEncryptor(cfg.EncryptionKey)
 
@@ -240,7 +241,9 @@ seasyn-backend/
 │   │   └── auth/
 │   │       └── service.go            # JWT auth, user management
 │   │
-│   ├── repository/                   # SEASYN's own DB (internal postgres)
+│   ├── repository/                   # SEASYN's own DB (internal Postgres via GORM)
+│   │   ├── db.go                     # Opens *gorm.DB for internal metadata DB
+│   │   ├── models.go                 # GORM table models for users/projects/jobs
 │   │   ├── project_repo.go
 │   │   ├── migration_repo.go
 │   │   └── user_repo.go
@@ -643,6 +646,27 @@ Response:
   "page": 1
 }
 ```
+
+---
+
+### 7.7 Internal Metadata Persistence With GORM
+
+SEASYN's own PostgreSQL database is accessed through **GORM**. This applies only to internal metadata tables such as users, projects, migration jobs, and audit logs.
+
+GORM is **not** the abstraction for user-provided databases. User database adapters still use database-specific drivers because schema inspection, streaming reads, bulk writes, and cross-database migration need precise control over SQL/MongoDB behavior.
+
+Internal repository rule:
+
+```go
+// internal/repository/db.go
+func NewInternalDB(dsn string) (*gorm.DB, error) {
+    return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+}
+```
+
+The repository layer converts between:
+- GORM models: database-shaped structs stored in SEASYN's internal Postgres
+- Domain entities: clean business structs used by services and handlers
 
 ---
 
