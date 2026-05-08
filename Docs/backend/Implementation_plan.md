@@ -2,6 +2,7 @@
 
 **Language:** Go 1.22+  
 **Architecture:** Clean Architecture + Dependency Injection  
+**Internal DB ORM:** GORM for SEASYN-owned PostgreSQL metadata  
 **Phases:** 4 (MVP → Production-Ready)
 
 ---
@@ -78,7 +79,9 @@ mkdir -p migrations
 
 ```bash
 go get github.com/gofiber/fiber/v2          # HTTP framework
-go get github.com/jmoiron/sqlx              # SQL with struct scanning
+go get gorm.io/gorm                         # ORM for SEASYN's internal metadata DB
+go get gorm.io/driver/postgres              # GORM PostgreSQL driver
+go get github.com/jmoiron/sqlx              # Low-level SQL helper for user DB adapters
 go get github.com/jackc/pgx/v5              # PostgreSQL driver
 go get go.mongodb.org/mongo-driver/mongo    # MongoDB driver
 go get github.com/golang-jwt/jwt/v5         # JWT
@@ -530,9 +533,9 @@ type Logger interface {
 
 ---
 
-### Step 1.9 — Write the internal database connection (SEASYN's own Postgres)
+### Step 1.9 — Write the internal database connection with GORM (SEASYN's own Postgres)
 
-**What:** Create `internal/repository/db.go` that connects to SEASYN's internal database (not user databases).
+**What:** Create `internal/repository/db.go` that connects to SEASYN's internal database (not user databases) using GORM.
 
 ```go
 // internal/repository/db.go
@@ -540,29 +543,37 @@ package repository
 
 import (
     "context"
-    "github.com/jmoiron/sqlx"
-    _ "github.com/jackc/pgx/v5/stdlib"
+    "fmt"
+    "time"
+
+    "gorm.io/driver/postgres"
+    "gorm.io/gorm"
 )
 
-func NewInternalDB(dsn string) (*sqlx.DB, error) {
-    db, err := sqlx.Open("pgx", dsn)
+func NewInternalDB(dsn string) (*gorm.DB, error) {
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
         return nil, err
     }
-    db.SetMaxOpenConns(25)
-    db.SetMaxIdleConns(10)
+
+    sqlDB, err := db.DB()
+    if err != nil {
+        return nil, err
+    }
+    sqlDB.SetMaxOpenConns(25)
+    sqlDB.SetMaxIdleConns(10)
 
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
 
-    if err := db.PingContext(ctx); err != nil {
+    if err := sqlDB.PingContext(ctx); err != nil {
         return nil, fmt.Errorf("internal db ping failed: %w", err)
     }
     return db, nil
 }
 ```
 
-**Why:** SEASYN needs its own database for storing user accounts, project metadata, and migration history. This is completely separate from user databases.
+**Why:** SEASYN needs its own database for storing user accounts, project metadata, and migration history. GORM is used only for this internal metadata database because those tables are normal application records. User-provided databases still use adapters and lower-level drivers.
 
 **Verify:** Call `NewInternalDB` with a real Postgres URL in a test (use Docker). It should ping successfully.
 
@@ -570,7 +581,7 @@ func NewInternalDB(dsn string) (*sqlx.DB, error) {
 
 ### Step 1.10 — Write SEASYN's DB migrations
 
-**What:** Create the SQL migration files for SEASYN's own tables.
+**What:** Create the SQL migration files for SEASYN's own tables, and create matching GORM model structs in `internal/repository/models.go`.
 
 ```sql
 -- migrations/001_create_users.sql
@@ -615,6 +626,8 @@ CREATE TABLE IF NOT EXISTS migration_jobs (
 ```
 
 **Why:** Migrations are version-controlled schema changes. Each file represents one atomic change. Never edit existing migration files once applied — always add new ones.
+
+GORM models are the Go-side shape of those same internal tables. They are used by repositories to read/write metadata, while domain structs remain clean business objects.
 
 **Verify:** Run `golang-migrate` against your local Postgres and confirm tables are created.
 
@@ -679,47 +692,48 @@ func errorHandler(log ports.Logger) fiber.ErrorHandler {
 
 ### Step 2.1 — Implement UserRepository
 
-**What:** Create `internal/repository/user_repo.go` implementing `ports.UserRepository` using sqlx.
+**What:** Create `internal/repository/user_repo.go` implementing `ports.UserRepository` using GORM.
 
 ```go
 type userRepo struct {
-    db  *sqlx.DB
+    db  *gorm.DB
     log ports.Logger
 }
 
-func NewUserRepository(db *sqlx.DB, log ports.Logger) ports.UserRepository {
+func NewUserRepository(db *gorm.DB, log ports.Logger) ports.UserRepository {
     return &userRepo{db: db, log: log}
 }
 
 func (r *userRepo) Create(ctx context.Context, u domain.User) (*domain.User, error) {
-    query := `INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, created_at`
-    err := r.db.QueryRowContext(ctx, query, u.Email, u.PasswordHash).Scan(&u.ID, &u.CreatedAt)
-    if err != nil {
+    model := UserModel{Email: u.Email, PasswordHash: u.PasswordHash}
+    if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
         return nil, fmt.Errorf("create user: %w", err)
     }
+    u.ID = model.ID
+    u.CreatedAt = model.CreatedAt
     return &u, nil
 }
 
 func (r *userRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-    var u domain.User
-    err := r.db.GetContext(ctx, &u, `SELECT id, email, password_hash, created_at FROM users WHERE email=$1`, email)
-    if errors.Is(err, sql.ErrNoRows) {
+    var model UserModel
+    err := r.db.WithContext(ctx).Where("email = ?", email).First(&model).Error
+    if errors.Is(err, gorm.ErrRecordNotFound) {
         return nil, apperrors.NotFound("user")
     }
-    return &u, err
+    return model.ToDomain(), err
 }
 
 func (r *userRepo) GetByID(ctx context.Context, id string) (*domain.User, error) {
-    var u domain.User
-    err := r.db.GetContext(ctx, &u, `SELECT id, email, password_hash, created_at FROM users WHERE id=$1`, id)
-    if errors.Is(err, sql.ErrNoRows) {
+    var model UserModel
+    err := r.db.WithContext(ctx).First(&model, "id = ?", id).Error
+    if errors.Is(err, gorm.ErrRecordNotFound) {
         return nil, apperrors.NotFound("user")
     }
-    return &u, err
+    return model.ToDomain(), err
 }
 ```
 
-**Why:** The repository is the only code that knows about SQL. Services call the interface — they never write SQL.
+**Why:** The repository is the only code that knows about internal database persistence. Services call the interface — they never write GORM queries directly.
 
 **Verify:** Integration test: create a user → get by email → confirm fields match.
 
@@ -812,7 +826,7 @@ Each handler:
 
 **What:** Create `internal/repository/project_repo.go` implementing `ports.ProjectRepository`.
 
-Implement: `Create`, `GetByID`, `ListByUser`, `Update`, `Delete`. Each uses sqlx against the `projects` table.
+Implement: `Create`, `GetByID`, `ListByUser`, `Update`, `Delete`. Each uses GORM against the `projects` table.
 
 **Verify:** Integration tests against real Postgres (Docker).
 
