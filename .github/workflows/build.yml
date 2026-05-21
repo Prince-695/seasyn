@@ -43,6 +43,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend == 'true'
 
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,19 +59,17 @@ jobs:
 
       - name: Install dependencies
         run: go mod tidy
-        working-directory: backend
 
       - name: Format check
         run: |
-          if [ -n "$(gofmt -l backend)" ]; then
+          if [ -n "$(gofmt -l .)" ]; then
             echo "Go files are not formatted:"
-            gofmt -l backend
+            gofmt -l .
             exit 1
           fi
 
       - name: Vet
         run: go vet ./...
-        working-directory: backend
 
       - name: Install golangci-lint
         run: |
@@ -76,11 +78,27 @@ jobs:
 
       - name: Lint
         run: golangci-lint run ./...
-        working-directory: backend
 
       - name: Build
         run: go build ./...
-        working-directory: backend
+
+
+  # ======================
+  # 🚀 BACKEND DEPLOY (Render)
+  # ======================
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+
+    needs: backend
+
+    if: |
+      needs.backend.result == 'success' &&
+      needs.changes.outputs.backend == 'true'
+
+    steps:
+      - name: Trigger Render Deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 
 
   # ======================
@@ -131,7 +149,7 @@ jobs:
 
 
   # ======================
-  # 🚀 VERCEL DEPLOY
+  # 🚀 FRONTEND DEPLOY (Vercel)
   # ======================
   deploy-frontend:
     name: Deploy Frontend
