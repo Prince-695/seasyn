@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type healthResponse struct {
@@ -12,6 +13,12 @@ type healthResponse struct {
 }
 
 func main() {
+	// ✅ Get PORT from environment (IMPORTANT)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // fallback for local
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello Backend 🚀")
 	})
@@ -22,18 +29,19 @@ func main() {
 
 		err := json.NewEncoder(w).Encode(healthResponse{
 			Status: "ok",
-			Port:   "8080",
+			Port:   port, // ✅ dynamic port
 		})
 		if err != nil {
 			http.Error(w, "failed to write health response", http.StatusInternalServerError)
 		}
 	})
 
-	fmt.Println("Server running on port 8080")
-	fmt.Println("Home: http://localhost:8080/")
-	fmt.Println("Health: http://localhost:8080/health")
+	fmt.Println("Server running on port", port)
+	fmt.Printf("Home: http://localhost:%s/\n", port)
+	fmt.Printf("Health: http://localhost:%s/health\n", port)
 
-	err := http.ListenAndServe(":8080", nil)
+	// ✅ Use dynamic port
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		fmt.Println("Server error:", err)
 	}
