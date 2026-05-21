@@ -7,3 +7,5 @@ build/
 
 # Logs
 *.log
+.vercel
+.env*
