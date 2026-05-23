@@ -7,13 +7,19 @@ import (
 type User struct {
 	ID           string    `json:"id"`
 	Email        string    `json:"email"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
 	PasswordHash string    `json:"-"`
+	IsVerified   bool      `json:"is_verified"`
 	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-type RegisterRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
+type SignupRequest struct {
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required,min=6"`
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
 }
 
 type LoginRequest struct {
@@ -22,7 +28,22 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	Token     string `json:"token"`
-	ExpiresAt string `json:"expires_at"`
-	User      User   `json:"user"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresAt    string `json:"expires_at"`
+	User         User   `json:"user"`
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type ResetPasswordRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	OTP      string `json:"otp" validate:"required,len=6"`
+	Password string `json:"password" validate:"required,min=6"`
+}
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }

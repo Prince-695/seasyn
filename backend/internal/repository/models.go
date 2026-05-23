@@ -11,30 +11,46 @@ import (
 type UserModel struct {
 	ID           string         `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	Email        string         `gorm:"type:varchar(255);uniqueIndex;not null"`
+	FirstName    string         `gorm:"type:varchar(255)"`
+	LastName     string         `gorm:"type:varchar(255)"`
 	PasswordHash string         `gorm:"type:varchar(255);not null"`
+	IsVerified   bool           `gorm:"default:false"`
 	CreatedAt    time.Time      `gorm:"autoCreateTime"`
+	UpdatedAt    time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
 }
 
-// TableName overrides the default table name
 func (UserModel) TableName() string {
 	return "users"
 }
 
-// ToDomain converts GORM model to domain model
 func (m *UserModel) ToDomain() *domain.User {
 	return &domain.User{
-		ID:           m.ID,
-		Email:        m.Email,
-		PasswordHash: m.PasswordHash,
-		CreatedAt:    m.CreatedAt,
+		ID:         m.ID,
+		Email:      m.Email,
+		FirstName:  m.FirstName,
+		LastName:   m.LastName,
+		IsVerified: m.IsVerified,
+		CreatedAt:  m.CreatedAt,
+		UpdatedAt:  m.UpdatedAt,
 	}
 }
 
-// BeforeCreate will set a UUID rather than numeric ID.
 func (base *UserModel) BeforeCreate(tx *gorm.DB) (err error) {
 	if base.ID == "" {
 		base.ID = uuid.NewString()
 	}
 	return
+}
+
+type OTPModel struct {
+	ID        uint      `gorm:"primaryKey"`
+	Email     string    `gorm:"index;not null"`
+	OTP       string    `gorm:"not null"`
+	ExpiresAt time.Time `gorm:"not null"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+}
+
+func (OTPModel) TableName() string {
+	return "otps"
 }

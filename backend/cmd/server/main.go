@@ -2,11 +2,13 @@ package main
 
 import (
 	"log"
-	"os"
 
+	"github.com/Prince-695/seasyn/backend/internal/config"
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
+	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
+	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -33,64 +35,87 @@ import (
 // @host localhost:8080
 // @BasePath /api/v1
 
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and then your token.
+
 func main() {
-	// Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	cfg := config.Load()
 
-	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == "" {
-		log.Fatal("DATABASE_URL environment variable is required")
-	}
-
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Fatal("JWT_SECRET environment variable is required")
-	}
-
-	// Initialize Database
-	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Auto-migrate the schema
-	if err := db.AutoMigrate(&repository.UserModel{}); err != nil {
+	if err := db.AutoMigrate(&repository.UserModel{}, &repository.OTPModel{}); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
-	// Initialize Fiber app
 	app := fiber.New()
 
-	// Middleware
+	// Global Middleware
 	app.Use(logger.New())
 	app.Use(recover.New())
+	app.Use(middleware.ResponseTime())
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// API Routes Group
 	api := app.Group("/api/v1")
 
-	// Health check
+	// Health check (Public)
 	api.Get("/health", HealthCheck)
 
 	// Dependency Injection
 	userRepo := repository.NewUserRepository(db)
-	authService := auth.NewAuthService(userRepo, jwtSecret)
+	otpRepo := repository.NewOTPRepository(db)
+	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
+	
+	authService := auth.NewAuthService(
+		userRepo, 
+		otpRepo, 
+		mailService, 
+		cfg.JWTSecret, 
+		cfg.AccessTokenExpiry, 
+		cfg.RefreshTokenExpiry,
+		cfg.GoogleClientID,
+		cfg.GoogleClientSecret,
+		cfg.GoogleCallbackURL,
+		cfg.GitHubClientID,
+		cfg.GitHubClientSecret,
+		cfg.GitHubCallbackURL,
+	)
+	
 	authHandler := handlers.NewAuthHandler(authService)
 
 	// Register Routes
 	authHandler.RegisterRoutes(api)
 
-	// Start server
-	log.Fatal(app.Listen(":" + port))
+	// Protected Routes Group
+	protected := api.Group("/user")
+	protected.Use(middleware.Auth(authService))
+	protected.Get("/profile", GetProfile)
+
+	log.Fatal(app.Listen(":" + cfg.Port))
+}
+
+// GetProfile godoc
+// @Summary Get User Profile
+// @Description Get profile of the currently authenticated user
+// @Tags user
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} domain.User
+// @Router /user/profile [get]
+func GetProfile(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	return c.JSON(fiber.Map{"user_id": userID, "message": "This is a protected profile"})
 }
 
 // HealthCheck godoc
