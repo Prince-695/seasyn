@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/config"
+	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
 	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
@@ -33,7 +37,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host localhost:8080
-// @BasePath /api/v1
+// @BasePath /
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -52,8 +56,15 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&repository.UserModel{}, &repository.OTPModel{}); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
+	// Conditional Database Sync
+	if os.Getenv("DB_RUN") == "true" {
+		log.Println("🚀 DB_RUN=true: Syncing database schema...")
+		if err := db.AutoMigrate(&repository.UserModel{}, &repository.OTPModel{}); err != nil {
+			log.Fatalf("Failed to migrate database: %v", err)
+		}
+		log.Println("✅ Database sync complete.")
+	} else {
+		log.Println("ℹ️  Skipping database sync. Set DB_RUN=true to enable schema migration.")
 	}
 
 	app := fiber.New()
@@ -66,22 +77,29 @@ func main() {
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	api := app.Group("/api/v1")
+	// Public Top-Level Routes
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.JSON(domain.Response{
+			Success: true,
+			Message: "Welcome to SEASYN API v1",
+		})
+	})
+	app.Get("/health", HealthCheck)
 
-	// Health check (Public)
-	api.Get("/health", HealthCheck)
+	// API v1 Group
+	apiV1 := app.Group("/v1")
 
 	// Dependency Injection
 	userRepo := repository.NewUserRepository(db)
 	otpRepo := repository.NewOTPRepository(db)
 	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
-	
+
 	authService := auth.NewAuthService(
-		userRepo, 
-		otpRepo, 
-		mailService, 
-		cfg.JWTSecret, 
-		cfg.AccessTokenExpiry, 
+		userRepo,
+		otpRepo,
+		mailService,
+		cfg.JWTSecret,
+		cfg.AccessTokenExpiry,
 		cfg.RefreshTokenExpiry,
 		cfg.GoogleClientID,
 		cfg.GoogleClientSecret,
@@ -90,16 +108,17 @@ func main() {
 		cfg.GitHubClientSecret,
 		cfg.GitHubCallbackURL,
 	)
-	
+
 	authHandler := handlers.NewAuthHandler(authService)
+	authMiddleware := middleware.Auth(authService)
 
-	// Register Routes
-	authHandler.RegisterRoutes(api)
+	// Register Routes under /v1
+	authHandler.RegisterRoutes(apiV1, authMiddleware)
 
-	// Protected Routes Group
-	protected := api.Group("/user")
-	protected.Use(middleware.Auth(authService))
-	protected.Get("/profile", GetProfile)
+	// User Routes under /v1
+	userGroup := apiV1.Group("/user")
+	userGroup.Use(authMiddleware)
+	userGroup.Get("/profile", GetProfile)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
@@ -111,11 +130,22 @@ func main() {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} domain.User
-// @Router /user/profile [get]
+// @Success 200 {object} domain.Response{data=map[string]interface{}}
+// @Router /v1/user/profile [get]
 func GetProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(string)
-	return c.JSON(fiber.Map{"user_id": userID, "message": "This is a protected profile"})
+	startTime := c.Locals("startTime")
+	var responseTime string
+	if startTime != nil {
+		responseTime = fmt.Sprintf("%dms", time.Since(startTime.(time.Time)).Milliseconds())
+	}
+
+	return c.JSON(domain.Response{
+		Success:      true,
+		Message:      "Profile retrieved successfully",
+		Data:         fiber.Map{"user_id": userID},
+		ResponseTime: responseTime,
+	})
 }
 
 // HealthCheck godoc
@@ -124,10 +154,18 @@ func GetProfile(c *fiber.Ctx) error {
 // @Tags root
 // @Accept */*
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} domain.Response
 // @Router /health [get]
 func HealthCheck(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"status": "ok",
+	startTime := c.Locals("startTime")
+	var responseTime string
+	if startTime != nil {
+		responseTime = fmt.Sprintf("%dms", time.Since(startTime.(time.Time)).Milliseconds())
+	}
+
+	return c.Status(fiber.StatusOK).JSON(domain.Response{
+		Success:      true,
+		Message:      "Server is up and running",
+		ResponseTime: responseTime,
 	})
 }

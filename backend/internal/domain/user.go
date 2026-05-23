@@ -47,3 +47,12 @@ type ResetPasswordRequest struct {
 type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
+
+// Response is the standard API response wrapper
+type Response struct {
+	Success      bool        `json:"success"`
+	Message      string      `json:"message,omitempty"`
+	Data         interface{} `json:"data,omitempty"`
+	Error        string      `json:"error,omitempty"`
+	ResponseTime string      `json:"response_time"`
+}

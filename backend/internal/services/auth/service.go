@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -39,7 +40,7 @@ func NewAuthService(
 	githubClientID, githubClientSecret, githubCallbackURL string,
 ) ports.AuthService {
 	configs := make(map[string]*oauth2.Config)
-	
+
 	if googleClientID != "" {
 		configs["google"] = &oauth2.Config{
 			ClientID:     googleClientID,
@@ -186,7 +187,11 @@ func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*do
 	}
 
 	// Async send welcome email
-	go s.mailService.SendWelcome(createdUser.Email, createdUser.FirstName)
+	go func() {
+		if err := s.mailService.SendWelcome(createdUser.Email, createdUser.FirstName); err != nil {
+			log.Printf("failed to send welcome email to %s: %v", createdUser.Email, err)
+		}
+	}()
 
 	return createdUser, nil
 }
@@ -238,7 +243,11 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 		return fmt.Errorf("failed to store OTP: %w", err)
 	}
 
-	go s.mailService.SendOTP(req.Email, otp)
+	go func() {
+		if err := s.mailService.SendOTP(req.Email, otp); err != nil {
+			log.Printf("failed to send OTP email to %s: %v", req.Email, err)
+		}
+	}()
 
 	return nil
 }
