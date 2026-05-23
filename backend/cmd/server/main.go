@@ -14,6 +14,7 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
@@ -74,6 +75,14 @@ func main() {
 	app.Use(recover.New())
 	app.Use(middleware.ResponseTime())
 
+	// CORS Configuration
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     cfg.AllowedOrigins,
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
+		AllowCredentials: true,
+	}))
+
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
@@ -93,13 +102,13 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	otpRepo := repository.NewOTPRepository(db)
 	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
-
+	
 	authService := auth.NewAuthService(
-		userRepo,
-		otpRepo,
-		mailService,
-		cfg.JWTSecret,
-		cfg.AccessTokenExpiry,
+		userRepo, 
+		otpRepo, 
+		mailService, 
+		cfg.JWTSecret, 
+		cfg.AccessTokenExpiry, 
 		cfg.RefreshTokenExpiry,
 		cfg.GoogleClientID,
 		cfg.GoogleClientSecret,
@@ -108,7 +117,7 @@ func main() {
 		cfg.GitHubClientSecret,
 		cfg.GitHubCallbackURL,
 	)
-
+	
 	authHandler := handlers.NewAuthHandler(authService)
 	authMiddleware := middleware.Auth(authService)
 
