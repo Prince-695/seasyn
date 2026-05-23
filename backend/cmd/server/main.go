@@ -14,6 +14,7 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
@@ -73,6 +74,14 @@ func main() {
 	app.Use(logger.New())
 	app.Use(recover.New())
 	app.Use(middleware.ResponseTime())
+
+	// CORS Configuration
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     cfg.AllowedOrigins,
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
+		AllowCredentials: true,
+	}))
 
 	// Swagger
 	app.Get("/swagger/*", swagger.HandlerDefault)
