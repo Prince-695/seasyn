@@ -102,13 +102,13 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	otpRepo := repository.NewOTPRepository(db)
 	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
-	
+
 	authService := auth.NewAuthService(
-		userRepo, 
-		otpRepo, 
-		mailService, 
-		cfg.JWTSecret, 
-		cfg.AccessTokenExpiry, 
+		userRepo,
+		otpRepo,
+		mailService,
+		cfg.JWTSecret,
+		cfg.AccessTokenExpiry,
 		cfg.RefreshTokenExpiry,
 		cfg.GoogleClientID,
 		cfg.GoogleClientSecret,
@@ -117,7 +117,7 @@ func main() {
 		cfg.GitHubClientSecret,
 		cfg.GitHubCallbackURL,
 	)
-	
+
 	authHandler := handlers.NewAuthHandler(authService)
 	authMiddleware := middleware.Auth(authService)
 
