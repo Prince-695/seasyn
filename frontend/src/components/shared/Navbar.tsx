@@ -1,8 +1,10 @@
 import { NavLink } from "react-router-dom"
 import { Database, Sun, Moon, Menu } from "lucide-react"
 import { useTheme } from "../theme-provider"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../ui/button"
+import { cn } from "../../lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -13,31 +15,68 @@ const navItems = [
 export const Navbar = () => {
   const { theme, setTheme } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   // Placeholder for authentication state
-  const isAuthenticated = false 
+  const isAuthenticated = false
 
   return (
-    <header className="fixed top-6 left-1/2 z-50 w-[95%] max-w-5xl -translate-x-1/2 rounded-2xl border border-border bg-background/80 px-2 backdrop-blur-md transform-gpu transition-all duration-300">
-      <div className="flex h-16 items-center justify-between px-2 md:px-4">
-        
+    <motion.header
+      initial={false}
+      animate={{
+        width: isScrolled ? "100%" : "95%",
+        maxWidth: isScrolled ? "5000px" : "1024px",
+        y: isScrolled ? 0 : 24,
+        borderRadius: isScrolled ? "0px" : "16px",
+        borderBottomWidth: isScrolled ? "1px" : "1px",
+        borderTopWidth: isScrolled ? "0px" : "1px",
+        borderLeftWidth: isScrolled ? "0px" : "1px",
+        borderRightWidth: isScrolled ? "0px" : "1px",
+        boxShadow: isScrolled ? "0 1px 2px 0 rgba(0, 0, 0, 0.05)" : "none",
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 mx-auto border-border bg-background/80 backdrop-blur-md"
+      )}
+    >
+      <motion.div
+        animate={{
+          maxWidth: isScrolled ? "1280px" : "1024px",
+          paddingLeft: isScrolled ? "32px" : "16px",
+          paddingRight: isScrolled ? "32px" : "16px",
+        }}
+        className="mx-auto flex h-16 items-center justify-between"
+      >
         {/* Left Side: Logo & Navigation */}
         <div className="flex items-center gap-8">
-          <NavLink to="/" className="flex items-center gap-2 transition-opacity hover:opacity-90">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Database className="h-5 w-5 text-primary" />
+          <NavLink
+            to="/"
+            className="flex items-center gap-2 transition-opacity hover:opacity-90"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-1/10">
+              <Database className="h-5 w-5 text-primary-1" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Seasyn</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">
+              Seasyn
+            </span>
           </NavLink>
 
           {/* Navigation Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
             {navItems.map((item) => (
               <NavLink
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `transition-colors hover:text-foreground/80 ${isActive ? "text-foreground" : "text-foreground/60"}`
+                  `transition-colors hover:text-primary-1 ${isActive ? "text-primary-1" : "text-muted-foreground"}`
                 }
               >
                 {item.name}
@@ -50,7 +89,7 @@ export const Navbar = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="hidden sm:flex h-9 w-9 items-center justify-center rounded-md border border-border bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="hidden h-9 w-9 items-center justify-center rounded-md border border-border bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
@@ -60,22 +99,23 @@ export const Navbar = () => {
             )}
           </button>
 
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             {isAuthenticated ? (
               <NavLink to="/profile">
-                <Button variant="default" className="h-9">
+                <Button
+                  variant="default"
+                  className="h-9 bg-primary-1 text-white hover:bg-primary-1/90"
+                >
                   Profile
                 </Button>
               </NavLink>
             ) : (
               <>
-                {/* <NavLink to="/login">
-                  <Button variant="ghost" className="h-9">
-                    Login
-                  </Button>
-                </NavLink> */}
                 <NavLink to="/signup">
-                  <Button variant="default" className="h-9">
+                  <Button
+                    variant="default"
+                    className="h-9 border-none bg-primary-1 text-white shadow-lg shadow-primary-1/20 hover:bg-primary-1/90"
+                  >
                     Get Started
                   </Button>
                 </NavLink>
@@ -85,65 +125,85 @@ export const Navbar = () => {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="flex sm:hidden h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-muted"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-muted sm:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <Menu className="h-5 w-5" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background p-4 flex flex-col gap-4 shadow-sm animate-in slide-in-from-top-2">
-          <nav className="flex flex-col gap-3 text-sm font-medium">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-foreground/80 hover:text-foreground"
-              >
-                {item.name}
-              </NavLink>
-            ))}
-          </nav>
-          
-          <div className="h-px w-full bg-border" />
-          
-          <div className="flex flex-col gap-2">
-            {isAuthenticated ? (
-              <NavLink to="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button className="w-full justify-start">Profile</Button>
-              </NavLink>
-            ) : (
-              <>
-                {/* <NavLink to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full justify-start">Login</Button>
-                </NavLink> */}
-                <NavLink to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button className="w-full justify-start">Get Started</Button>
-                </NavLink>
-              </>
-            )}
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => {
-                setTheme(theme === "dark" ? "light" : "dark")
-                setIsMobileMenuOpen(false)
-              }}
-            >
-              {theme === "dark" ? (
-                <><Moon className="h-4 w-4" /> Light Mode</>
-              ) : (
-                <><Sun className="h-4 w-4" /> Dark Mode</>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
-    </header>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-t border-border bg-background md:hidden"
+          >
+            <div className="flex flex-col gap-4 p-4 shadow-sm">
+              <nav className="flex flex-col gap-3 text-sm font-medium">
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-foreground/80 hover:text-primary-1"
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="h-px w-full bg-border" />
+
+              <div className="flex flex-col gap-2">
+                {isAuthenticated ? (
+                  <NavLink
+                    to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button className="w-full justify-start bg-primary-1 text-white">
+                      Profile
+                    </Button>
+                  </NavLink>
+                ) : (
+                  <>
+                    <NavLink
+                      to="/signup"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button className="w-full justify-start bg-primary-1 text-white">
+                        Get Started
+                      </Button>
+                    </NavLink>
+                  </>
+                )}
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => {
+                    setTheme(theme === "dark" ? "light" : "dark")
+                    setIsMobileMenuOpen(false)
+                  }}
+                >
+                  {theme === "dark" ? (
+                    <>
+                      <Moon className="h-4 w-4" /> Light Mode
+                    </>
+                  ) : (
+                    <>
+                      <Sun className="h-4 w-4" /> Dark Mode
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   )
 }
 

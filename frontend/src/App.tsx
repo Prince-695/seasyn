@@ -9,12 +9,15 @@ const PlaceholderPage = ({ title }: { title: string }) => (
 
 const App = () => {
   return (
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/docs" element={<PlaceholderPage title="Docs" />} />
-        <Route path="/migration" element={<PlaceholderPage title="Migration" />} />
-        <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/docs" element={<PlaceholderPage title="Docs" />} />
+      <Route
+        path="/migration"
+        element={<PlaceholderPage title="Migration" />}
+      />
+      <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
+    </Routes>
   )
 }
 

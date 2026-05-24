@@ -9,13 +9,13 @@ const navItems = [
   { name: "Profile", path: "/profile", icon: User },
 ]
 
-export const Navbar = () => {
+export const BottomBar = () => {
   const { theme, setTheme } = useTheme()
 
   return (
     <div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2">
       {/* Main Navigation Bar Container */}
-      <nav className="flex h-17 items-center justify-center gap-2 rounded-4xl bg-card px-6 shadow-lg border border-border">
+      <nav className="flex h-17 items-center justify-center gap-2 rounded-4xl border border-border bg-card px-6 shadow-lg">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
@@ -32,7 +32,7 @@ export const Navbar = () => {
                 <div
                   className={`flex h-14 w-14 items-center justify-center rounded-full border-[6px] transition-all duration-300 ${
                     isActive
-                      ? "border-accent bg-card shadow-none " 
+                      ? "border-accent bg-card shadow-none"
                       : "border-transparent bg-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -84,4 +84,3 @@ export const Navbar = () => {
     </div>
   )
 }
-
