@@ -55,7 +55,7 @@ export const Home = () => {
               <div className="pointer-events-none absolute top-20 left-48 flex animate-[cursor-float_4s_infinite_ease-in-out] items-start">
                 <MousePointer2 className="h-6 w-6 fill-primary-1 text-primary-1 drop-shadow-md" />
                 <span className="mt-4 ml-1 rounded-md bg-primary-1 px-2 py-1 text-[10px] font-bold text-primary-foreground shadow-lg">
-                  Princess 
+                  Princess
                 </span>
               </div>
             </div>
@@ -215,7 +215,7 @@ export const Home = () => {
         </section>
 
         {/* Feature Highlights */}
-        <Features/>
+        <Features />
 
         {/* FAQ Section */}
         <FAQ />
