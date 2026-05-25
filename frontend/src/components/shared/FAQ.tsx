@@ -39,11 +39,11 @@ export const FAQ = () => {
   }
 
   return (
-    <section className="relative z-10 mx-auto mt-32 flex w-full max-w-6xl gap-9 px-6 pb-32">
+    <section className="relative z-10 mx-auto mt-32 flex w-full max-w-6xl flex-col items-center justify-center gap-9 px-6 pb-32">
       {/* Header */}
-      <div className="mb-16 flex w-1/3 flex-col items-center text-center">
+      <div className="mb-1 flex text-center">
         <h2 className="mb-4 text-5xl font-bold tracking-wider text-foreground md:text-5xl">
-          Everything You <span className="text-primary-1">Need to Know</span>
+          Everything <p className="text-primary-1">You Need to Know</p>
         </h2>
       </div>
 

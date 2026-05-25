@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom"
-import { Database, Sun, Moon, Menu } from "lucide-react"
+import { Sun, Moon, Menu } from "lucide-react"
 import { useTheme } from "../theme-provider"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "../ui/button"
 import { cn } from "../../lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -15,56 +15,34 @@ const navItems = [
 export const Navbar = () => {
   const { theme, setTheme } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
 
   // Placeholder for authentication state
   const isAuthenticated = false
 
   return (
     <motion.header
-      initial={false}
-      animate={{
-        width: isScrolled ? "100%" : "95%",
-        maxWidth: isScrolled ? "5000px" : "1024px",
-        y: isScrolled ? 0 : 24,
-        borderRadius: isScrolled ? "0px" : "16px",
-        borderBottomWidth: isScrolled ? "1px" : "1px",
-        borderTopWidth: isScrolled ? "0px" : "1px",
-        borderLeftWidth: isScrolled ? "0px" : "1px",
-        borderRightWidth: isScrolled ? "0px" : "1px",
-        boxShadow: isScrolled ? "0 1px 2px 0 rgba(0, 0, 0, 0.05)" : "none",
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      initial={{ y: -100, opacity: 1 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 mx-auto border-border bg-background/80 backdrop-blur-md"
+        "fixed inset-x-0 top-6 z-50 mx-auto w-[95%] max-w-5xl rounded-xl border border-border bg-background/80 shadow-sm backdrop-blur-md"
       )}
     >
-      <motion.div
-        animate={{
-          maxWidth: isScrolled ? "1280px" : "1024px",
-          paddingLeft: isScrolled ? "32px" : "16px",
-          paddingRight: isScrolled ? "32px" : "16px",
-        }}
-        className="mx-auto flex h-16 items-center justify-between"
-      >
+      <div className="mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left Side: Logo & Navigation */}
         <div className="flex items-center gap-8">
           <NavLink
             to="/"
             className="flex items-center gap-2 transition-opacity hover:opacity-90"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-1/10">
-              <Database className="h-5 w-5 text-primary-1" />
+            <div className="flex h-10 w-10 items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">
+            <span className="text-xl font-bold tracking-tight text-primary-1">
               Seasyn
             </span>
           </NavLink>
@@ -76,7 +54,7 @@ export const Navbar = () => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `transition-colors hover:text-primary-1 ${isActive ? "text-primary-1" : "text-muted-foreground"}`
+                  `transition-colors hover:text-primary-2 ${isActive ? "text-primary-1" : "text-muted-foreground"}`
                 }
               >
                 {item.name}
@@ -131,7 +109,7 @@ export const Navbar = () => {
             <Menu className="h-5 w-5" />
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Mobile Menu Dropdown */}
       <AnimatePresence>
