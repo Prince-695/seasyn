@@ -14,8 +14,7 @@ import { Navbar } from "../components/shared/Navbar"
 import Footer from "../components/shared/Footer"
 import { FAQ } from "../components/shared/FAQ"
 import Features from "@/components/shared/Features"
-// import { Slider } from "../components/shared/Slider"
-import Slider from "@/components/shared/slider"
+import { Slider } from "@/components/shared/Slider"
 
 const curtainRevealVariants: Variants = {
   hidden: { y: 300 },
