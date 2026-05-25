@@ -13,8 +13,8 @@ import { motion, type Variants } from "framer-motion"
 import { Navbar } from "../components/shared/Navbar"
 import Footer from "../components/shared/Footer"
 import { FAQ } from "../components/shared/FAQ"
-import Features from "../components/shared/Features"
-import { Slider } from "../components/shared/slider"
+import Features from "@/components/shared/Features"
+import { Slider } from "@/components/shared/slider"
 
 const curtainRevealVariants: Variants = {
   hidden: { y: 300 },
@@ -25,9 +25,9 @@ export const Home = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="relative flex flex-1 flex-col items-center justify-center overflow-x-hidden bg-background px-6 pb-10  text-foreground">
+      <main className="relative flex flex-1 flex-col items-center justify-center overflow-x-hidden bg-background px-6 pb-10 text-foreground">
         {/* Hero Section */}
-        <section className="relative z-10 mt-32 flex w-full max-w-6xl "> 
+        <section className="relative z-10 mt-32 flex w-full max-w-6xl">
           <div
             className="w-full pt-10"
             // style={{
@@ -40,7 +40,7 @@ export const Home = () => {
               variants={curtainRevealVariants}
               initial="hidden"
               animate="visible"
-            > 
+            >
               {/* Left: Text Content */}
               <div className="flex flex-1 flex-col items-center">
                 <h1 className="text-center text-5xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl lg:leading-[1.1]">
@@ -58,7 +58,7 @@ export const Home = () => {
                   credentials—just fast, secure migrations.
                 </p>
 
-                <div className="relative mt-10 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center ">
+                <div className="relative mt-10 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
                   <button className="group relative flex h-14 items-center justify-center gap-3 rounded-md border border-primary-1 px-6 font-medium text-primary-1 transition-all hover:bg-primary-1/5">
                     Start Migrating
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -188,7 +188,7 @@ export const Home = () => {
             </motion.div>
           </div>
         </section>
-        
+
         {/* Dashboard Preview Section */}
         <section className="relative z-10 mt-25 w-full max-w-6xl px-4">
           <div className="group relative rounded-3xl border border-border bg-card/50 p-2 shadow-xl backdrop-blur-sm transition-all hover:border-primary-1/30">
