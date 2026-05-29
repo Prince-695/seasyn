@@ -24,13 +24,16 @@ type Config struct {
 	GitHubClientID     string
 	GitHubClientSecret string
 	GitHubCallbackURL  string
+	SwaggerUser        string
+	SwaggerPass        string
+	FrontendURL        string
 }
 
 func Load() *Config {
 	return &Config{
 		Port:               getEnv("PORT", "8080"),
 		Env:                getEnv("ENV", "development"),
-		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173"),
+		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:5173"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
 		JWTSecret:          getEnv("JWT_SECRET", "default_secret"),
 		AccessTokenExpiry:  getEnvDuration("ACCESS_TOKEN_EXPIRY", 30*time.Minute),
@@ -42,10 +45,13 @@ func Load() *Config {
 		MailFrom:           getEnv("MAIL_FROM", "noreply@seasyn.app"),
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
-		GoogleCallbackURL:  getEnv("GOOGLE_CALLBACK_URL", ""),
+		GoogleCallbackURL:  getEnv("GOOGLE_CALLBACK_URL", "http://localhost:8080/v1/auth/google/callback"),
 		GitHubClientID:     getEnv("GITHUB_CLIENT_ID", ""),
 		GitHubClientSecret: getEnv("GITHUB_CLIENT_SECRET", ""),
-		GitHubCallbackURL:  getEnv("GITHUB_CALLBACK_URL", ""),
+		GitHubCallbackURL:  getEnv("GITHUB_CALLBACK_URL", "http://localhost:8080/v1/auth/github/callback"),
+		SwaggerUser:        getEnv("SWAGGER_USER", "admin"),
+		SwaggerPass:        getEnv("SWAGGER_PASS", "admin"),
+		FrontendURL:        getEnv("FRONTEND_URL", "http://localhost:5173"),
 	}
 }
 

@@ -33,58 +33,59 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
 
-	// OAuth
+	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
 	authGroup.Get("/:provider/callback", h.OAuthCallback)
 }
 
 // Signup godoc
 // @Summary User Signup
-// @Description Register a new user with full details
+// @Description Register a new user and receive access token
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body domain.SignupRequest true "Signup Request"
-// @Success 201 {object} domain.Response{data=domain.User}
+// @Success 201 {object} domain.Response
 // @Router /v1/auth/signup [post]
 func (h *AuthHandler) Signup(c *fiber.Ctx) error {
 	var req domain.SignupRequest
 	if err := c.BodyParser(&req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
 	}
 	if err := h.validate.Struct(req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
-	user, err := h.authService.Signup(c.Context(), req)
+	res, err := h.authService.Signup(c.Context(), req)
 	if err != nil {
-		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
-	return h.jsonResponse(c, fiber.StatusCreated, true, "User registered successfully", user)
+	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
+	return h.jsonResponse(c, fiber.StatusCreated, true, "User registered and logged in successfully", res.AccessToken, nil)
 }
 
 // Login godoc
 // @Summary User Login
-// @Description Authenticate user and receive tokens via cookies
+// @Description Authenticate user and receive access token
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body domain.LoginRequest true "Login Request"
-// @Success 200 {object} domain.Response{data=domain.AuthResponse}
+// @Success 200 {object} domain.Response
 // @Router /v1/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req domain.LoginRequest
 	if err := c.BodyParser(&req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
 	}
 	if err := h.validate.Struct(req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
 	res, err := h.authService.Login(c.Context(), req)
 	if err != nil {
-		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Invalid credentials", nil)
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Invalid credentials", "", nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusOK, true, "Login successful", res)
+	return h.jsonResponse(c, fiber.StatusOK, true, "Login successful", res.AccessToken, nil)
 }
 
 // Refresh godoc
@@ -94,19 +95,19 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param request body domain.RefreshRequest true "Refresh Request"
-// @Success 200 {object} domain.Response{data=domain.AuthResponse}
+// @Success 200 {object} domain.Response
 // @Router /v1/auth/refresh [post]
 func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 	var req domain.RefreshRequest
 	if err := c.BodyParser(&req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
 	}
 	res, err := h.authService.RefreshToken(c.Context(), req.RefreshToken)
 	if err != nil {
-		return h.jsonResponse(c, fiber.StatusUnauthorized, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, err.Error(), "", nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusOK, true, "Token refreshed successfully", res)
+	return h.jsonResponse(c, fiber.StatusOK, true, "Token refreshed successfully", res.AccessToken, nil)
 }
 
 // Logout godoc
@@ -133,7 +134,7 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		Secure:   true,
 		SameSite: "Strict",
 	})
-	return h.jsonResponse(c, fiber.StatusOK, true, "Logged out successfully", nil)
+	return h.jsonResponse(c, fiber.StatusOK, true, "Logged out successfully", "", nil)
 }
 
 // ForgotPassword godoc
@@ -148,12 +149,12 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	var req domain.ForgotPasswordRequest
 	if err := c.BodyParser(&req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
 	}
 	if err := h.authService.ForgotPassword(c.Context(), req); err != nil {
-		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
-	return h.jsonResponse(c, fiber.StatusOK, true, "If email exists, OTP has been sent", nil)
+	return h.jsonResponse(c, fiber.StatusOK, true, "If email exists, OTP has been sent", "", nil)
 }
 
 // ResetPassword godoc
@@ -168,50 +169,54 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 	var req domain.ResetPasswordRequest
 	if err := c.BodyParser(&req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
 	}
 	if err := h.validate.Struct(req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
 	if err := h.authService.ResetPassword(c.Context(), req); err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
-	return h.jsonResponse(c, fiber.StatusOK, true, "Password reset successful", nil)
+	return h.jsonResponse(c, fiber.StatusOK, true, "Password reset successful", "", nil)
 }
 
 // OAuthLogin godoc
-// @Summary OAuth Login
-// @Description Redirect to OAuth provider login page
+// @Summary Get OAuth Login URL
+// @Description Get the authorization URL for a specific provider (google, github)
 // @Tags auth
 // @Param provider path string true "OAuth Provider" Enums(google, github)
-// @Success 302
+// @Success 200 {object} domain.Response{data=map[string]string}
 // @Router /v1/auth/{provider}/login [get]
 func (h *AuthHandler) OAuthLogin(c *fiber.Ctx) error {
 	provider := c.Params("provider")
 	url, err := h.authService.GetOAuthURL(provider)
 	if err != nil {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
-	return c.Redirect(url)
+	// Return URL as JSON so frontend can handle the redirection
+	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth URL generated", "", fiber.Map{
+		"auth_url": url,
+	})
 }
 
 // OAuthCallback godoc
 // @Summary OAuth Callback
-// @Description Handle OAuth callback and return tokens
+// @Description Handle OAuth callback and return user data + tokens as JSON
 // @Tags auth
 // @Param provider path string true "OAuth Provider" Enums(google, github)
 // @Param code query string true "OAuth Code"
-// @Success 200 {object} domain.Response{data=domain.AuthResponse}
+// @Success 200 {object} domain.Response
 // @Router /v1/auth/{provider}/callback [get]
 func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 	provider := c.Params("provider")
 	code := c.Query("code")
 	res, err := h.authService.HandleOAuthCallback(c.Context(), provider, code)
 	if err != nil {
-		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), nil)
+		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth login successful", res)
+	// Return full AuthResponse as JSON instead of redirecting
+	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth login successful", res.AccessToken, nil)
 }
 
 func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
@@ -233,7 +238,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 	})
 }
 
-func (h *AuthHandler) jsonResponse(c *fiber.Ctx, status int, success bool, message string, data interface{}) error {
+func (h *AuthHandler) jsonResponse(c *fiber.Ctx, status int, success bool, message string, accessToken string, data interface{}) error {
 	startTime := c.Locals("startTime")
 	var responseTime string
 	if startTime != nil {
@@ -243,6 +248,7 @@ func (h *AuthHandler) jsonResponse(c *fiber.Ctx, status int, success bool, messa
 	resp := domain.Response{
 		Success:      success,
 		Message:      message,
+		AccessToken:  accessToken,
 		Data:         data,
 		ResponseTime: responseTime,
 	}

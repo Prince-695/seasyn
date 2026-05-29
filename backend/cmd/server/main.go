@@ -14,6 +14,7 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -37,8 +38,8 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8080
 // @BasePath /
+// @schemes http https
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -52,6 +53,7 @@ func main() {
 
 	cfg := config.Load()
 
+	// Initialize Postgres
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -68,7 +70,10 @@ func main() {
 		log.Println("ℹ️  Skipping database sync. Set DB_RUN=true to enable schema migration.")
 	}
 
-	app := fiber.New()
+	// Initialize Fiber app with Global Error Handler
+	app := fiber.New(fiber.Config{
+		ErrorHandler: middleware.ErrorHandler,
+	})
 
 	// Global Middleware
 	app.Use(logger.New())
@@ -83,14 +88,24 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// Swagger
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	// Protected Swagger Route
+	app.Get("/swagger/*", basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			cfg.SwaggerUser: cfg.SwaggerPass,
+		},
+	}), swagger.HandlerDefault)
 
 	// Public Top-Level Routes
 	app.Get("/", func(c *fiber.Ctx) error {
+		startTime := c.Locals("startTime")
+		var responseTime string
+		if startTime != nil {
+			responseTime = fmt.Sprintf("%dms", time.Since(startTime.(time.Time)).Milliseconds())
+		}
 		return c.JSON(domain.Response{
-			Success: true,
-			Message: "Welcome to SEASYN API v1",
+			Success:      true,
+			Message:      "Welcome to SEASYN API v1",
+			ResponseTime: responseTime,
 		})
 	})
 	app.Get("/health", HealthCheck)

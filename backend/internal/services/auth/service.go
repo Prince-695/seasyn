@@ -12,6 +12,7 @@ import (
 
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/ports"
+	"github.com/Prince-695/seasyn/backend/pkg/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -75,20 +76,22 @@ func NewAuthService(
 func (s *authService) GetOAuthURL(provider string) (string, error) {
 	config, ok := s.oauthConfigs[provider]
 	if !ok {
-		return "", fmt.Errorf("unsupported provider: %s", provider)
+		return "", errors.BadRequest(fmt.Sprintf("unsupported provider: %s", provider))
 	}
-	return config.AuthCodeURL("state"), nil
+	// Generate a random state for CSRF protection
+	state := generateRandomString(32)
+	return config.AuthCodeURL(state), nil
 }
 
 func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code string) (*domain.AuthResponse, error) {
 	config, ok := s.oauthConfigs[provider]
 	if !ok {
-		return nil, fmt.Errorf("unsupported provider: %s", provider)
+		return nil, errors.BadRequest(fmt.Sprintf("unsupported provider: %s", provider))
 	}
 
 	token, err := config.Exchange(ctx, code)
 	if err != nil {
-		return nil, fmt.Errorf("code exchange failed: %w", err)
+		return nil, errors.Unauthorized("OAuth code exchange failed")
 	}
 
 	// Fetch user info based on provider
@@ -100,7 +103,7 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code st
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal("Failed to fetch user info from provider")
 	}
 
 	// Check if user exists, otherwise create
@@ -111,11 +114,11 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code st
 			Email:      email,
 			FirstName:  firstName,
 			LastName:   lastName,
-			IsVerified: true, // OAuth users are verified
+			IsVerified: true,
 		}
 		user, err = s.repo.Create(ctx, *user)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create oauth user: %w", err)
+			return nil, errors.Internal("Failed to create user account")
 		}
 	}
 
@@ -158,20 +161,18 @@ func (s *authService) fetchGitHubUser(accessToken string) (string, string, strin
 		return "", "", "", err
 	}
 
-	// GitHub name can be one string, split it
-	// If email is private, we'd need another call to /user/emails
 	return profile.Email, profile.Name, "", nil
 }
 
-func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*domain.User, error) {
+func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error) {
 	_, err := s.repo.GetByEmail(ctx, req.Email)
 	if err == nil {
-		return nil, fmt.Errorf("user with this email already exists")
+		return nil, errors.BadRequest("User with this email already exists")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
+		return nil, errors.Internal("Failed to secure password")
 	}
 
 	user := domain.User{
@@ -183,7 +184,7 @@ func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*do
 
 	createdUser, err := s.repo.Create(ctx, user)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+		return nil, errors.Internal("Failed to create user account")
 	}
 
 	// Async send welcome email
@@ -193,18 +194,18 @@ func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*do
 		}
 	}()
 
-	return createdUser, nil
+	return s.generateAuthResponse(createdUser)
 }
 
 func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResponse, error) {
 	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, errors.Unauthorized("Invalid email or password")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, errors.Unauthorized("Invalid email or password")
 	}
 
 	return s.generateAuthResponse(user)
@@ -213,12 +214,12 @@ func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*doma
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error) {
 	userID, err := s.ValidateToken(refreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("invalid refresh token: %w", err)
+		return nil, errors.Unauthorized("Invalid or expired session")
 	}
 
 	user, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("user not found")
+		return nil, errors.NotFound("User account no longer exists")
 	}
 
 	return s.generateAuthResponse(user)
@@ -227,18 +228,16 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*d
 func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error {
 	_, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil // Return nil for security to avoid user enumeration
+		return nil // Avoid user enumeration
 	}
 
 	otp := generateOTP(6)
-	expiry := time.Now().Add(10 * time.Minute)
-
 	err = s.otpRepo.DeleteByEmail(ctx, req.Email)
 	if err != nil {
 		return fmt.Errorf("failed to cleanup old OTPs: %w", err)
 	}
 
-	err = s.otpRepo.Create(ctx, req.Email, otp, expiry)
+	err = s.otpRepo.Create(ctx, req.Email, otp, time.Now().Add(10*time.Minute))
 	if err != nil {
 		return fmt.Errorf("failed to store OTP: %w", err)
 	}
@@ -255,17 +254,17 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error {
 	valid, err := s.otpRepo.Verify(ctx, req.Email, req.OTP)
 	if err != nil || !valid {
-		return fmt.Errorf("invalid or expired OTP")
+		return errors.BadRequest("Invalid or expired OTP")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return fmt.Errorf("failed to hash password: %w", err)
+		return errors.Internal("Failed to secure new password")
 	}
 
 	err = s.repo.UpdatePassword(ctx, req.Email, string(hashedPassword))
 	if err != nil {
-		return fmt.Errorf("failed to update password: %w", err)
+		return errors.Internal("Failed to update password in database")
 	}
 
 	_ = s.otpRepo.DeleteByEmail(ctx, req.Email)
@@ -276,12 +275,12 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthResponse, error) {
 	accessToken, accessExp, err := s.createToken(user.ID, s.accessTokenExpiry)
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal("Failed to generate access token")
 	}
 
 	refreshToken, _, err := s.createToken(user.ID, s.refreshTokenExpiry)
 	if err != nil {
-		return nil, err
+		return nil, errors.Internal("Failed to generate refresh token")
 	}
 
 	return &domain.AuthResponse{
@@ -297,6 +296,7 @@ func (s *authService) createToken(userID string, expiry time.Duration) (string, 
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": expirationTime.Unix(),
+		"iat": time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -338,4 +338,12 @@ func generateOTP(max int) string {
 		b[i] = table[int(b[i])%len(table)]
 	}
 	return string(b)
+}
+
+func generateRandomString(n int) string {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return "static_state_fallback"
+	}
+	return fmt.Sprintf("%x", b)
 }

@@ -83,7 +83,7 @@ const docTemplate = `{
         },
         "/v1/auth/login": {
             "post": {
-                "description": "Authenticate user and receive tokens via cookies",
+                "description": "Authenticate user and receive access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -109,19 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -177,19 +165,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -231,7 +207,7 @@ const docTemplate = `{
         },
         "/v1/auth/signup": {
             "post": {
-                "description": "Register a new user with full details",
+                "description": "Register a new user and receive access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -257,19 +233,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.User"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -277,7 +241,7 @@ const docTemplate = `{
         },
         "/v1/auth/{provider}/callback": {
             "get": {
-                "description": "Handle OAuth callback and return tokens",
+                "description": "Handle OAuth callback and return user data + tokens as JSON",
                 "tags": [
                     "auth"
                 ],
@@ -306,19 +270,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -326,11 +278,11 @@ const docTemplate = `{
         },
         "/v1/auth/{provider}/login": {
             "get": {
-                "description": "Redirect to OAuth provider login page",
+                "description": "Get the authorization URL for a specific provider (google, github)",
                 "tags": [
                     "auth"
                 ],
-                "summary": "OAuth Login",
+                "summary": "Get OAuth Login URL",
                 "parameters": [
                     {
                         "enum": [
@@ -345,8 +297,26 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Found"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             }
@@ -394,23 +364,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "expires_at": {
-                    "type": "string"
-                },
-                "refresh_token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.User"
-                }
-            }
-        },
         "github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest": {
             "type": "object",
             "required": [
@@ -471,6 +424,9 @@ const docTemplate = `{
         "github_com_Prince-695_seasyn_backend_internal_domain.Response": {
             "type": "object",
             "properties": {
+                "access_token": {
+                    "type": "string"
+                },
                 "data": {},
                 "error": {
                     "type": "string"
@@ -509,32 +465,6 @@ const docTemplate = `{
                     "minLength": 6
                 }
             }
-        },
-        "github_com_Prince-695_seasyn_backend_internal_domain.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "type": "boolean"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {
@@ -550,9 +480,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "SEASYN API",
 	Description:      "This is the SEASYN backend server.",
 	InfoInstanceName: "swagger",
