@@ -277,7 +277,7 @@ const docTemplate = `{
         },
         "/v1/auth/{provider}/callback": {
             "get": {
-                "description": "Handle OAuth callback and return tokens",
+                "description": "Handle OAuth callback and return user data + tokens as JSON",
                 "tags": [
                     "auth"
                 ],
@@ -326,11 +326,11 @@ const docTemplate = `{
         },
         "/v1/auth/{provider}/login": {
             "get": {
-                "description": "Redirect to OAuth provider login page",
+                "description": "Get the authorization URL for a specific provider (google, github)",
                 "tags": [
                     "auth"
                 ],
-                "summary": "OAuth Login",
+                "summary": "Get OAuth Login URL",
                 "parameters": [
                     {
                         "enum": [
@@ -345,8 +345,26 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Found"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             }

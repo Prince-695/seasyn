@@ -33,7 +33,7 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
 
-	// OAuth
+	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
 	authGroup.Get("/:provider/callback", h.OAuthCallback)
 }
@@ -180,11 +180,11 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 }
 
 // OAuthLogin godoc
-// @Summary OAuth Login
-// @Description Redirect to OAuth provider login page
+// @Summary Get OAuth Login URL
+// @Description Get the authorization URL for a specific provider (google, github)
 // @Tags auth
 // @Param provider path string true "OAuth Provider" Enums(google, github)
-// @Success 302
+// @Success 200 {object} domain.Response{data=map[string]string}
 // @Router /v1/auth/{provider}/login [get]
 func (h *AuthHandler) OAuthLogin(c *fiber.Ctx) error {
 	provider := c.Params("provider")
@@ -192,12 +192,15 @@ func (h *AuthHandler) OAuthLogin(c *fiber.Ctx) error {
 	if err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), nil)
 	}
-	return c.Redirect(url)
+	// Return URL as JSON so frontend can handle the redirection
+	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth URL generated", fiber.Map{
+		"auth_url": url,
+	})
 }
 
 // OAuthCallback godoc
 // @Summary OAuth Callback
-// @Description Handle OAuth callback and return tokens
+// @Description Handle OAuth callback and return user data + tokens as JSON
 // @Tags auth
 // @Param provider path string true "OAuth Provider" Enums(google, github)
 // @Param code query string true "OAuth Code"
@@ -211,6 +214,7 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
+	// Return full AuthResponse as JSON instead of redirecting
 	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth login successful", res)
 }
 
