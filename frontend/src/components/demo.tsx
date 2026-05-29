@@ -48,7 +48,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Slider } from "@/components/ui/slider"
+// import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -72,17 +72,17 @@ import {
 } from "lucide-react"
 
 export function Demo() {
-  const [sliderValue, setSliderValue] = React.useState<number[]>([500])
-  const handleSliderValueChange = React.useCallback(
-    (value: number | readonly number[]) => {
-      if (typeof value === "number") {
-        setSliderValue([value])
-      } else {
-        setSliderValue([...value])
-      }
-    },
-    []
-  )
+  // const [sliderValue, setSliderValue] = React.useState<number[]>([500])
+  // const handleSliderValueChange = React.useCallback(
+  //   (value: number | readonly number[]) => {
+  //     if (typeof value === "number") {
+  //       setSliderValue([value])
+  //     } else {
+  //       setSliderValue([...value])
+  //     }
+  //   },
+  //   []
+  // )
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted p-4 sm:p-6 lg:p-12 dark:bg-background">
@@ -211,7 +211,7 @@ export function Demo() {
                   </ItemActions>
                 </Item>
               </div>
-              <Slider
+              {/* <Slider
                 value={sliderValue}
                 onValueChange={handleSliderValueChange}
                 max={1000}
@@ -219,7 +219,7 @@ export function Demo() {
                 step={10}
                 className="flex-1"
                 aria-label="Slider"
-              />
+              /> */}
               <FieldGroup>
                 <Field>
                   <InputGroup>
