@@ -39,7 +39,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @BasePath /
-// @schemes http https
+// @schemes https http
 
 // @securityDefinitions.apikey BearerAuth
 // @in header

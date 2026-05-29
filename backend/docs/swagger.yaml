@@ -296,8 +296,8 @@ paths:
       tags:
       - user
 schemes:
-- http
 - https
+- http
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and then your token.
