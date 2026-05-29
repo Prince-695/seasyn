@@ -6,27 +6,27 @@ import (
 )
 
 type Config struct {
-	Port                string
-	Env                 string
-	AllowedOrigins      string
-	DatabaseURL         string
-	JWTSecret           string
-	AccessTokenExpiry   time.Duration
-	RefreshTokenExpiry  time.Duration
-	SMTPHost            string
-	SMTPPort            string
-	SMTPUser            string
-	SMTPPass            string
-	MailFrom            string
-	GoogleClientID      string
-	GoogleClientSecret  string
-	GoogleCallbackURL   string
-	GitHubClientID      string
-	GitHubClientSecret  string
-	GitHubCallbackURL   string
-	SwaggerUser         string
-	SwaggerPass         string
-	FrontendURL         string
+	Port               string
+	Env                string
+	AllowedOrigins     string
+	DatabaseURL        string
+	JWTSecret          string
+	AccessTokenExpiry  time.Duration
+	RefreshTokenExpiry time.Duration
+	SMTPHost           string
+	SMTPPort           string
+	SMTPUser           string
+	SMTPPass           string
+	MailFrom           string
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleCallbackURL  string
+	GitHubClientID     string
+	GitHubClientSecret string
+	GitHubCallbackURL  string
+	SwaggerUser        string
+	SwaggerPass        string
+	FrontendURL        string
 }
 
 func Load() *Config {
