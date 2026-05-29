@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +20,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
-	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -60,17 +58,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-
-	// Initialize Redis
-	opt, err := redis.ParseURL(cfg.RedisURL)
-	if err != nil {
-		log.Fatalf("Failed to parse Redis URL: %v", err)
-	}
-	redisClient := redis.NewClient(opt)
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
-	}
-	log.Println("🚀 Connected to Redis successfully.")
 
 	// Conditional Database Sync
 	if os.Getenv("DB_RUN") == "true" {
@@ -129,13 +116,11 @@ func main() {
 	// Dependency Injection
 	userRepo := repository.NewUserRepository(db)
 	otpRepo := repository.NewOTPRepository(db)
-	redisRepo := repository.NewRedisRepository(redisClient)
 	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
 
 	authService := auth.NewAuthService(
 		userRepo,
 		otpRepo,
-		redisRepo,
 		mailService,
 		cfg.JWTSecret,
 		cfg.AccessTokenExpiry,

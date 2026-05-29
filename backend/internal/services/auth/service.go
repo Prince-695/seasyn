@@ -23,7 +23,6 @@ import (
 type authService struct {
 	repo               ports.UserRepository
 	otpRepo            ports.OTPRepository
-	redisRepo          ports.RedisRepository
 	mailService        ports.MailService
 	jwtSecret          []byte
 	accessTokenExpiry  time.Duration
@@ -34,7 +33,6 @@ type authService struct {
 func NewAuthService(
 	repo ports.UserRepository,
 	otpRepo ports.OTPRepository,
-	redisRepo ports.RedisRepository,
 	mailService ports.MailService,
 	jwtSecret string,
 	accessTokenExpiry time.Duration,
@@ -67,7 +65,6 @@ func NewAuthService(
 	return &authService{
 		repo:               repo,
 		otpRepo:            otpRepo,
-		redisRepo:          redisRepo,
 		mailService:        mailService,
 		jwtSecret:          []byte(jwtSecret),
 		accessTokenExpiry:  accessTokenExpiry,
@@ -81,7 +78,9 @@ func (s *authService) GetOAuthURL(provider string) (string, error) {
 	if !ok {
 		return "", errors.BadRequest(fmt.Sprintf("unsupported provider: %s", provider))
 	}
-	return config.AuthCodeURL("state"), nil
+	// Generate a random state for CSRF protection
+	state := generateRandomString(32)
+	return config.AuthCodeURL(state), nil
 }
 
 func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code string) (*domain.AuthResponse, error) {
@@ -233,11 +232,14 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 	}
 
 	otp := generateOTP(6)
-	// Use Redis for OTP with 10 min TTL (Faster than DB)
-	err = s.redisRepo.SetOTP(ctx, req.Email, otp, 10*time.Minute)
+	err = s.otpRepo.DeleteByEmail(ctx, req.Email)
 	if err != nil {
-		// Fallback to DB if Redis fails
-		_ = s.otpRepo.Create(ctx, req.Email, otp, time.Now().Add(10*time.Minute))
+		return fmt.Errorf("failed to cleanup old OTPs: %w", err)
+	}
+
+	err = s.otpRepo.Create(ctx, req.Email, otp, time.Now().Add(10*time.Minute))
+	if err != nil {
+		return fmt.Errorf("failed to store OTP: %w", err)
 	}
 
 	go func() {
@@ -250,16 +252,8 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 }
 
 func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error {
-	// Try Redis first
-	otp, err := s.redisRepo.GetOTP(ctx, req.Email)
-	valid := (err == nil && otp == req.OTP)
-
-	if !valid {
-		// Fallback to check DB
-		valid, _ = s.otpRepo.Verify(ctx, req.Email, req.OTP)
-	}
-
-	if !valid {
+	valid, err := s.otpRepo.Verify(ctx, req.Email, req.OTP)
+	if err != nil || !valid {
 		return errors.BadRequest("Invalid or expired OTP")
 	}
 
@@ -273,7 +267,6 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 		return errors.Internal("Failed to update password in database")
 	}
 
-	_ = s.redisRepo.DeleteOTP(ctx, req.Email)
 	_ = s.otpRepo.DeleteByEmail(ctx, req.Email)
 
 	return nil
@@ -345,4 +338,12 @@ func generateOTP(max int) string {
 		b[i] = table[int(b[i])%len(table)]
 	}
 	return string(b)
+}
+
+func generateRandomString(n int) string {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return "static_state_fallback"
+	}
+	return fmt.Sprintf("%x", b)
 }
