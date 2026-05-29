@@ -552,7 +552,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
 	BasePath:         "/",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "SEASYN API",
 	Description:      "This is the SEASYN backend server.",
 	InfoInstanceName: "swagger",

@@ -6,32 +6,36 @@ import (
 )
 
 type Config struct {
-	Port               string
-	Env                string
-	AllowedOrigins     string
-	DatabaseURL        string
-	JWTSecret          string
-	AccessTokenExpiry  time.Duration
-	RefreshTokenExpiry time.Duration
-	SMTPHost           string
-	SMTPPort           string
-	SMTPUser           string
-	SMTPPass           string
-	MailFrom           string
-	GoogleClientID     string
-	GoogleClientSecret string
-	GoogleCallbackURL  string
-	GitHubClientID     string
-	GitHubClientSecret string
-	GitHubCallbackURL  string
+	Port                string
+	Env                 string
+	AllowedOrigins      string
+	DatabaseURL         string
+	RedisURL            string
+	JWTSecret           string
+	AccessTokenExpiry   time.Duration
+	RefreshTokenExpiry  time.Duration
+	SMTPHost            string
+	SMTPPort            string
+	SMTPUser            string
+	SMTPPass            string
+	MailFrom            string
+	GoogleClientID      string
+	GoogleClientSecret  string
+	GoogleCallbackURL   string
+	GitHubClientID      string
+	GitHubClientSecret  string
+	GitHubCallbackURL   string
+	SwaggerUser         string
+	SwaggerPass         string
 }
 
 func Load() *Config {
 	return &Config{
 		Port:               getEnv("PORT", "8080"),
 		Env:                getEnv("ENV", "development"),
-		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173"),
+		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,https://seasyn.onrender.com"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
+		RedisURL:           getEnv("REDIS_URL", "redis://localhost:6379/0"),
 		JWTSecret:          getEnv("JWT_SECRET", "default_secret"),
 		AccessTokenExpiry:  getEnvDuration("ACCESS_TOKEN_EXPIRY", 30*time.Minute),
 		RefreshTokenExpiry: getEnvDuration("REFRESH_TOKEN_EXPIRY", 168*time.Hour),
@@ -46,6 +50,8 @@ func Load() *Config {
 		GitHubClientID:     getEnv("GITHUB_CLIENT_ID", ""),
 		GitHubClientSecret: getEnv("GITHUB_CLIENT_SECRET", ""),
 		GitHubCallbackURL:  getEnv("GITHUB_CALLBACK_URL", ""),
+		SwaggerUser:        getEnv("SWAGGER_USER", "admin"),
+		SwaggerPass:        getEnv("SWAGGER_PASS", "admin"),
 	}
 }
 

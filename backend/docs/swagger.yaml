@@ -332,6 +332,9 @@ paths:
       summary: Get User Profile
       tags:
       - user
+schemes:
+- http
+- https
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and then your token.

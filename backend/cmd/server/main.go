@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -14,11 +15,13 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -38,6 +41,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @BasePath /
+// @schemes http https
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -51,10 +55,22 @@ func main() {
 
 	cfg := config.Load()
 
+	// Initialize Postgres
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	// Initialize Redis
+	opt, err := redis.ParseURL(cfg.RedisURL)
+	if err != nil {
+		log.Fatalf("Failed to parse Redis URL: %v", err)
+	}
+	redisClient := redis.NewClient(opt)
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Fatalf("Failed to connect to Redis: %v", err)
+	}
+	log.Println("🚀 Connected to Redis successfully.")
 
 	// Conditional Database Sync
 	if os.Getenv("DB_RUN") == "true" {
@@ -67,7 +83,10 @@ func main() {
 		log.Println("ℹ️  Skipping database sync. Set DB_RUN=true to enable schema migration.")
 	}
 
-	app := fiber.New()
+	// Initialize Fiber app with Global Error Handler
+	app := fiber.New(fiber.Config{
+		ErrorHandler: middleware.ErrorHandler,
+	})
 
 	// Global Middleware
 	app.Use(logger.New())
@@ -82,14 +101,24 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// Swagger
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	// Protected Swagger Route
+	app.Get("/swagger/*", basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			cfg.SwaggerUser: cfg.SwaggerPass,
+		},
+	}), swagger.HandlerDefault)
 
 	// Public Top-Level Routes
 	app.Get("/", func(c *fiber.Ctx) error {
+		startTime := c.Locals("startTime")
+		var responseTime string
+		if startTime != nil {
+			responseTime = fmt.Sprintf("%dms", time.Since(startTime.(time.Time)).Milliseconds())
+		}
 		return c.JSON(domain.Response{
-			Success: true,
-			Message: "Welcome to SEASYN API v1",
+			Success:      true,
+			Message:      "Welcome to SEASYN API v1",
+			ResponseTime: responseTime,
 		})
 	})
 	app.Get("/health", HealthCheck)
@@ -100,11 +129,13 @@ func main() {
 	// Dependency Injection
 	userRepo := repository.NewUserRepository(db)
 	otpRepo := repository.NewOTPRepository(db)
+	redisRepo := repository.NewRedisRepository(redisClient)
 	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
 
 	authService := auth.NewAuthService(
 		userRepo,
 		otpRepo,
+		redisRepo,
 		mailService,
 		cfg.JWTSecret,
 		cfg.AccessTokenExpiry,

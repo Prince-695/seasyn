@@ -20,3 +20,11 @@ type OTPRepository interface {
 	Verify(ctx context.Context, email, otp string) (bool, error)
 	DeleteByEmail(ctx context.Context, email string) error
 }
+
+type RedisRepository interface {
+	SetOTP(ctx context.Context, email, otp string, ttl time.Duration) error
+	GetOTP(ctx context.Context, email string) (string, error)
+	DeleteOTP(ctx context.Context, email string) error
+	BlacklistToken(ctx context.Context, tokenID string, ttl time.Duration) error
+	IsTokenBlacklisted(ctx context.Context, tokenID string) (bool, error)
+}
