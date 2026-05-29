@@ -33,7 +33,7 @@ func Load() *Config {
 	return &Config{
 		Port:               getEnv("PORT", "8080"),
 		Env:                getEnv("ENV", "development"),
-		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:5173"),
+		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:5173,"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
 		JWTSecret:          getEnv("JWT_SECRET", "default_secret"),
 		AccessTokenExpiry:  getEnvDuration("ACCESS_TOKEN_EXPIRY", 30*time.Minute),

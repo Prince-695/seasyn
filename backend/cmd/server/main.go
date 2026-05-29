@@ -93,7 +93,9 @@ func main() {
 		Users: map[string]string{
 			cfg.SwaggerUser: cfg.SwaggerPass,
 		},
-	}), swagger.HandlerDefault)
+	}), swagger.New(swagger.Config{
+		PersistAuthorization: true,
+	}))
 
 	// Public Top-Level Routes
 	app.Get("/", func(c *fiber.Ctx) error {
