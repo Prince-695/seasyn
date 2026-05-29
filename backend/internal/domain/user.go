@@ -52,6 +52,7 @@ type RefreshRequest struct {
 type Response struct {
 	Success      bool        `json:"success"`
 	Message      string      `json:"message,omitempty"`
+	AccessToken  string      `json:"access_token,omitempty"`
 	Data         interface{} `json:"data,omitempty"`
 	Error        string      `json:"error,omitempty"`
 	ResponseTime string      `json:"response_time"`

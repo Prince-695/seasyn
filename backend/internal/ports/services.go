@@ -7,7 +7,7 @@ import (
 )
 
 type AuthService interface {
-	Signup(ctx context.Context, req domain.SignupRequest) (*domain.User, error)
+	Signup(ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error)
 	Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResponse, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error)
 	ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error

@@ -83,7 +83,7 @@ const docTemplate = `{
         },
         "/v1/auth/login": {
             "post": {
-                "description": "Authenticate user and receive tokens via cookies",
+                "description": "Authenticate user and receive access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -109,19 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -177,19 +165,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -231,7 +207,7 @@ const docTemplate = `{
         },
         "/v1/auth/signup": {
             "post": {
-                "description": "Register a new user with full details",
+                "description": "Register a new user and receive access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -257,19 +233,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.User"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -306,19 +270,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
                         }
                     }
                 }
@@ -412,23 +364,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Prince-695_seasyn_backend_internal_domain.AuthResponse": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "expires_at": {
-                    "type": "string"
-                },
-                "refresh_token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.User"
-                }
-            }
-        },
         "github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest": {
             "type": "object",
             "required": [
@@ -489,6 +424,9 @@ const docTemplate = `{
         "github_com_Prince-695_seasyn_backend_internal_domain.Response": {
             "type": "object",
             "properties": {
+                "access_token": {
+                    "type": "string"
+                },
                 "data": {},
                 "error": {
                     "type": "string"
@@ -525,32 +463,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 6
-                }
-            }
-        },
-        "github_com_Prince-695_seasyn_backend_internal_domain.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "type": "boolean"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         }

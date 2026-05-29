@@ -164,7 +164,7 @@ func (s *authService) fetchGitHubUser(accessToken string) (string, string, strin
 	return profile.Email, profile.Name, "", nil
 }
 
-func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*domain.User, error) {
+func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error) {
 	_, err := s.repo.GetByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, errors.BadRequest("User with this email already exists")
@@ -194,7 +194,7 @@ func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*do
 		}
 	}()
 
-	return createdUser, nil
+	return s.generateAuthResponse(createdUser)
 }
 
 func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResponse, error) {
