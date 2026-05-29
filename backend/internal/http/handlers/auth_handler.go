@@ -55,12 +55,12 @@ func (h *AuthHandler) Signup(c *fiber.Ctx) error {
 	if err := h.validate.Struct(req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
-	res, err := h.authService.Signup(c.Context(), req)
+	user, err := h.authService.Signup(c.Context(), req)
 	if err != nil {
 		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
-	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusCreated, true, "User registered and logged in successfully", res.AccessToken, nil)
+	h.setAuthCookies(c, user.AccessToken, user.RefreshToken)
+	return h.jsonResponse(c, fiber.StatusCreated, true, "User registered and logged in successfully", user.AccessToken, nil)
 }
 
 // Login godoc
@@ -123,7 +123,7 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: "Strict",
 	})
 	c.Cookie(&fiber.Cookie{
@@ -131,7 +131,7 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: "Strict",
 	})
 	return h.jsonResponse(c, fiber.StatusOK, true, "Logged out successfully", "", nil)
@@ -225,7 +225,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Value:    access,
 		Expires:  time.Now().Add(30 * time.Minute),
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: "Strict",
 	})
 	c.Cookie(&fiber.Cookie{
@@ -233,7 +233,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Value:    refresh,
 		Expires:  time.Now().Add(168 * time.Hour),
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: "Strict",
 	})
 }
