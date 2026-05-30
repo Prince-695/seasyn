@@ -89,7 +89,12 @@ export const Navbar = () => {
               </NavLink>
             ) : (
               <>
-                <NavLink to="/signup">
+                <NavLink to="/login">
+                  <Button variant="ghost" className="mr-2 h-9 hover:bg-muted">
+                    Log in
+                  </Button>
+                </NavLink>
+                <NavLink to="/register">
                   <Button
                     variant="default"
                     className="h-9 border-none bg-primary-1 text-white shadow-lg shadow-primary-1/20 hover:bg-primary-1/90"
@@ -149,7 +154,18 @@ export const Navbar = () => {
                 ) : (
                   <>
                     <NavLink
-                      to="/signup"
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
+                        Log in
+                      </Button>
+                    </NavLink>
+                    <NavLink
+                      to="/register"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Button className="w-full justify-start bg-primary-1 text-white">

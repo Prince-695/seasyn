@@ -1,5 +1,7 @@
 import { Routes, Route } from "react-router-dom"
 import { Home } from "./pages/Home"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
@@ -11,6 +13,8 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/docs" element={<PlaceholderPage title="Docs" />} />
       <Route
         path="/migration"
