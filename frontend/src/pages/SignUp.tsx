@@ -94,7 +94,7 @@ export default function SignUp() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-br from-background to-muted p-4">
-      <Card className="border-primary/10 py-8 w-full max-w-md shadow-xl">
+      <Card className="border-primary/10 w-full max-w-md py-8 shadow-xl">
         <CardHeader className="space-y-2 p-2 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight text-primary-1">
             Create an account
@@ -104,7 +104,6 @@ export default function SignUp() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {serverError && (
               <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-center text-sm font-medium text-destructive">
@@ -153,7 +152,7 @@ export default function SignUp() {
             </Button>
           </form>
 
-        <div className="relative m-6">
+          <div className="relative m-6">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-border" />
             </div>
@@ -163,7 +162,7 @@ export default function SignUp() {
               </span>
             </div>
           </div>
-        <div className="mb-3 flex gap-1">
+          <div className="mb-3 flex gap-1">
             <Button
               variant="outline"
               className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
@@ -179,7 +178,6 @@ export default function SignUp() {
               GitHub
             </Button>
           </div>
-        
         </CardContent>
         <CardFooter className="mt-2 flex flex-col text-center">
           <div className="text-sm text-muted-foreground">
