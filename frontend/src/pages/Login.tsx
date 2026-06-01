@@ -90,7 +90,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md shadow-2xl shadow-primary-1/20">
-        <CardHeader className="space-y-2 pb-6 text-center">
+        <CardHeader className="space-y-2 p-6 text-center">
           {/* <div className="mb-2 flex justify-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-1/10">
               <Waves className="h-6 w-6 text-primary-1" />
@@ -171,7 +171,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="mb-6 flex gap-1">
+          <div className="mb-3 flex gap-1">
             <Button
               variant="outline"
               className="h-11 w-1/2 bg-background font-medium hover:bg-muted"

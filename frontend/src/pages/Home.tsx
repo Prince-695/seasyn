@@ -190,7 +190,7 @@ export const Home = () => {
         </section>
 
         {/* Dashboard Preview Section */}
-        <section className="relative z-10 mt-25 w-full max-w-6xl px-4">
+        <section className="relative z-10 mt-25 w-full max-w-6xl bg-background px-4">
           <div className="group relative rounded-3xl border border-border bg-card/50 p-2 shadow-xl backdrop-blur-sm transition-all hover:border-primary-1/30">
             <div className="pointer-events-none absolute inset-0 rounded-3xl bg-linear-to-b from-primary-1/5 to-transparent" />
             <div className="relative flex min-h-100 w-full items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/20 md:min-h-150">

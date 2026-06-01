@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Sparkles, AlertCircle } from "lucide-react"
+import { Loader2, AlertCircle } from "lucide-react"
 import { registerSchema } from "@/lib/validators"
 import type { RegisterInput } from "@/lib/validators"
 // import { useAuthStore } from '@/store/authStore';
@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import axios from "axios"
 
-export default function Register() {
+export default function SignUp() {
   const navigate = useNavigate()
   //   const setAuth = useAuthStore((state) => state.setAuth);
   const [serverError, setServerError] = useState<string | null>(null)
@@ -94,13 +94,8 @@ export default function Register() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-br from-background to-muted p-4">
-      <Card className="border-primary/10 w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-2 pb-6 text-center">
-          <div className="mb-2 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-1/10">
-              <Sparkles className="h-6 w-6 text-primary-1" />
-            </div>
-          </div>
+      <Card className="border-primary/10 py-8 w-full max-w-md shadow-xl">
+        <CardHeader className="space-y-2 p-2 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight text-primary-1">
             Create an account
           </CardTitle>
@@ -109,33 +104,6 @@ export default function Register() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-6 flex flex-col gap-4">
-            <Button
-              variant="outline"
-              className="h-11 w-full bg-background font-medium hover:bg-muted"
-            >
-              <FcGoogle className="mr-2 h-5 w-5" />
-              Continue with Google
-            </Button>
-            <Button
-              variant="outline"
-              className="h-11 w-full bg-background font-medium hover:bg-muted"
-            >
-              <FaGithub className="mr-2 h-5 w-5" />
-              Continue with GitHub
-            </Button>
-          </div>
-
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 font-semibold text-muted-foreground">
-                Or continue with email
-              </span>
-            </div>
-          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {serverError && (
@@ -145,7 +113,7 @@ export default function Register() {
             )}
 
             {fields.map((field) => (
-              <div key={field.id} className="space-y-2.5">
+              <div key={field.id} className="space-y-2">
                 <Label
                   htmlFor={field.id}
                   className="font-semibold text-foreground/80"
@@ -171,7 +139,7 @@ export default function Register() {
 
             <Button
               type="submit"
-              className="mt-6 h-11 w-full bg-primary-1 font-semibold text-white shadow-md shadow-primary-1/20 transition-all hover:bg-primary-1/90"
+              className="mt-2 h-11 w-full bg-primary-1 font-semibold text-white shadow-md shadow-primary-1/20 transition-all hover:bg-primary-1/90"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -184,6 +152,34 @@ export default function Register() {
               )}
             </Button>
           </form>
+
+        <div className="relative m-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 font-semibold text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+        <div className="mb-3 flex gap-1">
+            <Button
+              variant="outline"
+              className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
+            >
+              <FcGoogle className="mr-2 h-5 w-5" />
+              Google
+            </Button>
+            <Button
+              variant="outline"
+              className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
+            >
+              <FaGithub className="mr-2 h-5 w-5" />
+              GitHub
+            </Button>
+          </div>
+        
         </CardContent>
         <CardFooter className="mt-2 flex flex-col text-center">
           <div className="text-sm text-muted-foreground">
