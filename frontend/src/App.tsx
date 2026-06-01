@@ -1,7 +1,8 @@
 import { Routes, Route } from "react-router-dom"
 import { Home } from "./pages/Home"
-import Login from "./pages/Login"
 import SignUp from "./pages/SignUp"
+import SignIn from "./pages/SignIn"
+import ForgotPass from "./pages/forgotPass"
 
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
@@ -13,8 +14,9 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<SignUp />} />
+      <Route path="/sign-in" element={<SignIn />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/forgot-password" element={<ForgotPass />} />
       <Route path="/docs" element={<PlaceholderPage title="Docs" />} />
       <Route
         path="/migration"

@@ -82,22 +82,22 @@ export const Navbar = () => {
               <NavLink to="/profile">
                 <Button
                   variant="default"
-                  className="h-9 bg-primary-1 text-white hover:bg-primary-1/90"
+                  className="h-9 bg-primary-1 text-primary-foreground hover:bg-primary-1/90"
                 >
                   Profile
                 </Button>
               </NavLink>
             ) : (
               <>
-                <NavLink to="/login">
+                <NavLink to="/sign-in">
                   <Button variant="ghost" className="mr-2 h-9 hover:bg-muted">
                     Log in
                   </Button>
                 </NavLink>
-                <NavLink to="/register">
+                <NavLink to="/sign-up">
                   <Button
                     variant="default"
-                    className="h-9 border-none bg-primary-1 text-white shadow-lg shadow-primary-1/20 hover:bg-primary-1/90"
+                    className="h-9 border-none bg-primary-1 text-primary-foreground shadow-lg shadow-primary-1/20 hover:bg-primary-1/90"
                   >
                     Get Started
                   </Button>
@@ -147,14 +147,14 @@ export const Navbar = () => {
                     to="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Button className="w-full justify-start bg-primary-1 text-white">
+                    <Button className="w-full justify-start bg-primary-1 text-primary-foreground">
                       Profile
                     </Button>
                   </NavLink>
                 ) : (
                   <>
                     <NavLink
-                      to="/login"
+                      to="/sign-in"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Button
@@ -165,10 +165,10 @@ export const Navbar = () => {
                       </Button>
                     </NavLink>
                     <NavLink
-                      to="/register"
+                      to="/sign-up"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Button className="w-full justify-start bg-primary-1 text-white">
+                      <Button className="w-full justify-start bg-primary-1 text-primary-foreground">
                         Get Started
                       </Button>
                     </NavLink>

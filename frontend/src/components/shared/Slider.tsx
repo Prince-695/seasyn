@@ -38,7 +38,7 @@ export const Slider = () => {
         >
           {MARQUEE_ITEMS.map((db, index) => (
             <div key={index} className="flex items-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg shadow-primary-2/5 transition-all md:h-16 md:w-16">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl transition-all md:h-16 md:w-16">
                 <db.icon className="h-6 w-6 text-primary-1/50 md:h-8 md:w-8" />
               </div>
               <span className="text-xl font-bold whitespace-nowrap text-primary-2/30 md:text-2xl">
