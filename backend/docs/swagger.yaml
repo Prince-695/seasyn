@@ -1,0 +1,307 @@
+basePath: /
+definitions:
+  github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  github_com_Prince-695_seasyn_backend_internal_domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_Prince-695_seasyn_backend_internal_domain.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  github_com_Prince-695_seasyn_backend_internal_domain.ResetPasswordRequest:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - otp
+    - password
+    type: object
+  github_com_Prince-695_seasyn_backend_internal_domain.Response:
+    properties:
+      access_token:
+        type: string
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      response_time:
+        type: string
+      success:
+        type: boolean
+    type: object
+  github_com_Prince-695_seasyn_backend_internal_domain.SignupRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the SEASYN backend server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: SEASYN API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - '*/*'
+      description: get the status of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: Show the status of server.
+      tags:
+      - root
+  /v1/auth/{provider}/callback:
+    get:
+      description: Handle OAuth callback and return user data + tokens as JSON
+      parameters:
+      - description: OAuth Provider
+        enum:
+        - google
+        - github
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: OAuth Code
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: OAuth Callback
+      tags:
+      - auth
+  /v1/auth/{provider}/login:
+    get:
+      description: Get the authorization URL for a specific provider (google, github)
+      parameters:
+      - description: OAuth Provider
+        enum:
+        - google
+        - github
+        in: path
+        name: provider
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: Get OAuth Login URL
+      tags:
+      - auth
+  /v1/auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send OTP to user email
+      parameters:
+      - description: Forgot Password Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: Request Password Reset
+      tags:
+      - auth
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and receive access token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: User Login
+      tags:
+      - auth
+  /v1/auth/logout:
+    post:
+      description: Clear authentication cookies
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Logout User
+      tags:
+      - auth
+  /v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using a refresh token
+      parameters:
+      - description: Refresh Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: Refresh Access Token
+      tags:
+      - auth
+  /v1/auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP and update password
+      parameters:
+      - description: Reset Password Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: Reset Password with OTP
+      tags:
+      - auth
+  /v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user and receive access token
+      parameters:
+      - description: Signup Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+      summary: User Signup
+      tags:
+      - auth
+  /v1/user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get profile of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get User Profile
+      tags:
+      - user
+schemes:
+- https
+- http
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and then your token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

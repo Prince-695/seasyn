@@ -1,4 +1,23 @@
 package ports
 
-// MigrationService will orchestrate migration jobs.
-type MigrationService interface{}
+import (
+	"context"
+
+	"github.com/Prince-695/seasyn/backend/internal/domain"
+)
+
+type AuthService interface {
+	Signup(ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error)
+	Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResponse, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error)
+	ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error
+	ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error
+	ValidateToken(token string) (string, error)
+	GetOAuthURL(provider string) (string, error)
+	HandleOAuthCallback(ctx context.Context, provider, code string) (*domain.AuthResponse, error)
+}
+
+type MailService interface {
+	SendOTP(to, otp string) error
+	SendWelcome(to, name string) error
+}
