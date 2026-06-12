@@ -205,7 +205,7 @@ export default function SignIn() {
                 to="/sign-up"
                 className="font-semibold text-primary-1 transition-colors hover:text-primary-1/80"
               >
-                Create one
+                Sign Up
               </Link>
             </div>
           </CardFooter>
