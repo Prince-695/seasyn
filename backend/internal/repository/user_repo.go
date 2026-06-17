@@ -21,7 +21,10 @@ func NewUserRepository(db *gorm.DB) ports.UserRepository {
 func (r *userRepo) Create(ctx context.Context, u domain.User) (*domain.User, error) {
 	model := UserModel{
 		Email:        u.Email,
+		FirstName:    u.FirstName,
+		LastName:     u.LastName,
 		PasswordHash: u.PasswordHash,
+		IsVerified:   u.IsVerified,
 	}
 	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
