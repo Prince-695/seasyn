@@ -26,13 +26,14 @@ func (UserModel) TableName() string {
 
 func (m *UserModel) ToDomain() *domain.User {
 	return &domain.User{
-		ID:         m.ID,
-		Email:      m.Email,
-		FirstName:  m.FirstName,
-		LastName:   m.LastName,
-		IsVerified: m.IsVerified,
-		CreatedAt:  m.CreatedAt,
-		UpdatedAt:  m.UpdatedAt,
+		ID:           m.ID,
+		Email:        m.Email,
+		FirstName:    m.FirstName,
+		LastName:     m.LastName,
+		PasswordHash: m.PasswordHash,
+		IsVerified:   m.IsVerified,
+		CreatedAt:    m.CreatedAt,
+		UpdatedAt:    m.UpdatedAt,
 	}
 }
 
