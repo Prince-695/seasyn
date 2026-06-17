@@ -4,35 +4,43 @@ interface User {
   id: string
   email: string
   name?: string
-  // Add other fields according to your backend API
+  // Add other fields according to backend API
 }
 
 interface AuthState {
   user: User | null
-  token: string | null
   isAuthenticated: boolean
   isInitialized: boolean
-  setAuth: (user: User, token: string) => void
+  setAuth: (user: User) => void
   clearAuth: () => void
   setInitialized: (status: boolean) => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: localStorage.getItem("token") || null, // Check local storage for existing token initially
-  isAuthenticated: !!localStorage.getItem("token"),
-  isInitialized: false, // Set to true after initial /me check finishes
+const getInitialUser = (): User | null => {
+  try {
+    const stored = localStorage.getItem("user")
+    return stored ? JSON.parse(stored) : null
+  } catch {
+    return null
+  }
+}
 
-  setAuth: (user, token) => {
-    localStorage.setItem("token", token)
-    set({ user, token, isAuthenticated: true, isInitialized: true })
+export const useAuthStore = create<AuthState>((set) => ({
+  user: getInitialUser(),
+  isAuthenticated: localStorage.getItem("is_logged_in") === "true",
+  isInitialized: true, // Loaded instantly on startup from localStorage
+
+  setAuth: (user) => {
+    localStorage.setItem("user", JSON.stringify(user))
+    localStorage.setItem("is_logged_in", "true")
+    set({ user, isAuthenticated: true, isInitialized: true })
   },
 
   clearAuth: () => {
-    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    localStorage.removeItem("is_logged_in")
     set({
       user: null,
-      token: null,
       isAuthenticated: false,
       isInitialized: true,
     })

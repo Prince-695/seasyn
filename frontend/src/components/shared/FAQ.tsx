@@ -43,14 +43,14 @@ export const FAQ = () => {
       {/* Header */}
       <div className="mb-1 flex text-center">
         <h2 className="mb-4 text-5xl font-bold tracking-wider text-foreground md:text-5xl">
-          Everything <p className="text-primary-1">You Need to Know</p>
+          Everything <p className="text-primary">You Need to Know</p>
         </h2>
       </div>
 
       <div className="relative flex w-2/3 flex-col gap-4">
-        {/* Decorative background glows using primary-1 and primary-2 */}
-        <div className="pointer-events-none absolute top-1/4 left-[-15%] -z-10 h-72 w-72 rounded-full bg-primary-1/5 blur-[120px]" />
-        <div className="pointer-events-none absolute right-[-15%] bottom-1/4 -z-10 h-72 w-72 rounded-full bg-primary-2/5 blur-[120px]" />
+        {/* Decorative background glows using primary and secondary */}
+        <div className="pointer-events-none absolute top-1/4 left-[-15%] -z-10 h-72 w-72 rounded-full bg-primary/5 blur-[120px]" />
+        <div className="pointer-events-none absolute right-[-15%] bottom-1/4 -z-10 h-72 w-72 rounded-full bg-secondary/5 blur-[120px]" />
 
         {faqData.map((item, index) => {
           const isOpen = openIndex === index
@@ -61,8 +61,8 @@ export const FAQ = () => {
               className={cn(
                 "group overflow-hidden rounded-xl border-b border-border bg-card/40 backdrop-blur-sm transition-all duration-300",
                 isOpen
-                  ? "border-primary-2 shadow-2xl shadow-primary-1/5"
-                  : "hover:border-primary-1/20 hover:bg-card/60"
+                  ? "border-secondary shadow-2xl shadow-primary/5"
+                  : "hover:border-primary/20 hover:bg-card/60"
               )}
             >
               <button
@@ -73,8 +73,8 @@ export const FAQ = () => {
                   className={cn(
                     "text-lg font-semibold transition-colors duration-300 md:text-xl",
                     isOpen
-                      ? "text-primary-1"
-                      : "text-foreground group-hover:text-primary-2"
+                      ? "text-primary"
+                      : "text-foreground group-hover:text-secondary"
                   )}
                 >
                   {item.question}
@@ -83,8 +83,8 @@ export const FAQ = () => {
                   className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-500 ease-in-out",
                     isOpen
-                      ? "rotate-180 text-primary-foreground shadow-lg shadow-primary-1/20"
-                      : "text-primary-2 group-hover:text-primary-1"
+                      ? "rotate-180 text-primary-foreground shadow-lg shadow-primary/20"
+                      : "text-secondary group-hover:text-primary"
                   )}
                 >
                   <ChevronDown className="h-6 w-6" />

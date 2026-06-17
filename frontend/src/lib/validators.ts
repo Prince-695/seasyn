@@ -9,7 +9,12 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+    firstName: z
+      .string()
+      .min(2, { message: "First name must be at least 2 characters" }),
+    lastName: z
+      .string()
+      .min(2, { message: "Last name must be at least 2 characters" }),
     email: z.string().email({ message: "Invalid email address" }),
     password: z
       .string()
@@ -36,8 +41,31 @@ export const projectSchema = z.object({
   description: z.string().optional(),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+})
+
+export const resetPasswordSchema = z
+  .object({
+    email: z.string().email({ message: "Invalid email address" }),
+    otp: z
+      .string()
+      .length(6, { message: "OTP must be exactly 6 characters" })
+      .regex(/^\d+$/, { message: "OTP must contain only numbers" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  })
+
 // Infer types
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 export type ConnectionConfigInput = z.infer<typeof connectionConfigSchema>
 export type ProjectInput = z.infer<typeof projectSchema>
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>

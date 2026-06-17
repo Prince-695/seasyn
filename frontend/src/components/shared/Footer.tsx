@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <footer className="relative w-full overflow-hidden border-t border-border bg-background px-6 py-12">
       {/* "Halfly visible" Seasyn text background */}
-      <div className="pointer-events-none absolute -bottom-33 left-1/2 -translate-x-1/2 text-[12rem] font-bold text-primary-2/11 select-none md:text-[20rem]">
+      <div className="pointer-events-none absolute -bottom-33 left-1/2 -translate-x-1/2 text-[12rem] font-bold text-secondary/11 select-none md:text-[20rem]">
         SEASYN
       </div>
 
@@ -21,19 +21,19 @@ const Footer = () => {
             <nav className="flex gap-4">
               <Link
                 to="/"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary-2"
+                className="text-sm text-muted-foreground transition-colors hover:text-secondary"
               >
                 Home
               </Link>
               <Link
                 to="/docs"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary-2"
+                className="text-sm text-muted-foreground transition-colors hover:text-secondary"
               >
                 Documentation
               </Link>
               <Link
                 to="/migration"
-                className="text-sm text-muted-foreground transition-colors hover:text-primary-2"
+                className="text-sm text-muted-foreground transition-colors hover:text-secondary"
               >
                 Start Migration
               </Link>
@@ -51,7 +51,7 @@ const Footer = () => {
           <div className="flex gap-4">
             <a
               href="mailto:hello@seasyn.io"
-              className="rounded-full bg-muted p-2 text-muted-foreground transition-all hover:bg-primary-1/10 hover:text-primary-1"
+              className="rounded-full bg-muted p-2 text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary"
               aria-label="Email"
             >
               <Mail size={20} />
@@ -60,7 +60,7 @@ const Footer = () => {
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-muted p-2 text-muted-foreground transition-all hover:bg-primary-1/10 hover:text-primary-1"
+              className="rounded-full bg-muted p-2 text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary"
               aria-label="GitHub"
             >
               <FaGithub size={20} />
@@ -69,7 +69,7 @@ const Footer = () => {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-muted p-2 text-muted-foreground transition-all hover:bg-primary-1/10 hover:text-primary-1"
+              className="rounded-full bg-muted p-2 text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary"
               aria-label="LinkedIn"
             >
               <FaLinkedin size={20} />

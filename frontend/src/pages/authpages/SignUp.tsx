@@ -1,11 +1,15 @@
-import { useState } from "react"
-import { useNavigate, Link, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { useNavigate, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertCircle, Loader2 } from "lucide-react"
-import { loginSchema } from "@/lib/validators"
-import type { LoginInput } from "@/lib/validators"
+import { Loader2, AlertCircle } from "lucide-react"
+import { registerSchema } from "@/lib/validators"
+import type { RegisterInput } from "@/lib/validators"
 import { useAuthStore } from "@/store/authStore"
+import { authApi, type SignupPayload } from "@/api/auth"
+
+import { FcGoogle } from "react-icons/fc"
+import { FaGithub } from "react-icons/fa"
 import { motion } from "framer-motion"
 import {
   Card,
@@ -18,62 +22,75 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { FaGithub } from "react-icons/fa"
-import { FcGoogle } from "react-icons/fc"
-import axios from "axios" // For error type checking
+import axios from "axios"
 
-export default function SignIn() {
+export default function SignUp() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const setAuth = useAuthStore((state) => state.setAuth)
+  const { isAuthenticated, isInitialized, setAuth } = useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
 
-  // Define where to redirect upon successful login
-  const from = location.state?.from?.pathname || "/"
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      navigate("/dashboard", { replace: true })
+    }
+  }, [isAuthenticated, isInitialized, navigate])
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
   })
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: RegisterInput) => {
     try {
       setServerError(null)
-      /* Commenting out backend logic for now to see UI
-      const response = await authApi.login(data);
-      if (response.token && response.user) {
-        setAuth(response.user, response.token);
-        // Replace current entry in history to prevent back-button loops
-        navigate(from, { replace: true });
-      } else {
-        throw new Error('Invalid response from server');
-      }
-      */
 
-      // Mock success for UI testing
-      console.log("Mock Login Success:", data)
-      setTimeout(() => {
-        setAuth({ id: "1", name: "Demo User", email: data.email }, "mock-token")
-        navigate(from, { replace: true })
-      }, 1000)
+      const signupPayload: SignupPayload = {
+        email: data.email,
+        password: data.password,
+        first_name: data.firstName,
+        last_name: data.lastName,
+      }
+
+      const response = await authApi.register(signupPayload)
+
+      // Store the full name locally to persist it on login
+      const fullName = `${data.firstName} ${data.lastName}`
+      localStorage.setItem(`user_name_${data.email.toLowerCase()}`, fullName)
+
+      // Auto-login after successful registration (since cookies handle token)
+      const user = response.user || {
+        id: "authenticated-user",
+        email: data.email,
+        name: fullName,
+      }
+
+      setAuth(user)
+      navigate("/dashboard", { replace: true })
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setServerError(err.response?.data?.message || "Something went wrong")
+        setServerError(
+          err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Registration failed. Please try again."
+        )
       } else {
-        setServerError("Something went wrong")
+        setServerError("Something went wrong during registration.")
       }
     }
   }
 
   const fields: Array<{
-    id: keyof LoginInput
+    id: keyof RegisterInput
     label: string
     type: string
     placeholder: string
   }> = [
+    { id: "firstName", label: "First Name", type: "text", placeholder: "Jane" },
+    { id: "lastName", label: "Last Name", type: "text", placeholder: "Doe" },
     {
       id: "email",
       label: "Email Address",
@@ -83,6 +100,12 @@ export default function SignIn() {
     {
       id: "password",
       label: "Password",
+      type: "password",
+      placeholder: "••••••••",
+    },
+    {
+      id: "confirmPassword",
+      label: "Confirm Password",
       type: "password",
       placeholder: "••••••••",
     },
@@ -96,18 +119,13 @@ export default function SignIn() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full max-w-md"
       >
-        <Card className="w-full shadow-2xl shadow-primary-1/20">
+        <Card className="w-full border-primary/10 shadow-xl">
           <CardHeader className="space-y-2 p-6 text-center">
-            {/* <div className="mb-2 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-1/10">
-              <Waves className="h-6 w-6 text-primary-1" />
-            </div>
-          </div> */}
-            <CardTitle className="text-3xl font-bold tracking-tight text-primary-1">
-              Welcome back
+            <CardTitle className="text-3xl font-bold tracking-tight text-primary">
+              Create an account
             </CardTitle>
             <CardDescription className="font-medium text-muted-foreground">
-              Enter your credentials to access your account
+              Join Seasyn to start managing your migrations
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -119,31 +137,20 @@ export default function SignIn() {
               )}
 
               {fields.map((field) => (
-                <div key={field.id} className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <Label
-                      htmlFor={field.id}
-                      className="font-semibold text-foreground/80"
-                    >
-                      {field.label}
-                    </Label>
-                    {/* Optional 'forgot password' link space */}
-                    {field.id === "password" && (
-                      <Link
-                        to="/forgot-password"
-                        className="cursor-pointer text-xs font-medium text-primary-1 transition-colors hover:text-primary-1/80"
-                      >
-                        Forgot password?
-                      </Link>
-                    )}
-                  </div>
+                <div key={field.id} className="space-y-2">
+                  <Label
+                    htmlFor={field.id}
+                    className="font-semibold text-foreground/80"
+                  >
+                    {field.label}
+                  </Label>
                   <Input
                     id={field.id}
                     type={field.type}
                     placeholder={field.placeholder}
                     {...register(field.id)}
                     aria-invalid={!!errors[field.id]}
-                    className="h-11 bg-background/50 transition-all duration-200 focus-visible:border-primary-1 focus-visible:ring-primary-1/20"
+                    className="h-11 bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
                   />
                   {errors[field.id] && (
                     <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
@@ -156,16 +163,16 @@ export default function SignIn() {
 
               <Button
                 type="submit"
-                className="mt-3 h-11 w-full bg-primary-1 font-semibold text-primary-foreground shadow-md shadow-primary-1/20 transition-all hover:bg-primary-1/90"
+                className="mt-2 h-11 w-full bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Authenticating
+                    Creating account
                   </>
                 ) : (
-                  "Sign In"
+                  "Sign Up"
                 )}
               </Button>
             </form>
@@ -180,7 +187,6 @@ export default function SignIn() {
                 </span>
               </div>
             </div>
-
             <div className="mb-3 flex gap-1">
               <Button
                 variant="outline"
@@ -198,14 +204,14 @@ export default function SignIn() {
               </Button>
             </div>
           </CardContent>
-          <CardFooter className="mt-2 flex flex-col space-y-4 text-center">
+          <CardFooter className="mt-2 flex flex-col text-center">
             <div className="text-sm text-muted-foreground">
-              Don&apos;t have an account yet?{" "}
+              Already have an account?{" "}
               <Link
-                to="/sign-up"
-                className="font-semibold text-primary-1 transition-colors hover:text-primary-1/80"
+                to="/sign-in"
+                className="font-semibold text-primary transition-colors hover:text-primary/80"
               >
-                Sign Up
+                Sign in
               </Link>
             </div>
           </CardFooter>

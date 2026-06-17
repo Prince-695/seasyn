@@ -16,42 +16,42 @@ const features = [
     description:
       "We don't keep your data. Per-request credentials ensure total privacy and zero data retention.",
     icon: ShieldCheck,
-    color: "primary-1",
+    color: "primary",
   },
   {
     title: "Real-time Translation",
     description:
       "Automatic schema introspection and instant conversions across multiple database engines.",
     icon: FastForward,
-    color: "primary-2",
+    color: "secondary",
   },
   {
     title: "Universal Compatibility",
     description:
       "Seamlessly move data between SQL variants and NoSQL databases like MongoDB and Postgres.",
     icon: Database,
-    color: "primary-1",
+    color: "primary",
   },
   {
     title: "Zero Configuration",
     description:
       "Connect and migrate instantly without installing any middle-man agents or server components.",
     icon: Zap,
-    color: "primary-2",
+    color: "secondary",
   },
   {
     title: "Streaming Efficiency",
     description:
       "High-performance data streaming ensures even the largest databases migrate with minimal overhead.",
     icon: Activity,
-    color: "primary-1",
+    color: "primary",
   },
   {
     title: "Smart Introspection",
     description:
       "Intelligent discovery of database relationships, types, and indexes for accurate mapping.",
     icon: Search,
-    color: "primary-2",
+    color: "secondary",
   },
 ]
 
@@ -92,9 +92,9 @@ const FeatureCard = ({
       style={{ opacity, y, scale }}
       className={cn(
         "group relative flex flex-col items-start rounded-sm border-2 border-border bg-card/40 p-8 backdrop-blur-sm transition-all duration-300",
-        feature.color === "primary-1"
-          ? "hover:border-primary-1/30 hover:shadow-primary-1/5"
-          : "hover:border-primary-2/30 hover:shadow-primary-2/5",
+        feature.color === "primary"
+          ? "hover:border-primary/30 hover:shadow-primary/5"
+          : "hover:border-secondary/30 hover:shadow-secondary/5",
         "hover:shadow-2xl"
       )}
     >
@@ -102,9 +102,9 @@ const FeatureCard = ({
       <div
         className={cn(
           "mb-6 flex h-14 w-14 items-center justify-center rounded-sm shadow-sm transition-all duration-500",
-          feature.color === "primary-1"
-            ? "bg-primary-1/10 text-primary-1 group-hover:bg-primary-1/20"
-            : "bg-primary-2/10 text-primary-2 group-hover:bg-primary-2/20"
+          feature.color === "primary"
+            ? "bg-primary/10 text-primary group-hover:bg-primary/20"
+            : "bg-secondary/10 text-secondary group-hover:bg-secondary/20"
         )}
       >
         <feature.icon size={30} />
@@ -122,7 +122,7 @@ const FeatureCard = ({
       <div
         className={cn(
           "absolute top-4 right-4 h-2 w-2 rounded-full opacity-0 transition-opacity group-hover:opacity-100",
-          feature.color === "primary-1" ? "bg-primary-1" : "bg-primary-2"
+          feature.color === "primary" ? "bg-primary" : "bg-secondary"
         )}
       />
     </motion.div>
@@ -141,7 +141,7 @@ const Features = () => {
   return (
     <section
       ref={containerRef}
-      className="relative z-10 mt-32 flex flex-col items-center gap-16 px-6"
+      className="z-10 mt-32 flex flex-col items-center gap-16 px-6"
     >
       {/* Section Header */}
       <motion.div
@@ -152,7 +152,7 @@ const Features = () => {
         transition={{ duration: 0.6 }}
       >
         <h2 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-          Why Choose <span className="text-primary-1">Seasyn?</span>
+          Why Choose <span className="text-primary">Seasyn?</span>
         </h2>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
           The most powerful, secure, and flexible database migration bridge ever
@@ -161,7 +161,7 @@ const Features = () => {
       </motion.div>
 
       {/* Features Grid */}
-      <div className="custom-scrollbar grid w-full max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid w-full max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, index) => (
           <FeatureCard
             key={index}

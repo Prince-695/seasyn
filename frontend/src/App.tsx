@@ -1,8 +1,12 @@
 import { Routes, Route } from "react-router-dom"
 import { Home } from "./pages/Home"
-import SignUp from "./pages/SignUp"
-import SignIn from "./pages/SignIn"
-import ForgotPass from "./pages/forgotPass"
+import SignUp from "./pages/authpages/SignUp"
+import SignIn from "./pages/authpages/SignIn"
+import ForgotPass from "./pages/authpages/ForgotPass"
+import ResetPass from "./pages/authpages/ResetPass"
+import Dashboard from "./pages/dashboard/Dashboard"
+import { ProtectedRoute } from "@/components/layout/ProtectedRoute"
+// import { useAuthStore } from "@/store/authStore"
 
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
@@ -17,6 +21,15 @@ const App = () => {
       <Route path="/sign-in" element={<SignIn />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPass />} />
+      <Route path="/reset-password" element={<ResetPass />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/docs" element={<PlaceholderPage title="Docs" />} />
       <Route
         path="/migration"
