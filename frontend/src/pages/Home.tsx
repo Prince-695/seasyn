@@ -27,7 +27,7 @@ export const Home = () => {
       <Navbar />
       <main className="relative flex flex-1 flex-col items-center justify-center overflow-x-hidden bg-background px-6 pb-10 text-foreground">
         {/* Hero Section */}
-        <section className="relative z-10 mt-32 flex w-full max-w-6xl">
+        <section className="relative z-10 mt-50 flex w-full max-w-6xl">
           <div
             className="w-full pt-10"
             // style={{
@@ -45,7 +45,7 @@ export const Home = () => {
               <div className="flex flex-1 flex-col items-center">
                 <h1 className="text-center text-5xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl lg:leading-[1.1]">
                   Fluid Database{" "}
-                  <span className="bg-linear-to-r from-primary-1 to-primary-2 bg-clip-text text-transparent italic">
+                  <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent italic">
                     Migrations,
                   </span>{" "}
                   <br />
@@ -59,15 +59,15 @@ export const Home = () => {
                 </p>
 
                 <div className="relative mt-10 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                  <button className="group relative flex h-14 items-center justify-center gap-3 rounded-md border border-primary-1 px-6 font-medium text-primary-1 transition-all hover:bg-primary-1/5">
+                  <button className="group relative flex h-14 items-center justify-center gap-3 rounded-md border border-primary px-6 font-medium text-primary transition-all hover:bg-primary/5">
                     Start Migrating
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
 
                   {/* David's Phantom Cursor */}
                   <div className="pointer-events-none absolute top-20 left-170 z-50 flex animate-[cursor-float_4s_infinite_ease-in-out] items-start">
-                    <MousePointer2 className="h-6 w-6 fill-primary-1 text-primary-1 drop-shadow-md" />
-                    <span className="mt-4 ml-1 rounded-md bg-primary-1 px-2 py-1 text-[10px] font-bold text-primary-foreground shadow-lg">
+                    <MousePointer2 className="h-6 w-6 fill-primary text-primary drop-shadow-md" />
+                    <span className="mt-4 ml-1 rounded-md bg-primary px-2 py-1 text-[10px] font-bold text-primary-foreground shadow-lg">
                       David
                     </span>
                   </div>
@@ -190,9 +190,9 @@ export const Home = () => {
         </section>
 
         {/* Dashboard Preview Section */}
-        <section className="relative z-10 mt-25 w-full max-w-6xl px-4">
-          <div className="group relative rounded-3xl border border-border bg-card/50 p-2 shadow-xl backdrop-blur-sm transition-all hover:border-primary-1/30">
-            <div className="pointer-events-none absolute inset-0 rounded-3xl bg-linear-to-b from-primary-1/5 to-transparent" />
+        <section className="relative z-10 mt-25 w-full max-w-6xl bg-background px-4">
+          <div className="group relative rounded-3xl border border-border bg-card/50 p-2 shadow-xl backdrop-blur-sm transition-all hover:border-primary/30">
+            <div className="pointer-events-none absolute inset-0 rounded-3xl bg-linear-to-b from-primary/5 to-transparent" />
             <div className="relative flex min-h-100 w-full items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/20 md:min-h-150">
               <div className="flex flex-col items-center gap-4 text-muted-foreground/40">
                 <Component size={64} className="animate-pulse" />
@@ -209,7 +209,7 @@ export const Home = () => {
                 <div className="h-3 w-3 rounded-full bg-chart-2" />
               </div>
             </div>
-            <div className="absolute -inset-4 -z-10 rounded-[40px] bg-primary-1/5 opacity-0 blur-3xl transition-opacity group-hover:opacity-100" />
+            <div className="absolute -inset-4 -z-10 rounded-[40px] bg-primary/5 opacity-0 blur-3xl transition-opacity group-hover:opacity-100" />
           </div>
         </section>
 

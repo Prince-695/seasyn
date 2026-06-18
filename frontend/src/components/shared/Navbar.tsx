@@ -1,10 +1,11 @@
 import { NavLink } from "react-router-dom"
-import { Sun, Moon, Menu } from "lucide-react"
+import { Sun, Moon, Menu, User } from "lucide-react"
 import { useTheme } from "../theme-provider"
 import { useState } from "react"
 import { Button } from "../ui/button"
 import { cn } from "../../lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { useAuthStore } from "@/store/authStore"
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -15,9 +16,7 @@ const navItems = [
 export const Navbar = () => {
   const { theme, setTheme } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-  // Placeholder for authentication state
-  const isAuthenticated = false
+  const { isAuthenticated, user } = useAuthStore()
 
   return (
     <motion.header
@@ -35,14 +34,14 @@ export const Navbar = () => {
             to="/"
             className="flex items-center gap-2 transition-opacity hover:opacity-90"
           >
-            <div className="flex h-10 w-10 items-center justify-center">
+            {/* <div className="flex h-10 w-10 items-center justify-center">
               <img
-                src="/logo.png"
+                src="image.svg"
                 alt="Logo"
                 className="h-full w-full object-contain"
               />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-primary-1">
+            </div> */}
+            <span className="text-xl font-bold tracking-tight text-primary">
               Seasyn
             </span>
           </NavLink>
@@ -54,7 +53,7 @@ export const Navbar = () => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `transition-colors hover:text-primary-2 ${isActive ? "text-primary-1" : "text-muted-foreground"}`
+                  `transition-colors hover:text-secondary ${isActive ? "text-primary" : "text-muted-foreground"}`
                 }
               >
                 {item.name}
@@ -79,20 +78,30 @@ export const Navbar = () => {
 
           <div className="hidden items-center gap-2 sm:flex">
             {isAuthenticated ? (
-              <NavLink to="/profile">
-                <Button
-                  variant="default"
-                  className="h-9 bg-primary-1 text-white hover:bg-primary-1/90"
-                >
-                  Profile
-                </Button>
+              <NavLink
+                to="/dashboard"
+                className="flex items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-1.5 transition-colors hover:bg-muted"
+              >
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                  {user?.name?.[0]?.toUpperCase() || (
+                    <User className="h-3.5 w-3.5" />
+                  )}
+                </div>
+                <span className="text-xs font-medium text-foreground">
+                  {user?.name ? user.name.split(" ")[0] : user?.email}
+                </span>
               </NavLink>
             ) : (
               <>
-                <NavLink to="/signup">
+                <NavLink to="/sign-in">
+                  <Button variant="ghost" className="mr-2 h-9 hover:bg-muted">
+                    Log in
+                  </Button>
+                </NavLink>
+                <NavLink to="/sign-up">
                   <Button
                     variant="default"
-                    className="h-9 border-none bg-primary-1 text-white shadow-lg shadow-primary-1/20 hover:bg-primary-1/90"
+                    className="h-9 border-none bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90"
                   >
                     Get Started
                   </Button>
@@ -127,7 +136,7 @@ export const Navbar = () => {
                     key={item.name}
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-foreground/80 hover:text-primary-1"
+                    className="text-foreground/80 hover:text-primary"
                   >
                     {item.name}
                   </NavLink>
@@ -139,20 +148,37 @@ export const Navbar = () => {
               <div className="flex flex-col gap-2">
                 {isAuthenticated ? (
                   <NavLink
-                    to="/profile"
+                    to="/dashboard"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted"
                   >
-                    <Button className="w-full justify-start bg-primary-1 text-white">
-                      Profile
-                    </Button>
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {user?.name?.[0]?.toUpperCase() || (
+                        <User className="h-4 w-4" />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-foreground">
+                      {user?.name ? user.name.split(" ")[0] : user?.email}
+                    </span>
                   </NavLink>
                 ) : (
                   <>
                     <NavLink
-                      to="/signup"
+                      to="/sign-in"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Button className="w-full justify-start bg-primary-1 text-white">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
+                        Log in
+                      </Button>
+                    </NavLink>
+                    <NavLink
+                      to="/sign-up"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button className="w-full justify-start bg-primary text-primary-foreground">
                         Get Started
                       </Button>
                     </NavLink>
