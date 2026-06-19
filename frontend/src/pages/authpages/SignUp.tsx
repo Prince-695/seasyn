@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, AlertCircle } from "lucide-react"
+import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react"
 import { registerSchema } from "@/lib/validators"
 import type { RegisterInput } from "@/lib/validators"
 import { useAuthStore } from "@/store/authStore"
@@ -28,6 +28,8 @@ export default function SignUp() {
   const navigate = useNavigate()
   const { isAuthenticated, isInitialized, setAuth } = useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -83,6 +85,49 @@ export default function SignUp() {
     }
   }
 
+  const handleOAuthLogin = (provider: "google" | "github") => {
+    setServerError(null)
+    const baseURL =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/v1"
+    const authUrl = `${baseURL}/auth/${provider}/login`
+
+    const width = 600
+    const height = 650
+    const left = window.screen.width / 2 - width / 2
+    const top = window.screen.height / 2 - height / 2
+
+    const popup = window.open(
+      authUrl,
+      "OAuth Login",
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes,scrollbars=yes`
+    )
+
+    if (!popup) {
+      setServerError("Popup blocked. Please allow popups for this site.")
+      return
+    }
+
+    const pollTimer = setInterval(async () => {
+      try {
+        const response = await authApi.getProfile()
+        if (response) {
+          clearInterval(pollTimer)
+          popup.close()
+
+          const user = response.data?.user || response.data || response
+          setAuth(user)
+          navigate("/dashboard", { replace: true })
+        }
+      } catch (err) {
+        if (popup.closed) {
+          clearInterval(pollTimer)
+          console.log(err)
+          setServerError("Authentication window was closed.")
+        }
+      }
+    }, 1000)
+  }
+
   const fields: Array<{
     id: keyof RegisterInput
     label: string
@@ -136,30 +181,126 @@ export default function SignUp() {
                 </div>
               )}
 
-              {fields.map((field) => (
-                <div key={field.id} className="space-y-2">
+              {/* First Name & Last Name inputs in a single row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label
-                    htmlFor={field.id}
+                    htmlFor="firstName"
                     className="font-semibold text-foreground/80"
                   >
-                    {field.label}
+                    First Name
                   </Label>
                   <Input
-                    id={field.id}
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    {...register(field.id)}
-                    aria-invalid={!!errors[field.id]}
-                    className="h-11 bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                    id="firstName"
+                    type="text"
+                    placeholder="Jane"
+                    {...register("firstName")}
+                    aria-invalid={!!errors.firstName}
+                    className="h-11 w-full bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
                   />
-                  {errors[field.id] && (
+                  {errors.firstName && (
                     <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
                       <AlertCircle className="h-4 w-4" />
-                      {errors[field.id]?.message}
+                      {errors.firstName?.message}
                     </p>
                   )}
                 </div>
-              ))}
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="lastName"
+                    className="font-semibold text-foreground/80"
+                  >
+                    Last Name
+                  </Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    {...register("lastName")}
+                    aria-invalid={!!errors.lastName}
+                    className="h-11 w-full bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                  />
+                  {errors.lastName && (
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      {errors.lastName?.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {fields
+                .filter(
+                  (field) => field.id !== "firstName" && field.id !== "lastName"
+                )
+                .map((field) => (
+                  <div key={field.id} className="space-y-2">
+                    <Label
+                      htmlFor={field.id}
+                      className="font-semibold text-foreground/80"
+                    >
+                      {field.label}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id={field.id}
+                        type={
+                          field.id === "password"
+                            ? showPassword
+                              ? "text"
+                              : "password"
+                            : field.id === "confirmPassword"
+                              ? showConfirmPassword
+                                ? "text"
+                                : "password"
+                              : field.type
+                        }
+                        placeholder={field.placeholder}
+                        {...register(field.id)}
+                        aria-invalid={!!errors[field.id]}
+                        className={`h-11 w-full bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20 ${
+                          field.id === "password" ||
+                          field.id === "confirmPassword"
+                            ? "pr-10"
+                            : ""
+                        }`}
+                      />
+                      {(field.id === "password" ||
+                        field.id === "confirmPassword") && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (field.id === "password") {
+                              setShowPassword(!showPassword)
+                            } else {
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                          }}
+                          className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                        >
+                          {field.id === "password" ? (
+                            showPassword ? (
+                              <EyeOff className="h-4.5 w-4.5" />
+                            ) : (
+                              <Eye className="h-4.5 w-4.5" />
+                            )
+                          ) : showConfirmPassword ? (
+                            <EyeOff className="h-4.5 w-4.5" />
+                          ) : (
+                            <Eye className="h-4.5 w-4.5" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {errors[field.id] && (
+                      <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        {errors[field.id]?.message}
+                      </p>
+                    )}
+                  </div>
+                ))}
 
               <Button
                 type="submit"
@@ -191,6 +332,7 @@ export default function SignUp() {
               <Button
                 variant="outline"
                 className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
+                onClick={() => handleOAuthLogin("google")}
               >
                 <FcGoogle className="mr-2 h-5 w-5" />
                 Google
@@ -198,6 +340,7 @@ export default function SignUp() {
               <Button
                 variant="outline"
                 className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
+                onClick={() => handleOAuthLogin("github")}
               >
                 <FaGithub className="mr-2 h-5 w-5" />
                 GitHub

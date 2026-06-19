@@ -37,4 +37,21 @@ export const authApi = {
     const response = await apiClient.post("/auth/reset-password", data)
     return response.data
   },
+
+  getOAuthUrl: async (provider: "google" | "github") => {
+    const response = await apiClient.get(`/auth/${provider}/login`)
+    return response.data
+  },
+
+  getProfile: async () => {
+    const response = await apiClient.get("/user/profile")
+    return response.data
+  },
+
+  handleOAuthCallback: async (provider: string, code: string) => {
+    const response = await apiClient.get(`/auth/${provider}/callback`, {
+      params: { code },
+    })
+    return response.data
+  },
 }

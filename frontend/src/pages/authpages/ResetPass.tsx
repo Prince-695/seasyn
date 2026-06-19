@@ -10,6 +10,8 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import { resetPasswordSchema } from "@/lib/validators"
 import type { ResetPasswordInput } from "@/lib/validators"
@@ -40,6 +42,8 @@ export default function ResetPass() {
   const location = useLocation()
   const [serverError, setServerError] = useState<string | null>(null)
   const [isSuccessOpen, setIsSuccessOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Retrieve email from navigation state if redirected from forgot-password page
   const initialEmail = location.state?.email || ""
@@ -174,12 +178,23 @@ export default function ResetPass() {
                   </span>
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     {...register("password")}
                     aria-invalid={!!errors.password}
-                    className="h-11 bg-background/50 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                    className="h-11 w-full bg-background/50 pr-10 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                  >
+                    {showPassword ? (
+                      <Eye className="h-4.5 w-4.5" />
+                    ) : (
+                      <EyeOff className="h-4.5 w-4.5" />
+                    )}
+                  </button>
                 </div>
                 {errors.password && (
                   <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
@@ -203,12 +218,23 @@ export default function ResetPass() {
                   </span>
                   <Input
                     id="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
                     {...register("confirmPassword")}
                     aria-invalid={!!errors.confirmPassword}
-                    className="h-11 bg-background/50 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                    className="h-11 w-full bg-background/50 pr-10 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                  >
+                    {showConfirmPassword ? (
+                      <Eye className="h-4.5 w-4.5" />
+                    ) : (
+                      <EyeOff className="h-4.5 w-4.5" />
+                    )}
+                  </button>
                 </div>
                 {errors.confirmPassword && (
                   <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
