@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, Link, useLocation } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertCircle, Loader2 } from "lucide-react"
+import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react"
 import { loginSchema } from "@/lib/validators"
 import type { LoginInput } from "@/lib/validators"
 import { useAuthStore } from "@/store/authStore"
@@ -28,6 +28,7 @@ export default function SignIn() {
   const location = useLocation()
   const { isAuthenticated, isInitialized, setAuth } = useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -37,7 +38,10 @@ export default function SignIn() {
   }, [isAuthenticated, isInitialized, navigate])
 
   // Define where to redirect upon successful login
-  const from = location.state?.from?.pathname || "/"
+  const from =
+    location.state?.from?.pathname && location.state?.from?.pathname !== "/"
+      ? location.state.from.pathname
+      : "/dashboard"
 
   const {
     register,
@@ -82,6 +86,49 @@ export default function SignIn() {
     }
   }
 
+  const handleOAuthLogin = (provider: "google" | "github") => {
+    setServerError(null)
+    const baseURL =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/v1"
+    const authUrl = `${baseURL}/auth/${provider}/login`
+
+    const width = 600
+    const height = 650
+    const left = window.screen.width / 2 - width / 2
+    const top = window.screen.height / 2 - height / 2
+
+    const popup = window.open(
+      authUrl,
+      "OAuth Login",
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes,scrollbars=yes`
+    )
+
+    if (!popup) {
+      setServerError("Popup blocked. Please allow popups for this site.")
+      return
+    }
+
+    const pollTimer = setInterval(async () => {
+      try {
+        const response = await authApi.getProfile()
+        if (response) {
+          clearInterval(pollTimer)
+          popup.close()
+
+          const user = response.data?.user || response.data || response
+          setAuth(user)
+          navigate(from, { replace: true })
+        }
+      } catch (err) {
+        if (popup.closed) {
+          clearInterval(pollTimer)
+          console.log(err)
+          setServerError("Authentication window was closed.")
+        }
+      }
+    }, 1000)
+  }
+
   const fields: Array<{
     id: keyof LoginInput
     label: string
@@ -112,11 +159,6 @@ export default function SignIn() {
       >
         <Card className="w-full shadow-2xl shadow-primary/20">
           <CardHeader className="space-y-2 p-6 text-center">
-            {/* <div className="mb-2 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <Waves className="h-6 w-6 text-primary" />
-            </div>
-          </div> */}
             <CardTitle className="text-3xl font-bold tracking-tight text-primary">
               Welcome back
             </CardTitle>
@@ -151,14 +193,35 @@ export default function SignIn() {
                       </Link>
                     )}
                   </div>
-                  <Input
-                    id={field.id}
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    {...register(field.id)}
-                    aria-invalid={!!errors[field.id]}
-                    className="h-11 bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
-                  />
+                  <div className="relative">
+                    <Input
+                      id={field.id}
+                      type={
+                        field.id === "password" && showPassword
+                          ? "text"
+                          : field.type
+                      }
+                      placeholder={field.placeholder}
+                      {...register(field.id)}
+                      aria-invalid={!!errors[field.id]}
+                      className={`h-11 w-full bg-background/50 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20 ${
+                        field.id === "password" ? "pr-10" : ""
+                      }`}
+                    />
+                    {field.id === "password" && (
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                      >
+                        {showPassword ? (
+                          <Eye className="h-4.5 w-4.5" />
+                        ) : (
+                          <EyeOff className="h-4.5 w-4.5" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                   {errors[field.id] && (
                     <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
                       <AlertCircle className="h-4 w-4" />
@@ -199,6 +262,7 @@ export default function SignIn() {
               <Button
                 variant="outline"
                 className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
+                onClick={() => handleOAuthLogin("google")}
               >
                 <FcGoogle className="mr-2 h-5 w-5" />
                 Google
@@ -206,6 +270,7 @@ export default function SignIn() {
               <Button
                 variant="outline"
                 className="h-11 w-1/2 bg-background font-medium hover:bg-muted"
+                onClick={() => handleOAuthLogin("github")}
               >
                 <FaGithub className="mr-2 h-5 w-5" />
                 GitHub

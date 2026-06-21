@@ -29,42 +29,39 @@ export const Navbar = () => {
     >
       <div className="mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left Side: Logo & Navigation */}
-        <div className="flex items-center gap-8">
-          <NavLink
-            to="/"
-            className="flex items-center gap-2 transition-opacity hover:opacity-90"
-          >
-            {/* <div className="flex h-10 w-10 items-center justify-center">
-              <img
-                src="image.svg"
-                alt="Logo"
-                className="h-full w-full object-contain"
-              />
-            </div> */}
-            <span className="text-xl font-bold tracking-tight text-primary">
-              Seasyn
-            </span>
-          </NavLink>
+        <NavLink
+          to="/"
+          className="flex items-center gap-3 transition-opacity hover:opacity-90"
+        >
+          <div className="relative flex h-8 w-8 items-center justify-start">
+            {/* First Ring: Database Source */}
+            <div className="absolute h-7 w-7 rotate-[-15deg] rounded-[6px] border-4 border-primary bg-transparent" />
+            {/* Second Ring: Database Target */}
+            <div className="absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-[6px] border-4 border-secondary bg-transparent" />
+          </div>
+          <span className="ml-1 text-xl font-bold tracking-tight text-foreground">
+            Seasyn
+          </span>
+        </NavLink>
 
-          {/* Navigation Links (Desktop) */}
-          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `transition-colors hover:text-secondary ${isActive ? "text-primary" : "text-muted-foreground"}`
-                }
-              >
-                {item.name}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+        {/* Navigation Links (Desktop) */}
+        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              className={({ isActive }) =>
+                `transition-colors hover:text-secondary ${isActive ? "text-primary" : "text-muted-foreground"}`
+              }
+            >
+              {item.name}
+            </NavLink>
+          ))}
+        </nav>
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-4">
-          <button
+          <Button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="hidden h-9 w-9 items-center justify-center rounded-md border border-border bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
             aria-label="Toggle theme"
@@ -74,7 +71,7 @@ export const Navbar = () => {
             ) : (
               <Sun className="h-4 w-4" />
             )}
-          </button>
+          </Button>
 
           <div className="hidden items-center gap-2 sm:flex">
             {isAuthenticated ? (
@@ -93,11 +90,6 @@ export const Navbar = () => {
               </NavLink>
             ) : (
               <>
-                <NavLink to="/sign-in">
-                  <Button variant="ghost" className="mr-2 h-9 hover:bg-muted">
-                    Log in
-                  </Button>
-                </NavLink>
                 <NavLink to="/sign-up">
                   <Button
                     variant="default"
@@ -163,17 +155,6 @@ export const Navbar = () => {
                   </NavLink>
                 ) : (
                   <>
-                    <NavLink
-                      to="/sign-in"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                      >
-                        Log in
-                      </Button>
-                    </NavLink>
                     <NavLink
                       to="/sign-up"
                       onClick={() => setIsMobileMenuOpen(false)}

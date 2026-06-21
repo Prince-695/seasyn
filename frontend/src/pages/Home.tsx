@@ -7,14 +7,15 @@ import {
   // Cloud,
   // Hexagon,
   Component,
-  MousePointer2,
 } from "lucide-react"
 import { motion, type Variants } from "framer-motion"
 import { Navbar } from "../components/shared/Navbar"
 import Footer from "../components/shared/Footer"
 import { FAQ } from "../components/shared/FAQ"
 import Features from "@/components/shared/Features"
+import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/shared/Slider"
+import { MigrationShowcase } from "@/components/shared/MigrationShowcase"
 
 const curtainRevealVariants: Variants = {
   hidden: { y: 300 },
@@ -25,9 +26,9 @@ export const Home = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="relative flex flex-1 flex-col items-center justify-center overflow-x-hidden bg-background px-6 pb-10 text-foreground">
+      <main className="relative flex flex-1 flex-col items-center justify-center overflow-x-clip bg-background px-6 pb-10 text-foreground">
         {/* Hero Section */}
-        <section className="relative z-10 mt-50 flex w-full max-w-6xl">
+        <section className="relative z-10 mt-40 flex w-full max-w-6xl">
           <div
             className="w-full pt-10"
             // style={{
@@ -44,10 +45,7 @@ export const Home = () => {
               {/* Left: Text Content */}
               <div className="flex flex-1 flex-col items-center">
                 <h1 className="text-center text-5xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl lg:leading-[1.1]">
-                  Fluid Database{" "}
-                  <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent italic">
-                    Migrations,
-                  </span>{" "}
+                  Fluid Database Migrations,
                   <br />
                   <span className="">Zero Friction.</span>
                 </h1>
@@ -59,132 +57,15 @@ export const Home = () => {
                 </p>
 
                 <div className="relative mt-10 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                  <button className="group relative flex h-14 items-center justify-center gap-3 rounded-md border border-primary px-6 font-medium text-primary transition-all hover:bg-primary/5">
+                  <Button
+                    // variant="outline"
+                    className="group relative flex items-center justify-center gap-3 border border-primary bg-primary/5 p-6 font-medium text-primary transition-all hover:bg-primary hover:text-primary-foreground"
+                  >
                     Start Migrating
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </button>
-
-                  {/* David's Phantom Cursor */}
-                  <div className="pointer-events-none absolute top-20 left-170 z-50 flex animate-[cursor-float_4s_infinite_ease-in-out] items-start">
-                    <MousePointer2 className="h-6 w-6 fill-primary text-primary drop-shadow-md" />
-                    <span className="mt-4 ml-1 rounded-md bg-primary px-2 py-1 text-[10px] font-bold text-primary-foreground shadow-lg">
-                      David
-                    </span>
-                  </div>
+                  </Button>
                 </div>
               </div>
-
-              {/* Right: Architecture Diagram */}
-              {/* <div className="relative flex min-h-100 w-full flex-1 items-center justify-center">
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(to_right,var(--border)_1px,transparent_1px)] bg-size-[60px_60px] opacity-50" />
-                <div className="absolute h-105 w-105 rounded-full border border-border/40 bg-card/5 shadow-[0_0_60px_-15px_rgba(59,130,246,0.1)]" />
-                <div className="absolute h-65 w-65 rounded-full border border-primary-1/20 bg-primary-1/5" />
-                <div className="absolute h-30 w-30 rounded-full border border-primary-1/40 bg-primary-1/10" />
-
-                <svg
-                  className="pointer-events-none absolute inset-0 h-full w-full"
-                  viewBox="0 0 1000 500"
-                  fill="none"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    <linearGradient
-                      id="line-gradient-left"
-                      x1="100%"
-                      y1="0%"
-                      x2="0%"
-                      y2="0%"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor="var(--primary-1)"
-                        stopOpacity="0.5"
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--primary-2)"
-                        stopOpacity="0.1"
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id="line-gradient-right"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="0%"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor="var(--primary-1)"
-                        stopOpacity="0.5"
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--primary-2)"
-                        stopOpacity="0.1"
-                      />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M 500 250 C 420 250, 320 180, 60 120"
-                    stroke="url(#line-gradient-left)"
-                    strokeWidth="3"
-                  />
-                  <path
-                    d="M 500 250 C 400 250, 250 250, 60 250"
-                    stroke="url(#line-gradient-left)"
-                    strokeWidth="3"
-                  />
-                  <path
-                    d="M 500 250 C 420 250, 320 320, 60 380"
-                    stroke="url(#line-gradient-left)"
-                    strokeWidth="3"
-                  />
-                  <path
-                    d="M 500 250 C 580 250, 680 180, 940 120"
-                    stroke="url(#line-gradient-right)"
-                    strokeWidth="3"
-                  />
-                  <path
-                    d="M 500 250 C 600 250, 750 250, 940 250"
-                    stroke="url(#line-gradient-right)"
-                    strokeWidth="3"
-                  />
-                  <path
-                    d="M 500 250 C 580 250, 680 320, 940 380"
-                    stroke="url(#line-gradient-right)"
-                    strokeWidth="3"
-                  />
-                </svg>
-
-                <div className="relative z-20 flex h-24 w-24 transform items-center justify-center rounded-2xl bg-primary-1 text-primary-foreground shadow-xl shadow-primary-1/30 transition-transform hover:scale-105">
-                  <Database className="h-10 w-10" />
-                </div>
-
-                <div className="absolute left-0 z-10 flex flex-col gap-8">
-                  <div className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-md transition-all hover:border-primary-1 hover:shadow-primary-1/20">
-                    <Server className="h-7 w-7 text-primary-1" />
-                  </div>
-                  <div className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-md transition-all hover:border-primary-2 hover:shadow-primary-2/20">
-                    <HardDrive className="h-7 w-7 text-primary-2" />
-                  </div>
-                  <div className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-md transition-all hover:border-chart-3 hover:shadow-chart-3/20">
-                    <Box className="h-7 w-7 text-chart-3" />
-                  </div>
-                </div>
-
-                <div className="absolute right-0 z-10 flex flex-col gap-8">
-                  <div className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-md transition-all hover:border-chart-4 hover:shadow-chart-4/20">
-                    <Cloud className="h-7 w-7 text-chart-4" />
-                  </div>
-                  <div className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-md transition-all hover:border-chart-5 hover:shadow-chart-5/20">
-                    <Hexagon className="h-7 w-7 text-chart-5" />
-                  </div>
-                  <div className="group flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-md transition-all hover:border-primary-1 hover:shadow-primary-1/20">
-                    <Component className="h-7 w-7 text-primary-1" />
-                  </div>
-                </div>
-              </div> */}
             </motion.div>
           </div>
         </section>
@@ -218,6 +99,8 @@ export const Home = () => {
 
         {/* Database Slider Section */}
         <Slider />
+
+        <MigrationShowcase />
 
         {/* FAQ Section */}
         <FAQ />
