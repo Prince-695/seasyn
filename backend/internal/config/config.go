@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"time"
 )
@@ -30,12 +31,21 @@ type Config struct {
 }
 
 func Load() *Config {
+	env := getEnv("ENV", "development")
+	jwtSecret := getEnv("JWT_SECRET", "default_secret")
+
+	// BUG-05 fix: a predictable default secret in production allows anyone to forge JWTs.
+	// Fail fast at startup rather than silently allowing insecure deployments.
+	if env != "development" && (jwtSecret == "" || jwtSecret == "default_secret") {
+		log.Fatal("FATAL: JWT_SECRET must be set to a strong, random value in non-development environments")
+	}
+
 	return &Config{
 		Port:               getEnv("PORT", "8080"),
-		Env:                getEnv("ENV", "development"),
+		Env:                env,
 		AllowedOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:5173,"),
 		DatabaseURL:        getEnv("DATABASE_URL", ""),
-		JWTSecret:          getEnv("JWT_SECRET", "default_secret"),
+		JWTSecret:          jwtSecret,
 		AccessTokenExpiry:  getEnvDuration("ACCESS_TOKEN_EXPIRY", 30*time.Minute),
 		RefreshTokenExpiry: getEnvDuration("REFRESH_TOKEN_EXPIRY", 168*time.Hour),
 		SMTPHost:           getEnv("SMTP_HOST", ""),
