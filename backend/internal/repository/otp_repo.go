@@ -71,9 +71,9 @@ func (r *userRepo) UpdatePassword(ctx context.Context, email, hashedPassword str
 // full-record update and would wipe the password_hash column.
 func (r *userRepo) Update(ctx context.Context, u domain.User) (*domain.User, error) {
 	updates := map[string]any{
-		"email":      u.Email,
-		"first_name": u.FirstName,
-		"last_name":  u.LastName,
+		"email":       u.Email,
+		"first_name":  u.FirstName,
+		"last_name":   u.LastName,
 		"is_verified": u.IsVerified,
 	}
 	if err := r.db.WithContext(ctx).

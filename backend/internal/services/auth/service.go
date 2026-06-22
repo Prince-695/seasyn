@@ -103,7 +103,7 @@ func (s *authService) cleanupRoutine() {
 	ticker := time.NewTicker(15 * time.Minute)
 	for range ticker.C {
 		now := time.Now()
-		
+
 		// Cleanup OAuth states
 		s.pendingStates.Range(func(key, value any) bool {
 			if now.After(value.(oauthState).expiry) {
