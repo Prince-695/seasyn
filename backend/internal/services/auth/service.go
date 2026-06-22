@@ -46,6 +46,9 @@ type authService struct {
 	// BUG-02 fix: store pending OAuth states so the callback can verify them.
 	// sync.Map is safe for concurrent use; states expire after 10 minutes.
 	pendingStates sync.Map
+
+	// In-memory denylist for invalidated (logged out) tokens
+	denylist sync.Map
 }
 
 func NewAuthService(
@@ -80,7 +83,7 @@ func NewAuthService(
 		}
 	}
 
-	return &authService{
+	svc := &authService{
 		repo:               repo,
 		otpRepo:            otpRepo,
 		mailService:        mailService,
@@ -88,6 +91,34 @@ func NewAuthService(
 		accessTokenExpiry:  accessTokenExpiry,
 		refreshTokenExpiry: refreshTokenExpiry,
 		oauthConfigs:       configs,
+	}
+
+	// Start background cleanup for in-memory stores
+	go svc.cleanupRoutine()
+
+	return svc
+}
+
+func (s *authService) cleanupRoutine() {
+	ticker := time.NewTicker(15 * time.Minute)
+	for range ticker.C {
+		now := time.Now()
+		
+		// Cleanup OAuth states
+		s.pendingStates.Range(func(key, value any) bool {
+			if now.After(value.(oauthState).expiry) {
+				s.pendingStates.Delete(key)
+			}
+			return true
+		})
+
+		// Cleanup denylisted tokens
+		s.denylist.Range(func(key, value any) bool {
+			if now.After(value.(time.Time)) {
+				s.denylist.Delete(key)
+			}
+			return true
+		})
 	}
 }
 
@@ -387,6 +418,30 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 	return nil
 }
 
+func (s *authService) Logout(ctx context.Context, accessToken, refreshToken string) error {
+	if accessToken != "" {
+		s.invalidateToken(accessToken)
+	}
+	if refreshToken != "" {
+		s.invalidateToken(refreshToken)
+	}
+	return nil
+}
+
+func (s *authService) invalidateToken(tokenString string) {
+	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return s.jwtSecret, nil
+	})
+
+	if token != nil {
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			if expFloat, ok := claims["exp"].(float64); ok {
+				s.denylist.Store(tokenString, time.Unix(int64(expFloat), 0))
+			}
+		}
+	}
+}
+
 func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthResponse, error) {
 	accessToken, accessExp, err := s.createToken(user.ID, tokenTypeAccess, s.accessTokenExpiry)
 	if err != nil {
@@ -449,6 +504,12 @@ func (s *authService) validateTypedToken(tokenString, expectedType string) (stri
 		if tokenType != expectedType {
 			return "", fmt.Errorf("invalid token type: expected %s, got %s", expectedType, tokenType)
 		}
+
+		// Check in-memory denylist
+		if _, ok := s.denylist.Load(tokenString); ok {
+			return "", fmt.Errorf("token has been revoked")
+		}
+
 		return sub, nil
 	}
 

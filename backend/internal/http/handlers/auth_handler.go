@@ -144,6 +144,16 @@ func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 // @Success 200 {object} domain.Response
 // @Router /v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
+	// Extract tokens to invalidate them in-memory
+	accessToken := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
+	if accessToken == "" {
+		accessToken = c.Cookies("access_token")
+	}
+	refreshToken := c.Cookies("refresh_token")
+
+	// Call the service to add them to the in-memory denylist
+	_ = h.authService.Logout(c.Context(), strings.TrimSpace(accessToken), strings.TrimSpace(refreshToken))
+
 	// Logout fix: use MaxAge=-1 and Path="/" to reliably delete the cookies
 	// regardless of which path originally set them.
 	h.clearAuthCookies(c)
