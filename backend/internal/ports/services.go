@@ -14,7 +14,7 @@ type AuthService interface {
 	ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error
 	ValidateToken(token string) (string, error)
 	GetOAuthURL(provider string) (string, error)
-	HandleOAuthCallback(ctx context.Context, provider, code string) (*domain.AuthResponse, error)
+	HandleOAuthCallback(ctx context.Context, provider, code, state string) (*domain.AuthResponse, error)
 }
 
 type MailService interface {

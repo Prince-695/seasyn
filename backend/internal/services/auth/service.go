@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/domain"
@@ -20,6 +21,19 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+// tokenTypeAccess and tokenTypeRefresh are the JWT "token_type" claim values.
+// BUG-01 fix: without this, an access token can be passed as a refresh token
+// and ValidateToken will accept it, defeating the purpose of the two-token system.
+const (
+	tokenTypeAccess  = "access"
+	tokenTypeRefresh = "refresh"
+)
+
+// oauthState holds a CSRF state value with its expiry.
+type oauthState struct {
+	expiry time.Time
+}
+
 type authService struct {
 	repo               ports.UserRepository
 	otpRepo            ports.OTPRepository
@@ -28,6 +42,10 @@ type authService struct {
 	accessTokenExpiry  time.Duration
 	refreshTokenExpiry time.Duration
 	oauthConfigs       map[string]*oauth2.Config
+
+	// BUG-02 fix: store pending OAuth states so the callback can verify them.
+	// sync.Map is safe for concurrent use; states expire after 10 minutes.
+	pendingStates sync.Map
 }
 
 func NewAuthService(
@@ -73,17 +91,33 @@ func NewAuthService(
 	}
 }
 
+// GetOAuthURL generates the provider redirect URL and stores the CSRF state.
 func (s *authService) GetOAuthURL(provider string) (string, error) {
 	config, ok := s.oauthConfigs[provider]
 	if !ok {
 		return "", errors.BadRequest(fmt.Sprintf("unsupported provider: %s", provider))
 	}
-	// Generate a random state for CSRF protection
-	state := generateRandomString(32)
+
+	// BUG-10/11 fix: generateRandomString now returns an error instead of a
+	// static fallback. Propagate it so the caller gets a proper 500.
+	state, err := generateRandomString(32)
+	if err != nil {
+		return "", errors.Internal("Failed to generate secure OAuth state")
+	}
+
+	// BUG-02 fix: store the state so HandleOAuthCallback can verify it.
+	s.pendingStates.Store(state, oauthState{expiry: time.Now().Add(10 * time.Minute)})
+
 	return config.AuthCodeURL(state), nil
 }
 
-func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code string) (*domain.AuthResponse, error) {
+// HandleOAuthCallback validates the CSRF state then exchanges the code for user info.
+func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code, state string) (*domain.AuthResponse, error) {
+	// BUG-02 fix: verify the CSRF state parameter.
+	if err := s.verifyOAuthState(state); err != nil {
+		return nil, err
+	}
+
 	config, ok := s.oauthConfigs[provider]
 	if !ok {
 		return nil, errors.BadRequest(fmt.Sprintf("unsupported provider: %s", provider))
@@ -94,7 +128,6 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code st
 		return nil, errors.Unauthorized("OAuth code exchange failed")
 	}
 
-	// Fetch user info based on provider
 	var email, firstName, lastName string
 	if provider == "google" {
 		email, firstName, lastName, err = s.fetchGoogleUser(token.AccessToken)
@@ -106,10 +139,21 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code st
 		return nil, errors.Internal("Failed to fetch user info from provider")
 	}
 
-	// Check if user exists, otherwise create
+	// BUG-03 fix: GitHub users can have private emails. Reject rather than
+	// create a corrupt account with an empty email.
+	if email == "" {
+		return nil, errors.BadRequest("OAuth provider did not return an email address. Please make your email public or use a different login method.")
+	}
+
+	// BUG-16 fix: distinguish a "user not found" (expected for new OAuth users)
+	// from an actual database error. Only create a new user in the first case.
 	user, err := s.repo.GetByEmail(ctx, email)
 	if err != nil {
-		// Create new user for OAuth
+		appErr, isAppErr := err.(*errors.AppError)
+		if !isAppErr || appErr.HTTPStatus != 404 {
+			return nil, errors.Internal("Database error during OAuth user lookup")
+		}
+		// User genuinely does not exist — create them.
 		user = &domain.User{
 			Email:      email,
 			FirstName:  firstName,
@@ -123,6 +167,22 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code st
 	}
 
 	return s.generateAuthResponse(user)
+}
+
+// verifyOAuthState checks the state exists in the pending store and has not expired.
+func (s *authService) verifyOAuthState(state string) error {
+	if state == "" {
+		return errors.BadRequest("Missing OAuth state parameter")
+	}
+	raw, ok := s.pendingStates.LoadAndDelete(state)
+	if !ok {
+		return errors.BadRequest("Invalid OAuth state — possible CSRF attack")
+	}
+	st := raw.(oauthState)
+	if time.Now().After(st.expiry) {
+		return errors.BadRequest("OAuth state has expired. Please try logging in again.")
+	}
+	return nil
 }
 
 func (s *authService) fetchGoogleUser(accessToken string) (string, string, string, error) {
@@ -144,8 +204,13 @@ func (s *authService) fetchGoogleUser(accessToken string) (string, string, strin
 }
 
 func (s *authService) fetchGitHubUser(accessToken string) (string, string, string, error) {
-	req, _ := http.NewRequest("GET", "https://api.github.com/user", nil)
+	// BUG-14 fix: handle NewRequest error explicitly instead of ignoring it.
+	req, err := http.NewRequest("GET", "https://api.github.com/user", nil)
+	if err != nil {
+		return "", "", "", fmt.Errorf("failed to build GitHub user request: %w", err)
+	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", "", "", err
@@ -161,7 +226,50 @@ func (s *authService) fetchGitHubUser(accessToken string) (string, string, strin
 		return "", "", "", err
 	}
 
-	return profile.Email, profile.Name, "", nil
+	// BUG-03 fix: GitHub profiles may have an empty public email.
+	// Fall back to the /user/emails endpoint to find the primary verified address.
+	email := profile.Email
+	if email == "" {
+		var fetchErr error
+		email, fetchErr = s.fetchGitHubPrimaryEmail(accessToken)
+		if fetchErr != nil {
+			// Non-fatal: we already know the login name, so log and return empty.
+			// The caller (HandleOAuthCallback) will reject the empty email gracefully.
+			log.Printf("warn: could not fetch GitHub primary email for login %s: %v", profile.Login, fetchErr)
+		}
+	}
+
+	return email, profile.Name, "", nil
+}
+
+// fetchGitHubPrimaryEmail calls the /user/emails endpoint to get the verified primary email.
+func (s *authService) fetchGitHubPrimaryEmail(accessToken string) (string, error) {
+	req, err := http.NewRequest("GET", "https://api.github.com/user/emails", nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to build GitHub emails request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var emails []struct {
+		Email    string `json:"email"`
+		Primary  bool   `json:"primary"`
+		Verified bool   `json:"verified"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&emails); err != nil {
+		return "", err
+	}
+	for _, e := range emails {
+		if e.Primary && e.Verified {
+			return e.Email, nil
+		}
+	}
+	return "", fmt.Errorf("no verified primary email found for GitHub user")
 }
 
 func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error) {
@@ -187,7 +295,6 @@ func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) (*do
 		return nil, errors.Internal("Failed to create user account")
 	}
 
-	// Async send welcome email
 	go func() {
 		if err := s.mailService.SendWelcome(createdUser.Email, createdUser.FirstName); err != nil {
 			log.Printf("failed to send welcome email to %s: %v", createdUser.Email, err)
@@ -212,7 +319,9 @@ func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*doma
 }
 
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error) {
-	userID, err := s.ValidateToken(refreshToken)
+	// BUG-01 fix: validate that the token is specifically a refresh token.
+	// Previously, any valid access token could be used here.
+	userID, err := s.validateTypedToken(refreshToken, tokenTypeRefresh)
 	if err != nil {
 		return nil, errors.Unauthorized("Invalid or expired session")
 	}
@@ -231,14 +340,17 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 		return nil // Avoid user enumeration
 	}
 
-	otp := generateOTP(6)
-	err = s.otpRepo.DeleteByEmail(ctx, req.Email)
+	// BUG-10 fix: generateOTP now returns an error instead of a static fallback.
+	otp, err := generateOTP(6)
 	if err != nil {
+		return errors.Internal("Failed to generate OTP")
+	}
+
+	if err := s.otpRepo.DeleteByEmail(ctx, req.Email); err != nil {
 		return fmt.Errorf("failed to cleanup old OTPs: %w", err)
 	}
 
-	err = s.otpRepo.Create(ctx, req.Email, otp, time.Now().Add(10*time.Minute))
-	if err != nil {
+	if err := s.otpRepo.Create(ctx, req.Email, otp, time.Now().Add(10*time.Minute)); err != nil {
 		return fmt.Errorf("failed to store OTP: %w", err)
 	}
 
@@ -262,23 +374,26 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 		return errors.Internal("Failed to secure new password")
 	}
 
-	err = s.repo.UpdatePassword(ctx, req.Email, string(hashedPassword))
-	if err != nil {
+	if err := s.repo.UpdatePassword(ctx, req.Email, string(hashedPassword)); err != nil {
 		return errors.Internal("Failed to update password in database")
 	}
 
-	_ = s.otpRepo.DeleteByEmail(ctx, req.Email)
+	// BUG-12 fix: OTP cleanup failure is now logged instead of silently discarded.
+	// The reset succeeded, but leaving a used OTP around is a security concern.
+	if err := s.otpRepo.DeleteByEmail(ctx, req.Email); err != nil {
+		log.Printf("warn: failed to delete OTP after password reset for %s: %v", req.Email, err)
+	}
 
 	return nil
 }
 
 func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthResponse, error) {
-	accessToken, accessExp, err := s.createToken(user.ID, s.accessTokenExpiry)
+	accessToken, accessExp, err := s.createToken(user.ID, tokenTypeAccess, s.accessTokenExpiry)
 	if err != nil {
 		return nil, errors.Internal("Failed to generate access token")
 	}
 
-	refreshToken, _, err := s.createToken(user.ID, s.refreshTokenExpiry)
+	refreshToken, _, err := s.createToken(user.ID, tokenTypeRefresh, s.refreshTokenExpiry)
 	if err != nil {
 		return nil, errors.Internal("Failed to generate refresh token")
 	}
@@ -291,12 +406,14 @@ func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthRespo
 	}, nil
 }
 
-func (s *authService) createToken(userID string, expiry time.Duration) (string, time.Time, error) {
+// createToken mints a signed JWT with an explicit token_type claim.
+func (s *authService) createToken(userID, tokenType string, expiry time.Duration) (string, time.Time, error) {
 	expirationTime := time.Now().Add(expiry)
 	claims := jwt.MapClaims{
-		"sub": userID,
-		"exp": expirationTime.Unix(),
-		"iat": time.Now().Unix(),
+		"sub":        userID,
+		"exp":        expirationTime.Unix(),
+		"iat":        time.Now().Unix(),
+		"token_type": tokenType, // BUG-01 fix
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -304,7 +421,13 @@ func (s *authService) createToken(userID string, expiry time.Duration) (string, 
 	return tokenString, expirationTime, err
 }
 
+// ValidateToken validates a token and asserts it is an access token.
 func (s *authService) ValidateToken(tokenString string) (string, error) {
+	return s.validateTypedToken(tokenString, tokenTypeAccess)
+}
+
+// validateTypedToken parses a JWT and checks that its token_type matches expectedType.
+func (s *authService) validateTypedToken(tokenString, expectedType string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -319,7 +442,12 @@ func (s *authService) ValidateToken(tokenString string) (string, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		sub, ok := claims["sub"].(string)
 		if !ok {
-			return "", fmt.Errorf("invalid token claims")
+			return "", fmt.Errorf("invalid token claims: missing sub")
+		}
+		// BUG-01 fix: reject tokens whose type does not match what we expect.
+		tokenType, _ := claims["token_type"].(string)
+		if tokenType != expectedType {
+			return "", fmt.Errorf("invalid token type: expected %s, got %s", expectedType, tokenType)
 		}
 		return sub, nil
 	}
@@ -327,23 +455,27 @@ func (s *authService) ValidateToken(tokenString string) (string, error) {
 	return "", fmt.Errorf("invalid token")
 }
 
-func generateOTP(max int) string {
+// generateOTP returns a cryptographically random numeric OTP of the given length.
+// BUG-10 fix: returns an error instead of a static "123456" fallback.
+func generateOTP(max int) (string, error) {
 	var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
 	b := make([]byte, max)
 	n, err := io.ReadAtLeast(rand.Reader, b, max)
 	if n != max || err != nil {
-		return "123456" // fallback
+		return "", fmt.Errorf("failed to generate secure OTP: %w", err)
 	}
 	for i := 0; i < len(b); i++ {
 		b[i] = table[int(b[i])%len(table)]
 	}
-	return string(b)
+	return string(b), nil
 }
 
-func generateRandomString(n int) string {
+// generateRandomString returns a hex-encoded random string of n bytes.
+// BUG-11 fix: returns an error instead of a static "static_state_fallback".
+func generateRandomString(n int) (string, error) {
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
-		return "static_state_fallback"
+		return "", fmt.Errorf("failed to generate secure random string: %w", err)
 	}
-	return fmt.Sprintf("%x", b)
+	return fmt.Sprintf("%x", b), nil
 }
