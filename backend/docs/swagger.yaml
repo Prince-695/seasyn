@@ -1,13 +1,13 @@
 basePath: /
 definitions:
-  github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest:
+  domain.ForgotPasswordRequest:
     properties:
       email:
         type: string
     required:
     - email
     type: object
-  github_com_Prince-695_seasyn_backend_internal_domain.LoginRequest:
+  domain.LoginRequest:
     properties:
       email:
         type: string
@@ -17,14 +17,14 @@ definitions:
     - email
     - password
     type: object
-  github_com_Prince-695_seasyn_backend_internal_domain.RefreshRequest:
+  domain.RefreshRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  github_com_Prince-695_seasyn_backend_internal_domain.ResetPasswordRequest:
+  domain.ResetPasswordRequest:
     properties:
       email:
         type: string
@@ -38,7 +38,7 @@ definitions:
     - otp
     - password
     type: object
-  github_com_Prince-695_seasyn_backend_internal_domain.Response:
+  domain.Response:
     properties:
       access_token:
         type: string
@@ -52,7 +52,7 @@ definitions:
       success:
         type: boolean
     type: object
-  github_com_Prince-695_seasyn_backend_internal_domain.SignupRequest:
+  domain.SignupRequest:
     properties:
       email:
         type: string
@@ -93,13 +93,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
       summary: Show the status of server.
       tags:
       - root
   /v1/auth/{provider}/callback:
     get:
-      description: Handle OAuth callback and return user data + tokens as JSON
+      description: Handle OAuth provider callback, verify CSRF state, and return tokens
+        as cookies.
       parameters:
       - description: OAuth Provider
         enum:
@@ -109,22 +110,37 @@ paths:
         name: provider
         required: true
         type: string
-      - description: OAuth Code
+      - description: OAuth Authorization Code
         in: query
         name: code
+        required: true
+        type: string
+      - description: CSRF State
+        in: query
+        name: state
         required: true
         type: string
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Invalid state or missing code
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "500":
+          description: OAuth exchange failed
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: OAuth Callback
       tags:
       - auth
   /v1/auth/{provider}/login:
     get:
-      description: Get the authorization URL for a specific provider (google, github)
+      description: |-
+        Returns the authorization URL for a specific provider (google, github).
+        The frontend should redirect the user to the returned auth_url.
       parameters:
       - description: OAuth Provider
         enum:
@@ -139,13 +155,17 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            - $ref: '#/definitions/domain.Response'
             - properties:
                 data:
                   additionalProperties:
                     type: string
                   type: object
               type: object
+        "400":
+          description: Unsupported provider
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: Get OAuth Login URL
       tags:
       - auth
@@ -153,21 +173,25 @@ paths:
     post:
       consumes:
       - application/json
-      description: Send OTP to user email
+      description: Send OTP to user email for password reset
       parameters:
       - description: Forgot Password Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest'
+          $ref: '#/definitions/domain.ForgotPasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: Request Password Reset
       tags:
       - auth
@@ -175,32 +199,37 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate user and receive access token
+      description: Authenticate user and set access and refresh tokens as HttpOnly
+        cookies
       parameters:
       - description: Login Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.LoginRequest'
+          $ref: '#/definitions/domain.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: User Login
       tags:
       - auth
   /v1/auth/logout:
     post:
-      description: Clear authentication cookies
+      description: Clear access_token and refresh_token HttpOnly cookies
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
       security:
       - BearerAuth: []
       summary: Logout User
@@ -210,21 +239,26 @@ paths:
     post:
       consumes:
       - application/json
-      description: Get a new access token using a refresh token
+      description: |-
+        Exchange the refresh_token cookie (or request body) for a new access token.
+        The server sets new access_token and refresh_token cookies automatically.
       parameters:
-      - description: Refresh Request
+      - description: Refresh Request (optional if refresh_token cookie is set)
         in: body
         name: request
-        required: true
         schema:
-          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.RefreshRequest'
+          $ref: '#/definitions/domain.RefreshRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: Refresh Access Token
       tags:
       - auth
@@ -232,21 +266,25 @@ paths:
     post:
       consumes:
       - application/json
-      description: Verify OTP and update password
+      description: Verify OTP and update the user's password
       parameters:
       - description: Reset Password Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.ResetPasswordRequest'
+          $ref: '#/definitions/domain.ResetPasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Invalid or expired OTP
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: Reset Password with OTP
       tags:
       - auth
@@ -254,21 +292,30 @@ paths:
     post:
       consumes:
       - application/json
-      description: Register a new user and receive access token
+      description: Register a new user and receive access and refresh tokens via HttpOnly
+        cookies
       parameters:
       - description: Signup Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.SignupRequest'
+          $ref: '#/definitions/domain.SignupRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Email already taken or invalid input
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/domain.Response'
       summary: User Signup
       tags:
       - auth
@@ -284,7 +331,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response'
+            - $ref: '#/definitions/domain.Response'
             - properties:
                 data:
                   additionalProperties: true

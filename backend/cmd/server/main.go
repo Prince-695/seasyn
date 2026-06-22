@@ -135,7 +135,7 @@ func main() {
 		cfg.GitHubCallbackURL,
 	)
 
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := handlers.NewAuthHandler(authService, cfg.Env != "development")
 	authMiddleware := middleware.Auth(authService)
 
 	// Register Routes under /v1
