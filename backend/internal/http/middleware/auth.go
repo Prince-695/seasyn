@@ -51,6 +51,14 @@ func extractToken(c *fiber.Ctx) string {
 		}
 	}
 
-	// 2. Fall back to HttpOnly cookie (the primary transport for browser clients)
+	// 2. Swagger UI Isolation: If the request originates from Swagger UI,
+	// do NOT fall back to cookies. This forces the user to explicitly use
+	// the "Authorize" button in Swagger, and ensures that clicking "Logout"
+	// in Swagger UI actually denies access, providing a strict testing environment.
+	if strings.Contains(c.Get("Referer"), "/swagger/") {
+		return ""
+	}
+
+	// 3. Fall back to HttpOnly cookie (the primary transport for browser clients)
 	return c.Cookies("access_token")
 }
