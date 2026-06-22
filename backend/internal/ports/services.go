@@ -12,9 +12,10 @@ type AuthService interface {
 	RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error)
 	ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error
 	ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error
+	Logout(ctx context.Context, accessToken, refreshToken string) error
 	ValidateToken(token string) (string, error)
 	GetOAuthURL(provider string) (string, error)
-	HandleOAuthCallback(ctx context.Context, provider, code string) (*domain.AuthResponse, error)
+	HandleOAuthCallback(ctx context.Context, provider, code, state string) (*domain.AuthResponse, error)
 }
 
 type MailService interface {

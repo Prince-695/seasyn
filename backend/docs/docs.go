@@ -41,7 +41,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -49,7 +49,7 @@ const docTemplate = `{
         },
         "/v1/auth/forgot-password": {
             "post": {
-                "description": "Send OTP to user email",
+                "description": "Send OTP to user email for password reset",
                 "consumes": [
                     "application/json"
                 ],
@@ -67,7 +67,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest"
+                            "$ref": "#/definitions/domain.ForgotPasswordRequest"
                         }
                     }
                 ],
@@ -75,7 +75,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -83,7 +89,7 @@ const docTemplate = `{
         },
         "/v1/auth/login": {
             "post": {
-                "description": "Authenticate user and receive access token",
+                "description": "Authenticate user and set access and refresh tokens as HttpOnly cookies",
                 "consumes": [
                     "application/json"
                 ],
@@ -101,7 +107,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.LoginRequest"
+                            "$ref": "#/definitions/domain.LoginRequest"
                         }
                     }
                 ],
@@ -109,7 +115,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -122,7 +134,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Clear authentication cookies",
+                "description": "Clear access_token and refresh_token HttpOnly cookies",
                 "tags": [
                     "auth"
                 ],
@@ -131,7 +143,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -139,7 +151,7 @@ const docTemplate = `{
         },
         "/v1/auth/refresh": {
             "post": {
-                "description": "Get a new access token using a refresh token",
+                "description": "Exchange the refresh_token cookie (or request body) for a new access token.\nThe server sets new access_token and refresh_token cookies automatically.",
                 "consumes": [
                     "application/json"
                 ],
@@ -152,12 +164,11 @@ const docTemplate = `{
                 "summary": "Refresh Access Token",
                 "parameters": [
                     {
-                        "description": "Refresh Request",
+                        "description": "Refresh Request (optional if refresh_token cookie is set)",
                         "name": "request",
                         "in": "body",
-                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.RefreshRequest"
+                            "$ref": "#/definitions/domain.RefreshRequest"
                         }
                     }
                 ],
@@ -165,7 +176,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -173,7 +190,7 @@ const docTemplate = `{
         },
         "/v1/auth/reset-password": {
             "post": {
-                "description": "Verify OTP and update password",
+                "description": "Verify OTP and update the user's password",
                 "consumes": [
                     "application/json"
                 ],
@@ -191,7 +208,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.ResetPasswordRequest"
+                            "$ref": "#/definitions/domain.ResetPasswordRequest"
                         }
                     }
                 ],
@@ -199,7 +216,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired OTP",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -207,7 +230,7 @@ const docTemplate = `{
         },
         "/v1/auth/signup": {
             "post": {
-                "description": "Register a new user and receive access token",
+                "description": "Register a new user and receive access and refresh tokens via HttpOnly cookies",
                 "consumes": [
                     "application/json"
                 ],
@@ -225,7 +248,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.SignupRequest"
+                            "$ref": "#/definitions/domain.SignupRequest"
                         }
                     }
                 ],
@@ -233,7 +256,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Email already taken or invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -241,7 +276,7 @@ const docTemplate = `{
         },
         "/v1/auth/{provider}/callback": {
             "get": {
-                "description": "Handle OAuth callback and return user data + tokens as JSON",
+                "description": "Handle OAuth provider callback, verify CSRF state, and return tokens as cookies.",
                 "tags": [
                     "auth"
                 ],
@@ -260,8 +295,15 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "OAuth Code",
+                        "description": "OAuth Authorization Code",
                         "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "CSRF State",
+                        "name": "state",
                         "in": "query",
                         "required": true
                     }
@@ -270,7 +312,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid state or missing code",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "OAuth exchange failed",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -278,7 +332,7 @@ const docTemplate = `{
         },
         "/v1/auth/{provider}/login": {
             "get": {
-                "description": "Get the authorization URL for a specific provider (google, github)",
+                "description": "Returns the authorization URL for a specific provider (google, github).\nThe frontend should redirect the user to the returned auth_url.",
                 "tags": [
                     "auth"
                 ],
@@ -302,7 +356,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                                    "$ref": "#/definitions/domain.Response"
                                 },
                                 {
                                     "type": "object",
@@ -316,6 +370,12 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Unsupported provider",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
                         }
                     }
                 }
@@ -345,7 +405,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Prince-695_seasyn_backend_internal_domain.Response"
+                                    "$ref": "#/definitions/domain.Response"
                                 },
                                 {
                                     "type": "object",
@@ -364,7 +424,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Prince-695_seasyn_backend_internal_domain.ForgotPasswordRequest": {
+        "domain.ForgotPasswordRequest": {
             "type": "object",
             "required": [
                 "email"
@@ -375,7 +435,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Prince-695_seasyn_backend_internal_domain.LoginRequest": {
+        "domain.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -390,7 +450,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Prince-695_seasyn_backend_internal_domain.RefreshRequest": {
+        "domain.RefreshRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -401,7 +461,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Prince-695_seasyn_backend_internal_domain.ResetPasswordRequest": {
+        "domain.ResetPasswordRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -421,7 +481,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Prince-695_seasyn_backend_internal_domain.Response": {
+        "domain.Response": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -442,7 +502,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Prince-695_seasyn_backend_internal_domain.SignupRequest": {
+        "domain.SignupRequest": {
             "type": "object",
             "required": [
                 "email",

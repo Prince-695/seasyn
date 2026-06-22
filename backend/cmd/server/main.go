@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/config"
@@ -118,7 +119,8 @@ func main() {
 	// Dependency Injection
 	userRepo := repository.NewUserRepository(db)
 	otpRepo := repository.NewOTPRepository(db)
-	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom)
+	templateDir := filepath.Join("internal", "templates", "email")
+	mailService := mail.NewMailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.MailFrom, templateDir, cfg.FrontendURL)
 
 	authService := auth.NewAuthService(
 		userRepo,
@@ -135,7 +137,7 @@ func main() {
 		cfg.GitHubCallbackURL,
 	)
 
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := handlers.NewAuthHandler(authService, cfg.Env != "development")
 	authMiddleware := middleware.Auth(authService)
 
 	// Register Routes under /v1
