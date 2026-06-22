@@ -195,6 +195,12 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code, s
 		if err != nil {
 			return nil, errors.Internal("Failed to create user account")
 		}
+
+		go func() {
+			if err := s.mailService.SendWelcome(user.Email, user.FirstName); err != nil {
+				log.Printf("failed to send welcome email to %s: %v", user.Email, err)
+			}
+		}()
 	}
 
 	return s.generateAuthResponse(user)

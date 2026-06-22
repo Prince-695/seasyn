@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to SEASYN</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f5;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 32px 40px;
+            text-align: left;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        .content {
+            padding: 40px;
+            color: #3f3f46;
+            line-height: 1.6;
+        }
+        .content h2 {
+            margin-top: 0;
+            color: #18181b;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        .button {
+            display: inline-block;
+            background-color: #000000;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-top: 24px;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #fafafa;
+            padding: 24px 40px;
+            text-align: center;
+            color: #a1a1aa;
+            font-size: 12px;
+            border-top: 1px solid #f4f4f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SEASYN.</h1>
+        </div>
+        <div class="content">
+            <h2>Welcome aboard, {{.Name}}!</h2>
+            <p>We're thrilled to have you join SEASYN. Your account is now fully active, and you're ready to start syncing and managing your projects.</p>
+            <p>If you have any questions or need a hand getting started, we're always here to help.</p>
+            <a href="{{.FrontendURL}}" class="button">Go to Dashboard</a>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 SEASYN. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
