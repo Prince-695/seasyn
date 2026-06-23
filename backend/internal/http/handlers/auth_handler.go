@@ -36,6 +36,7 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
+	authGroup.Get("/me", authMiddleware, h.GetMe)
 
 	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
@@ -207,6 +208,32 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
 	return h.jsonResponse(c, fiber.StatusOK, true, "Password reset successful", "", nil)
+}
+
+// GetMe
+// @Summary Get currently logged in user
+// @Description Returns the profile of the currently authenticated user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} domain.Response{data=domain.PublicUser}
+// @Failure 401 {object} domain.Response
+// @Failure 404 {object} domain.Response
+// @Router /v1/auth/me [get]
+func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
+	// Extract the userID injected by authMiddleware
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "no user ID found in context", nil)
+	}
+
+	user, err := h.authService.GetMe(c.Context(), userID.(string))
+	if err != nil {
+		return err // handled by error handler
+	}
+
+	return h.jsonResponse(c, fiber.StatusOK, true, "User profile retrieved", "", user)
 }
 
 // OAuthLogin godoc

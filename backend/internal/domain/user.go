@@ -15,6 +15,16 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// PublicUser is a DTO that omits the internal database ID and sensitive fields
+type PublicUser struct {
+	Email      string    `json:"email"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	IsVerified bool      `json:"is_verified"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
 type SignupRequest struct {
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=6"`
@@ -28,10 +38,10 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresAt    string `json:"expires_at"`
-	User         User   `json:"user"`
+	AccessToken  string     `json:"access_token"`
+	RefreshToken string     `json:"refresh_token"`
+	ExpiresAt    string     `json:"expires_at"`
+	User         PublicUser `json:"user"`
 }
 
 type ForgotPasswordRequest struct {

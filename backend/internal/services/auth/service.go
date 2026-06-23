@@ -49,6 +49,14 @@ type authService struct {
 
 	// In-memory denylist for invalidated (logged out) tokens
 	denylist sync.Map
+
+	// In-memory store for opaque refresh tokens
+	refreshTokens sync.Map
+}
+
+type refreshTokenData struct {
+	userID string
+	expiry time.Time
 }
 
 func NewAuthService(
@@ -116,6 +124,14 @@ func (s *authService) cleanupRoutine() {
 		s.denylist.Range(func(key, value any) bool {
 			if now.After(value.(time.Time)) {
 				s.denylist.Delete(key)
+			}
+			return true
+		})
+
+		// Cleanup expired refresh tokens
+		s.refreshTokens.Range(func(key, value any) bool {
+			if now.After(value.(refreshTokenData).expiry) {
+				s.refreshTokens.Delete(key)
 			}
 			return true
 		})
@@ -356,14 +372,21 @@ func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*doma
 }
 
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error) {
-	// BUG-01 fix: validate that the token is specifically a refresh token.
-	// Previously, any valid access token could be used here.
-	userID, err := s.validateTypedToken(refreshToken, tokenTypeRefresh)
-	if err != nil {
+	data, ok := s.refreshTokens.Load(refreshToken)
+	if !ok {
 		return nil, errors.Unauthorized("Invalid or expired session")
 	}
 
-	user, err := s.repo.GetByID(ctx, userID)
+	tokenData := data.(refreshTokenData)
+	if time.Now().After(tokenData.expiry) {
+		s.refreshTokens.Delete(refreshToken)
+		return nil, errors.Unauthorized("Invalid or expired session")
+	}
+
+	// Single-use refresh token (rotate upon use)
+	s.refreshTokens.Delete(refreshToken)
+
+	user, err := s.repo.GetByID(ctx, tokenData.userID)
 	if err != nil {
 		return nil, errors.NotFound("User account no longer exists")
 	}
@@ -429,7 +452,7 @@ func (s *authService) Logout(ctx context.Context, accessToken, refreshToken stri
 		s.invalidateToken(accessToken)
 	}
 	if refreshToken != "" {
-		s.invalidateToken(refreshToken)
+		s.refreshTokens.Delete(refreshToken)
 	}
 	return nil
 }
@@ -454,16 +477,43 @@ func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthRespo
 		return nil, errors.Internal("Failed to generate access token")
 	}
 
-	refreshToken, _, err := s.createToken(user.ID, tokenTypeRefresh, s.refreshTokenExpiry)
+	refreshToken, err := generateRandomString(64)
 	if err != nil {
-		return nil, errors.Internal("Failed to generate refresh token")
+		return nil, errors.Internal("Failed to generate secure refresh token")
 	}
+
+	s.refreshTokens.Store(refreshToken, refreshTokenData{
+		userID: user.ID,
+		expiry: time.Now().Add(s.refreshTokenExpiry),
+	})
 
 	return &domain.AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		ExpiresAt:    accessExp.Format(time.RFC3339),
-		User:         *user,
+		User: domain.PublicUser{
+			Email:      user.Email,
+			FirstName:  user.FirstName,
+			LastName:   user.LastName,
+			IsVerified: user.IsVerified,
+			CreatedAt:  user.CreatedAt,
+			UpdatedAt:  user.UpdatedAt,
+		},
+	}, nil
+}
+
+func (s *authService) GetMe(ctx context.Context, userID string) (*domain.PublicUser, error) {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, errors.NotFound("User not found")
+	}
+	return &domain.PublicUser{
+		Email:      user.Email,
+		FirstName:  user.FirstName,
+		LastName:   user.LastName,
+		IsVerified: user.IsVerified,
+		CreatedAt:  user.CreatedAt,
+		UpdatedAt:  user.UpdatedAt,
 	}, nil
 }
 

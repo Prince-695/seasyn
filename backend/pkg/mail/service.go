@@ -28,7 +28,7 @@ func NewMailService(host, port, user, pass, from, templateDir, frontendURL strin
 		port:        port,
 		user:        user,
 		pass:        pass,
-		from:        from,
+		from:        fmt.Sprintf("SEASYN <%s>", from), // Adds a friendly sender name to reduce spam score
 		auth:        smtp.PlainAuth("", user, pass, host),
 		templateDir: templateDir,
 		frontendURL: frontendURL,
@@ -43,10 +43,11 @@ func (s *mailService) SendOTP(to, otp string) error {
 
 	tmplPath := filepath.Join(s.templateDir, "otp.html")
 	tmpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		// Fallback to plain text
-		e.Text = []byte(fmt.Sprintf("Your OTP is: %s. It will expire in 10 minutes.", otp))
-	} else {
+	
+	// Always set a plain-text alternative. Emails with ONLY HTML often get flagged as spam.
+	e.Text = []byte(fmt.Sprintf("Your SEASYN Password Reset OTP is: %s\n\nIt will expire in 10 minutes. If you did not request this, please ignore this email.", otp))
+
+	if err == nil {
 		var body bytes.Buffer
 		if err := tmpl.Execute(&body, map[string]string{"OTP": otp}); err == nil {
 			e.HTML = body.Bytes()
@@ -65,9 +66,11 @@ func (s *mailService) SendWelcome(to, name string) error {
 
 	tmplPath := filepath.Join(s.templateDir, "welcome.html")
 	tmpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		e.Text = []byte(fmt.Sprintf("Welcome %s! Thanks for joining SEASYN.", name))
-	} else {
+	
+	// Always set a plain-text alternative.
+	e.Text = []byte(fmt.Sprintf("Welcome aboard, %s!\n\nWe're thrilled to have you join SEASYN. You can access your dashboard here: %s", name, s.frontendURL))
+
+	if err == nil {
 		var body bytes.Buffer
 		data := map[string]string{
 			"Name":        name,
