@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { ArrowRight } from "lucide-react"
-import { cn } from "../../lib/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "../ui/button"
 
 // Structured dataset showing database formats
@@ -116,9 +116,7 @@ export const MigrationShowcase = () => {
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
             Bridging <br />
             engines with <br />
-            <span className="bg-linear-to-b from-primary to-secondary bg-clip-text font-serif text-transparent italic">
-              Zero Friction
-            </span>
+            <span className="italic">Zero Friction</span>
           </h2>
           <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
             Watch schemas adapt instantly. Seasyn introspects your database

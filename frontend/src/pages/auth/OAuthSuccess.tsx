@@ -3,9 +3,10 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
 import { Loader2 } from "lucide-react"
+import { setTokenCookie } from "@/lib/utils"
 import axios from "axios"
 
-export default function AuthCallback() {
+export function OAuthSuccess() {
   const { provider } = useParams<{ provider: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -13,9 +14,32 @@ export default function AuthCallback() {
   const [error, setError] = useState<string | null>(null)
 
   const code = searchParams.get("code")
+  const urlToken = searchParams.get("access_token") || searchParams.get("token")
 
   useEffect(() => {
-    const exchangeCode = async () => {
+    const handleAuth = async () => {
+      // Scenario 1: Token is directly in the URL search parameters (redirected from backend)
+      if (urlToken) {
+        try {
+          setTokenCookie(urlToken)
+          const profileRes = await authApi.getProfile()
+          const user = profileRes.data?.user || profileRes.data || profileRes
+          setAuth(user)
+
+          if (window.opener) {
+            window.close()
+          } else {
+            navigate("/dashboard", { replace: true })
+          }
+          return
+        } catch (err) {
+          console.error("Profile fetch with URL token failed:", err)
+          setError("Failed to fetch user profile with URL token.")
+          return
+        }
+      }
+
+      // Scenario 2: Code exchange required (redirected directly to frontend callback)
       if (!provider || !code) {
         setError("Invalid OAuth callback parameters.")
         return
@@ -25,8 +49,14 @@ export default function AuthCallback() {
         // Exchange the code for a token/session on the backend in the background
         const response = await authApi.handleOAuthCallback(provider, code)
 
-        if (response.success) {
-          // Retrieve the user profile using the active session cookies
+        if (response.success || response.access_token || response.token) {
+          // Extract the token and set the cookie
+          const token = response.access_token || response.token
+          if (token) {
+            setTokenCookie(token)
+          }
+
+          // Retrieve the user profile using the set token cookie
           try {
             const profileRes = await authApi.getProfile()
             const user = profileRes.data?.user ||
@@ -36,7 +66,12 @@ export default function AuthCallback() {
                 name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
               }
             setAuth(user)
-            navigate("/dashboard", { replace: true })
+
+            if (window.opener) {
+              window.close()
+            } else {
+              navigate("/dashboard", { replace: true })
+            }
           } catch (profileErr) {
             console.error(
               "Profile exchange failed, using fallback:",
@@ -49,7 +84,12 @@ export default function AuthCallback() {
               name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
             }
             setAuth(fallbackUser)
-            navigate("/dashboard", { replace: true })
+
+            if (window.opener) {
+              window.close()
+            } else {
+              navigate("/dashboard", { replace: true })
+            }
           }
         } else {
           setError(response.message || "Failed to log in with OAuth.")
@@ -69,8 +109,8 @@ export default function AuthCallback() {
       }
     }
 
-    exchangeCode()
-  }, [provider, code, navigate, setAuth])
+    handleAuth()
+  }, [provider, code, urlToken, navigate, setAuth])
 
   if (error) {
     return (
@@ -98,3 +138,5 @@ export default function AuthCallback() {
     </div>
   )
 }
+
+export default OAuthSuccess

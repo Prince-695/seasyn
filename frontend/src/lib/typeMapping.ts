@@ -5,13 +5,7 @@
  * Exposes helpers for retrieving the Display Name, and Brand Color (theme-compatible Tailwind classes).
  */
 
-export type DBType = "postgresql" | "mysql" | "mongodb" | "sqlite"
-
-interface DBTypeMeta {
-  displayName: string
-  colorClass: string // Tailwind text color
-  bgColorClass: string // Tailwind background color
-}
+import type { DBType, DBTypeMeta } from "@/types"
 
 export const dbTypeMapping: Record<DBType, DBTypeMeta> = {
   postgresql: {

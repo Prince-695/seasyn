@@ -1,9 +1,8 @@
 import { Mail } from "lucide-react"
 import { FaGithub } from "react-icons/fa"
-
 import { Link } from "react-router-dom"
 
-const Footer = () => {
+export const Footer = () => {
   return (
     <footer className="relative w-full overflow-hidden border-t border-border bg-background px-6 py-12">
       {/* "Halfly visible" Seasyn text background */}

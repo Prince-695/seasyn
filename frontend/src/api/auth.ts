@@ -4,13 +4,7 @@ import type {
   ForgotPasswordInput,
   ResetPasswordInput,
 } from "@/lib/validators"
-
-export interface SignupPayload {
-  email: string
-  password: string
-  first_name: string
-  last_name: string
-}
+import type { SignupPayload } from "@/types"
 
 export const authApi = {
   login: async (data: LoginInput) => {
@@ -45,13 +39,6 @@ export const authApi = {
 
   getProfile: async () => {
     const response = await apiClient.get("/user/profile")
-    return response.data
-  },
-
-  handleOAuthCallback: async (provider: string, code: string) => {
-    const response = await apiClient.get(`/auth/${provider}/callback`, {
-      params: { code },
-    })
     return response.data
   },
 }

@@ -2,17 +2,10 @@ import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import type { ProtectedRouteProps } from "@/types"
 
-/**
- * ProtectedRoute
- *
- * Secures routes that require authentication. Redirects unauthorized users
- * to the login page. Works as both a layout component (Outlet) and a wrapper.
- */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isInitialized } = useAuthStore()
   const location = useLocation()
 
-  // Optionally render a loading spinner while checking auth status (e.g. validating token with /me endpoint)
   if (!isInitialized) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -27,3 +20,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   return children ? <>{children}</> : <Outlet />
 }
+
+export default ProtectedRoute

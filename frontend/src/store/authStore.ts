@@ -1,20 +1,6 @@
 import { create } from "zustand"
-
-interface User {
-  id: string
-  email: string
-  name?: string
-  // Add other fields according to backend API
-}
-
-interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  isInitialized: boolean
-  setAuth: (user: User) => void
-  clearAuth: () => void
-  setInitialized: (status: boolean) => void
-}
+import { deleteTokenCookie } from "@/lib/utils"
+import type { User, AuthState } from "@/types"
 
 const getInitialUser = (): User | null => {
   try {
@@ -28,7 +14,7 @@ const getInitialUser = (): User | null => {
 export const useAuthStore = create<AuthState>((set) => ({
   user: getInitialUser(),
   isAuthenticated: localStorage.getItem("is_logged_in") === "true",
-  isInitialized: true, // Loaded instantly on startup from localStorage
+  isInitialized: false, // Will be set to true by useAuth hook after verifying with backend
 
   setAuth: (user) => {
     localStorage.setItem("user", JSON.stringify(user))
@@ -39,6 +25,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth: () => {
     localStorage.removeItem("user")
     localStorage.removeItem("is_logged_in")
+    // Delete authentication cookie using the centralized utility
+    deleteTokenCookie()
     set({
       user: null,
       isAuthenticated: false,

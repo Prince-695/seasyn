@@ -13,19 +13,16 @@ const MARQUEE_ITEMS = [...DATABASES, ...DATABASES, ...DATABASES, ...DATABASES]
 
 export const Slider = () => {
   return (
-    <section className="max-w-8xl relative flex w-full flex-col items-center justify-center overflow-hidden pt-30">
-      {/* <div className="mb-8 text-center md:mb-10">
+    <section className="max-w-8xl relative mt-30 flex w-full flex-col items-center justify-center overflow-hidden rounded-t-4xl bg-accent p-8">
+      <div className="mb-8 text-center md:mb-10">
         <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-          Supported{" "}
-          <span className="text-secondary">
-            Databases
-          </span>
+          Supported <span className="text-secondary">Databases</span>
         </h2>
-      </div> */}
+      </div>
 
       <div className="relative flex w-full overflow-hidden">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-linear-to-r from-background to-transparent sm:w-24 md:w-32"></div>
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-background to-transparent sm:w-24 md:w-32"></div>
+        {/* <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-linear-to-r from-background to-transparent sm:w-24 md:w-32"></div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-background to-transparent sm:w-24 md:w-32"></div> */}
 
         <motion.div
           className="flex w-max items-center gap-8 pr-8 md:gap-16 md:pr-16"

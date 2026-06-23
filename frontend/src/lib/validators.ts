@@ -37,7 +37,7 @@ export const connectionConfigSchema = z.object({
 })
 
 export const projectSchema = z.object({
-  name: z.string().min(3, "Project name must be at least 3 characters"),
+  name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
 })
 
