@@ -2,7 +2,6 @@ import { create } from "zustand"
 import { getCookie, deleteCookie } from "@/lib/utils"
 import type { AuthState, User } from "@/types"
 
-
 console.log(
   "[AuthStore] Initializing store. Access token cookie present:",
   !!getCookie("access_token"),
@@ -35,8 +34,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     console.trace()
     // Removed manual cookie deletion since backend handles cookie lifecycle.
     // A proper logout should call a backend endpoint to invalidate the HttpOnly cookies.
-    deleteCookie("access_token") 
-    deleteCookie("refresh_token") 
+    deleteCookie("access_token")
+    deleteCookie("refresh_token")
     deleteCookie("user")
     set({
       user: null,

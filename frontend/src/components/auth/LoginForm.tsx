@@ -42,11 +42,10 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       const response = await authApi.login(data)
       console.log("[LoginForm] login API response:", response)
 
-      // The frontend MUST set the cookie manually because the browser is rejecting the backend's Set-Cookie header.
       if (response?.access_token) {
         setCookie("access_token", response.access_token)
-      } 
-      
+      }
+
       if (response?.refresh_token) {
         setCookie("refresh_token", response.refresh_token)
       }

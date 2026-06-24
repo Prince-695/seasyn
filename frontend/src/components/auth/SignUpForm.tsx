@@ -48,12 +48,12 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
       if (response?.access_token) {
         setCookie("access_token", response.access_token)
       }
-      
+
       if (response?.refresh_token) {
         setCookie("refresh_token", response.refresh_token)
       }
 
-       // Auto-login after successful registration (since cookies handle token)
+      // Auto-login after successful registration (since cookies handle token)
       const user = response.user || {
         id: "authenticated-user",
         email: data.email,
