@@ -140,13 +140,14 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(authService, cfg.Env != "development", cfg.FrontendURL)
 	authMiddleware := middleware.Auth(authService)
+	requireVerified := middleware.RequireVerified(authService)
 
 	usersService := users.NewUsersService(userRepo)
 	usersHandler := handlers.NewUsersHandler(usersService)
 
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
-	usersHandler.RegisterRoutes(apiV1, authMiddleware)
+	usersHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }

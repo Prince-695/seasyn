@@ -207,7 +207,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Returns 200 OK if the user has a valid access token",
+                "description": "Returns 200 OK and verification status if the user has a valid access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -222,6 +222,58 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.AuthStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/otp/send": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Generates and sends an OTP to the authenticated user's email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Send OTP",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
                             "$ref": "#/definitions/domain.Response"
                         }
                     },
@@ -234,9 +286,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/auth/otp": {
+        "/v1/auth/otp/verify": {
             "post": {
-                "description": "Verify an OTP for signup, login, or password reset",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Verify the authenticated user's email using an OTP",
                 "consumes": [
                     "application/json"
                 ],
@@ -246,15 +303,15 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Verify OTP",
+                "summary": "Verify Email with OTP",
                 "parameters": [
                     {
-                        "description": "Verify OTP Request",
+                        "description": "Verify Email Request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.VerifyOTPRequest"
+                            "$ref": "#/definitions/domain.VerifyEmailRequest"
                         }
                     }
                 ],
@@ -315,7 +372,7 @@ const docTemplate = `{
         },
         "/v1/auth/reset-password": {
             "post": {
-                "description": "Update the user's password using a secure reset session cookie",
+                "description": "Reset password using an OTP and email",
                 "consumes": [
                     "application/json"
                 ],
@@ -346,12 +403,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or expired reset session",
                         "schema": {
                             "$ref": "#/definitions/domain.Response"
                         }
@@ -716,6 +767,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.AuthStatusResponse": {
+            "type": "object",
+            "properties": {
+                "is_verified": {
+                    "type": "boolean"
+                }
+            }
+        },
         "domain.ChangePasswordRequest": {
             "type": "object",
             "required": [
@@ -798,12 +857,20 @@ const docTemplate = `{
         "domain.ResetPasswordRequest": {
             "type": "object",
             "required": [
-                "new_password"
+                "email",
+                "new_password",
+                "otp"
             ],
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "new_password": {
                     "type": "string",
                     "minLength": 6
+                },
+                "otp": {
+                    "type": "string"
                 }
             }
         },
@@ -880,27 +947,14 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.VerifyOTPRequest": {
+        "domain.VerifyEmailRequest": {
             "type": "object",
             "required": [
-                "email",
-                "otp",
-                "task"
+                "otp"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
                 "otp": {
                     "type": "string"
-                },
-                "task": {
-                    "type": "string",
-                    "enum": [
-                        "signup",
-                        "login",
-                        "reset-password"
-                    ]
                 }
             }
         }

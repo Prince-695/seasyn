@@ -11,9 +11,10 @@ type AuthService interface {
 	Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResponse, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error)
 	ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error
-	ResetPassword(ctx context.Context, resetToken string, req domain.ResetPasswordRequest) error
+	ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error
 	ChangePassword(ctx context.Context, userID string, req domain.ChangePasswordRequest) error
-	VerifyOTP(ctx context.Context, req domain.VerifyOTPRequest) (string, error)
+	SendOTP(ctx context.Context, userID string) error
+	VerifyEmail(ctx context.Context, userID string, otp string) error
 	Logout(ctx context.Context, accessToken, refreshToken string) error
 	GetMe(ctx context.Context, userID string) (*domain.PublicUser, error)
 	ValidateToken(token string) (string, error)

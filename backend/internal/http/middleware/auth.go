@@ -100,3 +100,37 @@ func extractToken(c *fiber.Ctx) string {
 	// 3. Fall back to HttpOnly cookie (the primary transport for browser clients)
 	return c.Cookies("access_token")
 }
+
+// RequireVerified is a strict middleware that ensures the user has a verified email.
+// It must be used AFTER the Auth middleware.
+func RequireVerified(authService ports.AuthService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userID := c.Locals("userID")
+		if userID == nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(domain.Response{
+				Success: false,
+				Error:   "UNAUTHORIZED",
+				Message: "Authentication required.",
+			})
+		}
+
+		user, err := authService.GetMe(c.Context(), userID.(string))
+		if err != nil || user == nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(domain.Response{
+				Success: false,
+				Error:   "UNAUTHORIZED",
+				Message: "User not found.",
+			})
+		}
+
+		if !user.IsVerified {
+			return c.Status(fiber.StatusForbidden).JSON(domain.Response{
+				Success: false,
+				Error:   "FORBIDDEN",
+				Message: "Email verification required. Please verify your email to access this resource.",
+			})
+		}
+
+		return c.Next()
+	}
+}

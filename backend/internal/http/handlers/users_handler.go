@@ -28,17 +28,19 @@ func (h *UsersHandler) jsonResponse(c *fiber.Ctx, status int, success bool, mess
 	})
 }
 
-func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
+func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler, requireVerified fiber.Handler) {
 	usersGroup := router.Group("/users")
 
 	// Open route for checking username
 	usersGroup.Get("/username", h.CheckUsername)
 
-	// Protected routes
+	// Protected routes (Only requires authentication)
 	usersGroup.Use(authMiddleware)
 	usersGroup.Get("/me", h.GetMe)
-	usersGroup.Post("/username", h.SetUsername)
-	usersGroup.Put("/update", h.UpdateProfile)
+
+	// Verified routes (Requires authentication AND verified email)
+	usersGroup.Post("/username", requireVerified, h.SetUsername)
+	usersGroup.Put("/update", requireVerified, h.UpdateProfile)
 }
 
 // GetMe godoc

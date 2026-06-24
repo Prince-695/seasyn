@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  domain.AuthStatusResponse:
+    properties:
+      is_verified:
+        type: boolean
+    type: object
   domain.ChangePasswordRequest:
     properties:
       new_password:
@@ -54,11 +59,17 @@ definitions:
     type: object
   domain.ResetPasswordRequest:
     properties:
+      email:
+        type: string
       new_password:
         minLength: 6
         type: string
+      otp:
+        type: string
     required:
+    - email
     - new_password
+    - otp
     type: object
   domain.Response:
     properties:
@@ -110,22 +121,12 @@ definitions:
     - first_name
     - last_name
     type: object
-  domain.VerifyOTPRequest:
+  domain.VerifyEmailRequest:
     properties:
-      email:
-        type: string
       otp:
         type: string
-      task:
-        enum:
-        - signup
-        - login
-        - reset-password
-        type: string
     required:
-    - email
     - otp
-    - task
     type: object
 info:
   contact:
@@ -329,14 +330,20 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns 200 OK if the user has a valid access token
+      description: Returns 200 OK and verification status if the user has a valid
+        access token
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Response'
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.AuthStatusResponse'
+              type: object
         "401":
           description: Unauthorized
           schema:
@@ -346,18 +353,11 @@ paths:
       summary: Check authentication status
       tags:
       - auth
-  /v1/auth/otp:
+  /v1/auth/otp/send:
     post:
       consumes:
       - application/json
-      description: Verify an OTP for signup, login, or password reset
-      parameters:
-      - description: Verify OTP Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/domain.VerifyOTPRequest'
+      description: Generates and sends an OTP to the authenticated user's email
       produces:
       - application/json
       responses:
@@ -369,7 +369,41 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/domain.Response'
-      summary: Verify OTP
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - Bearer: []
+      summary: Send OTP
+      tags:
+      - auth
+  /v1/auth/otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify the authenticated user's email using an OTP
+      parameters:
+      - description: Verify Email Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - Bearer: []
+      summary: Verify Email with OTP
       tags:
       - auth
   /v1/auth/refresh:
@@ -403,7 +437,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Update the user's password using a secure reset session cookie
+      description: Reset password using an OTP and email
       parameters:
       - description: Reset Password Request
         in: body
@@ -420,10 +454,6 @@ paths:
             $ref: '#/definitions/domain.Response'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/domain.Response'
-        "401":
-          description: Missing or expired reset session
           schema:
             $ref: '#/definitions/domain.Response'
       summary: Reset Password
