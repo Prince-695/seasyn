@@ -16,7 +16,6 @@ export const Home = () => {
         <Hero />
 
         <DashboardPreview />
-
         {/* Why Choose Seasyn Section */}
         <Features />
 

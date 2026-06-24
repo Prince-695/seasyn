@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
+// import { getCookie } from "@/lib/utils"
 
 /**
  * useAuth hook
@@ -18,28 +19,50 @@ export function useAuth() {
     setInitialized,
   } = useAuthStore()
 
+  console.log("[useAuth] Hook rendered. Current auth state:", {
+    user,
+    isAuthenticated,
+    isInitialized,
+  })
+
   useEffect(() => {
+    console.log("[useAuth] Raw document.cookie:", document.cookie)
+    const hasUser = !!localStorage.getItem("user")
+    console.log("[useAuth] LocalStorage user present:", hasUser)
+
     const verifySession = async () => {
+      console.log("[useAuth] Starting verifySession() API call...")
       try {
         const response = await authApi.getProfile()
+        console.log("[useAuth] verifySession() response received:", response)
         const userData = response.data?.user || response.data || response
+        console.log("[useAuth] Parsed user data:", userData)
         if (userData) {
+          console.log("[useAuth] User data is valid. Updating store auth.")
           setAuth(userData)
         } else {
-          clearAuth()
+          console.warn(
+            "[useAuth] No user data found in response, but keeping session active."
+          )
         }
       } catch (err) {
-        console.error("Auth session verification failed:", err)
-        clearAuth()
+        console.error(
+          "[useAuth] Auth session verification API call failed. Not logging out as user details are on hold.",
+          err
+        )
       } finally {
         setInitialized(true)
       }
     }
 
-    // Verify session if localStorage indicates user is logged in
-    if (localStorage.getItem("is_logged_in") === "true") {
+    // Verify session if user data exists in localStorage
+    if (hasUser) {
+      console.log("[useAuth] User exists. Calling verifySession().")
       verifySession()
     } else {
+      console.log(
+        "[useAuth] No user found on load. Triggering clearAuth() & initializing as true."
+      )
       clearAuth()
       setInitialized(true)
     }

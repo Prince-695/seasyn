@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc"
 import { FaGithub } from "react-icons/fa"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
-import { setTokenCookie } from "@/lib/utils"
+import { setCookie } from "@/lib/utils"
 
 interface OAuthButtonsProps {
   onError: (error: string | null) => void
@@ -71,6 +71,7 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
 
           // If we successfully read the text, and it looks like our JSON response
           if (popupText && popupText.includes("access_token")) {
+            console.log("[OAuthButtons] Received popup text:", popupText)
             // 1. Stop polling
             if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
 
@@ -78,9 +79,12 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
             const responseData = JSON.parse(popupText)
 
             if (responseData.success && responseData.access_token) {
-              // 3. Save the token exactly as you were doing before
-              setTokenCookie(responseData.access_token)
+              setCookie("access_token", responseData.access_token)
 
+              console.log(
+                "[OAuthButtons] Access token saved to cookie:",
+                responseData.access_token.substring(0, 10) + "..."
+              )
               // 4. Close the ugly JSON tab automatically
               popup.close()
 

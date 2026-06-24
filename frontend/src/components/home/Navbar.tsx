@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
+import { authApi } from "@/api/auth"
 import { useAuthStore } from "@/store/authStore"
 import { NavbarMobile } from "./NavbarMobile"
 
@@ -20,10 +21,16 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isAuthenticated, user, clearAuth } = useAuthStore()
 
-  const handleLogout = () => {
-    clearAuth()
-    setIsMobileMenuOpen(false)
-    navigate("/sign-in")
+  const handleLogout = async () => {
+    try {
+      await authApi.logout()
+    } catch (error) {
+      console.error("Failed to call backend logout:", error)
+    } finally {
+      clearAuth()
+      setIsMobileMenuOpen(false)
+      navigate("/sign-in")
+    }
   }
 
   return (

@@ -5,7 +5,7 @@ import type {
   ResetPasswordInput,
 } from "@/lib/validators"
 import type { SignupPayload } from "@/types"
-
+ 
 export const authApi = {
   login: async (data: LoginInput) => {
     const response = await apiClient.post("/auth/login", data)
@@ -19,6 +19,11 @@ export const authApi = {
 
   me: async () => {
     const response = await apiClient.get("/auth/me")
+    return response.data
+  },
+
+  logout: async () => {
+    const response = await apiClient.post("/auth/logout")
     return response.data
   },
 
@@ -39,6 +44,13 @@ export const authApi = {
 
   getProfile: async () => {
     const response = await apiClient.get("/user/profile")
+    return response.data
+  },
+
+  handleOAuthCallback: async (provider: string, code: string) => {
+    const response = await apiClient.get(`/auth/${provider}/callback`, {
+      params: { code },
+    })
     return response.data
   },
 }

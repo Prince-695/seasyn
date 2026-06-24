@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/store/authStore"
 import { useNavigate, Outlet } from "react-router-dom"
+import { authApi } from "@/api/auth"
 import { Button } from "@/components/ui/button"
 import { LayoutDashboard, LogOut, User } from "lucide-react"
 
@@ -7,9 +8,15 @@ export function MainLayout() {
   const { user, clearAuth } = useAuthStore()
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    clearAuth()
-    navigate("/sign-in")
+  const handleLogout = async () => {
+    try {
+      await authApi.logout()
+    } catch (error) {
+      console.error("Failed to call backend logout:", error)
+    } finally {
+      clearAuth()
+      navigate("/sign-in")
+    }
   }
 
   return (

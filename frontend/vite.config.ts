@@ -11,4 +11,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      // This tells Vite: "If a request starts with /api, secretly forward it to port 5000"
+      "/api": {
+        target: "https://seasyn.onrender.com/v1",
+        changeOrigin: true,
+      },
+    },
+  },
 })

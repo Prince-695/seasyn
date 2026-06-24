@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
 import { Loader2 } from "lucide-react"
-import { setTokenCookie } from "@/lib/utils"
+import { setCookie } from "@/lib/utils"
 import axios from "axios"
 
 export function OAuthSuccess() {
@@ -21,7 +21,7 @@ export function OAuthSuccess() {
       // Scenario 1: Token is directly in the URL search parameters (redirected from backend)
       if (urlToken) {
         try {
-          setTokenCookie(urlToken)
+          setCookie("access_token", urlToken)
           const profileRes = await authApi.getProfile()
           const user = profileRes.data?.user || profileRes.data || profileRes
           setAuth(user)
@@ -50,10 +50,9 @@ export function OAuthSuccess() {
         const response = await authApi.handleOAuthCallback(provider, code)
 
         if (response.success || response.access_token || response.token) {
-          // Extract the token and set the cookie
           const token = response.access_token || response.token
           if (token) {
-            setTokenCookie(token)
+            setCookie("access_token", token)
           }
 
           // Retrieve the user profile using the set token cookie
