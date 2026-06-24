@@ -16,13 +16,18 @@ type AuthHandler struct {
 	authService  ports.AuthService
 	validate     *validator.Validate
 	isProduction bool // BUG-04 fix: drive the Secure cookie flag from the environment
+	frontendURL  string
 }
 
-func NewAuthHandler(authService ports.AuthService, isProduction bool) *AuthHandler {
+func NewAuthHandler(authService ports.AuthService, isProduction bool, frontendURLs string) *AuthHandler {
+	// If multiple URLs are provided, take the first one as the primary redirect target
+	primaryURL := strings.Split(frontendURLs, ",")[0]
+
 	return &AuthHandler{
 		authService:  authService,
 		validate:     validator.New(),
 		isProduction: isProduction,
+		frontendURL:  primaryURL,
 	}
 }
 
@@ -36,6 +41,7 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
+	authGroup.Get("/me", authMiddleware, h.GetMe)
 
 	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
@@ -209,6 +215,32 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 	return h.jsonResponse(c, fiber.StatusOK, true, "Password reset successful", "", nil)
 }
 
+// GetMe
+// @Summary Get currently logged in user
+// @Description Returns the profile of the currently authenticated user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} domain.Response{data=domain.PublicUser}
+// @Failure 401 {object} domain.Response
+// @Failure 404 {object} domain.Response
+// @Router /v1/auth/me [get]
+func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
+	// Extract the userID injected by authMiddleware
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "no user ID found in context", nil)
+	}
+
+	user, err := h.authService.GetMe(c.Context(), userID.(string))
+	if err != nil {
+		return err // handled by error handler
+	}
+
+	return h.jsonResponse(c, fiber.StatusOK, true, "User profile retrieved", "", user)
+}
+
 // OAuthLogin godoc
 // @Summary Get OAuth Login URL
 // @Description Returns the authorization URL for a specific provider (google, github).
@@ -254,7 +286,12 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth login successful", res.AccessToken, nil)
+
+	// Instead of JSON or popups, we just redirect the user back to the frontend.
+	// Because we just set the HttpOnly cookies, the frontend will automatically
+	// be authenticated when it loads!
+	redirectURL := h.frontendURL + "/dashboard"
+	return c.Redirect(redirectURL, fiber.StatusTemporaryRedirect)
 }
 
 // setAuthCookies writes HttpOnly auth cookies on the response.

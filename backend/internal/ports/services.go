@@ -13,6 +13,7 @@ type AuthService interface {
 	ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error
 	ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error
 	Logout(ctx context.Context, accessToken, refreshToken string) error
+	GetMe(ctx context.Context, userID string) (*domain.PublicUser, error)
 	ValidateToken(token string) (string, error)
 	GetOAuthURL(provider string) (string, error)
 	HandleOAuthCallback(ctx context.Context, provider, code, state string) (*domain.AuthResponse, error)
