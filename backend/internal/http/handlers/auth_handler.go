@@ -414,7 +414,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Expires:  time.Now().Add(30 * time.Minute),
 		HTTPOnly: true,
 		Secure:   h.isProduction,
-		SameSite: "Strict",
+		SameSite: "Lax",
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
@@ -423,7 +423,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Expires:  time.Now().Add(168 * time.Hour),
 		HTTPOnly: true,
 		Secure:   h.isProduction,
-		SameSite: "Strict",
+		SameSite: "Lax",
 	})
 }
 
@@ -441,7 +441,7 @@ func (h *AuthHandler) clearAuthCookies(c *fiber.Ctx) {
 			MaxAge:   -1,
 			HTTPOnly: true,
 			Secure:   h.isProduction,
-			SameSite: "Strict",
+			SameSite: "Lax",
 		})
 	}
 }
