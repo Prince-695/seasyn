@@ -51,12 +51,12 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 	authGroup.Post("/login", authLimiter, h.Login)
 	authGroup.Post("/refresh", h.Refresh)
 	authGroup.Post("/forgot-password", authLimiter, h.ForgotPassword)
-	authGroup.Post("/reset-password", h.ResetPassword)
+	authGroup.Post("/reset-password", authLimiter, h.ResetPassword)
 
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
 	authGroup.Get("/me", authMiddleware, h.GetMe)
-	authGroup.Post("/change-password", authMiddleware, h.ChangePassword)
+	authGroup.Post("/change-password", authMiddleware, authLimiter, h.ChangePassword)
 	authGroup.Post("/otp/send", authMiddleware, authLimiter, h.SendOTP)
 	authGroup.Post("/otp/verify", authMiddleware, authLimiter, h.VerifyEmail)
 
@@ -328,6 +328,7 @@ func (h *AuthHandler) SendOTP(c *fiber.Ctx) error {
 // @Param request body domain.VerifyEmailRequest true "Verify Email Request"
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
+// @Failure 401 {object} domain.Response
 // @Router /v1/auth/otp/verify [post]
 func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
 	userID := c.Locals("userID")

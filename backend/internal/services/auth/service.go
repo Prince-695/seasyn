@@ -441,7 +441,7 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 
 	// Cleanup OTP
 	if err := s.otpRepo.DeleteByEmail(ctx, req.Email); err != nil {
-		log.Printf("warn: failed to delete OTP after password reset for %s: %v", req.Email, err)
+		log.Printf("warn: failed to delete OTP after password reset for user [REDACTED]: %v", err)
 	}
 
 	return nil
@@ -484,6 +484,11 @@ func (s *authService) SendOTP(ctx context.Context, userID string) error {
 	if err != nil {
 		return errors.Internal("Failed to generate OTP")
 	}
+
+	if err := s.otpRepo.DeleteByEmail(ctx, user.Email); err != nil {
+		return fmt.Errorf("failed to cleanup old OTPs: %w", err)
+	}
+
 	if err := s.otpRepo.Create(ctx, user.Email, otp, time.Now().Add(10*time.Minute)); err != nil {
 		return errors.Internal("Failed to save OTP")
 	}

@@ -21,11 +21,16 @@ func NewUsersHandler(usersService ports.UsersService) *UsersHandler {
 
 // jsonResponse is a helper to format standard JSON responses
 func (h *UsersHandler) jsonResponse(c *fiber.Ctx, status int, success bool, message string, data interface{}) error {
-	return c.Status(status).JSON(domain.Response{
+	resp := domain.Response{
 		Success: success,
 		Message: message,
 		Data:    data,
-	})
+	}
+	if !success {
+		resp.Error = message
+		resp.Message = ""
+	}
+	return c.Status(status).JSON(resp)
 }
 
 func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler, requireVerified fiber.Handler) {

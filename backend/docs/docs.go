@@ -327,6 +327,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.Response"
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
                     }
                 }
             }
@@ -863,14 +869,19 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "user@example.com"
                 },
                 "new_password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "newsecret123"
                 },
                 "otp": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6,
+                    "example": "123456"
                 }
             }
         },
@@ -904,7 +915,8 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "maxLength": 20,
-                    "minLength": 3
+                    "minLength": 3,
+                    "example": "johndoe_99"
                 }
             }
         },
@@ -954,7 +966,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "otp": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6,
+                    "example": "123456"
                 }
             }
         }

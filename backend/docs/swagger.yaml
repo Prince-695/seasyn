@@ -60,11 +60,16 @@ definitions:
   domain.ResetPasswordRequest:
     properties:
       email:
+        example: user@example.com
         type: string
       new_password:
+        example: newsecret123
         minLength: 6
         type: string
       otp:
+        example: "123456"
+        maxLength: 6
+        minLength: 6
         type: string
     required:
     - email
@@ -88,6 +93,7 @@ definitions:
   domain.SetUsernameRequest:
     properties:
       username:
+        example: johndoe_99
         maxLength: 20
         minLength: 3
         type: string
@@ -124,6 +130,9 @@ definitions:
   domain.VerifyEmailRequest:
     properties:
       otp:
+        example: "123456"
+        maxLength: 6
+        minLength: 6
         type: string
     required:
     - otp
@@ -399,6 +408,10 @@ paths:
             $ref: '#/definitions/domain.Response'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/domain.Response'
       security:

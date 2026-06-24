@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -18,15 +19,16 @@ import (
 func Auth(authService ports.AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		tokenString := extractToken(c)
-		if tokenString == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(domain.Response{
-				Success: false,
-				Error:   "UNAUTHORIZED",
-				Message: "Authentication required. Provide a Bearer token or a valid access_token cookie.",
-			})
+		
+		var userID string
+		var err error
+		
+		if tokenString != "" {
+			userID, err = authService.ValidateToken(tokenString)
+		} else {
+			err = errors.New("missing access token")
 		}
 
-		userID, err := authService.ValidateToken(tokenString)
 		if err != nil {
 			// Try automatic refresh via HttpOnly cookie
 			refreshToken := c.Cookies("refresh_token")
