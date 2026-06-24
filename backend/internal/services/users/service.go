@@ -35,8 +35,17 @@ func (s *usersService) GetMe(ctx context.Context, userID string) (*domain.Public
 	}, nil
 }
 
+func (s *usersService) isValidUsername(username string) bool {
+	valid, _ := regexp.MatchString(`^[a-z0-9_]{3,20}$`, username)
+	return valid
+}
+
 func (s *usersService) CheckUsername(ctx context.Context, username string) (bool, error) {
-	return s.repo.CheckUsername(ctx, strings.ToLower(username))
+	username = strings.ToLower(strings.TrimSpace(username))
+	if !s.isValidUsername(username) {
+		return false, errors.BadRequest("Username must be 3-20 characters long and can only contain lowercase letters, numbers, and underscores")
+	}
+	return s.repo.CheckUsername(ctx, username)
 }
 
 func (s *usersService) SetUsername(ctx context.Context, userID, username string) error {
@@ -49,10 +58,9 @@ func (s *usersService) SetUsername(ctx context.Context, userID, username string)
 		return errors.BadRequest("Username is already set and cannot be changed")
 	}
 
-	username = strings.ToLower(username)
+	username = strings.ToLower(strings.TrimSpace(username))
 
-	valid, _ := regexp.MatchString(`^[a-z0-9_]{3,20}$`, username)
-	if !valid {
+	if !s.isValidUsername(username) {
 		return errors.BadRequest("Username must be 3-20 characters long and can only contain lowercase letters, numbers, and underscores")
 	}
 

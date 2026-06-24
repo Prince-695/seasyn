@@ -51,9 +51,9 @@ type ForgotPasswordRequest struct {
 }
 
 type ResetPasswordRequest struct {
-	Email       string `json:"email" validate:"required,email"`
-	OTP         string `json:"otp" validate:"required,len=6"`
-	NewPassword string `json:"new_password" validate:"required,min=6"`
+	Email       string `json:"email" validate:"required,email" example:"user@example.com"`
+	OTP         string `json:"otp" validate:"required,len=6" minLength:"6" maxLength:"6" example:"123456"`
+	NewPassword string `json:"new_password" validate:"required,min=6" minLength:"6" example:"newsecret123"`
 }
 
 type ChangePasswordRequest struct {
@@ -62,7 +62,7 @@ type ChangePasswordRequest struct {
 }
 
 type VerifyEmailRequest struct {
-	OTP string `json:"otp" validate:"required,len=6"`
+	OTP string `json:"otp" validate:"required,len=6" minLength:"6" maxLength:"6" example:"123456"`
 }
 
 type AuthStatusResponse struct {
@@ -75,7 +75,7 @@ type UpdateProfileRequest struct {
 }
 
 type SetUsernameRequest struct {
-	Username string `json:"username" validate:"required,min=3,max=20,alphanum"`
+	Username string `json:"username" validate:"required,min=3,max=20" minLength:"3" maxLength:"20" example:"johndoe_99"`
 }
 
 type RefreshRequest struct {
