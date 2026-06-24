@@ -231,7 +231,7 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 	if err := h.validate.Struct(req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
-	
+
 	if err := h.authService.ResetPassword(c.Context(), resetToken, req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}

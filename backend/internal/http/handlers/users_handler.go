@@ -30,7 +30,7 @@ func (h *UsersHandler) jsonResponse(c *fiber.Ctx, status int, success bool, mess
 
 func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
 	usersGroup := router.Group("/users")
-	
+
 	// Open route for checking username
 	usersGroup.Get("/username", h.CheckUsername)
 

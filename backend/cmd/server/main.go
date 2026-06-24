@@ -151,7 +151,6 @@ func main() {
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
 
-
 // HealthCheck godoc
 // @Summary Show the status of server.
 // @Description get the status of server.
