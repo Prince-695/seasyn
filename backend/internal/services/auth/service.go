@@ -52,10 +52,18 @@ type authService struct {
 
 	// In-memory store for opaque refresh tokens
 	refreshTokens sync.Map
+
+	// In-memory store for secure reset tokens bridging /otp and /reset-password
+	resetTokens sync.Map
 }
 
 type refreshTokenData struct {
 	userID string
+	expiry time.Time
+}
+
+type resetTokenData struct {
+	email  string
 	expiry time.Time
 }
 
@@ -132,6 +140,14 @@ func (s *authService) cleanupRoutine() {
 		s.refreshTokens.Range(func(key, value any) bool {
 			if now.After(value.(refreshTokenData).expiry) {
 				s.refreshTokens.Delete(key)
+			}
+			return true
+		})
+
+		// Cleanup expired reset tokens
+		s.resetTokens.Range(func(key, value any) bool {
+			if now.After(value.(resetTokenData).expiry) {
+				s.resetTokens.Delete(key)
 			}
 			return true
 		})
@@ -423,26 +439,29 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 	return nil
 }
 
-func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswordRequest) error {
-	valid, err := s.otpRepo.Verify(ctx, req.Email, req.OTP)
-	if err != nil || !valid {
-		return errors.BadRequest("Invalid or expired OTP")
+func (s *authService) ResetPassword(ctx context.Context, resetToken string, req domain.ResetPasswordRequest) error {
+	data, ok := s.resetTokens.Load(resetToken)
+	if !ok {
+		return errors.Unauthorized("Invalid or expired reset session. Please request a new OTP.")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	tokenData := data.(resetTokenData)
+	if time.Now().After(tokenData.expiry) {
+		s.resetTokens.Delete(resetToken)
+		return errors.Unauthorized("Reset session expired. Please request a new OTP.")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.Internal("Failed to secure new password")
 	}
 
-	if err := s.repo.UpdatePassword(ctx, req.Email, string(hashedPassword)); err != nil {
+	if err := s.repo.UpdatePassword(ctx, tokenData.email, string(hashedPassword)); err != nil {
 		return errors.Internal("Failed to update password in database")
 	}
 
-	// BUG-12 fix: OTP cleanup failure is now logged instead of silently discarded.
-	// The reset succeeded, but leaving a used OTP around is a security concern.
-	if err := s.otpRepo.DeleteByEmail(ctx, req.Email); err != nil {
-		log.Printf("warn: failed to delete OTP after password reset for %s: %v", req.Email, err)
-	}
+	// Consume the reset token
+	s.resetTokens.Delete(resetToken)
 
 	return nil
 }
@@ -470,31 +489,49 @@ func (s *authService) ChangePassword(ctx context.Context, userID string, req dom
 	return nil
 }
 
-func (s *authService) VerifyEmail(ctx context.Context, userID string, req domain.VerifyEmailRequest) error {
-	user, err := s.repo.GetByID(ctx, userID)
-	if err != nil {
-		return errors.NotFound("User not found")
-	}
-
-	if user.IsVerified {
-		return errors.BadRequest("Email is already verified")
-	}
-
-	valid, err := s.otpRepo.Verify(ctx, user.Email, req.OTP)
+func (s *authService) VerifyOTP(ctx context.Context, req domain.VerifyOTPRequest) (string, error) {
+	valid, err := s.otpRepo.Verify(ctx, req.Email, req.OTP)
 	if err != nil || !valid {
-		return errors.BadRequest("Invalid or expired OTP")
+		return "", errors.BadRequest("Invalid or expired OTP")
 	}
 
-	user.IsVerified = true
-	_, err = s.repo.Update(ctx, *user)
+	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return errors.Internal("Failed to verify email in database")
+		return "", errors.NotFound("User not found")
 	}
 
-	// Cleanup OTP
-	_ = s.otpRepo.DeleteByEmail(ctx, user.Email)
+	// Cleanup OTP immediately after successful verification
+	_ = s.otpRepo.DeleteByEmail(ctx, req.Email)
 
-	return nil
+	switch req.Task {
+	case "signup", "login":
+		if !user.IsVerified {
+			user.IsVerified = true
+			_, err = s.repo.Update(ctx, *user)
+			if err != nil {
+				return "", errors.Internal("Failed to verify email in database")
+			}
+		}
+		return "", nil
+
+	case "reset-password":
+		// Generate a secure reset token
+		resetToken, err := generateRandomString(64)
+		if err != nil {
+			return "", errors.Internal("Failed to generate reset session")
+		}
+
+		// Store it in memory for 15 minutes
+		s.resetTokens.Store(resetToken, resetTokenData{
+			email:  req.Email,
+			expiry: time.Now().Add(15 * time.Minute),
+		})
+
+		return resetToken, nil
+
+	default:
+		return "", errors.BadRequest("Invalid task provided")
+	}
 }
 
 func (s *authService) Logout(ctx context.Context, accessToken, refreshToken string) error {

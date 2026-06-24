@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"strings"
+	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/ports"
@@ -27,11 +28,48 @@ func Auth(authService ports.AuthService) fiber.Handler {
 
 		userID, err := authService.ValidateToken(tokenString)
 		if err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(domain.Response{
-				Success: false,
-				Error:   "UNAUTHORIZED",
-				Message: "Invalid or expired access token. Please refresh your session.",
-			})
+			// Try automatic refresh via HttpOnly cookie
+			refreshToken := c.Cookies("refresh_token")
+			if refreshToken != "" {
+				authRes, refreshErr := authService.RefreshToken(c.Context(), refreshToken)
+				if refreshErr == nil {
+					// Securely parse duration
+					expiresAt, _ := time.Parse(time.RFC3339, authRes.ExpiresAt)
+					isSecure := c.Protocol() == "https"
+
+					// Set the new access token
+					c.Cookie(&fiber.Cookie{
+						Name:     "access_token",
+						Value:    authRes.AccessToken,
+						Expires:  expiresAt,
+						HTTPOnly: true,
+						Secure:   isSecure,
+						SameSite: "Lax",
+					})
+
+					// Set the new refresh token
+					c.Cookie(&fiber.Cookie{
+						Name:     "refresh_token",
+						Value:    authRes.RefreshToken,
+						Expires:  time.Now().Add(7 * 24 * time.Hour), // 7 days
+						HTTPOnly: true,
+						Secure:   isSecure,
+						SameSite: "Lax",
+					})
+
+					// Re-validate the newly generated access token to get the internal userID
+					userID, err = authService.ValidateToken(authRes.AccessToken)
+				}
+			}
+
+			// If error is still not nil (refresh failed or was missing)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(domain.Response{
+					Success: false,
+					Error:   "UNAUTHORIZED",
+					Message: "Invalid or expired access token. Please log in again.",
+				})
+			}
 		}
 
 		c.Locals("userID", userID)

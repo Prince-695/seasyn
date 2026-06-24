@@ -54,17 +54,11 @@ definitions:
     type: object
   domain.ResetPasswordRequest:
     properties:
-      email:
-        type: string
-      otp:
-        type: string
-      password:
+      new_password:
         minLength: 6
         type: string
     required:
-    - email
-    - otp
-    - password
+    - new_password
     type: object
   domain.Response:
     properties:
@@ -116,12 +110,22 @@ definitions:
     - first_name
     - last_name
     type: object
-  domain.VerifyEmailRequest:
+  domain.VerifyOTPRequest:
     properties:
+      email:
+        type: string
       otp:
         type: string
+      task:
+        enum:
+        - signup
+        - login
+        - reset-password
+        type: string
     required:
+    - email
     - otp
+    - task
     type: object
 info:
   contact:
@@ -254,7 +258,7 @@ paths:
       - Bearer: []
       summary: Change Password
       tags:
-      - Auth
+      - auth
   /v1/auth/forgot-password:
     post:
       consumes:
@@ -341,19 +345,19 @@ paths:
       - Bearer: []
       summary: Check authentication status
       tags:
-      - Auth
+      - auth
   /v1/auth/otp:
     post:
       consumes:
       - application/json
-      description: Verify the authenticated user's email using an OTP
+      description: Verify an OTP for signup, login, or password reset
       parameters:
-      - description: Verify Email Request
+      - description: Verify OTP Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/domain.VerifyEmailRequest'
+          $ref: '#/definitions/domain.VerifyOTPRequest'
       produces:
       - application/json
       responses:
@@ -365,11 +369,9 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/domain.Response'
-      security:
-      - Bearer: []
-      summary: Verify Email with OTP
+      summary: Verify OTP
       tags:
-      - Auth
+      - auth
   /v1/auth/refresh:
     post:
       consumes:
@@ -401,7 +403,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Verify OTP and update the user's password
+      description: Update the user's password using a secure reset session cookie
       parameters:
       - description: Reset Password Request
         in: body
@@ -417,10 +419,14 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
         "400":
-          description: Invalid or expired OTP
+          description: Bad Request
           schema:
             $ref: '#/definitions/domain.Response'
-      summary: Reset Password with OTP
+        "401":
+          description: Missing or expired reset session
+          schema:
+            $ref: '#/definitions/domain.Response'
+      summary: Reset Password
       tags:
       - auth
   /v1/auth/signup:
@@ -483,7 +489,7 @@ paths:
       - Bearer: []
       summary: Get currently logged in user profile
       tags:
-      - Users
+      - users
   /v1/users/update:
     put:
       consumes:
@@ -520,8 +526,32 @@ paths:
       - Bearer: []
       summary: Update User Profile
       tags:
-      - Users
+      - users
   /v1/users/username:
+    get:
+      consumes:
+      - application/json
+      description: Checks whether a specific username is already taken
+      parameters:
+      - description: Username to check
+        in: query
+        name: u
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+      summary: Check if a username is available
+      tags:
+      - users
     post:
       consumes:
       - application/json
@@ -552,32 +582,7 @@ paths:
       - Bearer: []
       summary: Set unique username
       tags:
-      - Users
-  /v1/users/username/check:
-    get:
-      consumes:
-      - application/json
-      description: Checks whether a specific username is already taken
-      parameters:
-      - description: Username to check
-        in: query
-        name: u
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/domain.Response'
-      summary: Check if a username is available
-      tags:
-      - Users
+      - users
 schemes:
 - https
 - http

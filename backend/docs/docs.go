@@ -62,7 +62,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "auth"
                 ],
                 "summary": "Change Password",
                 "parameters": [
@@ -215,7 +215,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "auth"
                 ],
                 "summary": "Check authentication status",
                 "responses": {
@@ -236,12 +236,7 @@ const docTemplate = `{
         },
         "/v1/auth/otp": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Verify the authenticated user's email using an OTP",
+                "description": "Verify an OTP for signup, login, or password reset",
                 "consumes": [
                     "application/json"
                 ],
@@ -249,17 +244,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "auth"
                 ],
-                "summary": "Verify Email with OTP",
+                "summary": "Verify OTP",
                 "parameters": [
                     {
-                        "description": "Verify Email Request",
+                        "description": "Verify OTP Request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.VerifyEmailRequest"
+                            "$ref": "#/definitions/domain.VerifyOTPRequest"
                         }
                     }
                 ],
@@ -320,7 +315,7 @@ const docTemplate = `{
         },
         "/v1/auth/reset-password": {
             "post": {
-                "description": "Verify OTP and update the user's password",
+                "description": "Update the user's password using a secure reset session cookie",
                 "consumes": [
                     "application/json"
                 ],
@@ -330,7 +325,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Reset Password with OTP",
+                "summary": "Reset Password",
                 "parameters": [
                     {
                         "description": "Reset Password Request",
@@ -350,7 +345,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid or expired OTP",
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or expired reset session",
                         "schema": {
                             "$ref": "#/definitions/domain.Response"
                         }
@@ -526,7 +527,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "users"
                 ],
                 "summary": "Get currently logged in user profile",
                 "responses": {
@@ -578,7 +579,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "users"
                 ],
                 "summary": "Update User Profile",
                 "parameters": [
@@ -627,6 +628,42 @@ const docTemplate = `{
             }
         },
         "/v1/users/username": {
+            "get": {
+                "description": "Checks whether a specific username is already taken",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Check if a username is available",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username to check",
+                        "name": "u",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -641,7 +678,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "users"
                 ],
                 "summary": "Set unique username",
                 "parameters": [
@@ -670,44 +707,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/users/username/check": {
-            "get": {
-                "description": "Checks whether a specific username is already taken",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Check if a username is available",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Username to check",
-                        "name": "u",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/domain.Response"
                         }
@@ -799,18 +798,10 @@ const docTemplate = `{
         "domain.ResetPasswordRequest": {
             "type": "object",
             "required": [
-                "email",
-                "otp",
-                "password"
+                "new_password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "otp": {
-                    "type": "string"
-                },
-                "password": {
+                "new_password": {
                     "type": "string",
                     "minLength": 6
                 }
@@ -889,14 +880,27 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.VerifyEmailRequest": {
+        "domain.VerifyOTPRequest": {
             "type": "object",
             "required": [
-                "otp"
+                "email",
+                "otp",
+                "task"
             ],
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "otp": {
                     "type": "string"
+                },
+                "task": {
+                    "type": "string",
+                    "enum": [
+                        "signup",
+                        "login",
+                        "reset-password"
+                    ]
                 }
             }
         }

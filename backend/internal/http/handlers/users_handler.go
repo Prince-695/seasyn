@@ -32,7 +32,7 @@ func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.
 	usersGroup := router.Group("/users")
 	
 	// Open route for checking username
-	usersGroup.Get("/username/check", h.CheckUsername)
+	usersGroup.Get("/username", h.CheckUsername)
 
 	// Protected routes
 	usersGroup.Use(authMiddleware)
@@ -44,7 +44,7 @@ func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.
 // GetMe godoc
 // @Summary Get currently logged in user profile
 // @Description Returns the profile of the currently authenticated user
-// @Tags Users
+// @Tags users
 // @Accept json
 // @Produce json
 // @Security Bearer
@@ -69,13 +69,13 @@ func (h *UsersHandler) GetMe(c *fiber.Ctx) error {
 // CheckUsername godoc
 // @Summary Check if a username is available
 // @Description Checks whether a specific username is already taken
-// @Tags Users
+// @Tags users
 // @Accept json
 // @Produce json
 // @Param u query string true "Username to check"
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
-// @Router /v1/users/username/check [get]
+// @Router /v1/users/username [get]
 func (h *UsersHandler) CheckUsername(c *fiber.Ctx) error {
 	username := c.Query("u")
 	if username == "" {
@@ -97,7 +97,7 @@ func (h *UsersHandler) CheckUsername(c *fiber.Ctx) error {
 // SetUsername godoc
 // @Summary Set unique username
 // @Description Allows the user to set their username once. Cannot be updated.
-// @Tags Users
+// @Tags users
 // @Accept json
 // @Produce json
 // @Security Bearer
@@ -130,7 +130,7 @@ func (h *UsersHandler) SetUsername(c *fiber.Ctx) error {
 // UpdateProfile godoc
 // @Summary Update User Profile
 // @Description Update the first and last name of the user
-// @Tags Users
+// @Tags users
 // @Accept json
 // @Produce json
 // @Security Bearer

@@ -52,12 +52,12 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 	authGroup.Post("/refresh", h.Refresh)
 	authGroup.Post("/forgot-password", authLimiter, h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
+	authGroup.Post("/otp", authLimiter, h.VerifyOTP)
 
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
 	authGroup.Get("/me", authMiddleware, h.GetMe)
 	authGroup.Post("/change-password", authMiddleware, h.ChangePassword)
-	authGroup.Post("/otp", authMiddleware, authLimiter, h.VerifyEmail)
 
 	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
@@ -208,16 +208,22 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 }
 
 // ResetPassword godoc
-// @Summary Reset Password with OTP
-// @Description Verify OTP and update the user's password
+// @Summary Reset Password
+// @Description Update the user's password using a secure reset session cookie
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body domain.ResetPasswordRequest true "Reset Password Request"
 // @Success 200 {object} domain.Response
-// @Failure 400 {object} domain.Response "Invalid or expired OTP"
+// @Failure 400 {object} domain.Response
+// @Failure 401 {object} domain.Response "Missing or expired reset session"
 // @Router /v1/auth/reset-password [post]
 func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
+	resetToken := c.Cookies("reset_token")
+	if resetToken == "" {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Missing or expired reset session. Please request a new OTP.", "", nil)
+	}
+
 	var req domain.ResetPasswordRequest
 	if err := c.BodyParser(&req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
@@ -225,16 +231,28 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 	if err := h.validate.Struct(req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
-	if err := h.authService.ResetPassword(c.Context(), req); err != nil {
+	
+	if err := h.authService.ResetPassword(c.Context(), resetToken, req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
+
+	// Clear the reset_token cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     "reset_token",
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+		Secure:   h.isProduction,
+		SameSite: "Lax",
+	})
+
 	return h.jsonResponse(c, fiber.StatusOK, true, "Password reset successful", "", nil)
 }
 
 // GetMe
 // @Summary Check authentication status
 // @Description Returns 200 OK if the user has a valid access token
-// @Tags Auth
+// @Tags auth
 // @Accept json
 // @Produce json
 // @Security Bearer
@@ -249,7 +267,7 @@ func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
 // ChangePassword godoc
 // @Summary Change Password
 // @Description Update password for an authenticated user
-// @Tags Auth
+// @Tags auth
 // @Accept json
 // @Produce json
 // @Security Bearer
@@ -278,24 +296,18 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 	return h.jsonResponse(c, fiber.StatusOK, true, "Password successfully changed", "", nil)
 }
 
-// VerifyEmail godoc
-// @Summary Verify Email with OTP
-// @Description Verify the authenticated user's email using an OTP
-// @Tags Auth
+// VerifyOTP godoc
+// @Summary Verify OTP
+// @Description Verify an OTP for signup, login, or password reset
+// @Tags auth
 // @Accept json
 // @Produce json
-// @Security Bearer
-// @Param request body domain.VerifyEmailRequest true "Verify Email Request"
+// @Param request body domain.VerifyOTPRequest true "Verify OTP Request"
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
 // @Router /v1/auth/otp [post]
-func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
-	userID := c.Locals("userID")
-	if userID == nil {
-		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
-	}
-
-	var req domain.VerifyEmailRequest
+func (h *AuthHandler) VerifyOTP(c *fiber.Ctx) error {
+	var req domain.VerifyOTPRequest
 	if err := c.BodyParser(&req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
 	}
@@ -303,9 +315,24 @@ func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
 
-	if err := h.authService.VerifyEmail(c.Context(), userID.(string), req); err != nil {
+	resetToken, err := h.authService.VerifyOTP(c.Context(), req)
+	if err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
+
+	if resetToken != "" {
+		// Set the secure HttpOnly reset_token cookie
+		c.Cookie(&fiber.Cookie{
+			Name:     "reset_token",
+			Value:    resetToken,
+			Expires:  time.Now().Add(15 * time.Minute),
+			HTTPOnly: true,
+			Secure:   h.isProduction,
+			SameSite: "Lax", // Needs to be sent on subsequent POST
+		})
+		return h.jsonResponse(c, fiber.StatusOK, true, "OTP verified. You may now reset your password.", "", nil)
+	}
+
 	return h.jsonResponse(c, fiber.StatusOK, true, "Email successfully verified", "", nil)
 }
 
