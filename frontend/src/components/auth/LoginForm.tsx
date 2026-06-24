@@ -7,7 +7,6 @@ import { loginSchema } from "@/lib/validators"
 import type { LoginInput } from "@/lib/validators"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
-import { setCookie } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -41,15 +40,6 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       setServerError(null)
       const response = await authApi.login(data)
       console.log("[LoginForm] login API response:", response)
-
-      // The frontend MUST set the cookie manually because the browser is rejecting the backend's Set-Cookie header.
-      if (response?.access_token) {
-        setCookie("access_token", response.access_token)
-      } 
-      
-      if (response?.refresh_token) {
-        setCookie("refresh_token", response.refresh_token)
-      }
 
       // Fallback to email credentials if the backend does not return user details in JSON
       const user = response.user || {

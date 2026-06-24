@@ -1,14 +1,9 @@
 import { useEffect } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
-// import { getCookie } from "@/lib/utils"
+import { useQuery } from "@tanstack/react-query"
+import { getCookie } from "@/lib/utils"
 
-/**
- * useAuth hook
- *
- * Verifies the user session with the backend on initial application mount.
- * Prevents UI flicker and unauthorized access by validating the session cookie.
- */
 export function useAuth() {
   const {
     user,
@@ -19,55 +14,61 @@ export function useAuth() {
     setInitialized,
   } = useAuthStore()
 
-  console.log("[useAuth] Hook rendered. Current auth state:", {
-    user,
-    isAuthenticated,
-    isInitialized,
-  })
+  const hasLocalUser = !!localStorage.getItem("user")
+  const hasTokenCookie = !!getCookie("access_token")
 
+  // Early-exit: localStorage has a stale user but the token cookies are gone
+  // (e.g. manually deleted). Don't even attempt a network call — clear immediately.
   useEffect(() => {
-    console.log("[useAuth] Raw document.cookie:", document.cookie)
-    const hasUser = !!localStorage.getItem("user")
-    console.log("[useAuth] LocalStorage user present:", hasUser)
-
-    const verifySession = async () => {
-      console.log("[useAuth] Starting verifySession() API call...")
-      try {
-        const response = await authApi.getProfile()
-        console.log("[useAuth] verifySession() response received:", response)
-        const userData = response.data?.user || response.data || response
-        console.log("[useAuth] Parsed user data:", userData)
-        if (userData) {
-          console.log("[useAuth] User data is valid. Updating store auth.")
-          setAuth(userData)
-        } else {
-          console.warn(
-            "[useAuth] No user data found in response, but keeping session active."
-          )
-        }
-      } catch (err) {
-        console.error(
-          "[useAuth] Auth session verification API call failed. Not logging out as user details are on hold.",
-          err
-        )
-      } finally {
-        setInitialized(true)
-      }
-    }
-
-    // Verify session if user data exists in localStorage
-    if (hasUser) {
-      console.log("[useAuth] User exists. Calling verifySession().")
-      verifySession()
-    } else {
-      console.log(
-        "[useAuth] No user found on load. Triggering clearAuth() & initializing as true."
+    if (hasLocalUser && !hasTokenCookie) {
+      console.warn(
+        "[useAuth] Stale localStorage user detected with no token cookie. Clearing auth."
       )
       clearAuth()
       setInitialized(true)
     }
-  }, [setAuth, clearAuth, setInitialized])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Run once on mount only
 
-  return { user, isAuthenticated, isInitialized }
+  // Only query the backend when BOTH localStorage user AND a token cookie exist.
+  // This prevents a stale TanStack Query cache from keeping isSuccess=true
+  // even after tokens have been deleted.
+  const { data, isSuccess, isError, isLoading } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const response = await authApi.me()
+      return response.user || response.data?.user || response.data || response
+    },
+    enabled: hasLocalUser && hasTokenCookie,
+    retry: false, // Don't retry on 401 — the Axios interceptor handles token refresh
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  })
+
+  // Sync TanStack Query result into Zustand for global UI consumption
+  useEffect(() => {
+    if (isSuccess && data) {
+      setAuth(data)
+      setInitialized(true)
+    } else if (isError) {
+      // API call failed (e.g. 401 + refresh also failed).
+      // Axios interceptor already called clearAuth(), but we guard here too.
+      clearAuth()
+      setInitialized(true)
+    } else if (!hasLocalUser) {
+      // No user in localStorage → definitely not logged in.
+      setInitialized(true)
+    }
+  }, [
+    isSuccess,
+    isError,
+    data,
+    setAuth,
+    clearAuth,
+    setInitialized,
+    hasLocalUser,
+  ])
+
+  return { user, isAuthenticated, isInitialized, isLoading }
 }
+
 export default useAuth

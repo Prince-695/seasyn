@@ -5,7 +5,6 @@ import { FcGoogle } from "react-icons/fc"
 import { FaGithub } from "react-icons/fa"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
-import { setCookie } from "@/lib/utils"
 
 interface OAuthButtonsProps {
   onError: (error: string | null) => void
@@ -79,8 +78,6 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
             const responseData = JSON.parse(popupText)
 
             if (responseData.success && responseData.access_token) {
-              setCookie("access_token", responseData.access_token)
-
               console.log(
                 "[OAuthButtons] Access token saved to cookie:",
                 responseData.access_token.substring(0, 10) + "..."

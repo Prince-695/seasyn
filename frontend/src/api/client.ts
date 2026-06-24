@@ -4,7 +4,7 @@ import { getCookie } from "../lib/utils"
 
 // Create an Axios instance configuration
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/v1",
+  baseURL: "/v1", // Using relative URL to leverage Vite Proxy
   withCredentials: true, // Enable automatic transmission of HTTP-Only cookies
   headers: {
     "Content-Type": "application/json",
@@ -49,7 +49,7 @@ apiClient.interceptors.response.use(
     )
     return response
   },
-  (error) => {
+  async (error) => {
     console.error(
       `[apiClient] Response Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
       {
@@ -58,13 +58,29 @@ apiClient.interceptors.response.use(
         message: error.message,
       }
     )
-    if (error.response?.status === 401) {
+    const originalRequest = error.config
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
       console.warn(
-        "[apiClient] Intercepted 401 Unauthorized. Triggering clearAuth()."
+        "[apiClient] Intercepted 401 Unauthorized. Attempting to refresh token..."
       )
-      // Clear auth store if session is expired or unauthorized
-      useAuthStore.getState().clearAuth()
+      originalRequest._retry = true
+      try {
+        // Ping backend refresh endpoint. Browser automatically sends the HttpOnly refresh_token cookie.
+        await axios.post("/v1/auth/refresh", {}, { withCredentials: true })
+
+        // If successful, the backend set a new access_token cookie. Retry original request.
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        console.error(
+          "[apiClient] Token refresh failed. Triggering clearAuth()."
+        )
+        // Refresh token is also expired or invalid. Clear auth store.
+        useAuthStore.getState().clearAuth()
+        return Promise.reject(refreshError)
+      }
     }
+
     return Promise.reject(error)
   }
 )
