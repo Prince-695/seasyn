@@ -58,7 +58,7 @@ export const Navbar = () => {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="hidden h-8 w-8 items-center justify-center bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
             aria-label="Toggle theme"
