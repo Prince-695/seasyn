@@ -76,6 +76,9 @@ func (r *userRepo) Update(ctx context.Context, u domain.User) (*domain.User, err
 		"last_name":   u.LastName,
 		"is_verified": u.IsVerified,
 	}
+	if u.Username != "" {
+		updates["username"] = u.Username
+	}
 	if err := r.db.WithContext(ctx).
 		Model(&UserModel{}).
 		Where("id = ?", u.ID).

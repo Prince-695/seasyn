@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  domain.ChangePasswordRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   domain.ForgotPasswordRequest:
     properties:
       email:
@@ -30,6 +41,8 @@ definitions:
       last_name:
         type: string
       updated_at:
+        type: string
+      username:
         type: string
     type: object
   domain.RefreshRequest:
@@ -67,6 +80,15 @@ definitions:
       success:
         type: boolean
     type: object
+  domain.SetUsernameRequest:
+    properties:
+      username:
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - username
+    type: object
   domain.SignupRequest:
     properties:
       email:
@@ -83,6 +105,23 @@ definitions:
     - first_name
     - last_name
     - password
+    type: object
+  domain.UpdateProfileRequest:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+    required:
+    - first_name
+    - last_name
+    type: object
+  domain.VerifyEmailRequest:
+    properties:
+      otp:
+        type: string
+    required:
+    - otp
     type: object
 info:
   contact:
@@ -184,6 +223,38 @@ paths:
       summary: Get OAuth Login URL
       tags:
       - auth
+  /v1/auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Update password for an authenticated user
+      parameters:
+      - description: Change Password Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - Bearer: []
+      summary: Change Password
+      tags:
+      - Auth
   /v1/auth/forgot-password:
     post:
       consumes:
@@ -254,30 +325,49 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns the profile of the currently authenticated user
+      description: Returns 200 OK if the user has a valid access token
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/domain.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/domain.PublicUser'
-              type: object
+            $ref: '#/definitions/domain.Response'
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/domain.Response'
-        "404":
-          description: Not Found
+      security:
+      - Bearer: []
+      summary: Check authentication status
+      tags:
+      - Auth
+  /v1/auth/otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify the authenticated user's email using an OTP
+      parameters:
+      - description: Verify Email Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/domain.Response'
       security:
       - Bearer: []
-      summary: Get currently logged in user
+      summary: Verify Email with OTP
       tags:
       - Auth
   /v1/auth/refresh:
@@ -364,11 +454,11 @@ paths:
       summary: User Signup
       tags:
       - auth
-  /v1/user/profile:
+  /v1/users/me:
     get:
       consumes:
       - application/json
-      description: Get profile of the currently authenticated user
+      description: Returns the profile of the currently authenticated user
       produces:
       - application/json
       responses:
@@ -379,14 +469,115 @@ paths:
             - $ref: '#/definitions/domain.Response'
             - properties:
                 data:
-                  additionalProperties: true
-                  type: object
+                  $ref: '#/definitions/domain.PublicUser'
               type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
       security:
-      - BearerAuth: []
-      summary: Get User Profile
+      - Bearer: []
+      summary: Get currently logged in user profile
       tags:
-      - user
+      - Users
+  /v1/users/update:
+    put:
+      consumes:
+      - application/json
+      description: Update the first and last name of the user
+      parameters:
+      - description: Update Profile Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PublicUser'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - Bearer: []
+      summary: Update User Profile
+      tags:
+      - Users
+  /v1/users/username:
+    post:
+      consumes:
+      - application/json
+      description: Allows the user to set their username once. Cannot be updated.
+      parameters:
+      - description: Set Username Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SetUsernameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - Bearer: []
+      summary: Set unique username
+      tags:
+      - Users
+  /v1/users/username/check:
+    get:
+      consumes:
+      - application/json
+      description: Checks whether a specific username is already taken
+      parameters:
+      - description: Username to check
+        in: query
+        name: u
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+      summary: Check if a username is available
+      tags:
+      - Users
 schemes:
 - https
 - http

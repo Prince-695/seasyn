@@ -10,6 +10,7 @@ import (
 	apperrors "github.com/Prince-695/seasyn/backend/pkg/errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
 type AuthHandler struct {
@@ -33,15 +34,30 @@ func NewAuthHandler(authService ports.AuthService, isProduction bool, frontendUR
 
 func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
 	authGroup := router.Group("/auth")
-	authGroup.Post("/signup", h.Signup)
-	authGroup.Post("/login", h.Login)
+
+	// Apply Rate Limiting to sensitive endpoints (5 requests per minute)
+	authLimiter := limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return h.jsonResponse(c, fiber.StatusTooManyRequests, false, "Too many requests, please try again later.", "", nil)
+		},
+	})
+
+	authGroup.Post("/signup", authLimiter, h.Signup)
+	authGroup.Post("/login", authLimiter, h.Login)
 	authGroup.Post("/refresh", h.Refresh)
-	authGroup.Post("/forgot-password", h.ForgotPassword)
+	authGroup.Post("/forgot-password", authLimiter, h.ForgotPassword)
 	authGroup.Post("/reset-password", h.ResetPassword)
 
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
 	authGroup.Get("/me", authMiddleware, h.GetMe)
+	authGroup.Post("/change-password", authMiddleware, h.ChangePassword)
+	authGroup.Post("/otp", authMiddleware, authLimiter, h.VerifyEmail)
 
 	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
@@ -216,29 +232,81 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 }
 
 // GetMe
-// @Summary Get currently logged in user
-// @Description Returns the profile of the currently authenticated user
+// @Summary Check authentication status
+// @Description Returns 200 OK if the user has a valid access token
 // @Tags Auth
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} domain.Response{data=domain.PublicUser}
+// @Success 200 {object} domain.Response
 // @Failure 401 {object} domain.Response
-// @Failure 404 {object} domain.Response
 // @Router /v1/auth/me [get]
 func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
-	// Extract the userID injected by authMiddleware
+	// The authMiddleware already validated the token, so we just return success.
+	return h.jsonResponse(c, fiber.StatusOK, true, "Authenticated", "", nil)
+}
+
+// ChangePassword godoc
+// @Summary Change Password
+// @Description Update password for an authenticated user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body domain.ChangePasswordRequest true "Change Password Request"
+// @Success 200 {object} domain.Response
+// @Failure 400 {object} domain.Response
+// @Failure 401 {object} domain.Response
+// @Router /v1/auth/change-password [post]
+func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 	if userID == nil {
-		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "no user ID found in context", nil)
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
 	}
 
-	user, err := h.authService.GetMe(c.Context(), userID.(string))
-	if err != nil {
-		return err // handled by error handler
+	var req domain.ChangePasswordRequest
+	if err := c.BodyParser(&req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
+	}
+	if err := h.validate.Struct(req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
 
-	return h.jsonResponse(c, fiber.StatusOK, true, "User profile retrieved", "", user)
+	if err := h.authService.ChangePassword(c.Context(), userID.(string), req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+	return h.jsonResponse(c, fiber.StatusOK, true, "Password successfully changed", "", nil)
+}
+
+// VerifyEmail godoc
+// @Summary Verify Email with OTP
+// @Description Verify the authenticated user's email using an OTP
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body domain.VerifyEmailRequest true "Verify Email Request"
+// @Success 200 {object} domain.Response
+// @Failure 400 {object} domain.Response
+// @Router /v1/auth/otp [post]
+func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
+	}
+
+	var req domain.VerifyEmailRequest
+	if err := c.BodyParser(&req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
+	}
+	if err := h.validate.Struct(req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+
+	if err := h.authService.VerifyEmail(c.Context(), userID.(string), req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+	return h.jsonResponse(c, fiber.StatusOK, true, "Email successfully verified", "", nil)
 }
 
 // OAuthLogin godoc
