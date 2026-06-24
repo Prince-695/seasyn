@@ -19,10 +19,10 @@ import (
 func Auth(authService ports.AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		tokenString := extractToken(c)
-		
+
 		var userID string
 		var err error
-		
+
 		if tokenString != "" {
 			userID, err = authService.ValidateToken(tokenString)
 		} else {
