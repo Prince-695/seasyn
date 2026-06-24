@@ -16,13 +16,18 @@ type AuthHandler struct {
 	authService  ports.AuthService
 	validate     *validator.Validate
 	isProduction bool // BUG-04 fix: drive the Secure cookie flag from the environment
+	frontendURL  string
 }
 
-func NewAuthHandler(authService ports.AuthService, isProduction bool) *AuthHandler {
+func NewAuthHandler(authService ports.AuthService, isProduction bool, frontendURLs string) *AuthHandler {
+	// If multiple URLs are provided, take the first one as the primary redirect target
+	primaryURL := strings.Split(frontendURLs, ",")[0]
+	
 	return &AuthHandler{
 		authService:  authService,
 		validate:     validator.New(),
 		isProduction: isProduction,
+		frontendURL:  primaryURL,
 	}
 }
 
@@ -281,7 +286,12 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth login successful", res.AccessToken, nil)
+
+	// Instead of JSON or popups, we just redirect the user back to the frontend.
+	// Because we just set the HttpOnly cookies, the frontend will automatically
+	// be authenticated when it loads!
+	redirectURL := h.frontendURL + "/dashboard"
+	return c.Redirect(redirectURL, fiber.StatusTemporaryRedirect)
 }
 
 // setAuthCookies writes HttpOnly auth cookies on the response.
