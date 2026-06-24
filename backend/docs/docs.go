@@ -51,7 +51,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Update password for an authenticated user",
@@ -204,7 +204,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Returns 200 OK and verification status if the user has a valid access token",
@@ -250,7 +250,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Generates and sends an OTP to the authenticated user's email",
@@ -290,7 +290,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Verify the authenticated user's email using an OTP",
@@ -567,7 +567,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Returns the profile of the currently authenticated user",
@@ -619,7 +619,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Update the first and last name of the user",
@@ -718,7 +718,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Allows the user to set their username once. Cannot be updated.",

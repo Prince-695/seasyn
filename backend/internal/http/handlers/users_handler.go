@@ -49,7 +49,7 @@ func (h *UsersHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.
 // @Tags users
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Success 200 {object} domain.Response{data=domain.PublicUser}
 // @Failure 401 {object} domain.Response
 // @Failure 404 {object} domain.Response
@@ -102,7 +102,7 @@ func (h *UsersHandler) CheckUsername(c *fiber.Ctx) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Param request body domain.SetUsernameRequest true "Set Username Request"
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
@@ -135,7 +135,7 @@ func (h *UsersHandler) SetUsername(c *fiber.Ctx) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Param request body domain.UpdateProfileRequest true "Update Profile Request"
 // @Success 200 {object} domain.Response{data=domain.PublicUser}
 // @Failure 400 {object} domain.Response

@@ -256,7 +256,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Change Password
       tags:
       - auth
@@ -349,7 +349,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Check authentication status
       tags:
       - auth
@@ -374,7 +374,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Send OTP
       tags:
       - auth
@@ -402,7 +402,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Verify Email with OTP
       tags:
       - auth
@@ -516,7 +516,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Get currently logged in user profile
       tags:
       - users
@@ -553,7 +553,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Update User Profile
       tags:
       - users
@@ -609,7 +609,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       security:
-      - Bearer: []
+      - BearerAuth: []
       summary: Set unique username
       tags:
       - users

@@ -48,7 +48,7 @@
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Update password for an authenticated user",
@@ -201,7 +201,7 @@
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Returns 200 OK and verification status if the user has a valid access token",
@@ -247,7 +247,7 @@
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Generates and sends an OTP to the authenticated user's email",
@@ -287,7 +287,7 @@
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Verify the authenticated user's email using an OTP",
@@ -564,7 +564,7 @@
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Returns the profile of the currently authenticated user",
@@ -616,7 +616,7 @@
             "put": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Update the first and last name of the user",
@@ -715,7 +715,7 @@
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Allows the user to set their username once. Cannot be updated.",

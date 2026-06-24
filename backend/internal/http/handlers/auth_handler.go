@@ -240,7 +240,7 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Success 200 {object} domain.Response{data=domain.AuthStatusResponse}
 // @Failure 401 {object} domain.Response
 // @Router /v1/auth/me [get]
@@ -268,7 +268,7 @@ func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Param request body domain.ChangePasswordRequest true "Change Password Request"
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
@@ -300,7 +300,7 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
 // @Failure 401 {object} domain.Response
@@ -324,7 +324,7 @@ func (h *AuthHandler) SendOTP(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Security Bearer
+// @Security BearerAuth
 // @Param request body domain.VerifyEmailRequest true "Verify Email Request"
 // @Success 200 {object} domain.Response
 // @Failure 400 {object} domain.Response
