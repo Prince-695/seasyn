@@ -40,7 +40,7 @@ const Footer = () => {
         <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3">
           {footerColumns.map((col) => (
             <div key={col.title} className="flex flex-col gap-4">
-              <h3 className="font-serif text-lg italic text-foreground">
+              <h3 className="font-serif text-lg text-foreground italic">
                 {col.title}
               </h3>
               <nav className="flex flex-col gap-2.5">
@@ -96,8 +96,8 @@ const Footer = () => {
       </div>
 
       {/* Giant "SEASYN" text at bottom — like WhisperFlow's large logo */}
-      <div className="pointer-events-none relative z-0 mt-8 select-none text-center">
-        <span className="text-[10rem] font-bold leading-none tracking-tighter text-foreground/5 sm:text-[14rem] md:text-[18rem]">
+      <div className="pointer-events-none relative z-0 mt-8 text-center select-none">
+        <span className="text-[10rem] leading-none font-bold tracking-tighter text-foreground/5 sm:text-[14rem] md:text-[18rem]">
           SEASYN
         </span>
       </div>

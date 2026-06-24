@@ -26,7 +26,7 @@ const STATS = [
 
 export const StatsSection = () => {
   return (
-    <section className="w-full bg-secondary text-secondary-foreground px-6 pb-24 md:pb-32">
+    <section className="w-full bg-secondary px-6 pb-24 text-secondary-foreground md:pb-32">
       <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2">
         {STATS.map((stat, index) => (
           <motion.div

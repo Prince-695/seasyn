@@ -18,9 +18,7 @@ const SchemaVisual = () => (
       <div className="h-3 w-3 rounded-full bg-primary" />
       <div className="h-3 w-3 rounded-full bg-accent" />
       <div className="h-3 w-3 rounded-full bg-muted-foreground/30" />
-      <span className="ml-3 text-xs text-muted-foreground">
-        Schema Mapping
-      </span>
+      <span className="ml-3 text-xs text-muted-foreground">Schema Mapping</span>
     </div>
     <div className="p-5">
       {/* Source → Dest mapping visualization */}
@@ -75,9 +73,7 @@ const StreamingVisual = () => (
       <div className="h-3 w-3 rounded-full bg-primary" />
       <div className="h-3 w-3 rounded-full bg-accent" />
       <div className="h-3 w-3 rounded-full bg-muted-foreground/30" />
-      <span className="ml-3 text-xs text-muted-foreground">
-        Live Migration
-      </span>
+      <span className="ml-3 text-xs text-muted-foreground">Live Migration</span>
     </div>
     <div className="p-5">
       {/* Progress bar */}
@@ -168,14 +164,14 @@ export const FeatureHighlight = () => {
           >
             {/* Visual */}
             <div
-              className={`${feature.reversed ? "lg:order-2 lg:direction-ltr" : ""}`}
+              className={`${feature.reversed ? "lg:direction-ltr lg:order-2" : ""}`}
             >
               {feature.visual}
             </div>
 
             {/* Text */}
             <div
-              className={`flex flex-col ${feature.reversed ? "lg:order-1 lg:direction-ltr" : ""}`}
+              className={`flex flex-col ${feature.reversed ? "lg:direction-ltr lg:order-1" : ""}`}
             >
               <div className="mb-4 flex items-center gap-2">
                 <span className="flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-medium text-foreground">

@@ -43,7 +43,7 @@ func (s *mailService) SendOTP(to, otp string) error {
 
 	tmplPath := filepath.Join(s.templateDir, "otp.html")
 	tmpl, err := template.ParseFiles(tmplPath)
-	
+
 	// Always set a plain-text alternative. Emails with ONLY HTML often get flagged as spam.
 	e.Text = []byte(fmt.Sprintf("Your SEASYN Password Reset OTP is: %s\n\nIt will expire in 10 minutes. If you did not request this, please ignore this email.", otp))
 
@@ -66,7 +66,7 @@ func (s *mailService) SendWelcome(to, name string) error {
 
 	tmplPath := filepath.Join(s.templateDir, "welcome.html")
 	tmpl, err := template.ParseFiles(tmplPath)
-	
+
 	// Always set a plain-text alternative.
 	e.Text = []byte(fmt.Sprintf("Welcome aboard, %s!\n\nWe're thrilled to have you join SEASYN. You can access your dashboard here: %s", name, s.frontendURL))
 

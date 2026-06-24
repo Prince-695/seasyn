@@ -44,18 +44,17 @@ const MARQUEE_ITEMS = [...TESTIMONIALS, ...TESTIMONIALS]
 
 export const Testimonials = () => {
   return (
-    <section className="relative w-full overflow-hidden bg-secondary text-secondary-foreground py-24 md:py-32">
+    <section className="relative w-full overflow-hidden bg-secondary py-24 text-secondary-foreground md:py-32">
       {/* Section Heading */}
       <motion.div
-        className="mb-16 text-center px-6"
+        className="mb-16 px-6 text-center"
         initial={{ y: 30, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7 }}
       >
         <h2 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-          Love letters to{" "}
-          <span className="font-serif italic">Seasyn</span>
+          Love letters to <span className="font-serif italic">Seasyn</span>
         </h2>
       </motion.div>
 

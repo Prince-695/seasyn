@@ -22,7 +22,7 @@ type AuthHandler struct {
 func NewAuthHandler(authService ports.AuthService, isProduction bool, frontendURLs string) *AuthHandler {
 	// If multiple URLs are provided, take the first one as the primary redirect target
 	primaryURL := strings.Split(frontendURLs, ",")[0]
-	
+
 	return &AuthHandler{
 		authService:  authService,
 		validate:     validator.New(),

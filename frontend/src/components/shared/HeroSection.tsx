@@ -79,7 +79,7 @@ export const HeroSection = () => {
 
       {/* Animated flowing ribbon — inspired by WhisperFlow's bottom wave */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 h-px bg-border"
+        className="absolute right-0 bottom-0 left-0 h-px bg-border"
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 1.5, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}

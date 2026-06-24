@@ -17,8 +17,7 @@ export const CTASection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
-          Start{" "}
-          <span className="font-serif italic">migrating</span>
+          Start <span className="font-serif italic">migrating</span>
         </motion.h2>
 
         <motion.p
