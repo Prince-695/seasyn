@@ -13,6 +13,7 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
+	"github.com/Prince-695/seasyn/backend/internal/services/users"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
@@ -139,41 +140,16 @@ func main() {
 
 	authHandler := handlers.NewAuthHandler(authService, cfg.Env != "development", cfg.FrontendURL)
 	authMiddleware := middleware.Auth(authService)
+	requireVerified := middleware.RequireVerified(authService)
+
+	usersService := users.NewUsersService(userRepo)
+	usersHandler := handlers.NewUsersHandler(usersService)
 
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
-
-	// User Routes under /v1
-	userGroup := apiV1.Group("/user")
-	userGroup.Use(authMiddleware)
-	userGroup.Get("/profile", GetProfile)
+	usersHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
-}
-
-// GetProfile godoc
-// @Summary Get User Profile
-// @Description Get profile of the currently authenticated user
-// @Tags user
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} domain.Response{data=map[string]interface{}}
-// @Router /v1/user/profile [get]
-func GetProfile(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(string)
-	startTime := c.Locals("startTime")
-	var responseTime string
-	if startTime != nil {
-		responseTime = fmt.Sprintf("%dms", time.Since(startTime.(time.Time)).Milliseconds())
-	}
-
-	return c.JSON(domain.Response{
-		Success:      true,
-		Message:      "Profile retrieved successfully",
-		Data:         fiber.Map{"user_id": userID},
-		ResponseTime: responseTime,
-	})
 }
 
 // HealthCheck godoc

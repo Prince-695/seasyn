@@ -6,6 +6,7 @@ import (
 
 type User struct {
 	ID           string    `json:"id"`
+	Username     string    `json:"username,omitempty"`
 	Email        string    `json:"email"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
@@ -17,6 +18,7 @@ type User struct {
 
 // PublicUser is a DTO that omits the internal database ID and sensitive fields
 type PublicUser struct {
+	Username   string    `json:"username,omitempty"`
 	Email      string    `json:"email"`
 	FirstName  string    `json:"first_name"`
 	LastName   string    `json:"last_name"`
@@ -49,9 +51,31 @@ type ForgotPasswordRequest struct {
 }
 
 type ResetPasswordRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	OTP      string `json:"otp" validate:"required,len=6"`
-	Password string `json:"password" validate:"required,min=6"`
+	Email       string `json:"email" validate:"required,email"`
+	OTP         string `json:"otp" validate:"required,len=6"`
+	NewPassword string `json:"new_password" validate:"required,min=6"`
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,min=6"`
+}
+
+type VerifyEmailRequest struct {
+	OTP string `json:"otp" validate:"required,len=6"`
+}
+
+type AuthStatusResponse struct {
+	IsVerified bool `json:"is_verified"`
+}
+
+type UpdateProfileRequest struct {
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+}
+
+type SetUsernameRequest struct {
+	Username string `json:"username" validate:"required,min=3,max=20,alphanum"`
 }
 
 type RefreshRequest struct {

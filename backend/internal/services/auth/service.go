@@ -135,6 +135,7 @@ func (s *authService) cleanupRoutine() {
 			}
 			return true
 		})
+
 	}
 }
 
@@ -429,7 +430,7 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 		return errors.BadRequest("Invalid or expired OTP")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.Internal("Failed to secure new password")
 	}
@@ -438,11 +439,87 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 		return errors.Internal("Failed to update password in database")
 	}
 
-	// BUG-12 fix: OTP cleanup failure is now logged instead of silently discarded.
-	// The reset succeeded, but leaving a used OTP around is a security concern.
+	// Cleanup OTP
 	if err := s.otpRepo.DeleteByEmail(ctx, req.Email); err != nil {
 		log.Printf("warn: failed to delete OTP after password reset for %s: %v", req.Email, err)
 	}
+
+	return nil
+}
+
+func (s *authService) ChangePassword(ctx context.Context, userID string, req domain.ChangePasswordRequest) error {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NotFound("User not found")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.OldPassword))
+	if err != nil {
+		return errors.Unauthorized("Incorrect current password")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.Internal("Failed to secure new password")
+	}
+
+	if err := s.repo.UpdatePassword(ctx, user.Email, string(hashedPassword)); err != nil {
+		return errors.Internal("Failed to update password in database")
+	}
+
+	return nil
+}
+
+func (s *authService) SendOTP(ctx context.Context, userID string) error {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NotFound("User not found")
+	}
+
+	if user.IsVerified {
+		return errors.BadRequest("Email is already verified")
+	}
+
+	otp, err := generateOTP(6)
+	if err != nil {
+		return errors.Internal("Failed to generate OTP")
+	}
+	if err := s.otpRepo.Create(ctx, user.Email, otp, time.Now().Add(10*time.Minute)); err != nil {
+		return errors.Internal("Failed to save OTP")
+	}
+
+	go func() {
+		if err := s.mailService.SendOTP(user.Email, otp); err != nil {
+			log.Printf("failed to send verification OTP to %s: %v", user.Email, err)
+		}
+	}()
+
+	return nil
+}
+
+func (s *authService) VerifyEmail(ctx context.Context, userID string, otp string) error {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NotFound("User not found")
+	}
+
+	if user.IsVerified {
+		return errors.BadRequest("Email is already verified")
+	}
+
+	valid, err := s.otpRepo.Verify(ctx, user.Email, otp)
+	if err != nil || !valid {
+		return errors.BadRequest("Invalid or expired OTP")
+	}
+
+	user.IsVerified = true
+	_, err = s.repo.Update(ctx, *user)
+	if err != nil {
+		return errors.Internal("Failed to verify email in database")
+	}
+
+	// Cleanup OTP immediately after successful verification
+	_ = s.otpRepo.DeleteByEmail(ctx, user.Email)
 
 	return nil
 }
@@ -492,6 +569,7 @@ func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthRespo
 		RefreshToken: refreshToken,
 		ExpiresAt:    accessExp.Format(time.RFC3339),
 		User: domain.PublicUser{
+			Username:   user.Username,
 			Email:      user.Email,
 			FirstName:  user.FirstName,
 			LastName:   user.LastName,
