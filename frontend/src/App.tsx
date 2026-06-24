@@ -4,6 +4,7 @@ import SignUp from "./pages/authpages/SignUp"
 import SignIn from "./pages/authpages/SignIn"
 import ForgotPass from "./pages/authpages/ForgotPass"
 import ResetPass from "./pages/authpages/ResetPass"
+import AuthCallback from "./pages/authpages/AuthCallback"
 import Dashboard from "./pages/dashboard/Dashboard"
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute"
 // import { useAuthStore } from "@/store/authStore"
@@ -22,6 +23,7 @@ const App = () => {
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPass />} />
       <Route path="/reset-password" element={<ResetPass />} />
+      <Route path="/auth/callback/:provider" element={<AuthCallback />} />
       <Route
         path="/dashboard"
         element={

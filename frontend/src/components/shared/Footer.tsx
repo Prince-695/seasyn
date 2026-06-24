@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Mail } from "lucide-react"
-import { FaGithub, FaLinkedin } from "react-icons/fa"
+import { FaGithub } from "react-icons/fa"
 
 const footerColumns = [
   {
@@ -74,7 +74,7 @@ const Footer = () => {
               <Mail size={14} />
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/seasyn"
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-all hover:border-primary hover:text-primary"

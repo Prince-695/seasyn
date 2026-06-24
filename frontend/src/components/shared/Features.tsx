@@ -6,8 +6,7 @@ import {
   Activity,
   Search,
 } from "lucide-react"
-import { motion, useScroll, useTransform, MotionValue } from "framer-motion"
-import { useRef } from "react"
+import { motion } from "framer-motion"
 import { cn } from "../../lib/utils"
 
 const features = [
@@ -30,14 +29,14 @@ const features = [
     description:
       "Seamlessly move data between SQL variants and NoSQL databases like MongoDB and Postgres.",
     icon: Database,
-    color: "primary",
+    color: "secondary",
   },
   {
     title: "Zero Configuration",
     description:
       "Connect and migrate instantly without installing any middle-man agents or server components.",
     icon: Zap,
-    color: "secondary",
+    color: "primary",
   },
   {
     title: "Streaming Efficiency",
@@ -58,40 +57,22 @@ const features = [
 const FeatureCard = ({
   feature,
   index,
-  scrollYProgress,
 }: {
   feature: (typeof features)[0]
   index: number
-  scrollYProgress: MotionValue<number>
 }) => {
-  // Each card appears in a specific window of the scroll progress
-  // Card 0 starts at 0, Card 1 at 0.1, etc.
-  const start = index * 0.12
-  const end = start + 0.15
-
-  // Use scroll-driven transforms
-  // Note: index === 0 is always visible when the section starts
-  const opacity = useTransform(
-    scrollYProgress,
-    [start, end],
-    [index === 0 ? 1 : 0, 1]
-  )
-  const y = useTransform(
-    scrollYProgress,
-    [start, end],
-    [index === 0 ? 0 : 30, 0]
-  )
-  const scale = useTransform(
-    scrollYProgress,
-    [start, end],
-    [index === 0 ? 1 : 0.95, 1]
-  )
-
   return (
     <motion.div
-      style={{ opacity, y, scale }}
+      initial={{ opacity: 0, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        duration: 1.8,
+        ease: "easeOut",
+        delay: (index % 2) * 0.15,
+      }}
       className={cn(
-        "group relative flex flex-col items-start rounded-sm border-2 border-border bg-card/40 p-8 backdrop-blur-sm transition-all duration-300",
+        "group relative flex h-full flex-col items-start rounded-sm border-2 border-border bg-card/40 p-8 backdrop-blur-sm transition-all duration-300",
         feature.color === "primary"
           ? "hover:border-primary/30 hover:shadow-primary/5"
           : "hover:border-secondary/30 hover:shadow-secondary/5",
@@ -130,46 +111,26 @@ const FeatureCard = ({
 }
 
 const Features = () => {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Track scroll progress of the features section
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 60%", "end 20%"],
-  })
-
   return (
-    <section
-      ref={containerRef}
-      className="z-10 mt-32 flex flex-col items-center gap-16 px-6"
-    >
-      {/* Section Header */}
-      <motion.div
-        className="text-center"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-          Why Choose <span className="text-primary">Seasyn?</span>
-        </h2>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          The most powerful, secure, and flexible database migration bridge ever
-          built.
-        </p>
-      </motion.div>
+    <section className="z-10 mt-45 w-full max-w-6xl px-6">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+        {/* Sticky Left Column: Section Header */}
+        <div className="text-center lg:sticky lg:top-32 lg:col-span-4 lg:h-fit lg:text-left">
+          <h2 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+            Why Choose <span className="text-primary">Seasyn?</span>
+          </h2>
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground lg:mx-0">
+            The most powerful, secure, and flexible database migration bridge
+            ever built.
+          </p>
+        </div>
 
-      {/* Features Grid */}
-      <div className="grid w-full max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map((feature, index) => (
-          <FeatureCard
-            key={index}
-            feature={feature}
-            index={index}
-            scrollYProgress={scrollYProgress}
-          />
-        ))}
+        {/* Right Column: Features Grid */}
+        <div className="grid w-full gap-6 sm:grid-cols-2 lg:col-span-8">
+          {features.map((feature, index) => (
+            <FeatureCard key={index} feature={feature} index={index} />
+          ))}
+        </div>
       </div>
     </section>
   )

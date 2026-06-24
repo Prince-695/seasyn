@@ -68,7 +68,7 @@ export const Navbar = () => {
             ) : (
               <Sun className="h-3.5 w-3.5" />
             )}
-          </button>
+          </Button>
 
           <div className="hidden items-center gap-2 sm:flex">
             {isAuthenticated ? (
@@ -163,17 +163,6 @@ export const Navbar = () => {
                   </NavLink>
                 ) : (
                   <>
-                    <NavLink
-                      to="/sign-in"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                      >
-                        Log in
-                      </Button>
-                    </NavLink>
                     <NavLink
                       to="/sign-up"
                       onClick={() => setIsMobileMenuOpen(false)}
