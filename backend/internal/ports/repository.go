@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.User, error)
 	Update(ctx context.Context, u domain.User) (*domain.User, error)
 	UpdatePassword(ctx context.Context, email, hashedPassword string) error
+	CheckUsername(ctx context.Context, username string) (bool, error)
 }
 
 type OTPRepository interface {

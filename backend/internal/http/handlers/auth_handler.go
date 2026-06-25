@@ -10,32 +10,55 @@ import (
 	apperrors "github.com/Prince-695/seasyn/backend/pkg/errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
 type AuthHandler struct {
 	authService  ports.AuthService
 	validate     *validator.Validate
 	isProduction bool // BUG-04 fix: drive the Secure cookie flag from the environment
+	frontendURL  string
 }
 
-func NewAuthHandler(authService ports.AuthService, isProduction bool) *AuthHandler {
+func NewAuthHandler(authService ports.AuthService, isProduction bool, frontendURLs string) *AuthHandler {
+	// If multiple URLs are provided, take the first one as the primary redirect target
+	primaryURL := strings.Split(frontendURLs, ",")[0]
+
 	return &AuthHandler{
 		authService:  authService,
 		validate:     validator.New(),
 		isProduction: isProduction,
+		frontendURL:  primaryURL,
 	}
 }
 
 func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
 	authGroup := router.Group("/auth")
-	authGroup.Post("/signup", h.Signup)
-	authGroup.Post("/login", h.Login)
+
+	// Apply Rate Limiting to sensitive endpoints (5 requests per minute)
+	authLimiter := limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return h.jsonResponse(c, fiber.StatusTooManyRequests, false, "Too many requests, please try again later.", "", nil)
+		},
+	})
+
+	authGroup.Post("/signup", authLimiter, h.Signup)
+	authGroup.Post("/login", authLimiter, h.Login)
 	authGroup.Post("/refresh", h.Refresh)
-	authGroup.Post("/forgot-password", h.ForgotPassword)
-	authGroup.Post("/reset-password", h.ResetPassword)
+	authGroup.Post("/forgot-password", authLimiter, h.ForgotPassword)
+	authGroup.Post("/reset-password", authLimiter, h.ResetPassword)
 
 	// Protected Auth Routes
 	authGroup.Post("/logout", authMiddleware, h.Logout)
+	authGroup.Get("/me", authMiddleware, h.GetMe)
+	authGroup.Post("/change-password", authMiddleware, authLimiter, h.ChangePassword)
+	authGroup.Post("/otp/send", authMiddleware, authLimiter, h.SendOTP)
+	authGroup.Post("/otp/verify", authMiddleware, authLimiter, h.VerifyEmail)
 
 	// OAuth (JSON-First Flow)
 	authGroup.Get("/:provider/login", h.OAuthLogin)
@@ -186,14 +209,14 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 }
 
 // ResetPassword godoc
-// @Summary Reset Password with OTP
-// @Description Verify OTP and update the user's password
+// @Summary Reset Password
+// @Description Reset password using an OTP and email
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body domain.ResetPasswordRequest true "Reset Password Request"
 // @Success 200 {object} domain.Response
-// @Failure 400 {object} domain.Response "Invalid or expired OTP"
+// @Failure 400 {object} domain.Response
 // @Router /v1/auth/reset-password [post]
 func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 	var req domain.ResetPasswordRequest
@@ -203,10 +226,129 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 	if err := h.validate.Struct(req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
+
 	if err := h.authService.ResetPassword(c.Context(), req); err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
+
 	return h.jsonResponse(c, fiber.StatusOK, true, "Password reset successful", "", nil)
+}
+
+// GetMe
+// @Summary Check authentication status
+// @Description Returns 200 OK and verification status if the user has a valid access token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} domain.Response{data=domain.AuthStatusResponse}
+// @Failure 401 {object} domain.Response
+// @Router /v1/auth/me [get]
+func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
+	}
+
+	user, err := h.authService.GetMe(c.Context(), userID.(string))
+	if err != nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
+	}
+
+	status := domain.AuthStatusResponse{
+		IsVerified: user.IsVerified,
+	}
+
+	return h.jsonResponse(c, fiber.StatusOK, true, "Authenticated", "", status)
+}
+
+// ChangePassword godoc
+// @Summary Change Password
+// @Description Update password for an authenticated user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body domain.ChangePasswordRequest true "Change Password Request"
+// @Success 200 {object} domain.Response
+// @Failure 400 {object} domain.Response
+// @Failure 401 {object} domain.Response
+// @Router /v1/auth/change-password [post]
+func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
+	}
+
+	var req domain.ChangePasswordRequest
+	if err := c.BodyParser(&req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
+	}
+	if err := h.validate.Struct(req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+
+	if err := h.authService.ChangePassword(c.Context(), userID.(string), req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+	return h.jsonResponse(c, fiber.StatusOK, true, "Password successfully changed", "", nil)
+}
+
+// SendOTP godoc
+// @Summary Send OTP
+// @Description Generates and sends an OTP to the authenticated user's email
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} domain.Response
+// @Failure 400 {object} domain.Response
+// @Failure 401 {object} domain.Response
+// @Router /v1/auth/otp/send [post]
+func (h *AuthHandler) SendOTP(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
+	}
+
+	if err := h.authService.SendOTP(c.Context(), userID.(string)); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+
+	return h.jsonResponse(c, fiber.StatusOK, true, "OTP successfully sent to your email", "", nil)
+}
+
+// VerifyEmail godoc
+// @Summary Verify Email with OTP
+// @Description Verify the authenticated user's email using an OTP
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body domain.VerifyEmailRequest true "Verify Email Request"
+// @Success 200 {object} domain.Response
+// @Failure 400 {object} domain.Response
+// @Failure 401 {object} domain.Response
+// @Router /v1/auth/otp/verify [post]
+func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	if userID == nil {
+		return h.jsonResponse(c, fiber.StatusUnauthorized, false, "Unauthorized", "", nil)
+	}
+
+	var req domain.VerifyEmailRequest
+	if err := c.BodyParser(&req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Invalid request body", "", nil)
+	}
+	if err := h.validate.Struct(req); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+
+	if err := h.authService.VerifyEmail(c.Context(), userID.(string), req.OTP); err != nil {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
+	}
+
+	return h.jsonResponse(c, fiber.StatusOK, true, "Email successfully verified", "", nil)
 }
 
 // OAuthLogin godoc
@@ -254,7 +396,12 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
-	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth login successful", res.AccessToken, nil)
+
+	// Instead of JSON or popups, we just redirect the user back to the frontend.
+	// Because we just set the HttpOnly cookies, the frontend will automatically
+	// be authenticated when it loads!
+	redirectURL := h.frontendURL + "/dashboard"
+	return c.Redirect(redirectURL, fiber.StatusTemporaryRedirect)
 }
 
 // setAuthCookies writes HttpOnly auth cookies on the response.
@@ -268,7 +415,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Expires:  time.Now().Add(30 * time.Minute),
 		HTTPOnly: true,
 		Secure:   h.isProduction,
-		SameSite: "Strict",
+		SameSite: "Lax",
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
@@ -277,7 +424,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Expires:  time.Now().Add(168 * time.Hour),
 		HTTPOnly: true,
 		Secure:   h.isProduction,
-		SameSite: "Strict",
+		SameSite: "Lax",
 	})
 }
 
@@ -295,7 +442,7 @@ func (h *AuthHandler) clearAuthCookies(c *fiber.Ctx) {
 			MaxAge:   -1,
 			HTTPOnly: true,
 			Secure:   h.isProduction,
-			SameSite: "Strict",
+			SameSite: "Lax",
 		})
 	}
 }

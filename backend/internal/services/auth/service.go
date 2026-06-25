@@ -49,6 +49,14 @@ type authService struct {
 
 	// In-memory denylist for invalidated (logged out) tokens
 	denylist sync.Map
+
+	// In-memory store for opaque refresh tokens
+	refreshTokens sync.Map
+}
+
+type refreshTokenData struct {
+	userID string
+	expiry time.Time
 }
 
 func NewAuthService(
@@ -119,6 +127,15 @@ func (s *authService) cleanupRoutine() {
 			}
 			return true
 		})
+
+		// Cleanup expired refresh tokens
+		s.refreshTokens.Range(func(key, value any) bool {
+			if now.After(value.(refreshTokenData).expiry) {
+				s.refreshTokens.Delete(key)
+			}
+			return true
+		})
+
 	}
 }
 
@@ -356,14 +373,21 @@ func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*doma
 }
 
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error) {
-	// BUG-01 fix: validate that the token is specifically a refresh token.
-	// Previously, any valid access token could be used here.
-	userID, err := s.validateTypedToken(refreshToken, tokenTypeRefresh)
-	if err != nil {
+	data, ok := s.refreshTokens.Load(refreshToken)
+	if !ok {
 		return nil, errors.Unauthorized("Invalid or expired session")
 	}
 
-	user, err := s.repo.GetByID(ctx, userID)
+	tokenData := data.(refreshTokenData)
+	if time.Now().After(tokenData.expiry) {
+		s.refreshTokens.Delete(refreshToken)
+		return nil, errors.Unauthorized("Invalid or expired session")
+	}
+
+	// Single-use refresh token (rotate upon use)
+	s.refreshTokens.Delete(refreshToken)
+
+	user, err := s.repo.GetByID(ctx, tokenData.userID)
 	if err != nil {
 		return nil, errors.NotFound("User account no longer exists")
 	}
@@ -406,7 +430,7 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 		return errors.BadRequest("Invalid or expired OTP")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.Internal("Failed to secure new password")
 	}
@@ -415,11 +439,92 @@ func (s *authService) ResetPassword(ctx context.Context, req domain.ResetPasswor
 		return errors.Internal("Failed to update password in database")
 	}
 
-	// BUG-12 fix: OTP cleanup failure is now logged instead of silently discarded.
-	// The reset succeeded, but leaving a used OTP around is a security concern.
+	// Cleanup OTP
 	if err := s.otpRepo.DeleteByEmail(ctx, req.Email); err != nil {
-		log.Printf("warn: failed to delete OTP after password reset for %s: %v", req.Email, err)
+		log.Printf("warn: failed to delete OTP after password reset for user [REDACTED]: %v", err)
 	}
+
+	return nil
+}
+
+func (s *authService) ChangePassword(ctx context.Context, userID string, req domain.ChangePasswordRequest) error {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NotFound("User not found")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.OldPassword))
+	if err != nil {
+		return errors.Unauthorized("Incorrect current password")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.Internal("Failed to secure new password")
+	}
+
+	if err := s.repo.UpdatePassword(ctx, user.Email, string(hashedPassword)); err != nil {
+		return errors.Internal("Failed to update password in database")
+	}
+
+	return nil
+}
+
+func (s *authService) SendOTP(ctx context.Context, userID string) error {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NotFound("User not found")
+	}
+
+	if user.IsVerified {
+		return errors.BadRequest("Email is already verified")
+	}
+
+	otp, err := generateOTP(6)
+	if err != nil {
+		return errors.Internal("Failed to generate OTP")
+	}
+
+	if err := s.otpRepo.DeleteByEmail(ctx, user.Email); err != nil {
+		return fmt.Errorf("failed to cleanup old OTPs: %w", err)
+	}
+
+	if err := s.otpRepo.Create(ctx, user.Email, otp, time.Now().Add(10*time.Minute)); err != nil {
+		return errors.Internal("Failed to save OTP")
+	}
+
+	go func() {
+		if err := s.mailService.SendOTP(user.Email, otp); err != nil {
+			log.Printf("failed to send verification OTP to %s: %v", user.Email, err)
+		}
+	}()
+
+	return nil
+}
+
+func (s *authService) VerifyEmail(ctx context.Context, userID string, otp string) error {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return errors.NotFound("User not found")
+	}
+
+	if user.IsVerified {
+		return errors.BadRequest("Email is already verified")
+	}
+
+	valid, err := s.otpRepo.Verify(ctx, user.Email, otp)
+	if err != nil || !valid {
+		return errors.BadRequest("Invalid or expired OTP")
+	}
+
+	user.IsVerified = true
+	_, err = s.repo.Update(ctx, *user)
+	if err != nil {
+		return errors.Internal("Failed to verify email in database")
+	}
+
+	// Cleanup OTP immediately after successful verification
+	_ = s.otpRepo.DeleteByEmail(ctx, user.Email)
 
 	return nil
 }
@@ -429,7 +534,7 @@ func (s *authService) Logout(ctx context.Context, accessToken, refreshToken stri
 		s.invalidateToken(accessToken)
 	}
 	if refreshToken != "" {
-		s.invalidateToken(refreshToken)
+		s.refreshTokens.Delete(refreshToken)
 	}
 	return nil
 }
@@ -454,16 +559,44 @@ func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthRespo
 		return nil, errors.Internal("Failed to generate access token")
 	}
 
-	refreshToken, _, err := s.createToken(user.ID, tokenTypeRefresh, s.refreshTokenExpiry)
+	refreshToken, err := generateRandomString(64)
 	if err != nil {
-		return nil, errors.Internal("Failed to generate refresh token")
+		return nil, errors.Internal("Failed to generate secure refresh token")
 	}
+
+	s.refreshTokens.Store(refreshToken, refreshTokenData{
+		userID: user.ID,
+		expiry: time.Now().Add(s.refreshTokenExpiry),
+	})
 
 	return &domain.AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		ExpiresAt:    accessExp.Format(time.RFC3339),
-		User:         *user,
+		User: domain.PublicUser{
+			Username:   user.Username,
+			Email:      user.Email,
+			FirstName:  user.FirstName,
+			LastName:   user.LastName,
+			IsVerified: user.IsVerified,
+			CreatedAt:  user.CreatedAt,
+			UpdatedAt:  user.UpdatedAt,
+		},
+	}, nil
+}
+
+func (s *authService) GetMe(ctx context.Context, userID string) (*domain.PublicUser, error) {
+	user, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, errors.NotFound("User not found")
+	}
+	return &domain.PublicUser{
+		Email:      user.Email,
+		FirstName:  user.FirstName,
+		LastName:   user.LastName,
+		IsVerified: user.IsVerified,
+		CreatedAt:  user.CreatedAt,
+		UpdatedAt:  user.UpdatedAt,
 	}, nil
 }
 

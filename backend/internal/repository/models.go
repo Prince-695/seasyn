@@ -10,6 +10,7 @@ import (
 
 type UserModel struct {
 	ID           string         `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Username     *string        `gorm:"type:varchar(50);uniqueIndex"`
 	Email        string         `gorm:"type:varchar(255);uniqueIndex;not null"`
 	FirstName    string         `gorm:"type:varchar(255)"`
 	LastName     string         `gorm:"type:varchar(255)"`
@@ -25,8 +26,13 @@ func (UserModel) TableName() string {
 }
 
 func (m *UserModel) ToDomain() *domain.User {
+	var username string
+	if m.Username != nil {
+		username = *m.Username
+	}
 	return &domain.User{
 		ID:           m.ID,
+		Username:     username,
 		Email:        m.Email,
 		FirstName:    m.FirstName,
 		LastName:     m.LastName,

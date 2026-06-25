@@ -59,3 +59,12 @@ func (r *userRepo) GetByID(ctx context.Context, id string) (*domain.User, error)
 	}
 	return model.ToDomain(), nil
 }
+
+func (r *userRepo) CheckUsername(ctx context.Context, username string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&UserModel{}).Where("username = ?", username).Count(&count).Error
+	if err != nil {
+		return false, fmt.Errorf("check username: %w", err)
+	}
+	return count > 0, nil
+}

@@ -6,6 +6,7 @@ import (
 
 type User struct {
 	ID           string    `json:"id"`
+	Username     string    `json:"username,omitempty"`
 	Email        string    `json:"email"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
@@ -13,6 +14,17 @@ type User struct {
 	IsVerified   bool      `json:"is_verified"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// PublicUser is a DTO that omits the internal database ID and sensitive fields
+type PublicUser struct {
+	Username   string    `json:"username,omitempty"`
+	Email      string    `json:"email"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	IsVerified bool      `json:"is_verified"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type SignupRequest struct {
@@ -28,10 +40,10 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresAt    string `json:"expires_at"`
-	User         User   `json:"user"`
+	AccessToken  string     `json:"access_token"`
+	RefreshToken string     `json:"refresh_token"`
+	ExpiresAt    string     `json:"expires_at"`
+	User         PublicUser `json:"user"`
 }
 
 type ForgotPasswordRequest struct {
@@ -39,9 +51,31 @@ type ForgotPasswordRequest struct {
 }
 
 type ResetPasswordRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	OTP      string `json:"otp" validate:"required,len=6"`
-	Password string `json:"password" validate:"required,min=6"`
+	Email       string `json:"email" validate:"required,email" example:"user@example.com"`
+	OTP         string `json:"otp" validate:"required,len=6" minLength:"6" maxLength:"6" example:"123456"`
+	NewPassword string `json:"new_password" validate:"required,min=6" minLength:"6" example:"newsecret123"`
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,min=6"`
+}
+
+type VerifyEmailRequest struct {
+	OTP string `json:"otp" validate:"required,len=6" minLength:"6" maxLength:"6" example:"123456"`
+}
+
+type AuthStatusResponse struct {
+	IsVerified bool `json:"is_verified"`
+}
+
+type UpdateProfileRequest struct {
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+}
+
+type SetUsernameRequest struct {
+	Username string `json:"username" validate:"required,min=3,max=20" minLength:"3" maxLength:"20" example:"johndoe_99"`
 }
 
 type RefreshRequest struct {
