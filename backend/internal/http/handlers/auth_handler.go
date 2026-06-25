@@ -408,6 +408,11 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 // BUG-04 fix: Secure flag is true in production to prevent token leakage over plain HTTP.
 // Path is always "/" so all endpoints (and the logout endpoint) can see and clear the cookies.
 func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
+	sameSite := "Lax"
+	if h.isProduction {
+		sameSite = "None"
+	}
+
 	c.Cookie(&fiber.Cookie{
 		Name:     "access_token",
 		Value:    access,
@@ -415,7 +420,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Expires:  time.Now().Add(30 * time.Minute),
 		HTTPOnly: true,
 		Secure:   h.isProduction,
-		SameSite: "Lax",
+		SameSite: sameSite,
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
@@ -424,7 +429,7 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 		Expires:  time.Now().Add(168 * time.Hour),
 		HTTPOnly: true,
 		Secure:   h.isProduction,
-		SameSite: "Lax",
+		SameSite: sameSite,
 	})
 }
 
@@ -433,6 +438,11 @@ func (h *AuthHandler) setAuthCookies(c *fiber.Ctx, access, refresh string) {
 // Path must match exactly what was used in setAuthCookies ("/").
 func (h *AuthHandler) clearAuthCookies(c *fiber.Ctx) {
 	expired := time.Now().Add(-time.Hour)
+	sameSite := "Lax"
+	if h.isProduction {
+		sameSite = "None"
+	}
+
 	for _, name := range []string{"access_token", "refresh_token"} {
 		c.Cookie(&fiber.Cookie{
 			Name:     name,
@@ -442,7 +452,7 @@ func (h *AuthHandler) clearAuthCookies(c *fiber.Ctx) {
 			MaxAge:   -1,
 			HTTPOnly: true,
 			Secure:   h.isProduction,
-			SameSite: "Lax",
+			SameSite: sameSite,
 		})
 	}
 }
