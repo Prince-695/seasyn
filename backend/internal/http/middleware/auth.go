@@ -39,6 +39,11 @@ func Auth(authService ports.AuthService) fiber.Handler {
 					expiresAt, _ := time.Parse(time.RFC3339, authRes.ExpiresAt)
 					isSecure := c.Protocol() == "https"
 
+					sameSite := "Lax"
+					if isSecure {
+						sameSite = "None"
+					}
+
 					// Set the new access token
 					c.Cookie(&fiber.Cookie{
 						Name:     "access_token",
@@ -46,7 +51,7 @@ func Auth(authService ports.AuthService) fiber.Handler {
 						Expires:  expiresAt,
 						HTTPOnly: true,
 						Secure:   isSecure,
-						SameSite: "Lax",
+						SameSite: sameSite,
 					})
 
 					// Set the new refresh token
@@ -56,7 +61,7 @@ func Auth(authService ports.AuthService) fiber.Handler {
 						Expires:  time.Now().Add(7 * 24 * time.Hour), // 7 days
 						HTTPOnly: true,
 						Secure:   isSecure,
-						SameSite: "Lax",
+						SameSite: sameSite,
 					})
 
 					// Re-validate the newly generated access token to get the internal userID
