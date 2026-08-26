@@ -30,6 +30,7 @@ type UsersService interface {
 }
 
 type MailService interface {
-	SendOTP(to, otp string) error
+	SendEmailVerificationOTP(to, otp string) error
+	SendPasswordResetOTP(to, otp string) error
 	SendWelcome(to, name string) error
 }

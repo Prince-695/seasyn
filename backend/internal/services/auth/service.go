@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -141,6 +142,7 @@ func (s *authService) cleanupRoutine() {
 
 // GetOAuthURL generates the provider redirect URL and stores the CSRF state.
 func (s *authService) GetOAuthURL(provider string) (string, error) {
+	provider = strings.ToLower(strings.TrimSpace(provider))
 	config, ok := s.oauthConfigs[provider]
 	if !ok {
 		return "", errors.BadRequest(fmt.Sprintf("unsupported provider: %s", provider))
@@ -161,6 +163,7 @@ func (s *authService) GetOAuthURL(provider string) (string, error) {
 
 // HandleOAuthCallback validates the CSRF state then exchanges the code for user info.
 func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code, state string) (*domain.AuthResponse, error) {
+	provider = strings.ToLower(strings.TrimSpace(provider))
 	// BUG-02 fix: verify the CSRF state parameter.
 	if err := s.verifyOAuthState(state); err != nil {
 		return nil, err
@@ -416,8 +419,8 @@ func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPassw
 	}
 
 	go func() {
-		if err := s.mailService.SendOTP(req.Email, otp); err != nil {
-			log.Printf("failed to send OTP email to %s: %v", req.Email, err)
+		if err := s.mailService.SendPasswordResetOTP(req.Email, otp); err != nil {
+			log.Printf("failed to send password reset OTP email to %s: %v", req.Email, err)
 		}
 	}()
 
@@ -494,7 +497,7 @@ func (s *authService) SendOTP(ctx context.Context, userID string) error {
 	}
 
 	go func() {
-		if err := s.mailService.SendOTP(user.Email, otp); err != nil {
+		if err := s.mailService.SendEmailVerificationOTP(user.Email, otp); err != nil {
 			log.Printf("failed to send verification OTP to %s: %v", user.Email, err)
 		}
 	}()
