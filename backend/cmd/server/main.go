@@ -13,6 +13,7 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
+	"github.com/Prince-695/seasyn/backend/internal/services/orgs"
 	"github.com/Prince-695/seasyn/backend/internal/services/users"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
@@ -64,7 +65,12 @@ func main() {
 	// Conditional Database Sync
 	if os.Getenv("DB_RUN") == "true" {
 		log.Println("🚀 DB_RUN=true: Syncing database schema...")
-		if err := db.AutoMigrate(&repository.UserModel{}, &repository.OTPModel{}); err != nil {
+		if err := db.AutoMigrate(
+			&repository.UserModel{},
+			&repository.OTPModel{},
+			&repository.OrgModel{},
+			&repository.OrgMemberModel{},
+		); err != nil {
 			log.Fatalf("Failed to migrate database: %v", err)
 		}
 		log.Println("✅ Database sync complete.")
@@ -145,9 +151,14 @@ func main() {
 	usersService := users.NewUsersService(userRepo)
 	usersHandler := handlers.NewUsersHandler(usersService)
 
+	orgRepo := repository.NewOrgRepository(db)
+	orgService := orgs.NewOrgService(orgRepo, userRepo)
+	orgHandler := handlers.NewOrgHandler(orgService)
+
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
 	usersHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	orgHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }

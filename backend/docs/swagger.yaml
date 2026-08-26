@@ -16,12 +16,49 @@ definitions:
     - new_password
     - old_password
     type: object
+  domain.CreateOrgRequest:
+    properties:
+      description:
+        example: Building the future
+        maxLength: 500
+        type: string
+      name:
+        example: Acme Corp
+        maxLength: 100
+        minLength: 2
+        type: string
+      slug:
+        example: acme-corp
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - name
+    - slug
+    type: object
   domain.ForgotPasswordRequest:
     properties:
       email:
         type: string
     required:
     - email
+    type: object
+  domain.InviteMemberRequest:
+    properties:
+      email:
+        example: dev@example.com
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/domain.OrgRole'
+        enum:
+        - admin
+        - member
+        - viewer
+        example: member
+    required:
+    - email
+    - role
     type: object
   domain.LoginRequest:
     properties:
@@ -32,6 +69,71 @@ definitions:
     required:
     - email
     - password
+    type: object
+  domain.OrgMemberDetail:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      joined_at:
+        type: string
+      last_name:
+        type: string
+      role:
+        $ref: '#/definitions/domain.OrgRole'
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  domain.OrgRole:
+    enum:
+    - owner
+    - admin
+    - member
+    - viewer
+    type: string
+    x-enum-varnames:
+    - OrgRoleOwner
+    - OrgRoleAdmin
+    - OrgRoleMember
+    - OrgRoleViewer
+  domain.OrgWithRole:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+      role:
+        $ref: '#/definitions/domain.OrgRole'
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.Organization:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
     type: object
   domain.PublicUser:
     properties:
@@ -116,6 +218,33 @@ definitions:
     - first_name
     - last_name
     - password
+    type: object
+  domain.UpdateMemberRoleRequest:
+    properties:
+      role:
+        allOf:
+        - $ref: '#/definitions/domain.OrgRole'
+        enum:
+        - admin
+        - member
+        - viewer
+        example: admin
+    required:
+    - role
+    type: object
+  domain.UpdateOrgRequest:
+    properties:
+      description:
+        example: Building the future
+        maxLength: 500
+        type: string
+      name:
+        example: Acme Corp
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
     type: object
   domain.UpdateProfileRequest:
     properties:
@@ -503,6 +632,310 @@ paths:
       summary: User Signup
       tags:
       - auth
+  /v1/organizations:
+    get:
+      description: Returns all organizations the authenticated user belongs to
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.OrgWithRole'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List My Organizations
+      tags:
+      - organizations
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization. The caller becomes the owner.
+      parameters:
+      - description: Create Organization Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateOrgRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Organization'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Create an Organization
+      tags:
+      - organizations
+  /v1/organizations/{orgID}:
+    delete:
+      description: Permanently delete an organization. Only the Owner can do this.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete Organization
+      tags:
+      - organizations
+    get:
+      description: Returns the details of a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Organization'
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Get Organization Details
+      tags:
+      - organizations
+    put:
+      consumes:
+      - application/json
+      description: Update the name and description of an organization. Requires Admin
+        or Owner role.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Update Organization Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateOrgRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Organization'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Organization
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/members:
+    get:
+      description: Returns all members of an organization. Requires membership.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.OrgMemberDetail'
+                  type: array
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List Organization Members
+      tags:
+      - organizations
+    post:
+      consumes:
+      - application/json
+      description: Invite a registered user to join the organization. Requires Admin
+        or Owner role.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Invite Member Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.InviteMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Invite a Member
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/members/{userID}:
+    delete:
+      description: Remove a member from the organization. Requires Admin or Owner.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Target User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Remove a Member
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/members/{userID}/role:
+    put:
+      consumes:
+      - application/json
+      description: Change a member's role within the organization. Requires Admin
+        or Owner.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Target User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Update Role Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateMemberRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Member Role
+      tags:
+      - organizations
   /v1/users/me:
     get:
       consumes:
