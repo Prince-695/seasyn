@@ -2,6 +2,7 @@ package mail
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"html/template"
 	"net/smtp"
@@ -23,28 +24,74 @@ type mailService struct {
 }
 
 func NewMailService(host, port, user, pass, from, templateDir, frontendURL string) ports.MailService {
+	var auth smtp.Auth
+	if user != "" && pass != "" {
+		auth = smtp.PlainAuth("", user, pass, host)
+	}
+
 	return &mailService{
 		host:        host,
 		port:        port,
 		user:        user,
 		pass:        pass,
 		from:        fmt.Sprintf("SEASYN <%s>", from), // Adds a friendly sender name to reduce spam score
-		auth:        smtp.PlainAuth("", user, pass, host),
+		auth:        auth,
 		templateDir: templateDir,
 		frontendURL: frontendURL,
 	}
 }
 
-func (s *mailService) SendOTP(to, otp string) error {
+func (s *mailService) sendEmail(e *email.Email) error {
+	addr := fmt.Sprintf("%s:%s", s.host, s.port)
+	tlsConfig := &tls.Config{
+		ServerName: s.host,
+	}
+
+	// Smart port detection: Port 465 uses direct SSL/TLS; Port 587/25 uses STARTTLS
+	if s.port == "465" {
+		return e.SendWithTLS(addr, s.auth, tlsConfig)
+	}
+
+	// Try STARTTLS with fallback for unauthenticated relays
+	err := e.SendWithStartTLS(addr, s.auth, tlsConfig)
+	if err != nil && s.auth == nil {
+		return e.Send(addr, nil)
+	}
+	return err
+}
+
+func (s *mailService) SendEmailVerificationOTP(to, otp string) error {
 	e := email.NewEmail()
 	e.From = s.from
 	e.To = []string{to}
-	e.Subject = "SEASYN - Password Reset OTP"
+	e.Subject = "Verify Your Email Address - SEASYN"
 
-	tmplPath := filepath.Join(s.templateDir, "otp.html")
+	tmplPath := filepath.Join(s.templateDir, "verify_email_otp.html")
 	tmpl, err := template.ParseFiles(tmplPath)
 
-	// Always set a plain-text alternative. Emails with ONLY HTML often get flagged as spam.
+	// Always set a plain-text alternative.
+	e.Text = []byte(fmt.Sprintf("Your SEASYN Email Verification OTP is: %s\n\nIt will expire in 10 minutes. If you did not request this, please ignore this email.", otp))
+
+	if err == nil {
+		var body bytes.Buffer
+		if err := tmpl.Execute(&body, map[string]string{"OTP": otp}); err == nil {
+			e.HTML = body.Bytes()
+		}
+	}
+
+	return s.sendEmail(e)
+}
+
+func (s *mailService) SendPasswordResetOTP(to, otp string) error {
+	e := email.NewEmail()
+	e.From = s.from
+	e.To = []string{to}
+	e.Subject = "Reset Your Password - SEASYN"
+
+	tmplPath := filepath.Join(s.templateDir, "password_reset_otp.html")
+	tmpl, err := template.ParseFiles(tmplPath)
+
+	// Always set a plain-text alternative.
 	e.Text = []byte(fmt.Sprintf("Your SEASYN Password Reset OTP is: %s\n\nIt will expire in 10 minutes. If you did not request this, please ignore this email.", otp))
 
 	if err == nil {
@@ -54,8 +101,7 @@ func (s *mailService) SendOTP(to, otp string) error {
 		}
 	}
 
-	addr := fmt.Sprintf("%s:%s", s.host, s.port)
-	return e.Send(addr, s.auth)
+	return s.sendEmail(e)
 }
 
 func (s *mailService) SendWelcome(to, name string) error {
@@ -81,6 +127,5 @@ func (s *mailService) SendWelcome(to, name string) error {
 		}
 	}
 
-	addr := fmt.Sprintf("%s:%s", s.host, s.port)
-	return e.Send(addr, s.auth)
+	return s.sendEmail(e)
 }

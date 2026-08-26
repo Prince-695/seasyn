@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -390,10 +391,12 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 
 	res, err := h.authService.HandleOAuthCallback(c.Context(), provider, code, state)
 	if err != nil {
+		errMsg := err.Error()
 		if appErr, ok := err.(*apperrors.AppError); ok {
-			return h.jsonResponse(c, appErr.HTTPStatus, false, appErr.Message, "", nil)
+			errMsg = appErr.Message
 		}
-		return h.jsonResponse(c, fiber.StatusInternalServerError, false, err.Error(), "", nil)
+		errorRedirectURL := fmt.Sprintf("%s/sign-in?error=%s", h.frontendURL, url.QueryEscape(errMsg))
+		return c.Redirect(errorRedirectURL, fiber.StatusTemporaryRedirect)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
 
