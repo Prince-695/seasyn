@@ -16,7 +16,7 @@ From the `backend/` directory:
   - `go vet ./...`
   - `golangci-lint run ./...`
 - Build the backend:
-  - `go build ./...` 
+  - `go build ./...`
 
 ## Frontend
 
