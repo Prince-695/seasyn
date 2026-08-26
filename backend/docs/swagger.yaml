@@ -16,12 +16,157 @@ definitions:
     - new_password
     - old_password
     type: object
+  domain.ConnectionTestResult:
+    properties:
+      error_message:
+        type: string
+      latency_ms:
+        type: integer
+      server_info:
+        type: string
+      success:
+        type: boolean
+    type: object
+  domain.CreateConnectionRequest:
+    properties:
+      database:
+        example: seasyn_db
+        maxLength: 100
+        minLength: 1
+        type: string
+      db_type:
+        allOf:
+        - $ref: '#/definitions/domain.DBType'
+        enum:
+        - postgres
+        - mysql
+        - mongodb
+        - sqlite
+        example: postgres
+      file_path:
+        example: /data/app.db
+        type: string
+      host:
+        example: db.prod.internal
+        type: string
+      is_source:
+        example: true
+        type: boolean
+      name:
+        example: Production Aurora PG
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        example: secret_db_pass
+        type: string
+      port:
+        example: 5432
+        maximum: 65535
+        minimum: 1
+        type: integer
+      ssl_mode:
+        enum:
+        - disable
+        - require
+        - verify-ca
+        - verify-full
+        - prefer
+        example: require
+        type: string
+      uri:
+        example: mongodb+srv://admin:pass@cluster.mongodb.net/app
+        type: string
+      username:
+        example: db_admin
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - db_type
+    - name
+    type: object
+  domain.CreateOrgRequest:
+    properties:
+      description:
+        example: Building the future
+        maxLength: 500
+        type: string
+      name:
+        example: Acme Corp
+        maxLength: 100
+        minLength: 2
+        type: string
+      slug:
+        example: acme-corp
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - name
+    - slug
+    type: object
+  domain.CreateProjectRequest:
+    properties:
+      description:
+        example: Primary PostgreSQL backend for main service
+        maxLength: 500
+        type: string
+      environment:
+        enum:
+        - development
+        - staging
+        - production
+        example: production
+        type: string
+      name:
+        example: Main Service DB
+        maxLength: 100
+        minLength: 2
+        type: string
+      slug:
+        example: main-service-db
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+  domain.DBType:
+    enum:
+    - postgres
+    - mysql
+    - mongodb
+    - sqlite
+    type: string
+    x-enum-varnames:
+    - DBTypePostgres
+    - DBTypeMySQL
+    - DBTypeMongoDB
+    - DBTypeSQLite
   domain.ForgotPasswordRequest:
     properties:
       email:
         type: string
     required:
     - email
+    type: object
+  domain.InviteMemberRequest:
+    properties:
+      email:
+        example: dev@example.com
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/domain.OrgRole'
+        enum:
+        - admin
+        - member
+        - viewer
+        example: member
+    required:
+    - email
+    - role
     type: object
   domain.LoginRequest:
     properties:
@@ -32,6 +177,148 @@ definitions:
     required:
     - email
     - password
+    type: object
+  domain.OrgMemberDetail:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      joined_at:
+        type: string
+      last_name:
+        type: string
+      role:
+        $ref: '#/definitions/domain.OrgRole'
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  domain.OrgRole:
+    enum:
+    - owner
+    - admin
+    - member
+    - viewer
+    type: string
+    x-enum-varnames:
+    - OrgRoleOwner
+    - OrgRoleAdmin
+    - OrgRoleMember
+    - OrgRoleViewer
+  domain.OrgWithRole:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+      role:
+        $ref: '#/definitions/domain.OrgRole'
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.Organization:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.Project:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      environment:
+        description: e.g. "development", "staging", "production"
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.ProjectDetail:
+    properties:
+      connections:
+        items:
+          $ref: '#/definitions/domain.PublicDatabaseConnection'
+        type: array
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      environment:
+        description: e.g. "development", "staging", "production"
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.PublicDatabaseConnection:
+    properties:
+      created_at:
+        type: string
+      database:
+        type: string
+      db_type:
+        $ref: '#/definitions/domain.DBType'
+      file_path:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      is_source:
+        type: boolean
+      name:
+        type: string
+      port:
+        type: integer
+      project_id:
+        type: string
+      ssl_mode:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
     type: object
   domain.PublicUser:
     properties:
@@ -117,6 +404,128 @@ definitions:
     - last_name
     - password
     type: object
+  domain.TestConnectionRequest:
+    properties:
+      database:
+        example: seasyn_db
+        type: string
+      db_type:
+        allOf:
+        - $ref: '#/definitions/domain.DBType'
+        enum:
+        - postgres
+        - mysql
+        - mongodb
+        - sqlite
+        example: postgres
+      file_path:
+        example: /data/app.db
+        type: string
+      host:
+        example: db.prod.internal
+        type: string
+      password:
+        example: secret_db_pass
+        type: string
+      port:
+        example: 5432
+        maximum: 65535
+        minimum: 1
+        type: integer
+      ssl_mode:
+        enum:
+        - disable
+        - require
+        - verify-ca
+        - verify-full
+        - prefer
+        example: require
+        type: string
+      uri:
+        example: mongodb+srv://admin:pass@cluster.mongodb.net/app
+        type: string
+      username:
+        example: db_admin
+        type: string
+    required:
+    - db_type
+    type: object
+  domain.UpdateConnectionRequest:
+    properties:
+      database:
+        example: seasyn_db
+        maxLength: 100
+        minLength: 1
+        type: string
+      file_path:
+        example: /data/app.db
+        type: string
+      host:
+        example: db.prod.internal
+        type: string
+      is_source:
+        example: true
+        type: boolean
+      name:
+        example: Production Aurora PG Updated
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        example: new_secret_pass
+        type: string
+      port:
+        example: 5432
+        maximum: 65535
+        minimum: 1
+        type: integer
+      ssl_mode:
+        enum:
+        - disable
+        - require
+        - verify-ca
+        - verify-full
+        - prefer
+        example: require
+        type: string
+      uri:
+        example: mongodb+srv://admin:pass@cluster.mongodb.net/app
+        type: string
+      username:
+        example: db_admin
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  domain.UpdateMemberRoleRequest:
+    properties:
+      role:
+        allOf:
+        - $ref: '#/definitions/domain.OrgRole'
+        enum:
+        - admin
+        - member
+        - viewer
+        example: admin
+    required:
+    - role
+    type: object
+  domain.UpdateOrgRequest:
+    properties:
+      description:
+        example: Building the future
+        maxLength: 500
+        type: string
+      name:
+        example: Acme Corp
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
   domain.UpdateProfileRequest:
     properties:
       first_name:
@@ -126,6 +535,27 @@ definitions:
     required:
     - first_name
     - last_name
+    type: object
+  domain.UpdateProjectRequest:
+    properties:
+      description:
+        example: Updated description
+        maxLength: 500
+        type: string
+      environment:
+        enum:
+        - development
+        - staging
+        - production
+        example: production
+        type: string
+      name:
+        example: Main Service DB Updated
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
     type: object
   domain.VerifyEmailRequest:
     properties:
@@ -503,6 +933,798 @@ paths:
       summary: User Signup
       tags:
       - auth
+  /v1/organizations:
+    get:
+      description: Returns all organizations the authenticated user belongs to
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.OrgWithRole'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List My Organizations
+      tags:
+      - organizations
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization. The caller becomes the owner.
+      parameters:
+      - description: Create Organization Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateOrgRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Organization'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Create an Organization
+      tags:
+      - organizations
+  /v1/organizations/{orgID}:
+    delete:
+      description: Permanently delete an organization. Only the Owner can do this.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete Organization
+      tags:
+      - organizations
+    get:
+      description: Returns the details of a specific organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Organization'
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Get Organization Details
+      tags:
+      - organizations
+    put:
+      consumes:
+      - application/json
+      description: Update the name and description of an organization. Requires Admin
+        or Owner role.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Update Organization Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateOrgRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Organization'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Organization
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/members:
+    get:
+      description: Returns all members of an organization. Requires membership.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.OrgMemberDetail'
+                  type: array
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List Organization Members
+      tags:
+      - organizations
+    post:
+      consumes:
+      - application/json
+      description: Invite a registered user to join the organization. Requires Admin
+        or Owner role.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Invite Member Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.InviteMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Invite a Member
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/members/{userID}:
+    delete:
+      description: Remove a member from the organization. Requires Admin or Owner.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Target User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Remove a Member
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/members/{userID}/role:
+    put:
+      consumes:
+      - application/json
+      description: Change a member's role within the organization. Requires Admin
+        or Owner.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Target User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Update Role Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateMemberRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Member Role
+      tags:
+      - organizations
+  /v1/organizations/{orgID}/projects:
+    get:
+      description: Returns all projects within the given organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.Project'
+                  type: array
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List Projects
+      tags:
+      - projects
+    post:
+      consumes:
+      - application/json
+      description: Create a database sync project inside an organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Create Project Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Project'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a Project
+      tags:
+      - projects
+  /v1/organizations/{orgID}/projects/{projectID}:
+    delete:
+      description: Permanently delete a project and all its database connection configurations
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete Project
+      tags:
+      - projects
+    get:
+      description: Returns project details including its configured database connections
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.ProjectDetail'
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Get Project Details
+      tags:
+      - projects
+    put:
+      consumes:
+      - application/json
+      description: Update project name, description, or environment
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Update Project Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Project'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Project
+      tags:
+      - projects
+  /v1/organizations/{orgID}/projects/{projectID}/connections:
+    get:
+      description: List all database connections for a project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.PublicDatabaseConnection'
+                  type: array
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List Database Connections
+      tags:
+      - database-connections
+    post:
+      consumes:
+      - application/json
+      description: Register a database connection (PostgreSQL, MySQL, MongoDB, SQLite)
+        under a project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Create Connection Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PublicDatabaseConnection'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Create Database Connection
+      tags:
+      - database-connections
+  /v1/organizations/{orgID}/projects/{projectID}/connections/{connID}:
+    delete:
+      description: Remove a database connection configuration
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Connection ID
+        in: path
+        name: connID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete Database Connection
+      tags:
+      - database-connections
+    get:
+      description: Get database connection metadata (sensitive credentials omitted)
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Connection ID
+        in: path
+        name: connID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PublicDatabaseConnection'
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Get Database Connection
+      tags:
+      - database-connections
+    put:
+      consumes:
+      - application/json
+      description: Update database connection metadata
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Connection ID
+        in: path
+        name: connID
+        required: true
+        type: string
+      - description: Update Connection Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PublicDatabaseConnection'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Database Connection
+      tags:
+      - database-connections
+  /v1/organizations/{orgID}/projects/{projectID}/connections/{connID}/test:
+    post:
+      description: Test live connectivity using a previously saved database connection
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Connection ID
+        in: path
+        name: connID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.ConnectionTestResult'
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Test Saved Database Connection
+      tags:
+      - database-connections
+  /v1/organizations/{orgID}/projects/{projectID}/connections/test:
+    post:
+      consumes:
+      - application/json
+      description: Test live connectivity against supplied database connection credentials
+        before saving
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Test Connection Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TestConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.ConnectionTestResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Test Direct Database Connection
+      tags:
+      - database-connections
   /v1/users/me:
     get:
       consumes:

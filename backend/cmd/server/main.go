@@ -7,13 +7,17 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Prince-695/seasyn/backend/internal/adapters"
 	"github.com/Prince-695/seasyn/backend/internal/config"
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
 	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
+	"github.com/Prince-695/seasyn/backend/internal/services/orgs"
+	"github.com/Prince-695/seasyn/backend/internal/services/project"
 	"github.com/Prince-695/seasyn/backend/internal/services/users"
+	"github.com/Prince-695/seasyn/backend/pkg/crypto"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
@@ -64,7 +68,14 @@ func main() {
 	// Conditional Database Sync
 	if os.Getenv("DB_RUN") == "true" {
 		log.Println("🚀 DB_RUN=true: Syncing database schema...")
-		if err := db.AutoMigrate(&repository.UserModel{}, &repository.OTPModel{}); err != nil {
+		if err := db.AutoMigrate(
+			&repository.UserModel{},
+			&repository.OTPModel{},
+			&repository.OrgModel{},
+			&repository.OrgMemberModel{},
+			&repository.ProjectModel{},
+			&repository.DatabaseConnectionModel{},
+		); err != nil {
 			log.Fatalf("Failed to migrate database: %v", err)
 		}
 		log.Println("✅ Database sync complete.")
@@ -145,9 +156,21 @@ func main() {
 	usersService := users.NewUsersService(userRepo)
 	usersHandler := handlers.NewUsersHandler(usersService)
 
+	orgRepo := repository.NewOrgRepository(db)
+	orgService := orgs.NewOrgService(orgRepo, userRepo)
+	orgHandler := handlers.NewOrgHandler(orgService)
+
+	encryptor := crypto.NewEncryptor(cfg.JWTSecret)
+	connector := adapters.NewConnector()
+	projectRepo := repository.NewProjectRepository(db)
+	projectService := project.NewProjectService(projectRepo, orgRepo, encryptor, connector)
+	projectHandler := handlers.NewProjectHandler(projectService)
+
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
 	usersHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	orgHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	projectHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
