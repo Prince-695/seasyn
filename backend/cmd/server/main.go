@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Prince-695/seasyn/backend/internal/adapters"
 	"github.com/Prince-695/seasyn/backend/internal/config"
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
@@ -14,7 +15,9 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/repository"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
 	"github.com/Prince-695/seasyn/backend/internal/services/orgs"
+	"github.com/Prince-695/seasyn/backend/internal/services/project"
 	"github.com/Prince-695/seasyn/backend/internal/services/users"
+	"github.com/Prince-695/seasyn/backend/pkg/crypto"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
@@ -70,6 +73,8 @@ func main() {
 			&repository.OTPModel{},
 			&repository.OrgModel{},
 			&repository.OrgMemberModel{},
+			&repository.ProjectModel{},
+			&repository.DatabaseConnectionModel{},
 		); err != nil {
 			log.Fatalf("Failed to migrate database: %v", err)
 		}
@@ -155,10 +160,17 @@ func main() {
 	orgService := orgs.NewOrgService(orgRepo, userRepo)
 	orgHandler := handlers.NewOrgHandler(orgService)
 
+	encryptor := crypto.NewEncryptor(cfg.JWTSecret)
+	connector := adapters.NewConnector()
+	projectRepo := repository.NewProjectRepository(db)
+	projectService := project.NewProjectService(projectRepo, orgRepo, encryptor, connector)
+	projectHandler := handlers.NewProjectHandler(projectService)
+
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
 	usersHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 	orgHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	projectHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
