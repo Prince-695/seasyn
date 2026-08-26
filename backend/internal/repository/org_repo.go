@@ -146,7 +146,9 @@ func (r *orgRepo) ListMembers(ctx context.Context, orgID string) ([]*domain.OrgM
 		if r.Username != nil {
 			uname = *r.Username
 		}
-		joinedAt, _ := r.JoinedAt.(interface{ GoTime() interface{ GoTime() interface{} } })
+		joinedAt, _ := r.JoinedAt.(interface {
+			GoTime() interface{ GoTime() interface{} }
+		})
 		_ = joinedAt
 
 		details = append(details, &domain.OrgMemberDetail{
