@@ -299,6 +299,55 @@ definitions:
     - email
     - password
     type: object
+  domain.MigrationJobResponse:
+    properties:
+      batch_size:
+        type: integer
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      error_message:
+        type: string
+      id:
+        type: string
+      migrated_rows:
+        type: integer
+      organization_id:
+        type: string
+      percentage:
+        type: number
+      project_id:
+        type: string
+      source_connection_id:
+        type: string
+      source_table:
+        type: string
+      started_at:
+        type: string
+      status:
+        $ref: '#/definitions/domain.MigrationStatus'
+      target_connection_id:
+        type: string
+      target_table:
+        type: string
+      total_rows:
+        type: integer
+    type: object
+  domain.MigrationStatus:
+    enum:
+    - pending
+    - running
+    - completed
+    - failed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - MigrationStatusPending
+    - MigrationStatusRunning
+    - MigrationStatusCompleted
+    - MigrationStatusFailed
+    - MigrationStatusCancelled
   domain.OrgMemberDetail:
     properties:
       email:
@@ -607,6 +656,35 @@ definitions:
     - first_name
     - last_name
     - password
+    type: object
+  domain.StartMigrationRequest:
+    properties:
+      batch_size:
+        example: 500
+        maximum: 10000
+        minimum: 10
+        type: integer
+      source_connection_id:
+        example: 11111111-1111-1111-1111-111111111111
+        type: string
+      source_table:
+        example: users
+        maxLength: 128
+        minLength: 1
+        type: string
+      target_connection_id:
+        example: 22222222-2222-2222-2222-222222222222
+        type: string
+      target_table:
+        example: users
+        maxLength: 128
+        minLength: 1
+        type: string
+    required:
+    - source_connection_id
+    - source_table
+    - target_connection_id
+    - target_table
     type: object
   domain.TableDiff:
     properties:
@@ -2361,6 +2439,207 @@ paths:
       summary: Test Direct Database Connection
       tags:
       - database-connections
+  /v1/organizations/{orgID}/projects/{projectID}/migrations:
+    get:
+      description: Returns all migration jobs for the specified project, ordered by
+        creation date descending.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.MigrationJobResponse'
+                  type: array
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: List all migration jobs for a project
+      tags:
+      - Migration
+    post:
+      consumes:
+      - application/json
+      description: Starts an asynchronous migration from source to target database
+        table. Returns the job ID immediately.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Migration parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.StartMigrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.MigrationJobResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Start a new database migration
+      tags:
+      - Migration
+  /v1/organizations/{orgID}/projects/{projectID}/migrations/{migrationID}:
+    delete:
+      description: Cancels a running migration job. Only works for migrations in 'running'
+        or 'pending' state.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Migration Job ID
+        in: path
+        name: migrationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Cancel a running migration
+      tags:
+      - Migration
+    get:
+      description: Returns the details and current status of a specific migration
+        job.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Migration Job ID
+        in: path
+        name: migrationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.MigrationJobResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
+      summary: Get migration job details
+      tags:
+      - Migration
+  /v1/organizations/{orgID}/projects/{projectID}/migrations/{migrationID}/progress:
+    get:
+      description: Opens an SSE connection that streams real-time progress events
+        for a running migration.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Migration Job ID
+        in: path
+        name: migrationID
+        required: true
+        type: string
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE event stream
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Stream real-time migration progress (SSE)
+      tags:
+      - Migration
   /v1/organizations/{orgID}/projects/{projectID}/schema/diff:
     post:
       consumes:
