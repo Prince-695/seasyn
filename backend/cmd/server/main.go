@@ -8,15 +8,21 @@ import (
 	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/adapters"
+	pgadapter "github.com/Prince-695/seasyn/backend/internal/adapters/postgres"
+	"github.com/Prince-695/seasyn/backend/internal/adapters/registry"
 	"github.com/Prince-695/seasyn/backend/internal/config"
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
 	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
+	"github.com/Prince-695/seasyn/backend/internal/services/audit"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
+	"github.com/Prince-695/seasyn/backend/internal/services/editor"
+	"github.com/Prince-695/seasyn/backend/internal/services/migration"
 	"github.com/Prince-695/seasyn/backend/internal/services/orgs"
 	"github.com/Prince-695/seasyn/backend/internal/services/project"
 	"github.com/Prince-695/seasyn/backend/internal/services/users"
+	"github.com/Prince-695/seasyn/backend/internal/services/webhooks"
 	"github.com/Prince-695/seasyn/backend/pkg/crypto"
 	"github.com/Prince-695/seasyn/backend/pkg/mail"
 	"github.com/gofiber/fiber/v2"
@@ -75,6 +81,10 @@ func main() {
 			&repository.OrgMemberModel{},
 			&repository.ProjectModel{},
 			&repository.DatabaseConnectionModel{},
+			&repository.MigrationJobModel{},
+			&repository.AuditLogModel{},
+			&repository.WebhookModel{},
+			&repository.WebhookDeliveryModel{},
 		); err != nil {
 			log.Fatalf("Failed to migrate database: %v", err)
 		}
@@ -166,11 +176,36 @@ func main() {
 	projectService := project.NewProjectService(projectRepo, orgRepo, encryptor, connector)
 	projectHandler := handlers.NewProjectHandler(projectService)
 
+	adapterRegistry := registry.NewAdapterRegistry()
+	adapterRegistry.Register(domain.DBTypePostgres, pgadapter.NewAdapter())
+
+	schemaService := editor.NewSchemaService(projectRepo, orgRepo, adapterRegistry, encryptor)
+	schemaHandler := handlers.NewSchemaHandler(schemaService)
+
+	auditRepo := repository.NewAuditRepository(db)
+	auditService := audit.NewAuditService(auditRepo, orgRepo)
+	auditHandler := handlers.NewAuditHandler(auditService)
+
+	webhookRepo := repository.NewWebhookRepository(db)
+	webhookDispatcher := webhooks.NewDispatcher(webhookRepo)
+	webhookService := webhooks.NewWebhookService(webhookRepo, orgRepo, webhookDispatcher)
+	webhookHandler := handlers.NewWebhookHandler(webhookService)
+
+	migrationRepo := repository.NewMigrationRepository(db)
+	progressHub := migration.NewProgressHub()
+	streamer := migration.NewStreamer(projectRepo, adapterRegistry, encryptor, progressHub)
+	migrationService := migration.NewService(migrationRepo, orgRepo, projectRepo, streamer, progressHub, auditService, webhookService)
+	migrationHandler := handlers.NewMigrationHandler(migrationService, progressHub)
+
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
 	usersHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 	orgHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 	projectHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	schemaHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	migrationHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	auditHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	webhookHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
