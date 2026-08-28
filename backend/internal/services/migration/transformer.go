@@ -56,12 +56,12 @@ var seasonToMySQL = map[domain.SeasonType]string{
 
 // TransformedColumn represents a column ready for DDL generation on the target database.
 type TransformedColumn struct {
-	Name           string            `json:"name"`
-	SourceType     string            `json:"source_type"`
-	SeasonType     domain.SeasonType `json:"season_type"`
-	TargetType     string            `json:"target_type"`
-	IsNullable     bool              `json:"is_nullable"`
-	IsPrimaryKey   bool              `json:"is_primary_key"`
+	Name         string            `json:"name"`
+	SourceType   string            `json:"source_type"`
+	SeasonType   domain.SeasonType `json:"season_type"`
+	TargetType   string            `json:"target_type"`
+	IsNullable   bool              `json:"is_nullable"`
+	IsPrimaryKey bool              `json:"is_primary_key"`
 }
 
 // TransformedSchema is the output of schema transformation, ready for DDL generation on the target.

@@ -16,17 +16,17 @@ const (
 
 // Webhook represents an endpoint configured to receive outbound event notifications.
 type Webhook struct {
-	ID          string             `json:"id"`
-	OrgID       string             `json:"org_id"`
-	ProjectID   *string            `json:"project_id,omitempty"`
-	Name        string             `json:"name"`
-	URL         string             `json:"url"`
-	Secret      string             `json:"-"` // Never returned directly after creation
-	Events      []WebhookEventType `json:"events"`
-	IsActive    bool               `json:"is_active"`
-	CreatedBy   string             `json:"created_by"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
+	ID        string             `json:"id"`
+	OrgID     string             `json:"org_id"`
+	ProjectID *string            `json:"project_id,omitempty"`
+	Name      string             `json:"name"`
+	URL       string             `json:"url"`
+	Secret    string             `json:"-"` // Never returned directly after creation
+	Events    []WebhookEventType `json:"events"`
+	IsActive  bool               `json:"is_active"`
+	CreatedBy string             `json:"created_by"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 // WebhookDelivery captures the attempt and outcome of a webhook POST.

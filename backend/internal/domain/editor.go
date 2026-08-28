@@ -2,9 +2,9 @@ package domain
 
 // QueryRequest describes a safe structured editor read with pagination and sorting.
 type QueryRequest struct {
-	Page    int    `json:"page" validate:"min=1" example:"1"`
-	Limit   int    `json:"limit" validate:"min=1,max=500" example:"50"`
-	OrderBy string `json:"order_by,omitempty" example:"created_at"`
+	Page     int    `json:"page" validate:"min=1" example:"1"`
+	Limit    int    `json:"limit" validate:"min=1,max=500" example:"50"`
+	OrderBy  string `json:"order_by,omitempty" example:"created_at"`
 	OrderDir string `json:"order_dir,omitempty" validate:"omitempty,oneof=asc desc ASC DESC" example:"desc"`
 }
 

@@ -10,19 +10,19 @@ import (
 
 // MigrationJobModel is the GORM model for the migration_jobs table.
 type MigrationJobModel struct {
-	ID             string         `gorm:"type:uuid;primary_key"`
-	OrganizationID string         `gorm:"type:uuid;not null;index"`
-	ProjectID      string         `gorm:"type:uuid;not null;index"`
-	SourceConnID   string         `gorm:"type:uuid;not null"`
-	TargetConnID   string         `gorm:"type:uuid;not null"`
-	SourceTable    string         `gorm:"type:varchar(128);not null"`
-	TargetTable    string         `gorm:"type:varchar(128);not null"`
-	Status         string         `gorm:"type:varchar(20);not null;default:'pending';index"`
-	TotalRows      int64          `gorm:"default:0"`
-	MigratedRows   int64          `gorm:"default:0"`
-	BatchSize      int            `gorm:"default:500"`
-	ErrorMessage   string         `gorm:"type:text"`
-	CreatedBy      string         `gorm:"type:uuid;not null"`
+	ID             string `gorm:"type:uuid;primary_key"`
+	OrganizationID string `gorm:"type:uuid;not null;index"`
+	ProjectID      string `gorm:"type:uuid;not null;index"`
+	SourceConnID   string `gorm:"type:uuid;not null"`
+	TargetConnID   string `gorm:"type:uuid;not null"`
+	SourceTable    string `gorm:"type:varchar(128);not null"`
+	TargetTable    string `gorm:"type:varchar(128);not null"`
+	Status         string `gorm:"type:varchar(20);not null;default:'pending';index"`
+	TotalRows      int64  `gorm:"default:0"`
+	MigratedRows   int64  `gorm:"default:0"`
+	BatchSize      int    `gorm:"default:500"`
+	ErrorMessage   string `gorm:"type:text"`
+	CreatedBy      string `gorm:"type:uuid;not null"`
 	StartedAt      *time.Time
 	CompletedAt    *time.Time
 	CreatedAt      time.Time      `gorm:"autoCreateTime"`

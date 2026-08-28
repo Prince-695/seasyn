@@ -599,4 +599,3 @@ func sanitizeIdentifier(ident string) string {
 	ident = strings.TrimSpace(ident)
 	return fmt.Sprintf("\"%s\"", ident)
 }
-
