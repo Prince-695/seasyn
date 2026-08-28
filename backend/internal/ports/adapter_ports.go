@@ -16,6 +16,12 @@ type DatabaseConnection interface {
 	InsertRow(ctx context.Context, table string, data map[string]interface{}) (map[string]interface{}, error)
 	UpdateRow(ctx context.Context, table string, primaryKey map[string]interface{}, data map[string]interface{}) error
 	DeleteRow(ctx context.Context, table string, primaryKey map[string]interface{}) error
+
+	// StreamRows reads rows from a table in batches via a channel pipeline (for migration streaming).
+	StreamRows(ctx context.Context, table string, batchSize int) (<-chan domain.RowBatch, <-chan error)
+	// BulkInsert writes a batch of rows into a destination table (for migration writes).
+	BulkInsert(ctx context.Context, table string, rows []map[string]interface{}) error
+
 	Close() error
 }
 

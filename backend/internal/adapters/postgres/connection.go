@@ -453,9 +453,150 @@ func (c *Connection) DeleteRow(ctx context.Context, table string, primaryKey map
 	return nil
 }
 
+// --- Migration Streaming (StreamRows + BulkInsert) ---
+
+func (c *Connection) StreamRows(ctx context.Context, table string, batchSize int) (<-chan domain.RowBatch, <-chan error) {
+	rowCh := make(chan domain.RowBatch, 4)
+	errCh := make(chan error, 1)
+
+	if batchSize < 10 {
+		batchSize = 500
+	}
+
+	go func() {
+		defer close(rowCh)
+		defer close(errCh)
+
+		safeTable := sanitizeIdentifier(table)
+		var totalRows int64
+		_ = c.db.QueryRowContext(ctx, fmt.Sprintf("SELECT COUNT(*) FROM %s", safeTable)).Scan(&totalRows)
+
+		offset := 0
+		batchIndex := 0
+
+		for {
+			select {
+			case <-ctx.Done():
+				errCh <- ctx.Err()
+				return
+			default:
+			}
+
+			query := fmt.Sprintf("SELECT * FROM %s ORDER BY ctid LIMIT $1 OFFSET $2", safeTable)
+			rows, err := c.db.QueryContext(ctx, query, batchSize, offset)
+			if err != nil {
+				errCh <- fmt.Errorf("stream rows batch %d: %w", batchIndex, err)
+				return
+			}
+
+			colNames, err := rows.Columns()
+			if err != nil {
+				rows.Close()
+				errCh <- fmt.Errorf("get column names: %w", err)
+				return
+			}
+
+			var batch []map[string]interface{}
+			for rows.Next() {
+				values := make([]interface{}, len(colNames))
+				valuePtrs := make([]interface{}, len(colNames))
+				for i := range values {
+					valuePtrs[i] = &values[i]
+				}
+
+				if err := rows.Scan(valuePtrs...); err != nil {
+					rows.Close()
+					errCh <- fmt.Errorf("scan row in batch %d: %w", batchIndex, err)
+					return
+				}
+
+				rowMap := make(map[string]interface{})
+				for i, col := range colNames {
+					val := values[i]
+					if b, ok := val.([]byte); ok {
+						rowMap[col] = string(b)
+					} else {
+						rowMap[col] = val
+					}
+				}
+				batch = append(batch, rowMap)
+			}
+			rows.Close()
+
+			if len(batch) == 0 {
+				return // No more rows
+			}
+
+			isLast := len(batch) < batchSize
+			rowCh <- domain.RowBatch{
+				Index:  batchIndex,
+				Rows:   batch,
+				IsLast: isLast,
+			}
+
+			if isLast {
+				return
+			}
+
+			offset += batchSize
+			batchIndex++
+		}
+	}()
+
+	return rowCh, errCh
+}
+
+func (c *Connection) BulkInsert(ctx context.Context, table string, rows []map[string]interface{}) error {
+	if len(rows) == 0 {
+		return nil
+	}
+
+	safeTable := sanitizeIdentifier(table)
+
+	// Use column order from first row
+	var cols []string
+	for col := range rows[0] {
+		cols = append(cols, col)
+	}
+
+	var safeCols []string
+	for _, col := range cols {
+		safeCols = append(safeCols, sanitizeIdentifier(col))
+	}
+
+	// Build multi-row INSERT: INSERT INTO table (c1, c2) VALUES ($1, $2), ($3, $4), ...
+	var valueGroups []string
+	var args []interface{}
+	idx := 1
+
+	for _, row := range rows {
+		var placeholders []string
+		for _, col := range cols {
+			placeholders = append(placeholders, fmt.Sprintf("$%d", idx))
+			args = append(args, row[col])
+			idx++
+		}
+		valueGroups = append(valueGroups, "("+strings.Join(placeholders, ", ")+")")
+	}
+
+	query := fmt.Sprintf(
+		"INSERT INTO %s (%s) VALUES %s",
+		safeTable,
+		strings.Join(safeCols, ", "),
+		strings.Join(valueGroups, ", "),
+	)
+
+	_, err := c.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("bulk insert: %w", err)
+	}
+	return nil
+}
+
 // sanitizeIdentifier prevents SQL injection on table and column identifiers by double quoting.
 func sanitizeIdentifier(ident string) string {
 	ident = strings.ReplaceAll(ident, "\"", "")
 	ident = strings.TrimSpace(ident)
 	return fmt.Sprintf("\"%s\"", ident)
 }
+

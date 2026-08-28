@@ -65,6 +65,16 @@ func (m *mockDBConnForHandler) UpdateRow(ctx context.Context, table string, prim
 func (m *mockDBConnForHandler) DeleteRow(ctx context.Context, table string, primaryKey map[string]interface{}) error {
 	return nil
 }
+func (m *mockDBConnForHandler) StreamRows(ctx context.Context, table string, batchSize int) (<-chan domain.RowBatch, <-chan error) {
+	rowCh := make(chan domain.RowBatch)
+	errCh := make(chan error)
+	close(rowCh)
+	close(errCh)
+	return rowCh, errCh
+}
+func (m *mockDBConnForHandler) BulkInsert(ctx context.Context, table string, rows []map[string]interface{}) error {
+	return nil
+}
 func (m *mockDBConnForHandler) Close() error { return nil }
 
 type mockAdapterForHandler struct{}
