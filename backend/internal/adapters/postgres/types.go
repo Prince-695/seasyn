@@ -10,7 +10,12 @@ import (
 func MapPostgresType(pgType string) domain.SeasonType {
 	normalized := strings.ToLower(strings.TrimSpace(pgType))
 
-	// Check prefixes / base types
+	// Priority 1: Check array types first
+	if strings.HasSuffix(normalized, "[]") || strings.HasPrefix(normalized, "array") || strings.HasPrefix(normalized, "_") {
+		return domain.SeasonTypeArray
+	}
+
+	// Priority 2: Base / scalar types
 	switch {
 	case strings.HasPrefix(normalized, "int"),
 		strings.HasPrefix(normalized, "smallint"),
@@ -55,10 +60,6 @@ func MapPostgresType(pgType string) domain.SeasonType {
 
 	case strings.HasPrefix(normalized, "uuid"):
 		return domain.SeasonTypeUUID
-
-	case strings.HasSuffix(normalized, "[]"),
-		strings.HasPrefix(normalized, "array"):
-		return domain.SeasonTypeArray
 
 	default:
 		return domain.SeasonTypeUnknown
