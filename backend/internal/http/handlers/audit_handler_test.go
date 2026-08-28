@@ -64,7 +64,7 @@ func TestAuditHTTPHandler(t *testing.T) {
 	}
 
 	var res domain.Response
-	json.NewDecoder(resp.Body).Decode(&res)
+	_ = json.NewDecoder(resp.Body).Decode(&res)
 	if !res.Success {
 		t.Errorf("expected success true, got false")
 	}
