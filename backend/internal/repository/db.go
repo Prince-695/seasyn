@@ -32,7 +32,7 @@ func NewInternalDB(dsn string) (*gorm.DB, error) {
 		return nil, fmt.Errorf("internal db ping failed: %w", err)
 	}
 
-	if err := db.AutoMigrate(&UserModel{}, &OTPModel{}); err != nil {
+	if err := db.AutoMigrate(&UserModel{}, &OTPModel{}, &MigrationJobModel{}); err != nil {
 		return nil, fmt.Errorf("internal db auto-migrate failed: %w", err)
 	}
 
