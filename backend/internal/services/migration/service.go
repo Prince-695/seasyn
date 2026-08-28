@@ -13,11 +13,13 @@ import (
 
 // Service orchestrates the full migration lifecycle: start, cancel, get, and list.
 type Service struct {
-	migrationRepo ports.MigrationRepository
-	orgRepo       ports.OrgRepository
-	projectRepo   ports.ProjectRepository
-	streamer      *Streamer
-	hub           *ProgressHub
+	migrationRepo  ports.MigrationRepository
+	orgRepo        ports.OrgRepository
+	projectRepo    ports.ProjectRepository
+	streamer       *Streamer
+	hub            *ProgressHub
+	auditService   ports.AuditService
+	webhookService ports.WebhookService
 
 	// Execution lock: prevents duplicate concurrent migrations on the same source+target+table
 	runningJobs sync.Map // key: "sourceConnID:targetConnID:table" -> context.CancelFunc
@@ -26,20 +28,24 @@ type Service struct {
 	cancelFuncs sync.Map // key: jobID -> context.CancelFunc
 }
 
-// NewService creates a new MigrationService.
+// NewService creates a new MigrationService with optional audit and webhook hooks.
 func NewService(
 	migrationRepo ports.MigrationRepository,
 	orgRepo ports.OrgRepository,
 	projectRepo ports.ProjectRepository,
 	streamer *Streamer,
 	hub *ProgressHub,
+	auditService ports.AuditService,
+	webhookService ports.WebhookService,
 ) ports.MigrationService {
 	return &Service{
-		migrationRepo: migrationRepo,
-		orgRepo:       orgRepo,
-		projectRepo:   projectRepo,
-		streamer:      streamer,
-		hub:           hub,
+		migrationRepo:  migrationRepo,
+		orgRepo:        orgRepo,
+		projectRepo:    projectRepo,
+		streamer:       streamer,
+		hub:            hub,
+		auditService:   auditService,
+		webhookService: webhookService,
 	}
 }
 
@@ -135,6 +141,34 @@ func (s *Service) StartMigration(ctx context.Context, userID, orgID, projectID s
 	}
 	created.TotalRows = totalRows
 
+	// Audit logging for migration start
+	if s.auditService != nil {
+		s.auditService.Log(ctx, domain.AuditLog{
+			OrgID:        orgID,
+			ProjectID:    &projectID,
+			UserID:       userID,
+			Action:       domain.AuditActionMigrationStarted,
+			ResourceType: "migration",
+			ResourceID:   created.ID,
+			Metadata: map[string]interface{}{
+				"source_table": req.SourceTable,
+				"target_table": req.TargetTable,
+				"total_rows":   totalRows,
+			},
+		})
+	}
+
+	// Webhook dispatch for migration start
+	if s.webhookService != nil {
+		s.webhookService.DispatchEvent(ctx, orgID, projectID, domain.WebhookEventMigrationStarted, map[string]interface{}{
+			"job_id":       created.ID,
+			"project_id":   projectID,
+			"source_table": req.SourceTable,
+			"target_table": req.TargetTable,
+			"total_rows":   totalRows,
+		})
+	}
+
 	// Launch migration in background goroutine
 	bgCtx, cancel := context.WithCancel(context.Background())
 	s.cancelFuncs.Store(created.ID, cancel)
@@ -164,13 +198,66 @@ func (s *Service) StartMigration(ctx context.Context, userID, orgID, projectID s
 		if streamErr != nil {
 			if bgCtx.Err() == context.Canceled {
 				_ = s.migrationRepo.UpdateStatus(bgCtx, created.ID, domain.MigrationStatusCancelled, 0, totalRows, "Migration was cancelled by user")
+				if s.auditService != nil {
+					s.auditService.Log(bgCtx, domain.AuditLog{
+						OrgID:        orgID,
+						ProjectID:    &projectID,
+						UserID:       userID,
+						Action:       domain.AuditActionMigrationCancelled,
+						ResourceType: "migration",
+						ResourceID:   created.ID,
+					})
+				}
+				if s.webhookService != nil {
+					s.webhookService.DispatchEvent(bgCtx, orgID, projectID, domain.WebhookEventMigrationCancelled, map[string]interface{}{
+						"job_id": created.ID,
+					})
+				}
 			} else {
 				_ = s.migrationRepo.UpdateStatus(bgCtx, created.ID, domain.MigrationStatusFailed, 0, totalRows, streamErr.Error())
+				if s.auditService != nil {
+					s.auditService.Log(bgCtx, domain.AuditLog{
+						OrgID:        orgID,
+						ProjectID:    &projectID,
+						UserID:       userID,
+						Action:       domain.AuditActionMigrationFailed,
+						ResourceType: "migration",
+						ResourceID:   created.ID,
+						Metadata: map[string]interface{}{
+							"error": streamErr.Error(),
+						},
+					})
+				}
+				if s.webhookService != nil {
+					s.webhookService.DispatchEvent(bgCtx, orgID, projectID, domain.WebhookEventMigrationFailed, map[string]interface{}{
+						"job_id": created.ID,
+						"error":  streamErr.Error(),
+					})
+				}
 			}
 			return
 		}
 
 		_ = s.migrationRepo.UpdateStatus(bgCtx, created.ID, domain.MigrationStatusCompleted, totalRows, totalRows, "")
+		if s.auditService != nil {
+			s.auditService.Log(bgCtx, domain.AuditLog{
+				OrgID:        orgID,
+				ProjectID:    &projectID,
+				UserID:       userID,
+				Action:       domain.AuditActionMigrationCompleted,
+				ResourceType: "migration",
+				ResourceID:   created.ID,
+				Metadata: map[string]interface{}{
+					"migrated_rows": totalRows,
+				},
+			})
+		}
+		if s.webhookService != nil {
+			s.webhookService.DispatchEvent(bgCtx, orgID, projectID, domain.WebhookEventMigrationCompleted, map[string]interface{}{
+				"job_id":        created.ID,
+				"migrated_rows": totalRows,
+			})
+		}
 	}()
 
 	resp := created.ToResponse()

@@ -243,7 +243,7 @@ func TestMigrationService_Lifecycle(t *testing.T) {
 	hub := migration.NewProgressHub()
 	streamer := migration.NewStreamer(projRepo, registry, enc, hub)
 
-	svc := migration.NewService(migRepo, orgRepo, projRepo, streamer, hub)
+	svc := migration.NewService(migRepo, orgRepo, projRepo, streamer, hub, nil, nil)
 	ctx := context.Background()
 
 	// 1. Start Migration
