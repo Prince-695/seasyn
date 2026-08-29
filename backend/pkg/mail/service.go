@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/smtp"
 	"path/filepath"
+	"strings"
 
 	"github.com/Prince-695/seasyn/backend/internal/ports"
 	"github.com/jordan-wright/email"
@@ -24,6 +25,12 @@ type mailService struct {
 }
 
 func NewMailService(host, port, user, pass, from, templateDir, frontendURL string) ports.MailService {
+	host = strings.TrimSpace(host)
+	port = strings.TrimSpace(port)
+	user = strings.TrimSpace(user)
+	pass = strings.TrimSpace(pass)
+	from = strings.TrimSpace(from)
+
 	var auth smtp.Auth
 	if user != "" && pass != "" {
 		auth = smtp.PlainAuth("", user, pass, host)
