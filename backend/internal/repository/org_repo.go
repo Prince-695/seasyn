@@ -81,11 +81,15 @@ func (r *orgRepo) SlugExists(ctx context.Context, slug string) (bool, error) {
 }
 
 func (r *orgRepo) AddMember(ctx context.Context, orgID, userID, invitedBy string, role domain.OrgRole) error {
+	var inv *string
+	if invitedBy != "" {
+		inv = &invitedBy
+	}
 	member := OrgMemberModel{
 		OrganizationID: orgID,
 		UserID:         userID,
 		Role:           string(role),
-		InvitedBy:      invitedBy,
+		InvitedBy:      inv,
 	}
 	return r.db.WithContext(ctx).Create(&member).Error
 }

@@ -46,18 +46,22 @@ type OrgMemberModel struct {
 	OrganizationID string    `gorm:"type:uuid;not null;primaryKey;index"`
 	UserID         string    `gorm:"type:uuid;not null;primaryKey;index"`
 	Role           string    `gorm:"type:varchar(20);not null;default:'member'"`
-	InvitedBy      string    `gorm:"type:uuid"`
+	InvitedBy      *string   `gorm:"type:uuid"`
 	JoinedAt       time.Time `gorm:"autoCreateTime"`
 }
 
 func (OrgMemberModel) TableName() string { return "organization_members" }
 
 func (m *OrgMemberModel) ToDomain() *domain.OrganizationMember {
+	var invitedBy string
+	if m.InvitedBy != nil {
+		invitedBy = *m.InvitedBy
+	}
 	return &domain.OrganizationMember{
 		OrganizationID: m.OrganizationID,
 		UserID:         m.UserID,
 		Role:           domain.OrgRole(m.Role),
-		InvitedBy:      m.InvitedBy,
+		InvitedBy:      invitedBy,
 		JoinedAt:       m.JoinedAt,
 	}
 }
