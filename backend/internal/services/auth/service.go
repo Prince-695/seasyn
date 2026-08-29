@@ -221,6 +221,12 @@ func (s *authService) HandleOAuthCallback(ctx context.Context, provider, code, s
 				log.Printf("failed to send welcome email to %s: %v", user.Email, err)
 			}
 		}()
+	} else if !user.IsVerified {
+		// Existing account verified by OAuth login
+		user.IsVerified = true
+		if updated, updateErr := s.repo.Update(ctx, *user); updateErr == nil {
+			user = updated
+		}
 	}
 
 	return s.generateAuthResponse(user)

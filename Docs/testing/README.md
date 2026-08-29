@@ -9,6 +9,7 @@ Welcome to the **SEASYN Quality Assurance & Testing Suite**. This folder contain
 | Document | Scope & Modules Covered |
 | :--- | :--- |
 | **[Master QA Manual](file:///home/princerathod695/Projects/seasyn/Docs/testing/Master_QA_Manual.md)** | **All-in-One Comprehensive Master Manual (Phases 1 to 6)** with complete end-to-end user journeys, payload templates, and unified checkpoints ledger. |
+| **[Plain English API Guide](file:///home/princerathod695/Projects/seasyn/Docs/testing/explanation.md)** | **Simple, plain English breakdown** explaining what every module and every single API endpoint does. |
 | **[Phase 1: Auth, Security & OTP](file:///home/princerathod695/Projects/seasyn/Docs/testing/Phase_1_Auth_and_Security.md)** | Signup, Login, Password Reset, OTP verification with email templates, OAuth (Google/GitHub), Cookie deletion on Logout, and Rate Limiting. |
 | **[Phase 2: Organizations & RBAC](file:///home/princerathod695/Projects/seasyn/Docs/testing/Phase_2_Organizations_and_RBAC.md)** | Organization CRUD, slug uniqueness, member invitations, RBAC permission hierarchy (`owner` > `admin` > `member` > `viewer`), and member management. |
 | **[Phase 3: Projects & Connections](file:///home/princerathod695/Projects/seasyn/Docs/testing/Phase_3_Projects_and_Connections.md)** | Project lifecycle, database connection management, AES-256-GCM credential encryption, live diagnostic connection testing, and latency checks. |
