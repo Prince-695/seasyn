@@ -86,7 +86,10 @@ func (h *UsersHandler) GetMe(c *fiber.Ctx) error {
 func (h *UsersHandler) CheckUsername(c *fiber.Ctx) error {
 	username := c.Query("u")
 	if username == "" {
-		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Username query parameter 'u' is required", nil)
+		username = c.Query("username")
+	}
+	if username == "" {
+		return h.jsonResponse(c, fiber.StatusBadRequest, false, "Username query parameter 'u' or 'username' is required", nil)
 	}
 
 	taken, err := h.usersService.CheckUsername(c.Context(), username)
