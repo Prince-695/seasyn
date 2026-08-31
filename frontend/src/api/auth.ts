@@ -53,3 +53,10 @@ export const authApi = {
     return response.data
   },
 }
+
+export const userApi = {
+  getMyProfile: async () => {
+    const response = await apiClient.get("/user/me")
+    return response.data
+  },
+}

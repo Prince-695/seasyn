@@ -1,81 +1,52 @@
 import axios from "axios"
 import { useAuthStore } from "../store/authStore"
-import { getCookie } from "../lib/utils"
 
-// Create an Axios instance configuration
+// ─── Axios Instance ────────────────────────────────────────────────────────────
+// baseURL uses a relative path so Vite's dev-proxy forwards /v1/* to the backend.
+// withCredentials ensures the browser attaches HttpOnly cookies automatically
+// on every request — no manual token handling required.
 const apiClient = axios.create({
-  baseURL: "/v1", // Using relative URL to leverage Vite Proxy
-  withCredentials: true, // Enable automatic transmission of HTTP-Only cookies
+  baseURL: "/v1",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 })
 
-// Request interceptor to automatically attach the token cookie in the Authorization header
+// ─── Request Interceptor ───────────────────────────────────────────────────────
+// HttpOnly cookies (access_token, refresh_token) are invisible to document.cookie
+// and therefore to any JS cookie helper. The browser attaches them automatically
+// via withCredentials — there is nothing to do here manually.
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = getCookie("access_token")
-    console.log(
-      `[apiClient] Requesting: ${config.method?.toUpperCase()} ${config.url}`,
-      {
-        hasCookieToken: !!token,
-        cookieTokenLength: token ? token.length : 0,
-      }
-    )
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-      console.log(
-        `[apiClient] Attached Authorization Header: Bearer ${token.substring(0, 10)}...`
-      )
-    } else {
-      console.log(
-        "[apiClient] No token found in cookies. Authorization header not attached."
-      )
-    }
-    return config
-  },
+  (config) => config,
   (error) => {
-    console.error("[apiClient] Request interceptor error:", error)
+    console.error("[apiClient] Request error:", error)
     return Promise.reject(error)
   }
 )
 
-// Response interceptor to handle global authentication errors (e.g., expired cookie)
+// ─── Response Interceptor ──────────────────────────────────────────────────────
+// Handles 401 responses by attempting a silent token refresh, then retrying
+// the original request. If the refresh also fails, clears the auth store so
+// the user is redirected to the sign-in page.
 apiClient.interceptors.response.use(
-  (response) => {
-    console.log(
-      `[apiClient] Response Success: ${response.config.method?.toUpperCase()} ${response.config.url}`,
-      response.status
-    )
-    return response
-  },
+  (response) => response,
   async (error) => {
-    console.error(
-      `[apiClient] Response Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-      {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      }
-    )
     const originalRequest = error.config
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      console.warn(
-        "[apiClient] Intercepted 401 Unauthorized. Attempting to refresh token..."
-      )
+      console.warn("[apiClient] 401 received — attempting token refresh...")
       originalRequest._retry = true
+
       try {
-        // Ping backend refresh endpoint. Browser automatically sends the HttpOnly refresh_token cookie.
+        // The browser auto-sends the HttpOnly refresh_token cookie here.
         await axios.post("/v1/auth/refresh", {}, { withCredentials: true })
 
-        // If successful, the backend set a new access_token cookie. Retry original request.
+        // Refresh succeeded — backend set a new access_token cookie.
+        // Retry the original request; the browser will attach the new cookie.
         return apiClient(originalRequest)
       } catch (refreshError) {
-        console.error(
-          "[apiClient] Token refresh failed. Triggering clearAuth()."
-        )
-        // Refresh token is also expired or invalid. Clear auth store.
+        console.error("[apiClient] Token refresh failed — clearing auth.")
         useAuthStore.getState().clearAuth()
         return Promise.reject(refreshError)
       }
