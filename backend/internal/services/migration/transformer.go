@@ -1,6 +1,9 @@
 package migration
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 )
 
@@ -54,6 +57,22 @@ var seasonToMySQL = map[domain.SeasonType]string{
 	domain.SeasonTypeUnknown:   "TEXT",
 }
 
+// seasonToSQLite maps the universal SeasonType to SQLite types.
+var seasonToSQLite = map[domain.SeasonType]string{
+	domain.SeasonTypeInt:       "INTEGER",
+	domain.SeasonTypeString:    "TEXT",
+	domain.SeasonTypeBool:      "INTEGER",
+	domain.SeasonTypeTimestamp: "TEXT",
+	domain.SeasonTypeJSON:      "TEXT",
+	domain.SeasonTypeFloat:     "REAL",
+	domain.SeasonTypeDecimal:   "NUMERIC",
+	domain.SeasonTypeBinary:    "BLOB",
+	domain.SeasonTypeUUID:      "TEXT",
+	domain.SeasonTypeEnum:      "TEXT",
+	domain.SeasonTypeArray:     "TEXT",
+	domain.SeasonTypeUnknown:   "TEXT",
+}
+
 // TransformedColumn represents a column ready for DDL generation on the target database.
 type TransformedColumn struct {
 	Name         string            `json:"name"`
@@ -84,8 +103,10 @@ func MapSeasonToNative(seasonType domain.SeasonType, targetDB domain.DBType) str
 		typeMap = seasonToMongo
 	case domain.DBTypeMySQL:
 		typeMap = seasonToMySQL
+	case domain.DBTypeSQLite:
+		typeMap = seasonToSQLite
 	default:
-		typeMap = seasonToPostgres // fallback
+		typeMap = seasonToPostgres
 	}
 
 	if native, ok := typeMap[seasonType]; ok {
@@ -115,4 +136,39 @@ func TransformSchema(sourceTable domain.TableSchema, sourceDBType, targetDBType 
 		Columns:      columns,
 		PrimaryKeys:  sourceTable.PrimaryKeys,
 	}
+}
+
+// GenerateTargetDDL generates the appropriate CREATE TABLE SQL statement for the target database engine.
+func GenerateTargetDDL(schema TransformedSchema) string {
+	if schema.TargetDBType == domain.DBTypeMongoDB {
+		return "" // MongoDB creates collections implicitly on insert
+	}
+
+	quoteChar := "\""
+	if schema.TargetDBType == domain.DBTypeMySQL {
+		quoteChar = "`"
+	}
+
+	var colDefs []string
+	for _, col := range schema.Columns {
+		def := fmt.Sprintf("%s%s%s %s", quoteChar, col.Name, quoteChar, col.TargetType)
+		if col.IsPrimaryKey && len(schema.PrimaryKeys) <= 1 {
+			def += " PRIMARY KEY"
+		}
+		if !col.IsNullable && !col.IsPrimaryKey {
+			def += " NOT NULL"
+		}
+		colDefs = append(colDefs, def)
+	}
+
+	if len(schema.PrimaryKeys) > 1 {
+		var pkCols []string
+		for _, pk := range schema.PrimaryKeys {
+			pkCols = append(pkCols, fmt.Sprintf("%s%s%s", quoteChar, pk, quoteChar))
+		}
+		colDefs = append(colDefs, fmt.Sprintf("PRIMARY KEY (%s)", strings.Join(pkCols, ", ")))
+	}
+
+	return fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n  %s\n);",
+		quoteChar, schema.TableName, quoteChar, strings.Join(colDefs, ",\n  "))
 }

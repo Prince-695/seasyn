@@ -21,6 +21,8 @@ type DatabaseConnection interface {
 	StreamRows(ctx context.Context, table string, batchSize int) (<-chan domain.RowBatch, <-chan error)
 	// BulkInsert writes a batch of rows into a destination table (for migration writes).
 	BulkInsert(ctx context.Context, table string, rows []map[string]interface{}) error
+	// ExecDDL executes a DDL statement (e.g. CREATE TABLE) on the target database.
+	ExecDDL(ctx context.Context, ddl string) error
 
 	Close() error
 }

@@ -306,6 +306,11 @@ func (c *Connection) BulkInsert(ctx context.Context, table string, rows []map[st
 	return nil
 }
 
+func (c *Connection) ExecDDL(ctx context.Context, ddl string) error {
+	// MongoDB creates collections implicitly on insert
+	return nil
+}
+
 // Helpers
 
 func inferBsonSeasonType(v interface{}) domain.SeasonType {

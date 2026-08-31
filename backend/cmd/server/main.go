@@ -9,8 +9,10 @@ import (
 
 	"github.com/Prince-695/seasyn/backend/internal/adapters"
 	mongoadapter "github.com/Prince-695/seasyn/backend/internal/adapters/mongodb"
+	mysqladapter "github.com/Prince-695/seasyn/backend/internal/adapters/mysql"
 	pgadapter "github.com/Prince-695/seasyn/backend/internal/adapters/postgres"
 	"github.com/Prince-695/seasyn/backend/internal/adapters/registry"
+	sqliteadapter "github.com/Prince-695/seasyn/backend/internal/adapters/sqlite"
 	"github.com/Prince-695/seasyn/backend/internal/config"
 	"github.com/Prince-695/seasyn/backend/internal/domain"
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
@@ -180,6 +182,8 @@ func main() {
 	adapterRegistry := registry.NewAdapterRegistry()
 	adapterRegistry.Register(domain.DBTypePostgres, pgadapter.NewAdapter())
 	adapterRegistry.Register(domain.DBTypeMongoDB, mongoadapter.NewAdapter())
+	adapterRegistry.Register(domain.DBTypeMySQL, mysqladapter.NewAdapter())
+	adapterRegistry.Register(domain.DBTypeSQLite, sqliteadapter.NewAdapter())
 
 	schemaService := editor.NewSchemaService(projectRepo, orgRepo, adapterRegistry, encryptor)
 	schemaHandler := handlers.NewSchemaHandler(schemaService)
