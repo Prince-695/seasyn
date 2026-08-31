@@ -1,4 +1,4 @@
-package mysql
+package sqlite
 
 import (
 	"context"
@@ -11,10 +11,10 @@ import (
 	apperrors "github.com/Prince-695/seasyn/backend/pkg/errors"
 )
 
-// Connection wraps an active MySQL database connection.
+// Connection wraps an active SQLite database connection.
 type Connection struct {
-	db           *sql.DB
-	databaseName string
+	db       *sql.DB
+	filePath string
 }
 
 func (c *Connection) Ping(ctx context.Context) error {
@@ -27,14 +27,14 @@ func (c *Connection) Close() error {
 
 func (c *Connection) ListTables(ctx context.Context) ([]string, error) {
 	query := `
-		SELECT table_name 
-		FROM information_schema.tables 
-		WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'
-		ORDER BY table_name ASC;
+		SELECT name 
+		FROM sqlite_master 
+		WHERE type='table' AND name NOT LIKE 'sqlite_%' 
+		ORDER BY name ASC;
 	`
 	rows, err := c.db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("list mysql tables: %w", err)
+		return nil, fmt.Errorf("list sqlite tables: %w", err)
 	}
 	defer rows.Close()
 
@@ -50,52 +50,45 @@ func (c *Connection) ListTables(ctx context.Context) ([]string, error) {
 }
 
 func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*domain.TableSchema, error) {
-	colQuery := `
-		SELECT 
-			column_name, 
-			data_type, 
-			is_nullable, 
-			column_default, 
-			character_maximum_length,
-			column_key
-		FROM information_schema.columns
-		WHERE table_schema = DATABASE() AND table_name = ?
-		ORDER BY ordinal_position ASC;
-	`
-	colRows, err := c.db.QueryContext(ctx, colQuery, tableName)
+	safeTable := sanitizeSQLiteIdentifier(tableName)
+	pragmaQuery := fmt.Sprintf("PRAGMA table_info(\"%s\");", safeTable)
+
+	rows, err := c.db.QueryContext(ctx, pragmaQuery)
 	if err != nil {
-		return nil, fmt.Errorf("query mysql columns: %w", err)
+		return nil, fmt.Errorf("pragma table_info: %w", err)
 	}
-	defer colRows.Close()
+	defer rows.Close()
 
 	var columns []domain.ColumnSchema
 	var primaryKeys []string
 
-	for colRows.Next() {
-		var col domain.ColumnSchema
-		var isNullableStr string
-		var defaultVal sql.NullString
-		var maxLen sql.NullInt64
-		var colKey string
+	for rows.Next() {
+		var cid int
+		var name, dType string
+		var notNull int
+		var dfltValue sql.NullString
+		var pk int
 
-		if err := colRows.Scan(&col.Name, &col.DataType, &isNullableStr, &defaultVal, &maxLen, &colKey); err != nil {
-			return nil, fmt.Errorf("scan column: %w", err)
+		if err := rows.Scan(&cid, &name, &dType, &notNull, &dfltValue, &pk); err != nil {
+			return nil, fmt.Errorf("scan pragma column: %w", err)
 		}
 
-		col.IsNullable = strings.ToUpper(isNullableStr) == "YES"
-		col.SeasonType = MapMySQLType(col.DataType)
-		col.IsPrimaryKey = strings.ToUpper(colKey) == "PRI"
-		if col.IsPrimaryKey {
-			primaryKeys = append(primaryKeys, col.Name)
+		isPK := pk > 0
+		if isPK {
+			primaryKeys = append(primaryKeys, name)
 		}
 
-		if defaultVal.Valid {
-			val := defaultVal.String
+		col := domain.ColumnSchema{
+			Name:         name,
+			DataType:     dType,
+			SeasonType:   MapSQLiteType(dType),
+			IsNullable:   notNull == 0,
+			IsPrimaryKey: isPK,
+		}
+
+		if dfltValue.Valid {
+			val := dfltValue.String
 			col.DefaultValue = &val
-		}
-		if maxLen.Valid {
-			l := int(maxLen.Int64)
-			col.MaxLength = &l
 		}
 
 		columns = append(columns, col)
@@ -105,9 +98,8 @@ func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*dom
 		return nil, apperrors.NotFound(fmt.Sprintf("table '%s' not found or has no columns", tableName))
 	}
 
-	// Approximate row count
 	var rowCount int64
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM `%s`", sanitizeMySQLIdentifier(tableName))
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM \"%s\"", safeTable)
 	_ = c.db.QueryRowContext(ctx, countQuery).Scan(&rowCount)
 
 	return &domain.TableSchema{
@@ -134,19 +126,14 @@ func (c *Connection) GetSchema(ctx context.Context) (*domain.DatabaseSchema, err
 	}
 
 	return &domain.DatabaseSchema{
-		DatabaseName: c.databaseName,
-		DBType:       domain.DBTypeMySQL,
+		DatabaseName: c.filePath,
+		DBType:       domain.DBTypeSQLite,
 		Tables:       tableSchemas,
 	}, nil
 }
 
 func (c *Connection) QueryRows(ctx context.Context, table string, req domain.QueryRequest) (*domain.QueryResult, error) {
-	schema, err := c.GetTableSchema(ctx, table)
-	if err != nil {
-		return nil, err
-	}
-
-	safeTable := fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(table))
+	safeTable := fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(table))
 
 	var totalRows int64
 	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM %s", safeTable)
@@ -165,20 +152,11 @@ func (c *Connection) QueryRows(ctx context.Context, table string, req domain.Que
 
 	var orderClause string
 	if req.OrderBy != "" {
-		validCol := false
-		for _, col := range schema.Columns {
-			if col.Name == req.OrderBy {
-				validCol = true
-				break
-			}
+		dir := "ASC"
+		if strings.ToUpper(req.OrderDir) == "DESC" {
+			dir = "DESC"
 		}
-		if validCol {
-			dir := "ASC"
-			if strings.ToUpper(req.OrderDir) == "DESC" {
-				dir = "DESC"
-			}
-			orderClause = fmt.Sprintf("ORDER BY `%s` %s", sanitizeMySQLIdentifier(req.OrderBy), dir)
-		}
+		orderClause = fmt.Sprintf("ORDER BY \"%s\" %s", sanitizeSQLiteIdentifier(req.OrderBy), dir)
 	}
 
 	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT %d OFFSET %d", safeTable, orderClause, req.Limit, offset)
@@ -238,13 +216,13 @@ func (c *Connection) InsertRow(ctx context.Context, table string, data map[strin
 		return nil, apperrors.BadRequest("no data provided for insert")
 	}
 
-	safeTable := fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(table))
+	safeTable := fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(table))
 	var cols []string
 	var placeholders []string
 	var args []interface{}
 
 	for k, v := range data {
-		cols = append(cols, fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(k)))
+		cols = append(cols, fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(k)))
 		placeholders = append(placeholders, "?")
 		args = append(args, v)
 	}
@@ -252,7 +230,7 @@ func (c *Connection) InsertRow(ctx context.Context, table string, data map[strin
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", safeTable, strings.Join(cols, ", "), strings.Join(placeholders, ", "))
 	res, err := c.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("insert row into mysql: %w", err)
+		return nil, fmt.Errorf("insert row into sqlite: %w", err)
 	}
 
 	if id, err := res.LastInsertId(); err == nil && id > 0 {
@@ -269,25 +247,25 @@ func (c *Connection) UpdateRow(ctx context.Context, table string, primaryKey map
 		return apperrors.BadRequest("missing primary key or update payload")
 	}
 
-	safeTable := fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(table))
+	safeTable := fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(table))
 	var setClauses []string
 	var args []interface{}
 
 	for k, v := range data {
-		setClauses = append(setClauses, fmt.Sprintf("`%s` = ?", sanitizeMySQLIdentifier(k)))
+		setClauses = append(setClauses, fmt.Sprintf("\"%s\" = ?", sanitizeSQLiteIdentifier(k)))
 		args = append(args, v)
 	}
 
 	var whereClauses []string
 	for k, v := range primaryKey {
-		whereClauses = append(whereClauses, fmt.Sprintf("`%s` = ?", sanitizeMySQLIdentifier(k)))
+		whereClauses = append(whereClauses, fmt.Sprintf("\"%s\" = ?", sanitizeSQLiteIdentifier(k)))
 		args = append(args, v)
 	}
 
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE %s", safeTable, strings.Join(setClauses, ", "), strings.Join(whereClauses, " AND "))
 	res, err := c.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("update row in mysql: %w", err)
+		return fmt.Errorf("update row in sqlite: %w", err)
 	}
 
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
@@ -301,19 +279,19 @@ func (c *Connection) DeleteRow(ctx context.Context, table string, primaryKey map
 		return apperrors.BadRequest("missing primary key")
 	}
 
-	safeTable := fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(table))
+	safeTable := fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(table))
 	var whereClauses []string
 	var args []interface{}
 
 	for k, v := range primaryKey {
-		whereClauses = append(whereClauses, fmt.Sprintf("`%s` = ?", sanitizeMySQLIdentifier(k)))
+		whereClauses = append(whereClauses, fmt.Sprintf("\"%s\" = ?", sanitizeSQLiteIdentifier(k)))
 		args = append(args, v)
 	}
 
 	query := fmt.Sprintf("DELETE FROM %s WHERE %s", safeTable, strings.Join(whereClauses, " AND "))
 	res, err := c.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("delete row in mysql: %w", err)
+		return fmt.Errorf("delete row in sqlite: %w", err)
 	}
 
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
@@ -330,7 +308,7 @@ func (c *Connection) StreamRows(ctx context.Context, table string, batchSize int
 		defer close(rowCh)
 		defer close(errCh)
 
-		safeTable := fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(table))
+		safeTable := fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(table))
 		offset := 0
 		batchIndex := 0
 
@@ -404,7 +382,7 @@ func (c *Connection) BulkInsert(ctx context.Context, table string, rows []map[st
 		return nil
 	}
 
-	safeTable := fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(table))
+	safeTable := fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(table))
 
 	var cols []string
 	for col := range rows[0] {
@@ -413,7 +391,7 @@ func (c *Connection) BulkInsert(ctx context.Context, table string, rows []map[st
 
 	var safeCols []string
 	for _, col := range cols {
-		safeCols = append(safeCols, fmt.Sprintf("`%s`", sanitizeMySQLIdentifier(col)))
+		safeCols = append(safeCols, fmt.Sprintf("\"%s\"", sanitizeSQLiteIdentifier(col)))
 	}
 
 	var valueGroups []string
@@ -437,7 +415,7 @@ func (c *Connection) BulkInsert(ctx context.Context, table string, rows []map[st
 
 	_, err := c.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("bulk insert into mysql: %w", err)
+		return fmt.Errorf("bulk insert into sqlite: %w", err)
 	}
 	return nil
 }
@@ -450,32 +428,32 @@ func (c *Connection) ExecDDL(ctx context.Context, ddl string) error {
 	return err
 }
 
-func MapMySQLType(dt string) domain.SeasonType {
+func MapSQLiteType(dt string) domain.SeasonType {
 	dt = strings.ToLower(strings.TrimSpace(dt))
 	switch {
-	case strings.Contains(dt, "tinyint(1)"), strings.Contains(dt, "bool"), strings.Contains(dt, "boolean"):
-		return domain.SeasonTypeBool
 	case strings.Contains(dt, "int"):
 		return domain.SeasonTypeInt
-	case strings.Contains(dt, "datetime"), strings.Contains(dt, "timestamp"), strings.Contains(dt, "date"):
+	case strings.Contains(dt, "char"), strings.Contains(dt, "text"), strings.Contains(dt, "clob"):
+		return domain.SeasonTypeString
+	case strings.Contains(dt, "bool"):
+		return domain.SeasonTypeBool
+	case strings.Contains(dt, "time"), strings.Contains(dt, "date"):
 		return domain.SeasonTypeTimestamp
-	case strings.Contains(dt, "float"), strings.Contains(dt, "double"):
+	case strings.Contains(dt, "real"), strings.Contains(dt, "floa"), strings.Contains(dt, "doub"):
 		return domain.SeasonTypeFloat
-	case strings.Contains(dt, "decimal"), strings.Contains(dt, "numeric"):
+	case strings.Contains(dt, "numeric"), strings.Contains(dt, "dec"):
 		return domain.SeasonTypeDecimal
 	case strings.Contains(dt, "json"):
 		return domain.SeasonTypeJSON
-	case strings.Contains(dt, "blob"), strings.Contains(dt, "binary"):
+	case strings.Contains(dt, "blob"):
 		return domain.SeasonTypeBinary
-	case strings.Contains(dt, "enum"):
-		return domain.SeasonTypeEnum
 	default:
 		return domain.SeasonTypeString
 	}
 }
 
-func sanitizeMySQLIdentifier(ident string) string {
-	ident = strings.ReplaceAll(ident, "`", "")
+func sanitizeSQLiteIdentifier(ident string) string {
+	ident = strings.ReplaceAll(ident, "\"", "")
 	ident = strings.TrimSpace(ident)
 	return ident
 }

@@ -3,6 +3,7 @@ package migration
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/domain"
@@ -93,6 +94,29 @@ func (s *Streamer) Stream(ctx context.Context, job domain.MigrationJob) error {
 		return fmt.Errorf("connect to target: %w", err)
 	}
 	defer dstConn.Close()
+
+	// 7b. Auto-provision target table schema if relational target and table does not exist
+	if dstConnMeta.DBType != domain.DBTypeMongoDB {
+		tables, _ := dstConn.ListTables(ctx)
+		targetExists := false
+		for _, t := range tables {
+			if strings.EqualFold(t, job.TargetTable) {
+				targetExists = true
+				break
+			}
+		}
+		if !targetExists {
+			srcSchema, err := srcConn.GetTableSchema(ctx, job.SourceTable)
+			if err == nil && srcSchema != nil {
+				transformed := TransformSchema(*srcSchema, srcConnMeta.DBType, dstConnMeta.DBType)
+				transformed.TableName = job.TargetTable
+				ddl := GenerateTargetDDL(transformed)
+				if ddl != "" {
+					_ = dstConn.ExecDDL(ctx, ddl)
+				}
+			}
+		}
+	}
 
 	// 8. Stream rows via channel pipeline
 	batchSize := job.BatchSize

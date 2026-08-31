@@ -593,6 +593,14 @@ func (c *Connection) BulkInsert(ctx context.Context, table string, rows []map[st
 	return nil
 }
 
+func (c *Connection) ExecDDL(ctx context.Context, ddl string) error {
+	if strings.TrimSpace(ddl) == "" {
+		return nil
+	}
+	_, err := c.db.ExecContext(ctx, ddl)
+	return err
+}
+
 // sanitizeIdentifier prevents SQL injection on table and column identifiers by double quoting.
 func sanitizeIdentifier(ident string) string {
 	ident = strings.ReplaceAll(ident, "\"", "")

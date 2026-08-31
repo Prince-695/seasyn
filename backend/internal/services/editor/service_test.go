@@ -66,6 +66,9 @@ func (m *mockDBConn) StreamRows(ctx context.Context, table string, batchSize int
 func (m *mockDBConn) BulkInsert(ctx context.Context, table string, rows []map[string]interface{}) error {
 	return nil
 }
+func (m *mockDBConn) ExecDDL(ctx context.Context, ddl string) error {
+	return nil
+}
 func (m *mockDBConn) Close() error { return nil }
 
 // Mock Adapter
