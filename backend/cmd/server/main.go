@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/adapters"
+	mongoadapter "github.com/Prince-695/seasyn/backend/internal/adapters/mongodb"
 	pgadapter "github.com/Prince-695/seasyn/backend/internal/adapters/postgres"
 	"github.com/Prince-695/seasyn/backend/internal/adapters/registry"
 	"github.com/Prince-695/seasyn/backend/internal/config"
@@ -178,6 +179,7 @@ func main() {
 
 	adapterRegistry := registry.NewAdapterRegistry()
 	adapterRegistry.Register(domain.DBTypePostgres, pgadapter.NewAdapter())
+	adapterRegistry.Register(domain.DBTypeMongoDB, mongoadapter.NewAdapter())
 
 	schemaService := editor.NewSchemaService(projectRepo, orgRepo, adapterRegistry, encryptor)
 	schemaHandler := handlers.NewSchemaHandler(schemaService)
