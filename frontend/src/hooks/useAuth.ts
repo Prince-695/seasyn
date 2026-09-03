@@ -18,20 +18,19 @@ export function useAuth() {
   // the browser attaches them automatically on every request without JS touching them.
   const hasLocalUser = !!localStorage.getItem("user")
   const hasPendingOAuth = !!sessionStorage.getItem("oauth_pending")
+  const isDashboard = window.location.pathname.startsWith("/dashboard")
 
   const { data, isSuccess, isError, isLoading } = useQuery({
     queryKey: ["userProfile"],
     queryFn: async () => {
       const response = await authApi.me()
-      return response.user || response.data?.user || response.data || response
+      return response.data ?? response.user ?? null
     },
-    // Only fire when localStorage has a user OR if we just returned from OAuth.
-    enabled: hasLocalUser || hasPendingOAuth,
-    // staleTime: 0 forces a fresh /auth/me on every mount (page refresh).
-    // This prevents a stale TanStack Query cache from keeping isSuccess=true
-    // after tokens have been invalidated server-side.
+
+    // Fire when localStorage has a user, or returning from OAuth, or landing on /dashboard
+    enabled: hasLocalUser || hasPendingOAuth || isDashboard,
     staleTime: 0,
-    retry: false, // Don't retry on 401 — the Axios interceptor handles token refresh → retry
+    retry: false,
   })
 
   // Sync TanStack Query result into Zustand for global UI consumption
@@ -41,7 +40,15 @@ export function useAuth() {
       sessionStorage.removeItem("oauth_pending")
     }
 
-    if (isSuccess && data) {
+    const currentHasLocal = !!localStorage.getItem("user")
+    const currentHasOAuth = !!sessionStorage.getItem("oauth_pending")
+    const onDashboard = window.location.pathname.startsWith("/dashboard")
+
+    if (
+      isSuccess &&
+      data &&
+      (currentHasLocal || currentHasOAuth || onDashboard)
+    ) {
       setAuth(data)
       setInitialized(true)
     } else if (isError) {
@@ -49,11 +56,11 @@ export function useAuth() {
       // Clear everything so the user is redirected to /sign-in.
       clearAuth()
       setInitialized(true)
-    } else if (!hasLocalUser && !hasPendingOAuth) {
-      // No localStorage user AND no pending OAuth → unauthenticated, no network call needed.
+    } else if (!currentHasLocal && !currentHasOAuth && !onDashboard) {
+      // No localStorage user, no pending OAuth, not dashboard → unauthenticated
       setInitialized(true)
     }
-  }, [isSuccess, isError, data, setAuth, clearAuth, setInitialized, hasLocalUser, hasPendingOAuth])
+  }, [isSuccess, isError, data, setAuth, clearAuth, setInitialized])
 
   return { user, isAuthenticated, isInitialized, isLoading }
 }

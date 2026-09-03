@@ -12,3 +12,5 @@ build/
 
 temp/
 
+phase*.md
+*.zip

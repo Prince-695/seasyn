@@ -38,7 +38,7 @@ export function OAuthSuccess() {
         //   • set HttpOnly access_token + refresh_token cookies
         // So a simple /auth/me call is all we need.
         const meRes = await authApi.me()
-        const user = meRes.user ?? meRes.data?.user ?? meRes.data ?? meRes
+        const user = meRes.data ?? meRes.user
 
         if (!user?.id && !user?.email) {
           throw new Error(
@@ -64,7 +64,6 @@ export function OAuthSuccess() {
           navigate("/dashboard", { replace: true })
         }
       } catch (err) {
-        console.error("[OAuthSuccess] Authentication failed:", err)
         setError(
           err instanceof Error
             ? err.message
@@ -101,7 +100,7 @@ export function OAuthSuccess() {
       <Loader2 className="mb-4 h-10 w-10 animate-spin text-primary" />
       <p className="text-lg font-medium text-muted-foreground">
         Completing sign-in with{" "}
-        <span className="capitalize text-foreground">{provider}</span>...
+        <span className="text-foreground capitalize">{provider}</span>...
       </p>
     </div>
   )

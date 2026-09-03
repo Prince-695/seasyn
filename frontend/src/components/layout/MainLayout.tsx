@@ -11,11 +11,11 @@ export function MainLayout() {
   const handleLogout = async () => {
     try {
       await authApi.logout()
-    } catch (error) {
-      console.error("Failed to call backend logout:", error)
+    } catch {
+      // Backend logout failed (e.g. offline) - proceed with client clearance
     } finally {
       clearAuth()
-      navigate("/sign-in")
+      navigate("/sign-in", { replace: true })
     }
   }
 

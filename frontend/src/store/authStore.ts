@@ -1,10 +1,6 @@
 import { create } from "zustand"
 import type { AuthState, User } from "@/types"
-
-console.log(
-  "[AuthStore] Initializing store. User localStorage:",
-  localStorage.getItem("user")
-)
+import { queryClient } from "@/lib/queryClient"
 
 const getInitialUser = (): User | null => {
   try {
@@ -15,25 +11,23 @@ const getInitialUser = (): User | null => {
   }
 }
 
+const initialUser = getInitialUser()
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: getInitialUser(),
-  isAuthenticated: !!getInitialUser(),
-  isInitialized: false, // Will be set to true by useAuth hook after verifying with backend
+  user: initialUser,
+  isAuthenticated: !!initialUser,
+  isInitialized: false,
 
   setAuth: (user) => {
-    console.log("[AuthStore] setAuth called with user:", user)
     localStorage.setItem("user", JSON.stringify(user))
+    localStorage.setItem("is_logged_in", "true")
     set({ user, isAuthenticated: true, isInitialized: true })
   },
 
   clearAuth: () => {
-    console.warn("[AuthStore] clearAuth triggered! Stack trace:")
-    console.trace()
-    // Clear the JS-accessible localStorage entry so the store doesn't
-    // re-hydrate a stale user on the next page load.
-    // NOTE: HttpOnly cookies (access_token, refresh_token) can only be
-    // cleared by the backend via Set-Cookie — call /auth/logout for that.
     localStorage.removeItem("user")
+    localStorage.removeItem("is_logged_in")
+    queryClient.clear()
     set({
       user: null,
       isAuthenticated: false,
@@ -41,8 +35,5 @@ export const useAuthStore = create<AuthState>((set) => ({
     })
   },
 
-  setInitialized: (status) => {
-    console.log("[AuthStore] setInitialized called with status:", status)
-    set({ isInitialized: status })
-  },
+  setInitialized: (status) => set({ isInitialized: status }),
 }))

@@ -13,10 +13,13 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
     <div className="grid min-h-screen">
       <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12 lg:px-12">
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full max-w-lg space-y-6 rounded-lg border border-border/50 bg-card/40 p-8 shadow-lg backdrop-blur-sm transition-all duration-300"
+          transition={{
+            duration: 0.35,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          className="w-full max-w-lg space-y-6 rounded-lg border border-border/50 bg-card/40 p-8 shadow-lg backdrop-blur-sm"
         >
           {/* Logo */}
           <div className="flex flex-col items-center">

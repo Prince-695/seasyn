@@ -6,10 +6,11 @@ import {
   ForgotPass,
   ResetPass,
   OAuthSuccess,
+  VerifyEmail,
   Dashboard,
 } from "@/pages"
 import { ProtectedRoute } from "./ProtectedRoute"
-import { MainLayout } from "@/layouts/MainLayout"
+import { MainLayout, ComingSoon } from "@/components/layout"
 
 export const router = createBrowserRouter(
   [
@@ -33,6 +34,12 @@ export const router = createBrowserRouter(
       path: "/reset-password",
       element: <ResetPass />,
     },
+    // Email verification — must be public so unverified users can access it
+    // after sign-up or on first sign-in before verifying their account.
+    {
+      path: "/verify-email",
+      element: <VerifyEmail />,
+    },
     // OAuth callback — must be outside ProtectedRoute so the unauthenticated
     // popup window can render it and exchange the code before postMessage-ing
     // back to the parent.
@@ -40,6 +47,7 @@ export const router = createBrowserRouter(
       path: "/auth/:provider/callback",
       element: <OAuthSuccess />,
     },
+
     {
       path: "/",
       element: <ProtectedRoute />,
@@ -54,13 +62,7 @@ export const router = createBrowserRouter(
             },
             {
               path: "profile",
-              element: (
-                <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-                  <h1 className="text-4xl font-bold">
-                    Profile Page (Coming Soon)
-                  </h1>
-                </div>
-              ),
+              element: <ComingSoon title="Profile" />,
             },
           ],
         },
@@ -68,26 +70,18 @@ export const router = createBrowserRouter(
     },
     {
       path: "/docs",
-      element: (
-        <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-          <h1 className="text-4xl font-bold">Docs Page (Coming Soon)</h1>
-        </div>
-      ),
+      element: <ComingSoon title="Docs" />,
     },
     {
       path: "/migration",
-      element: (
-        <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-          <h1 className="text-4xl font-bold">Migration Page (Coming Soon)</h1>
-        </div>
-      ),
+      element: <ComingSoon title="Migration" />,
     },
   ],
+
   {
     // Opt into React Router v7 behaviour early to silence deprecation warnings.
     // future: { v7_startTransition: true },
   }
 )
-
 
 export default router

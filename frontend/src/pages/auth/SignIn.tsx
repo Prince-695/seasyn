@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
-import { AuthLayout } from "@/layouts/AuthLayout"
+import { AuthLayout } from "@/components/layout"
 import { LoginForm, OAuthButtons } from "@/components/auth"
+
+import { AlertCircle } from "lucide-react"
 
 export function SignIn() {
   const navigate = useNavigate()
@@ -22,8 +24,9 @@ export function SignIn() {
       description="Enter your credentials to access your account"
     >
       {serverError && (
-        <div className="animate-pulse rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-center text-sm font-medium text-destructive">
-          {serverError}
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{serverError}</span>
         </div>
       )}
 

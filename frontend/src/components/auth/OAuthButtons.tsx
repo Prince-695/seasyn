@@ -23,8 +23,7 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
 
       // Redirect the current window to the provider's login page
       window.location.href = urlRes.data.auth_url
-    } catch (err) {
-      console.error("[OAuthButtons] Initialization error:", err)
+    } catch {
       onError("An error occurred during OAuth initialization.")
     }
   }

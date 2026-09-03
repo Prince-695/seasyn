@@ -8,11 +8,12 @@
 import type { DBType, DBTypeMeta } from "@/types"
 
 export const dbTypeMapping: Record<DBType, DBTypeMeta> = {
-  postgresql: {
+  postgres: {
     displayName: "PostgreSQL",
     colorClass: "text-blue-500",
     bgColorClass: "bg-blue-500/10",
   },
+
   mysql: {
     displayName: "MySQL",
     colorClass: "text-orange-500",

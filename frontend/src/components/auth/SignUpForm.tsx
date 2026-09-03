@@ -5,9 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react"
 import { registerSchema } from "@/lib/validators"
 import type { RegisterInput } from "@/lib/validators"
-import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
-import type { SignupPayload } from "@/types"
+import { useAuthStore } from "@/store/authStore"
+import type { SignupPayload, User } from "@/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -44,20 +44,34 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
 
       const response = await authApi.register(signupPayload)
 
-      // Auto-login after successful registration (since cookies handle token)
-      const user = response.user || {
-        id: "authenticated-user",
-        email: data.email,
-        name: `${data.firstName} ${data.lastName}`,
+      // The backend sets session cookies upon registration.
+      const registeredUser: User = response.data ??
+        response.user ?? {
+          id: "registered-user",
+          email: data.email,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          is_verified: false,
+        }
+      setAuth(registeredUser)
+
+      // Dispatch the OTP verification email via POST /v1/auth/otp/send
+      try {
+        await authApi.sendOtp()
+      } catch {
+        // Non-blocking: user can trigger resend on the /verify-email screen
       }
 
-      setAuth(user)
-      navigate("/dashboard", { replace: true })
+      // Navigate to email verification screen
+      navigate("/verify-email", {
+        replace: true,
+        state: { email: data.email },
+      })
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setServerError(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
+          err.response?.data?.message ??
+            err.response?.data?.error ??
             "Registration failed. Please try again."
         )
       } else {

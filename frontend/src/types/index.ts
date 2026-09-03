@@ -1,8 +1,19 @@
 import type { ReactNode } from "react"
 
+// ─── Core User & Auth Types ───────────────────────────────────────────────────
+// Matches the Go backend `domain.User` response exactly.
+
 export interface User {
   id: string
   email: string
+  first_name: string
+  last_name: string
+  username?: string
+  avatar_url?: string
+  is_verified: boolean
+  created_at?: string
+  updated_at?: string
+  // Derived convenience getter used in UI
   name?: string
 }
 
@@ -15,20 +26,20 @@ export interface AuthState {
   setInitialized: (status: boolean) => void
 }
 
-export interface SignupPayload {
-  email: string
-  password: string
-  first_name: string
-  last_name: string
-}
+// Re-export API wire types for backward compatibility
+export type { SignupPayload } from "@/api/types"
 
-export type DBType = "postgresql" | "mysql" | "mongodb" | "sqlite"
+// ─── Database Types ───────────────────────────────────────────────────────────
+
+export type DBType = "postgres" | "mysql" | "mongodb" | "sqlite"
 
 export interface DBTypeMeta {
   displayName: string
-  colorClass: string // Tailwind text color
-  bgColorClass: string // Tailwind background color
+  colorClass: string
+  bgColorClass: string
 }
+
+// ─── Component Prop Types ─────────────────────────────────────────────────────
 
 export interface ProtectedRouteProps {
   children?: ReactNode

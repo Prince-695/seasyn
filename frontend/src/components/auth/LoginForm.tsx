@@ -10,6 +10,7 @@ import { authApi } from "@/api/auth"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import type { User } from "@/types"
 import axios from "axios"
 
 interface LoginFormProps {
@@ -38,17 +39,47 @@ export function LoginForm({ setServerError }: LoginFormProps) {
   const onSubmit = async (data: LoginInput) => {
     try {
       setServerError(null)
-      const response = await authApi.login(data)
-      console.log("[LoginForm] login API response:", response)
+      await authApi.login(data)
 
-      // Fallback to email credentials if the backend does not return user details in JSON
-      const user = response.user || {
-        id: "authenticated-user",
-        email: data.email,
-        name: data.email.split("@")[0],
+      // The backend does not return user details in POST /v1/auth/login,
+      // so we query GET /v1/auth/me immediately to obtain the true is_verified status
+      let user: User
+      try {
+        const meRes = await authApi.me()
+        user = meRes.data ??
+          meRes.user ?? {
+            id: "authenticated-user",
+            email: data.email,
+            first_name: data.email.split("@")[0],
+            last_name: "",
+            is_verified: true,
+          }
+      } catch {
+        user = {
+          id: "authenticated-user",
+          email: data.email,
+          first_name: data.email.split("@")[0],
+          last_name: "",
+          is_verified: true,
+        }
       }
 
       setAuth(user)
+
+      // If user account is not verified, dispatch OTP and route to /verify-email
+      if (user.is_verified === false) {
+        try {
+          await authApi.sendOtp()
+        } catch {
+          // Non-blocking: user can manually trigger resend on /verify-email
+        }
+        navigate("/verify-email", {
+          replace: true,
+          state: { email: user.email },
+        })
+        return
+      }
+
       navigate(from, { replace: true })
     } catch (err) {
       if (axios.isAxiosError(err)) {

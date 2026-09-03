@@ -24,8 +24,8 @@ export const Navbar = () => {
   const handleLogout = async () => {
     try {
       await authApi.logout()
-    } catch (error) {
-      console.error("Failed to call backend logout:", error)
+    } catch {
+      // Backend logout failed (e.g. offline) - proceed with client clearance
     } finally {
       clearAuth()
       setIsMobileMenuOpen(false)

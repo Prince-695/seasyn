@@ -16,8 +16,9 @@ import {
 import { resetPasswordSchema } from "@/lib/validators"
 import type { ResetPasswordInput } from "@/lib/validators"
 import { authApi } from "@/api/auth"
-import { AuthLayout } from "@/layouts/AuthLayout"
+import { AuthLayout } from "@/components/layout"
 import { Input } from "@/components/ui/input"
+
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import axios from "axios"
@@ -80,8 +81,9 @@ export function ResetPass() {
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div className="animate-pulse rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-center text-sm font-medium text-destructive">
-              {serverError}
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{serverError}</span>
             </div>
           )}
 
