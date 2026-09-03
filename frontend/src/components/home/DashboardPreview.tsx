@@ -20,9 +20,9 @@ export const DashboardPreview = ({
             <p className="text-sm">{description}</p>
           </div>
           <div className="absolute top-4 left-4 flex gap-2">
-            <div className="h-3 w-3 rounded-full bg-chart-4" />
-            <div className="h-3 w-3 rounded-full bg-chart-3" />
-            <div className="h-3 w-3 rounded-full bg-chart-2" />
+            <div className="h-3 w-3 rounded-full bg-mac-close" />
+            <div className="h-3 w-3 rounded-full bg-mac-minimize" />
+            <div className="h-3 w-3 rounded-full bg-mac-maximize" />
           </div>
         </div>
         <div className="absolute -inset-4 -z-10 rounded-[40px] bg-primary/5 opacity-0 blur-3xl transition-opacity group-hover:opacity-100" />

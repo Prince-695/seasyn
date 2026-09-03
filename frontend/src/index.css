@@ -23,8 +23,19 @@
   --accent-foreground: #171717;
   --destructive: #e7000b;
   --destructive-foreground: #ffffff;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
   --border: #e5e5e5;
   --input: #e5e5e5;
+  --mac-close: #ff5f56;
+  --mac-minimize: #ffbd2e;
+  --mac-maximize: #27c93f;
+
+
   --ring: #a1a1a1;
   --chart-1: #91c5ff;
   --chart-2: #3a81f6;
@@ -78,8 +89,19 @@
   --accent-foreground: #fafafa;
   --destructive: #ff6467;
   --destructive-foreground: #fafafa;
+  --success: #34d399;
+  --success-foreground: #064e3b;
+  --warning: #fbbf24;
+  --warning-foreground: #78350f;
+  --info: #60a5fa;
+  --info-foreground: #1e3a8a;
   --border: #282828;
   --input: #343434;
+  --mac-close: #ff5f56;
+  --mac-minimize: #ffbd2e;
+  --mac-maximize: #27c93f;
+
+
   --ring: #737373;
   --chart-1: #91c5ff;
   --chart-2: #3a81f6;
@@ -131,7 +153,18 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
+  --color-mac-close: var(--mac-close);
+  --color-mac-minimize: var(--mac-minimize);
+  --color-mac-maximize: var(--mac-maximize);
+
+
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);

@@ -6,7 +6,8 @@ import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react"
 import { loginSchema } from "@/lib/validators"
 import type { LoginInput } from "@/lib/validators"
 import { useAuthStore } from "@/store/authStore"
-import { authApi } from "@/api/auth"
+import { authApi, userApi } from "@/api/auth"
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -41,19 +42,25 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       setServerError(null)
       await authApi.login(data)
 
-      // The backend does not return user details in POST /v1/auth/login,
-      // so we query GET /v1/auth/me immediately to obtain the true is_verified status
+      // Query profile and verification status
       let user: User
       try {
-        const meRes = await authApi.me()
-        user = meRes.data ??
-          meRes.user ?? {
-            id: "authenticated-user",
-            email: data.email,
-            first_name: data.email.split("@")[0],
-            last_name: "",
-            is_verified: true,
-          }
+        const profileRes = await userApi.getMyProfile()
+        const profile = profileRes.data
+        const meRes = await authApi.me().catch(() => null)
+        const isVerified =
+          profile?.is_verified ??
+          (meRes?.data as { is_verified?: boolean } | undefined)?.is_verified ??
+          true
+
+        user = {
+          id: (profile as unknown as { id?: string })?.id ?? data.email,
+          email: profile?.email || data.email,
+          first_name: profile?.first_name || data.email.split("@")[0],
+          last_name: profile?.last_name || "",
+          username: profile?.username || "",
+          is_verified: isVerified,
+        }
       } catch {
         user = {
           id: "authenticated-user",

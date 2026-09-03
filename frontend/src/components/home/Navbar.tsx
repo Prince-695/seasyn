@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom"
-import { Sun, Moon, Menu, User } from "lucide-react"
+import { Sun, Moon, Menu } from "lucide-react"
 import { useTheme } from "../theme-provider"
 import { useState } from "react"
 import { Button } from "../ui/button"
@@ -98,12 +98,19 @@ export const Navbar = () => {
                   className="flex items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-1.5 transition-colors hover:bg-muted"
                 >
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                    {user?.name?.[0]?.toUpperCase() || (
-                      <User className="h-3.5 w-3.5" />
-                    )}
+                    {(
+                      user?.first_name?.[0] ||
+                      user?.name?.[0] ||
+                      user?.username?.[0] ||
+                      user?.email?.[0] ||
+                      "U"
+                    ).toUpperCase()}
                   </div>
                   <span className="text-xs font-medium text-foreground">
-                    {user?.name ? user.name.split(" ")[0] : user?.email}
+                    {user?.first_name ||
+                      (user?.name ? user.name.split(" ")[0] : null) ||
+                      (user?.username ? `@${user.username}` : null) ||
+                      (user?.email ? user.email.split("@")[0] : "User")}
                   </span>
                 </NavLink>
                 <Button

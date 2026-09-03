@@ -250,10 +250,11 @@ export function ResetPass() {
       <Dialog open={isSuccessOpen}>
         <DialogContent className="space-y-5 py-6 text-center">
           <div className="flex justify-center">
-            <div className="rounded-full bg-emerald-500/10 p-4 dark:bg-emerald-500/20">
-              <CheckCircle2 className="h-14 w-14 text-emerald-500" />
+            <div className="rounded-full bg-success/10 p-4">
+              <CheckCircle2 className="h-14 w-14 text-success" />
             </div>
           </div>
+
           <DialogHeader className="space-y-2 text-center sm:text-center">
             <DialogTitle className="text-center text-2xl font-bold tracking-tight text-primary">
               Password Updated!

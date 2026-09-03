@@ -44,3 +44,6 @@ export interface DBTypeMeta {
 export interface ProtectedRouteProps {
   children?: ReactNode
 }
+
+// ─── Organization & RBAC Types ────────────────────────────────────────────────
+export * from "./org"

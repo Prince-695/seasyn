@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sun, Moon, User } from "lucide-react"
+import { Sun, Moon } from "lucide-react"
 import { Button } from "../ui/button"
+
 import type { Theme } from "../theme-provider"
 
 interface NavItem {
@@ -14,7 +15,12 @@ interface NavbarMobileProps {
   onClose: () => void
   navItems: NavItem[]
   isAuthenticated: boolean
-  user: { name?: string; email: string } | null
+  user: {
+    name?: string
+    first_name?: string
+    username?: string
+    email: string
+  } | null
   handleLogout: () => void
   theme: Theme
   setTheme: (theme: Theme) => void
@@ -64,14 +70,22 @@ export const NavbarMobile = ({
                     className="flex items-center gap-2 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted"
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      {user?.name?.[0]?.toUpperCase() || (
-                        <User className="h-4 w-4" />
-                      )}
+                      {(
+                        user?.first_name?.[0] ||
+                        user?.name?.[0] ||
+                        user?.username?.[0] ||
+                        user?.email?.[0] ||
+                        "U"
+                      ).toUpperCase()}
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {user?.name ? user.name.split(" ")[0] : user?.email}
+                      {user?.first_name ||
+                        (user?.name ? user.name.split(" ")[0] : null) ||
+                        (user?.username ? `@${user.username}` : null) ||
+                        (user?.email ? user.email.split("@")[0] : "User")}
                     </span>
                   </NavLink>
+
                   <Button
                     variant="outline"
                     className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive"

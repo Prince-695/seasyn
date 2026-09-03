@@ -71,21 +71,43 @@ export const authApi = {
   },
 
   getProfile: async (): Promise<ApiResponse<User>> => {
-    const response = await apiClient.get("/user/profile")
+    const response = await apiClient.get("/users/me")
     return response.data
   },
 
   updateProfile: async (
     data: UpdateProfilePayload
   ): Promise<ApiResponse<User>> => {
-    const response = await apiClient.put("/user/profile", data)
+    const response = await apiClient.put("/users/update", data)
     return response.data
   },
 }
 
 export const userApi = {
   getMyProfile: async (): Promise<ApiResponse<User>> => {
-    const response = await apiClient.get("/user/me")
+    const response = await apiClient.get("/users/me")
+    return response.data
+  },
+
+  setUsername: async (username: string): Promise<ApiResponse<null>> => {
+    const response = await apiClient.post("/users/username", { username })
+    return response.data
+  },
+
+  checkUsername: async (
+    username: string
+  ): Promise<ApiResponse<{ available: boolean }>> => {
+    const response = await apiClient.get(
+      `/users/username?u=${encodeURIComponent(username)}`
+    )
+    return response.data
+  },
+
+  updateProfile: async (data: {
+    first_name: string
+    last_name: string
+  }): Promise<ApiResponse<User>> => {
+    const response = await apiClient.put("/users/update", data)
     return response.data
   },
 }

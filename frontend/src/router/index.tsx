@@ -8,7 +8,11 @@ import {
   OAuthSuccess,
   VerifyEmail,
   Dashboard,
+  MembersPage,
+  OrgSettingsPage,
+  ProfilePage,
 } from "@/pages"
+
 import { ProtectedRoute } from "./ProtectedRoute"
 import { MainLayout, ComingSoon } from "@/components/layout"
 
@@ -61,20 +65,32 @@ export const router = createBrowserRouter(
               element: <Dashboard />,
             },
             {
+              path: "org/members",
+              element: <MembersPage />,
+            },
+            {
+              path: "org/settings",
+              element: <OrgSettingsPage />,
+            },
+            {
+              path: "migration",
+              element: <ComingSoon title="Migration Studio" />,
+            },
+            {
+              path: "editor",
+              element: <ComingSoon title="Live Schema Editor" />,
+            },
+            {
+              path: "docs",
+              element: <ComingSoon title="Documentation & API Guides" />,
+            },
+            {
               path: "profile",
-              element: <ComingSoon title="Profile" />,
+              element: <ProfilePage />,
             },
           ],
         },
       ],
-    },
-    {
-      path: "/docs",
-      element: <ComingSoon title="Docs" />,
-    },
-    {
-      path: "/migration",
-      element: <ComingSoon title="Migration" />,
     },
   ],
 

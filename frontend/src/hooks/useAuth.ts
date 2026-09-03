@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useAuthStore } from "@/store/authStore"
-import { authApi } from "@/api/auth"
+import { authApi, userApi } from "@/api/auth"
 import { useQuery } from "@tanstack/react-query"
 
 export function useAuth() {
@@ -23,8 +23,32 @@ export function useAuth() {
   const { data, isSuccess, isError, isLoading } = useQuery({
     queryKey: ["userProfile"],
     queryFn: async () => {
-      const response = await authApi.me()
-      return response.data ?? response.user ?? null
+      const authRes = await authApi.me()
+      const authData = authRes.data as { is_verified?: boolean } | undefined
+
+      try {
+        const profileRes = await userApi.getMyProfile()
+        const profile = profileRes.data
+        if (profile) {
+          return {
+            ...profile,
+            id: (profile as unknown as { id?: string }).id ?? profile.email,
+            is_verified: profile.is_verified ?? authData?.is_verified ?? true,
+          }
+        }
+      } catch {
+        // If /users/me fails but /auth/me succeeded
+      }
+
+      return authData
+        ? {
+            id: "authenticated-user",
+            email: "",
+            first_name: "",
+            last_name: "",
+            is_verified: authData.is_verified ?? true,
+          }
+        : null
     },
 
     // Fire when localStorage has a user, or returning from OAuth, or landing on /dashboard
