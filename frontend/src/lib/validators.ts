@@ -42,20 +42,77 @@ export const otpVerificationSchema = z.object({
     .regex(/^\d+$/, { message: "OTP must only contain digits" }),
 })
 
-export const connectionConfigSchema = z.object({
-  dbType: z.enum(["postgres", "mysql", "mongodb", "sqlite"]),
-  host: z.string().min(1, "Host is required").optional(),
-  port: z.number().int().positive().optional(),
-  user: z.string().min(1, "User is required").optional(),
-  password: z.string().optional(),
-  database: z.string().min(1, "Database name is required").optional(),
-  filePath: z.string().optional(),
+export const createProjectSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Project name must be at least 2 characters" })
+    .max(100, { message: "Project name cannot exceed 100 characters" }),
+  slug: z
+    .string()
+    .min(2, { message: "Slug must be at least 2 characters" })
+    .max(50, { message: "Slug cannot exceed 50 characters" })
+    .regex(/^[a-z0-9-]+$/, {
+      message: "Slug must contain only lowercase letters, numbers, and hyphens",
+    })
+    .optional()
+    .or(z.literal("")),
+  description: z.string().max(500).optional(),
+  environment: z
+    .enum(["development", "staging", "production"])
+    .default("development"),
 })
 
-export const projectSchema = z.object({
-  name: z.string().min(1, "Project name is required"),
-  description: z.string().optional(),
+export const updateProjectSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Project name must be at least 2 characters" })
+    .max(100),
+  description: z.string().max(500).optional(),
+  environment: z.enum(["development", "staging", "production"]).optional(),
 })
+
+export const databaseConnectionSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, { message: "Connection name must be at least 2 characters" })
+      .max(100),
+    db_type: z.enum(["postgres", "mysql", "mongodb", "sqlite"]),
+    host: z.string().optional(),
+    port: z.coerce.number().int().positive().optional(),
+    database: z.string().optional(),
+    username: z.string().optional(),
+    password: z.string().optional(),
+    ssl_mode: z
+      .enum(["disable", "require", "verify-ca", "verify-full", "prefer"])
+      .default("disable"),
+    file_path: z.string().optional(),
+    uri: z.string().optional(),
+    is_source: z.boolean().default(true),
+  })
+  .refine(
+    (data) => {
+      if (data.db_type === "sqlite") {
+        return !!data.file_path && data.file_path.trim().length > 0
+      }
+      if (
+        data.db_type === "mongodb" &&
+        data.uri &&
+        data.uri.trim().length > 0
+      ) {
+        return true
+      }
+      return !!data.host && !!data.database
+    },
+    {
+      message:
+        "Please provide either a valid SQLite file path, MongoDB URI, or Host & Database details.",
+      path: ["host"],
+    }
+  )
+
+export const projectSchema = createProjectSchema
+export const connectionConfigSchema = databaseConnectionSchema
 
 export const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),

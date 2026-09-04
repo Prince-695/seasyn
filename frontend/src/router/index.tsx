@@ -11,6 +11,7 @@ import {
   MembersPage,
   OrgSettingsPage,
   ProfilePage,
+  ProjectsListPage,
 } from "@/pages"
 
 import { ProtectedRoute } from "./ProtectedRoute"
@@ -64,6 +65,11 @@ export const router = createBrowserRouter(
               path: "dashboard",
               element: <Dashboard />,
             },
+            {
+              path: "projects",
+              element: <ProjectsListPage />,
+            },
+
             {
               path: "org/members",
               element: <MembersPage />,

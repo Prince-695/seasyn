@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
+  FolderKanban,
   ArrowRightLeft,
   Database,
   Users,
@@ -47,6 +48,13 @@ export function Sidebar() {
           icon: LayoutDashboard,
           badge: null,
         },
+        {
+          label: "Projects",
+          path: "/projects",
+          icon: FolderKanban,
+          badge: null,
+        },
+
         {
           label: "Migration Studio",
           path: "/migration",
