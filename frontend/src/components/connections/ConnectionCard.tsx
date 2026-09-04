@@ -88,18 +88,18 @@ export function ConnectionCard({
 
   return (
     <>
-      <div className="group relative flex flex-col justify-between rounded-xl border border-border/80 bg-card p-5 transition-all duration-200 hover:border-border hover:shadow-md">
+      <div className="group border-border/80 bg-card hover:border-border relative flex flex-col justify-between rounded-xl border p-5 transition-all duration-200 hover:shadow-md">
         {/* Card Header */}
         <div>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border/80 bg-muted/30 transition-colors group-hover:border-primary/20">
+              <div className="border-border/80 bg-muted/30 group-hover:border-primary/20 flex h-11 w-11 items-center justify-center rounded-xl border transition-colors">
                 <EngineIcon type={connection.db_type} className="h-6 w-6" />
               </div>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="line-clamp-1 font-semibold tracking-tight text-foreground">
+                  <h3 className="text-foreground line-clamp-1 font-semibold tracking-tight">
                     {connection.name}
                   </h3>
                 </div>
@@ -127,7 +127,7 @@ export function ConnectionCard({
                   {connection.ssl_mode && connection.ssl_mode !== "disable" && (
                     <Badge
                       variant="outline"
-                      className="flex items-center gap-1 border-muted-foreground/20 px-1.5 py-0 text-[10px] text-muted-foreground"
+                      className="border-muted-foreground/20 text-muted-foreground flex items-center gap-1 px-1.5 py-0 text-[10px]"
                     >
                       <Lock className="h-2.5 w-2.5" />
                       <span>{connection.ssl_mode}</span>
@@ -143,7 +143,7 @@ export function ConnectionCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground h-8 w-8"
                     aria-label="Connection actions"
                   />
                 }
@@ -155,7 +155,7 @@ export function ConnectionCard({
                   onClick={handleTestPing}
                   className="cursor-pointer gap-2"
                 >
-                  <Activity className="h-4 w-4 text-primary" />
+                  <Activity className="text-primary h-4 w-4" />
                   <span>Test Connection</span>
                 </DropdownMenuItem>
 
@@ -164,7 +164,7 @@ export function ConnectionCard({
                     onClick={() => onInspectSchema(connection)}
                     className="cursor-pointer gap-2"
                   >
-                    <Database className="h-4 w-4 text-info" />
+                    <Database className="text-info h-4 w-4" />
                     <span>Explore Schema</span>
                   </DropdownMenuItem>
                 )}
@@ -173,7 +173,7 @@ export function ConnectionCard({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                    className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer gap-2"
                   >
                     <Trash2 className="h-4 w-4" />
                     <span>Delete Connection</span>
@@ -184,32 +184,32 @@ export function ConnectionCard({
           </div>
 
           {/* Connection Endpoint Details */}
-          <div className="mt-4 space-y-1.5 rounded-lg border border-border/60 bg-muted/20 p-3 font-mono text-xs">
+          <div className="border-border/60 bg-muted/20 mt-4 space-y-1.5 rounded-lg border p-3 font-mono text-xs">
             {connection.db_type === "sqlite" ? (
-              <div className="flex items-center gap-2 truncate text-muted-foreground">
-                <HardDrive className="h-3.5 w-3.5 shrink-0 text-warning" />
-                <span className="truncate text-foreground">
+              <div className="text-muted-foreground flex items-center gap-2 truncate">
+                <HardDrive className="text-warning h-3.5 w-3.5 shrink-0" />
+                <span className="text-foreground truncate">
                   {connection.file_path || "File path not specified"}
                 </span>
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between text-muted-foreground">
+                <div className="text-muted-foreground flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate">
-                    <Globe className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span className="truncate text-foreground">
+                    <Globe className="text-primary h-3.5 w-3.5 shrink-0" />
+                    <span className="text-foreground truncate">
                       {connection.host || "localhost"}
                     </span>
                   </div>
-                  <span className="font-semibold text-muted-foreground">
+                  <span className="text-muted-foreground font-semibold">
                     :{connection.port || 5432}
                   </span>
                 </div>
 
                 {connection.database && (
-                  <div className="flex items-center gap-2 pt-0.5 text-muted-foreground">
-                    <Database className="h-3.5 w-3.5 shrink-0 text-info" />
-                    <span className="truncate font-medium text-foreground">
+                  <div className="text-muted-foreground flex items-center gap-2 pt-0.5">
+                    <Database className="text-info h-3.5 w-3.5 shrink-0" />
+                    <span className="text-foreground truncate font-medium">
                       {connection.database}
                     </span>
                   </div>
@@ -220,7 +220,7 @@ export function ConnectionCard({
         </div>
 
         {/* Card Footer: Live Diagnostic Ping Feedback & Trigger */}
-        <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-3">
+        <div className="border-border/60 mt-4 flex flex-col gap-2 border-t pt-3">
           {testResult ? (
             <div
               className={cn(
@@ -248,14 +248,14 @@ export function ConnectionCard({
                 size="sm"
                 onClick={handleTestPing}
                 disabled={testing}
-                className="h-6 px-2 text-[11px] hover:bg-background/20"
+                className="hover:bg-background/20 h-6 px-2 text-[11px]"
               >
                 Re-test
               </Button>
             </div>
           ) : (
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-muted-foreground text-[11px]">
                 Ephemeral credentials verified
               </span>
               <Button
@@ -266,9 +266,9 @@ export function ConnectionCard({
                 className="h-7 gap-1.5 text-xs font-medium"
               >
                 {testing ? (
-                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                  <Loader2 className="text-primary h-3 w-3 animate-spin" />
                 ) : (
-                  <Activity className="h-3 w-3 text-primary" />
+                  <Activity className="text-primary h-3 w-3" />
                 )}
                 <span>{testing ? "Testing..." : "Test Ping"}</span>
               </Button>
@@ -286,7 +286,7 @@ export function ConnectionCard({
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 "{connection.name}"
               </span>
               ? This database connection will be unlinked from active migration

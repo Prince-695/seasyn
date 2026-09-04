@@ -123,7 +123,7 @@ export function CreateProjectModal({
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-primary uppercase">
+          <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
             <Sparkles className="h-4 w-4" />
             <span>Database Workspace</span>
           </div>
@@ -149,7 +149,7 @@ export function CreateProjectModal({
               disabled={createMutation.isPending}
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-destructive text-xs">{errors.name.message}</p>
             )}
           </div>
 
@@ -159,7 +159,7 @@ export function CreateProjectModal({
               <Label htmlFor="projectSlug" className="text-xs font-semibold">
                 Project Slug
               </Label>
-              <span className="font-mono text-[11px] text-muted-foreground">
+              <span className="text-muted-foreground font-mono text-[11px]">
                 Unique identifier
               </span>
             </div>
@@ -172,7 +172,7 @@ export function CreateProjectModal({
               disabled={createMutation.isPending}
             />
             {errors.slug && (
-              <p className="text-xs text-destructive">{errors.slug.message}</p>
+              <p className="text-destructive text-xs">{errors.slug.message}</p>
             )}
           </div>
 
@@ -196,10 +196,10 @@ export function CreateProjectModal({
                 />
                 <Label
                   htmlFor="env-dev"
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-border/80 bg-card p-2.5 text-center text-xs font-medium transition-all peer-data-checked:border-info peer-data-checked:bg-info/10 peer-data-checked:text-info hover:bg-muted/50"
+                  className="border-border/80 bg-card peer-data-checked:border-info peer-data-checked:bg-info/10 peer-data-checked:text-info hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center rounded-lg border p-2.5 text-center text-xs font-medium transition-all"
                 >
                   <span className="font-semibold">Dev</span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-muted-foreground text-[10px]">
                     Sandbox
                   </span>
                 </Label>
@@ -213,10 +213,10 @@ export function CreateProjectModal({
                 />
                 <Label
                   htmlFor="env-staging"
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-border/80 bg-card p-2.5 text-center text-xs font-medium transition-all peer-data-checked:border-warning peer-data-checked:bg-warning/10 peer-data-checked:text-warning hover:bg-muted/50"
+                  className="border-border/80 bg-card peer-data-checked:border-warning peer-data-checked:bg-warning/10 peer-data-checked:text-warning hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center rounded-lg border p-2.5 text-center text-xs font-medium transition-all"
                 >
                   <span className="font-semibold">Staging</span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-muted-foreground text-[10px]">
                     Pre-prod
                   </span>
                 </Label>
@@ -230,10 +230,10 @@ export function CreateProjectModal({
                 />
                 <Label
                   htmlFor="env-prod"
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-border/80 bg-card p-2.5 text-center text-xs font-medium transition-all peer-data-checked:border-success peer-data-checked:bg-success/10 peer-data-checked:text-success hover:bg-muted/50"
+                  className="border-border/80 bg-card peer-data-checked:border-success peer-data-checked:bg-success/10 peer-data-checked:text-success hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center rounded-lg border p-2.5 text-center text-xs font-medium transition-all"
                 >
                   <span className="font-semibold">Prod</span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-muted-foreground text-[10px]">
                     Live
                   </span>
                 </Label>
@@ -254,7 +254,7 @@ export function CreateProjectModal({
               disabled={createMutation.isPending}
             />
             {errors.description && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {errors.description.message}
               </p>
             )}
@@ -262,7 +262,7 @@ export function CreateProjectModal({
 
           {/* Server Error Display */}
           {createMutation.isError && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="border-destructive/20 bg-destructive/10 text-destructive rounded-lg border p-3 text-xs">
               {createMutation.error instanceof Error
                 ? createMutation.error.message
                 : "Failed to create project workspace."}

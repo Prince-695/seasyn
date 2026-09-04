@@ -13,9 +13,9 @@ const MARQUEE_ITEMS = [...DATABASES, ...DATABASES, ...DATABASES, ...DATABASES]
 
 export const Slider = () => {
   return (
-    <section className="max-w-8xl relative mt-30 flex w-full flex-col items-center justify-center overflow-hidden rounded-t-4xl bg-accent p-8">
+    <section className="max-w-8xl bg-accent relative mt-30 flex w-full flex-col items-center justify-center overflow-hidden rounded-t-4xl p-8">
       <div className="mb-8 text-center md:mb-10">
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+        <h2 className="text-foreground text-2xl font-semibold tracking-tight md:text-3xl">
           Supported <span className="text-secondary">Databases</span>
         </h2>
       </div>
@@ -36,9 +36,9 @@ export const Slider = () => {
           {MARQUEE_ITEMS.map((db, index) => (
             <div key={index} className="flex items-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl transition-all md:h-16 md:w-16">
-                <db.icon className="h-6 w-6 text-primary/50 md:h-8 md:w-8" />
+                <db.icon className="text-primary/50 h-6 w-6 md:h-8 md:w-8" />
               </div>
-              <span className="text-xl font-bold whitespace-nowrap text-secondary/30 md:text-2xl">
+              <span className="text-secondary/30 text-xl font-bold whitespace-nowrap md:text-2xl">
                 {db.name}
               </span>
             </div>

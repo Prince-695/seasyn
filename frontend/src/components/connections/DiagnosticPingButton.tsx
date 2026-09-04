@@ -112,12 +112,12 @@ export function DiagnosticPingButton({
       >
         {testing ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            <Loader2 className="text-primary h-4 w-4 animate-spin" />
             <span>Testing Connection...</span>
           </>
         ) : (
           <>
-            <Activity className="h-4 w-4 text-primary" />
+            <Activity className="text-primary h-4 w-4" />
             <span>Test Connection</span>
           </>
         )}
@@ -145,7 +145,7 @@ export function DiagnosticPingButton({
                 {result.success ? "Connection Verified" : "Connection Failed"}
               </span>
               {result.latency_ms > 0 && (
-                <span className="rounded bg-background/50 px-1.5 py-0.5 font-mono text-[11px]">
+                <span className="bg-background/50 rounded px-1.5 py-0.5 font-mono text-[11px]">
                   {result.latency_ms}ms latency
                 </span>
               )}
@@ -168,7 +168,7 @@ export function DiagnosticPingButton({
             type="button"
             onClick={handleTest}
             title="Re-run ping test"
-            className="rounded p-1 transition-colors hover:bg-background/20"
+            className="hover:bg-background/20 rounded p-1 transition-colors"
           >
             <RefreshCw className="h-3.5 w-3.5 opacity-70 hover:opacity-100" />
           </button>

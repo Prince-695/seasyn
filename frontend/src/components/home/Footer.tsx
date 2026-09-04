@@ -34,13 +34,13 @@ const footerColumns = [
 
 export const Footer = () => {
   return (
-    <footer className="relative w-full overflow-hidden border-t border-border bg-background px-6 pt-16 pb-8">
+    <footer className="border-border bg-background relative w-full overflow-hidden border-t px-6 pt-16 pb-8">
       {/* Footer Columns */}
       <div className="relative z-10 mx-auto max-w-6xl">
         <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3">
           {footerColumns.map((col) => (
             <div key={col.title} className="flex flex-col gap-4">
-              <h3 className="font-serif text-lg text-foreground italic">
+              <h3 className="text-foreground font-serif text-lg italic">
                 {col.title}
               </h3>
               <nav className="flex flex-col gap-2.5">
@@ -48,7 +48,7 @@ export const Footer = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -59,8 +59,8 @@ export const Footer = () => {
         </div>
 
         {/* Copyright + Social */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-border mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
+          <p className="text-muted-foreground text-xs">
             &copy; {new Date().getFullYear()} Seasyn Studio. All rights
             reserved.
           </p>
@@ -68,7 +68,7 @@ export const Footer = () => {
           <div className="flex gap-3">
             <a
               href="mailto:hello@seasyn.io"
-              className="flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-all hover:border-primary hover:text-primary"
+              className="border-border text-muted-foreground hover:border-primary hover:text-primary flex h-8 w-8 items-center justify-center border transition-all"
               aria-label="Email"
             >
               <Mail size={14} />
@@ -77,7 +77,7 @@ export const Footer = () => {
               href="https://github.com/seasyn"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-all hover:border-primary hover:text-primary"
+              className="border-border text-muted-foreground hover:border-primary hover:text-primary flex h-8 w-8 items-center justify-center border transition-all"
               aria-label="GitHub"
             >
               <FaGithub size={14} />
@@ -86,7 +86,7 @@ export const Footer = () => {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-8 w-8 items-center justify-center border border-border text-muted-foreground transition-all hover:border-primary hover:text-primary"
+              className="border-border text-muted-foreground hover:border-primary hover:text-primary flex h-8 w-8 items-center justify-center border transition-all"
               aria-label="LinkedIn"
             >
               <FaLinkedin size={14} />
@@ -97,7 +97,7 @@ export const Footer = () => {
 
       {/* Giant "SEASYN" text at bottom — like WhisperFlow's large logo */}
       <div className="pointer-events-none relative z-0 mt-8 text-center select-none">
-        <span className="text-[10rem] leading-none font-bold tracking-tighter text-foreground/5 sm:text-[14rem] md:text-[18rem]">
+        <span className="text-foreground/5 text-[10rem] leading-none font-bold tracking-tighter sm:text-[14rem] md:text-[18rem]">
           SEASYN
         </span>
       </div>

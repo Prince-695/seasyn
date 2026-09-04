@@ -39,7 +39,7 @@ export const Navbar = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "fixed inset-x-0 top-6 z-50 mx-auto w-[95%] max-w-5xl rounded-xl border border-border bg-background/80 shadow-sm backdrop-blur-md"
+        "border-border bg-background/80 fixed inset-x-0 top-6 z-50 mx-auto w-[95%] max-w-5xl rounded-xl border shadow-sm backdrop-blur-md"
       )}
     >
       <div className="mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -50,11 +50,11 @@ export const Navbar = () => {
         >
           <div className="relative flex h-8 w-8 items-center justify-start">
             {/* First Ring: Database Source */}
-            <div className="absolute h-7 w-7 rotate-[-15deg] rounded-[6px] border-4 border-primary bg-transparent" />
+            <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-[6px] border-4 bg-transparent" />
             {/* Second Ring: Database Target */}
-            <div className="absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-[6px] border-4 border-secondary bg-transparent" />
+            <div className="border-secondary absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-[6px] border-4 bg-transparent" />
           </div>
-          <span className="ml-1 text-xl font-bold tracking-tight text-foreground">
+          <span className="text-foreground ml-1 text-xl font-bold tracking-tight">
             Seasyn
           </span>
         </NavLink>
@@ -66,7 +66,7 @@ export const Navbar = () => {
               key={item.name}
               to={item.path}
               className={({ isActive }) =>
-                `transition-colors hover:text-secondary ${
+                `hover:text-secondary transition-colors ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`
               }
@@ -80,7 +80,7 @@ export const Navbar = () => {
         <div className="flex items-center gap-4">
           <Button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="hidden h-9 w-9 items-center justify-center rounded-md border border-border bg-transparent text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+            className="border-border text-muted-foreground hover:bg-muted hover:text-foreground hidden h-9 w-9 items-center justify-center rounded-md border bg-transparent transition-colors sm:flex"
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
@@ -95,9 +95,9 @@ export const Navbar = () => {
               <>
                 <NavLink
                   to="/dashboard"
-                  className="flex items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-1.5 transition-colors hover:bg-muted"
+                  className="border-border bg-card/50 hover:bg-muted flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-colors"
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                  <div className="bg-primary/10 text-primary flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
                     {(
                       user?.first_name?.[0] ||
                       user?.name?.[0] ||
@@ -106,7 +106,7 @@ export const Navbar = () => {
                       "U"
                     ).toUpperCase()}
                   </div>
-                  <span className="text-xs font-medium text-foreground">
+                  <span className="text-foreground text-xs font-medium">
                     {user?.first_name ||
                       (user?.name ? user.name.split(" ")[0] : null) ||
                       (user?.username ? `@${user.username}` : null) ||
@@ -127,7 +127,7 @@ export const Navbar = () => {
                 <NavLink to="/sign-up">
                   <Button
                     variant="default"
-                    className="h-9 border-none bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 h-9 border-none shadow-lg"
                   >
                     Get Started
                   </Button>
@@ -138,7 +138,7 @@ export const Navbar = () => {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="flex h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-muted sm:hidden"
+            className="text-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-md sm:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <Menu className="h-5 w-5" />

@@ -43,7 +43,7 @@ export const NavbarMobile = ({
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          className="overflow-hidden border-t border-border bg-background md:hidden"
+          className="border-border bg-background overflow-hidden border-t md:hidden"
         >
           <div className="flex flex-col gap-4 p-4 shadow-sm">
             <nav className="flex flex-col gap-3 text-sm font-medium">
@@ -59,7 +59,7 @@ export const NavbarMobile = ({
               ))}
             </nav>
 
-            <div className="h-px w-full bg-border" />
+            <div className="bg-border h-px w-full" />
 
             <div className="flex flex-col gap-2">
               {isAuthenticated ? (
@@ -67,9 +67,9 @@ export const NavbarMobile = ({
                   <NavLink
                     to="/dashboard"
                     onClick={onClose}
-                    className="flex items-center gap-2 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted"
+                    className="border-border bg-card hover:bg-muted flex items-center gap-2 rounded-lg border p-3 transition-colors"
                   >
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                    <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold">
                       {(
                         user?.first_name?.[0] ||
                         user?.name?.[0] ||
@@ -78,7 +78,7 @@ export const NavbarMobile = ({
                         "U"
                       ).toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-foreground text-sm font-medium">
                       {user?.first_name ||
                         (user?.name ? user.name.split(" ")[0] : null) ||
                         (user?.username ? `@${user.username}` : null) ||
@@ -88,7 +88,7 @@ export const NavbarMobile = ({
 
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive w-full justify-start"
                     onClick={handleLogout}
                   >
                     Sign Out
@@ -97,7 +97,7 @@ export const NavbarMobile = ({
               ) : (
                 <>
                   <NavLink to="/sign-up" onClick={onClose}>
-                    <Button className="w-full justify-start bg-primary text-primary-foreground">
+                    <Button className="bg-primary text-primary-foreground w-full justify-start">
                       Get Started
                     </Button>
                   </NavLink>

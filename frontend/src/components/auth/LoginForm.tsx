@@ -128,14 +128,14 @@ export function LoginForm({ setServerError }: LoginFormProps) {
           <div className="flex items-center justify-between">
             <Label
               htmlFor={field.id}
-              className="font-semibold text-foreground/80"
+              className="text-foreground/80 font-semibold"
             >
               {field.label}
             </Label>
             {field.id === "password" && (
               <Link
                 to="/forgot-password"
-                className="cursor-pointer text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                className="text-primary hover:text-primary/80 cursor-pointer text-xs font-medium transition-colors"
               >
                 Forgot password?
               </Link>
@@ -150,7 +150,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
               placeholder={field.placeholder}
               {...register(field.id)}
               aria-invalid={!!errors[field.id]}
-              className={`h-11 w-full border-muted/80 bg-muted/30 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20 ${
+              className={`border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full transition-all duration-200 ${
                 field.id === "password" ? "pr-10" : ""
               }`}
             />
@@ -159,7 +159,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
                 type="button"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer focus:outline-hidden"
               >
                 {showPassword ? (
                   <Eye className="h-4.5 w-4.5" />
@@ -170,7 +170,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
             )}
           </div>
           {errors[field.id] && (
-            <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+            <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
               <AlertCircle className="h-4 w-4" />
               {errors[field.id]?.message}
             </p>
@@ -180,7 +180,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
 
       <Button
         type="submit"
-        className="mt-3 h-11 w-full bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-3 h-11 w-full font-semibold shadow-md transition-all"
         disabled={isSubmitting}
       >
         {isSubmitting ? (

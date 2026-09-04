@@ -153,7 +153,7 @@ export function EngineSelector({
               "group relative flex cursor-pointer flex-col items-start rounded-xl border p-4 text-left transition-all duration-200",
               "hover:shadow-xs",
               isSelected
-                ? "border-primary bg-primary/[0.03] shadow-xs ring-1 ring-primary"
+                ? "border-primary bg-primary/[0.03] ring-primary shadow-xs ring-1"
                 : "border-border/80 bg-card hover:bg-muted/30",
               disabled && "cursor-not-allowed opacity-50"
             )}
@@ -163,7 +163,7 @@ export function EngineSelector({
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-lg border bg-muted/40 transition-colors",
+                    "bg-muted/40 flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
                     isSelected
                       ? "border-primary/40 bg-primary/10"
                       : "border-border/60"
@@ -172,7 +172,7 @@ export function EngineSelector({
                   <EngineIcon type={engine.type} className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-foreground">
+                  <h4 className="text-foreground text-sm font-semibold">
                     {engine.name}
                   </h4>
                   <span
@@ -187,14 +187,14 @@ export function EngineSelector({
               </div>
 
               {isSelected && (
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
+                <div className="bg-primary text-primary-foreground flex h-5 w-5 items-center justify-center rounded-full shadow-xs">
                   <Check className="h-3 w-3 stroke-[3]" />
                 </div>
               )}
             </div>
 
             {/* Description */}
-            <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground mt-2.5 line-clamp-2 text-xs leading-relaxed">
               {engine.description}
             </p>
           </button>

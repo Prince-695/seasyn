@@ -20,7 +20,7 @@ export const Home = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="relative flex flex-1 flex-col items-center justify-center overflow-x-clip bg-background pb-10 text-foreground">
+      <main className="bg-background text-foreground relative flex flex-1 flex-col items-center justify-center overflow-x-clip pb-10">
         {/* Hero Section */}
         <Hero onCtaClick={handleStartMigrating} />
 

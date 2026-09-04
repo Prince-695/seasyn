@@ -139,14 +139,14 @@ export function OrgSettingsPage() {
   if (!activeOrg) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+        <div className="bg-muted text-muted-foreground flex h-14 w-14 items-center justify-center rounded-2xl">
           <Building2 className="h-7 w-7" />
         </div>
         <div className="space-y-1">
           <h2 className="text-xl font-bold tracking-tight">
             No Active Organization
           </h2>
-          <p className="max-w-sm text-sm text-muted-foreground">
+          <p className="text-muted-foreground max-w-sm text-sm">
             Please select or create an organization from the workspace switcher
             in the header.
           </p>
@@ -169,17 +169,17 @@ export function OrgSettingsPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
             <Settings className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              <h1 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
                 Organization Settings
               </h1>
               {currentRole && <RoleBadge role={currentRole} />}
             </div>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-0.5 text-sm">
               Manage organization preferences, slug identifier, and
               administrative actions.
             </p>
@@ -201,7 +201,7 @@ export function OrgSettingsPage() {
             {generalSuccess && (
               <div
                 role="status"
-                className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 p-3 text-sm font-medium text-success"
+                className="border-success/20 bg-success/10 text-success flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
               >
                 <Check className="h-4 w-4 shrink-0" />
                 <span>{generalSuccess}</span>
@@ -211,7 +211,7 @@ export function OrgSettingsPage() {
             {generalError && (
               <div
                 role="alert"
-                className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+                className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
               >
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{generalError}</span>
@@ -228,7 +228,7 @@ export function OrgSettingsPage() {
                   aria-invalid={!!errors.name}
                 />
                 {errors.name && (
-                  <p className="text-xs font-medium text-destructive">
+                  <p className="text-destructive text-xs font-medium">
                     {errors.name.message}
                   </p>
                 )}
@@ -240,9 +240,9 @@ export function OrgSettingsPage() {
                   id="org-slug"
                   value={activeOrg.slug}
                   disabled
-                  className="cursor-not-allowed bg-muted/50 font-mono text-xs"
+                  className="bg-muted/50 cursor-not-allowed font-mono text-xs"
                 />
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground text-[11px]">
                   Organization slug is immutable once established.
                 </p>
               </div>
@@ -259,7 +259,7 @@ export function OrgSettingsPage() {
                 aria-invalid={!!errors.description}
               />
               {errors.description && (
-                <p className="text-xs font-medium text-destructive">
+                <p className="text-destructive text-xs font-medium">
                   {errors.description.message}
                 </p>
               )}
@@ -267,7 +267,7 @@ export function OrgSettingsPage() {
           </CardContent>
 
           {canEditGeneral && (
-            <CardFooter className="flex justify-end border-t border-border/40 px-6 py-4">
+            <CardFooter className="border-border/40 flex justify-end border-t px-6 py-4">
               <Button type="submit" disabled={updateOrgMutation.isPending}>
                 {updateOrgMutation.isPending ? (
                   <>
@@ -286,8 +286,8 @@ export function OrgSettingsPage() {
       {/* Danger Zone Card (Owner Only) */}
       <PermissionGuard allowedRoles={["owner"]}>
         <Card className="border-destructive/30 bg-destructive/5 shadow-sm backdrop-blur-xs">
-          <CardHeader className="border-b border-destructive/10 pb-4">
-            <div className="flex items-center gap-2 text-destructive">
+          <CardHeader className="border-destructive/10 border-b pb-4">
+            <div className="text-destructive flex items-center gap-2">
               <ShieldAlert className="h-5 w-5" />
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
             </div>
@@ -297,14 +297,14 @@ export function OrgSettingsPage() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="divide-y divide-destructive/10 p-0">
+          <CardContent className="divide-destructive/10 divide-y p-0">
             {/* Transfer Ownership */}
             <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-foreground text-sm font-semibold">
                   Transfer Ownership
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Transfer the owner role of this organization to another team
                   member.
                 </p>
@@ -313,7 +313,7 @@ export function OrgSettingsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setTransferModalOpen(true)}
-                className="shrink-0 border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0"
               >
                 <ArrowRightLeft className="mr-2 h-4 w-4" />
                 Transfer Ownership
@@ -323,10 +323,10 @@ export function OrgSettingsPage() {
             {/* Delete Organization */}
             <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-destructive">
+                <p className="text-destructive text-sm font-semibold">
                   Delete Organization
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Permanently delete this organization, all attached projects,
                   migrations, and connections.
                 </p>
@@ -353,14 +353,14 @@ export function OrgSettingsPage() {
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <div className="flex items-center gap-2 text-destructive">
+            <div className="text-destructive flex items-center gap-2">
               <AlertTriangle className="h-5 w-5" />
               <DialogTitle>Delete Organization</DialogTitle>
             </div>
             <DialogDescription>
               This action cannot be undone. All projects, schemas, database
               credentials, and migrations under{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {activeOrg.name}
               </span>{" "}
               will be permanently deleted.
@@ -371,7 +371,7 @@ export function OrgSettingsPage() {
             {deleteError && (
               <div
                 role="alert"
-                className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+                className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
               >
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{deleteError}</span>
@@ -381,7 +381,7 @@ export function OrgSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="delete-confirm">
                 To confirm, type{" "}
-                <span className="font-mono font-bold text-destructive select-all">
+                <span className="text-destructive font-mono font-bold select-all">
                   {expectedDeletePhrase}
                 </span>{" "}
                 below:
@@ -427,17 +427,17 @@ export function OrgSettingsPage() {
       <Dialog open={transferModalOpen} onOpenChange={setTransferModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <div className="flex items-center gap-2 text-primary">
+            <div className="text-primary flex items-center gap-2">
               <ArrowRightLeft className="h-5 w-5" />
               <DialogTitle>Transfer Ownership</DialogTitle>
             </div>
             <DialogDescription>
               To transfer ownership of{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {activeOrg.name}
               </span>
               , please navigate to the{" "}
-              <span className="font-medium text-foreground">Team Members</span>{" "}
+              <span className="text-foreground font-medium">Team Members</span>{" "}
               tab and promote an existing Admin to Owner. You will subsequently
               become an Admin.
             </DialogDescription>

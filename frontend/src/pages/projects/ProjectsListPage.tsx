@@ -89,18 +89,18 @@ export function ProjectsListPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 border-b border-border/60 pb-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-border/60 flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-primary uppercase">
+          <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
             <Layers className="h-3.5 w-3.5" />
             <span>Workspace Management</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h1 className="text-foreground mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
             Projects
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Manage your database projects and environments within{" "}
-            <span className="font-semibold text-foreground">
+            <span className="text-foreground font-semibold">
               {activeOrg?.name || "your organization"}
             </span>
             .
@@ -116,7 +116,7 @@ export function ProjectsListPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search projects..."
             value={searchQuery}
@@ -126,7 +126,7 @@ export function ProjectsListPage() {
         </div>
 
         {/* Environment Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/80 bg-muted/30 p-1 text-xs">
+        <div className="border-border/80 bg-muted/30 flex flex-wrap items-center gap-1.5 rounded-lg border p-1 text-xs">
           <button
             onClick={() => setEnvFilter("all")}
             className={`rounded-md px-3 py-1.5 font-medium transition-all ${
@@ -172,33 +172,33 @@ export function ProjectsListPage() {
 
       {/* Projects Grid / Loading / Empty States */}
       {isLoading ? (
-        <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/80 p-12 text-center">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">
+        <div className="border-border/80 flex min-h-64 flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-12 text-center">
+          <Loader2 className="text-primary h-6 w-6 animate-spin" />
+          <p className="text-muted-foreground text-sm font-medium">
             Loading database projects...
           </p>
         </div>
       ) : isError ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
-          <p className="text-sm font-semibold text-destructive">
+        <div className="border-destructive/30 bg-destructive/5 rounded-xl border p-6 text-center">
+          <p className="text-destructive text-sm font-semibold">
             Failed to load projects
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-xs">
             {error instanceof Error ? error.message : "An error occurred"}
           </p>
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border/80 p-10 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="border-border/80 flex min-h-72 flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-10 text-center">
+          <div className="bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full">
             <FolderKanban className="h-7 w-7" />
           </div>
           <div className="max-w-md space-y-1">
-            <h3 className="text-base font-semibold text-foreground">
+            <h3 className="text-foreground text-base font-semibold">
               {searchQuery || envFilter !== "all"
                 ? "No matching projects found"
                 : "No projects created yet"}
             </h3>
-            <p className="text-xs leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground text-xs leading-relaxed">
               {searchQuery || envFilter !== "all"
                 ? "Try adjusting your search criteria or switching environment filters."
                 : "Create a project workspace to connect source and destination databases, run diagnostic latency pings, and orchestrate migrations."}
@@ -240,7 +240,7 @@ export function ProjectsListPage() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 "{projectToDelete?.name}"
               </span>
               ? This action is permanent and will remove all associated database

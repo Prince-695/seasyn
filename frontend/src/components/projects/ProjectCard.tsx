@@ -78,7 +78,7 @@ export function ProjectCard({
     <div
       onClick={handleOpen}
       className={cn(
-        "group relative flex cursor-pointer flex-col justify-between rounded-xl border bg-card p-5.5 transition-all duration-200",
+        "group bg-card relative flex cursor-pointer flex-col justify-between rounded-xl border p-5.5 transition-all duration-200",
         "hover:border-border hover:shadow-md",
         isActive
           ? "border-primary/50 bg-primary/2 shadow-xs"
@@ -93,27 +93,27 @@ export function ProjectCard({
               className={cn(
                 "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
                 isActive
-                  ? "border border-primary/30 bg-primary/10 text-primary"
-                  : "border border-border/80 bg-muted/30 text-muted-foreground group-hover:border-primary/20 group-hover:text-primary"
+                  ? "border-primary/30 bg-primary/10 text-primary border"
+                  : "border-border/80 bg-muted/30 text-muted-foreground group-hover:border-primary/20 group-hover:text-primary border"
               )}
             >
               <FolderKanban className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="line-clamp-1 font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
+                <h3 className="text-foreground group-hover:text-primary line-clamp-1 font-semibold tracking-tight transition-colors">
                   {project.name}
                 </h3>
                 {isActive && (
                   <Badge
                     variant="outline"
-                    className="border-primary/30 bg-primary/10 px-1.5 py-0 text-[10px] font-semibold text-primary"
+                    className="border-primary/30 bg-primary/10 text-primary px-1.5 py-0 text-[10px] font-semibold"
                   >
                     Active
                   </Badge>
                 )}
               </div>
-              <p className="line-clamp-1 font-mono text-xs text-muted-foreground">
+              <p className="text-muted-foreground line-clamp-1 font-mono text-xs">
                 {project.slug || project.id.slice(0, 8)}
               </p>
             </div>
@@ -139,7 +139,7 @@ export function ProjectCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground h-8 w-8"
                     aria-label="Project actions"
                   />
                 }
@@ -148,7 +148,7 @@ export function ProjectCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={handleOpen} className="gap-2">
-                  <ArrowUpRight className="h-4 w-4 text-primary" />
+                  <ArrowUpRight className="text-primary h-4 w-4" />
                   <span>Open Studio</span>
                 </DropdownMenuItem>
 
@@ -157,7 +157,7 @@ export function ProjectCard({
                     onClick={() => setActiveProjectId(project.id)}
                     className="gap-2"
                   >
-                    <Check className="h-4 w-4 text-success" />
+                    <Check className="text-success h-4 w-4" />
                     <span>Set as Active</span>
                   </DropdownMenuItem>
                 )}
@@ -166,7 +166,7 @@ export function ProjectCard({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => onDelete?.(project)}
-                    className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                    className="text-destructive focus:bg-destructive/10 focus:text-destructive gap-2"
                   >
                     <Trash2 className="h-4 w-4" />
                     <span>Delete Project</span>
@@ -178,16 +178,16 @@ export function ProjectCard({
         </div>
 
         {/* Project Description */}
-        <p className="mt-3.5 line-clamp-2 min-h-8 text-xs leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mt-3.5 line-clamp-2 min-h-8 text-xs leading-relaxed">
           {project.description ||
             "No description provided for this database project."}
         </p>
       </div>
 
       {/* Card Footer */}
-      <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-3.5 text-xs text-muted-foreground">
+      <div className="border-border/60 text-muted-foreground mt-5 flex items-center justify-between border-t pt-3.5 text-xs">
         <div className="flex items-center gap-1.5 font-medium">
-          <Database className="h-3.5 w-3.5 text-primary" />
+          <Database className="text-primary h-3.5 w-3.5" />
           <span>
             {connectionCount}{" "}
             {connectionCount === 1 ? "Connection" : "Connections"}

@@ -167,7 +167,7 @@ export function ConnectionWizardModal({
       />
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-primary uppercase">
+          <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
             <Database className="h-4 w-4" />
             <span>Database Adapter Setup</span>
           </div>
@@ -195,7 +195,7 @@ export function ConnectionWizardModal({
           </div>
 
           {/* Step 2: Connection Parameters */}
-          <div className="space-y-4 rounded-xl border border-border/70 bg-card p-4">
+          <div className="border-border/70 bg-card space-y-4 rounded-xl border p-4">
             <Label className="text-xs font-semibold">
               2. Connection Credentials & Target
             </Label>
@@ -213,7 +213,7 @@ export function ConnectionWizardModal({
                 disabled={createMutation.isPending}
               />
               {errors.name && (
-                <p className="text-xs text-destructive">
+                <p className="text-destructive text-xs">
                   {errors.name.message}
                 </p>
               )}
@@ -228,7 +228,7 @@ export function ConnectionWizardModal({
                   <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
-                  <HardDrive className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <HardDrive className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <Input
                     id="filePath"
                     placeholder="/var/data/production.db or app.db"
@@ -237,7 +237,7 @@ export function ConnectionWizardModal({
                     disabled={createMutation.isPending}
                   />
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground text-[11px]">
                   Specify an absolute file path accessible to the SEASYN worker
                   engine.
                 </p>
@@ -341,7 +341,7 @@ export function ConnectionWizardModal({
                       Host Address <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
-                      <Globe className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Globe className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                       <Input
                         id="host"
                         placeholder="db.production.internal or 127.0.0.1"
@@ -413,14 +413,14 @@ export function ConnectionWizardModal({
             )}
 
             {/* Source vs Target Switcher */}
-            <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 p-3 pt-2">
+            <div className="border-border/60 bg-muted/20 flex items-center justify-between rounded-lg border p-3 pt-2">
               <div className="space-y-0.5">
-                <span className="text-xs font-semibold text-foreground">
+                <span className="text-foreground text-xs font-semibold">
                   {isSourceVal
                     ? "Source Database"
                     : "Target / Destination Database"}
                 </span>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground text-[11px]">
                   {isSourceVal
                     ? "Data will be introspected and read from this database."
                     : "Data and converted schemas will be synced into this database."}
@@ -438,13 +438,13 @@ export function ConnectionWizardModal({
           </div>
 
           {/* Step 3: Diagnostic Latency Test */}
-          <div className="space-y-2 rounded-xl border border-border/70 bg-card p-4">
+          <div className="border-border/70 bg-card space-y-2 rounded-xl border p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-semibold">
-                <ShieldCheck className="h-4 w-4 text-primary" />
+                <ShieldCheck className="text-primary h-4 w-4" />
                 <span>3. Live Connection Diagnostics</span>
               </div>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-muted-foreground text-[10px]">
                 Recommended before saving
               </span>
             </div>
@@ -458,7 +458,7 @@ export function ConnectionWizardModal({
 
           {/* Server Error Alert */}
           {createMutation.isError && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="border-destructive/20 bg-destructive/10 text-destructive rounded-lg border p-3 text-xs">
               {createMutation.error instanceof Error
                 ? createMutation.error.message
                 : "Failed to save database connection."}

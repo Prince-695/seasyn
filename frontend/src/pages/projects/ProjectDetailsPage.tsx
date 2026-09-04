@@ -198,8 +198,8 @@ export function ProjectDetailsPage() {
   if (isProjectLoading) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-sm font-medium text-muted-foreground">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
+        <p className="text-muted-foreground text-sm font-medium">
           Loading project workspace...
         </p>
       </div>
@@ -211,17 +211,17 @@ export function ProjectDetailsPage() {
       <div className="space-y-6">
         <Link
           to="/projects"
-          className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-xs font-medium"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Projects</span>
         </Link>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/5 p-12 text-center">
-          <AlertTriangle className="h-10 w-10 text-destructive" />
-          <h3 className="mt-3 text-base font-semibold text-foreground">
+        <div className="border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center rounded-2xl border p-12 text-center">
+          <AlertTriangle className="text-destructive h-10 w-10" />
+          <h3 className="text-foreground mt-3 text-base font-semibold">
             Project Not Found
           </h3>
-          <p className="mt-1 max-w-md text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-1 max-w-md text-xs">
             This project could not be found or you may not have permission to
             access it within this organization.
           </p>
@@ -265,7 +265,7 @@ export function ProjectDetailsPage() {
       <div className="flex items-center justify-between">
         <Link
           to="/projects"
-          className="group inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="group text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-xs font-medium transition-colors"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           <span>Back to Projects Studio</span>
@@ -285,23 +285,23 @@ export function ProjectDetailsPage() {
       </div>
 
       {/* Main Studio Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
+      <div className="border-border/80 bg-card relative overflow-hidden rounded-2xl border p-6 shadow-xs">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+              <div className="border-primary/20 bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-xl border">
                 <FolderKanban className="h-5 w-5" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                <h1 className="text-foreground text-2xl font-bold tracking-tight">
                   {project.name}
                 </h1>
                 <div className="mt-0.5 flex items-center gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span className="text-muted-foreground font-mono text-xs">
                     slug: {project.slug}
                   </span>
                   <span className="text-muted-foreground">•</span>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
                     <Calendar className="h-3 w-3" />
                     <span>Created {formattedDate}</span>
                   </div>
@@ -310,7 +310,7 @@ export function ProjectDetailsPage() {
             </div>
 
             {project.description && (
-              <p className="max-w-2xl text-xs text-muted-foreground">
+              <p className="text-muted-foreground max-w-2xl text-xs">
                 {project.description}
               </p>
             )}
@@ -339,40 +339,40 @@ export function ProjectDetailsPage() {
         </div>
 
         {/* Quick Metrics Strip */}
-        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border/60 pt-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-            <span className="text-[11px] font-medium text-muted-foreground">
+        <div className="border-border/60 mt-6 grid grid-cols-2 gap-3 border-t pt-4 sm:grid-cols-4">
+          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
+            <span className="text-muted-foreground text-[11px] font-medium">
               Total Databases
             </span>
-            <p className="mt-1 font-mono text-lg font-bold text-foreground">
+            <p className="text-foreground mt-1 font-mono text-lg font-bold">
               {connections.length}
             </p>
           </div>
 
-          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-            <span className="text-[11px] font-medium text-info">
+          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
+            <span className="text-info text-[11px] font-medium">
               Source DBs (Inbound)
             </span>
-            <p className="mt-1 font-mono text-lg font-bold text-info">
+            <p className="text-info mt-1 font-mono text-lg font-bold">
               {sourceConnections.length}
             </p>
           </div>
 
-          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-            <span className="text-[11px] font-medium text-success">
+          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
+            <span className="text-success text-[11px] font-medium">
               Target DBs (Outbound)
             </span>
-            <p className="mt-1 font-mono text-lg font-bold text-success">
+            <p className="text-success mt-1 font-mono text-lg font-bold">
               {targetConnections.length}
             </p>
           </div>
 
-          <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-            <span className="text-[11px] font-medium text-muted-foreground">
+          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
+            <span className="text-muted-foreground text-[11px] font-medium">
               Project Status
             </span>
-            <div className="mt-1 flex items-center gap-1.5 font-mono text-xs font-semibold text-success">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
+            <div className="text-success mt-1 flex items-center gap-1.5 font-mono text-xs font-semibold">
+              <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
               <span>Active Studio</span>
             </div>
           </div>
@@ -385,7 +385,7 @@ export function ProjectDetailsPage() {
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+        <div className="border-border/60 flex items-center justify-between border-b pb-3">
           <TabsList className="grid w-full grid-cols-2 sm:w-auto">
             <TabsTrigger value="connections" className="gap-2">
               <Database className="h-4 w-4" />
@@ -404,14 +404,14 @@ export function ProjectDetailsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-info/30 bg-info/10 text-info">
+                <div className="border-info/30 bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg border">
                   <Database className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-foreground text-sm font-semibold">
                     Source Databases ({sourceConnections.length})
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-muted-foreground text-[11px]">
                     Databases read by SEASYN for schema extraction and data
                     introspection.
                   </p>
@@ -439,8 +439,8 @@ export function ProjectDetailsPage() {
             </div>
 
             {isConnectionsLoading ? (
-              <div className="flex h-32 items-center justify-center rounded-xl border border-border/60 bg-muted/10">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
+                <Loader2 className="text-primary h-6 w-6 animate-spin" />
               </div>
             ) : sourceConnections.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -453,12 +453,12 @@ export function ProjectDetailsPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-muted/10 p-8 text-center">
-                <Database className="h-8 w-8 text-muted-foreground/60" />
-                <h4 className="mt-2 text-xs font-semibold text-foreground">
+              <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
+                <Database className="text-muted-foreground/60 h-8 w-8" />
+                <h4 className="text-foreground mt-2 text-xs font-semibold">
                   No Source Databases Configured
                 </h4>
-                <p className="mt-1 max-w-sm text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
                   Add a PostgreSQL, MySQL, MongoDB, or SQLite database to begin
                   inspecting schemas and running migrations.
                 </p>
@@ -485,17 +485,17 @@ export function ProjectDetailsPage() {
           </div>
 
           {/* Section B: Target Databases */}
-          <div className="space-y-4 border-t border-border/60 pt-4">
+          <div className="border-border/60 space-y-4 border-t pt-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-success/30 bg-success/10 text-success">
+                <div className="border-success/30 bg-success/10 text-success flex h-7 w-7 items-center justify-center rounded-lg border">
                   <Server className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-foreground text-sm font-semibold">
                     Target Databases ({targetConnections.length})
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-muted-foreground text-[11px]">
                     Destination databases to receive converted schemas and
                     synchronized records.
                   </p>
@@ -523,8 +523,8 @@ export function ProjectDetailsPage() {
             </div>
 
             {isConnectionsLoading ? (
-              <div className="flex h-32 items-center justify-center rounded-xl border border-border/60 bg-muted/10">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
+                <Loader2 className="text-primary h-6 w-6 animate-spin" />
               </div>
             ) : targetConnections.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -537,12 +537,12 @@ export function ProjectDetailsPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-muted/10 p-8 text-center">
-                <Server className="h-8 w-8 text-muted-foreground/60" />
-                <h4 className="mt-2 text-xs font-semibold text-foreground">
+              <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
+                <Server className="text-muted-foreground/60 h-8 w-8" />
+                <h4 className="text-foreground mt-2 text-xs font-semibold">
                   No Target Databases Configured
                 </h4>
-                <p className="mt-1 max-w-sm text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
                   Add target database connections to receive converted schema
                   definitions and migrated data.
                 </p>
@@ -572,11 +572,11 @@ export function ProjectDetailsPage() {
         {/* Tab 2: Project Settings */}
         <TabsContent value="settings" className="space-y-6 pt-2">
           {/* General Metadata Form */}
-          <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
-            <h3 className="text-base font-semibold text-foreground">
+          <div className="border-border/80 bg-card rounded-2xl border p-6 shadow-xs">
+            <h3 className="text-foreground text-base font-semibold">
               General Project Settings
             </h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Update project details and deployment environment tagging.
             </p>
 
@@ -595,7 +595,7 @@ export function ProjectDetailsPage() {
                   disabled={updateMutation.isPending}
                 />
                 {errors.name && (
-                  <p className="text-xs text-destructive">
+                  <p className="text-destructive text-xs">
                     {errors.name.message}
                   </p>
                 )}
@@ -616,7 +616,7 @@ export function ProjectDetailsPage() {
                   disabled={updateMutation.isPending}
                 />
                 {errors.description && (
-                  <p className="text-xs text-destructive">
+                  <p className="text-destructive text-xs">
                     {errors.description.message}
                   </p>
                 )}
@@ -643,7 +643,7 @@ export function ProjectDetailsPage() {
                     className={cn(
                       "flex cursor-pointer flex-col items-center justify-between rounded-xl border p-3 text-center transition-all",
                       selectedEnv === "development"
-                        ? "border-info bg-info/10 text-foreground ring-1 ring-info"
+                        ? "border-info bg-info/10 text-foreground ring-info ring-1"
                         : "border-border/80 bg-card hover:bg-muted/30"
                     )}
                   >
@@ -652,10 +652,10 @@ export function ProjectDetailsPage() {
                       id="env-dev"
                       className="sr-only"
                     />
-                    <span className="font-mono text-xs font-semibold text-info">
+                    <span className="text-info font-mono text-xs font-semibold">
                       Development
                     </span>
-                    <span className="mt-1 text-[10px] text-muted-foreground">
+                    <span className="text-muted-foreground mt-1 text-[10px]">
                       Local / Dev Sandbox
                     </span>
                   </label>
@@ -665,7 +665,7 @@ export function ProjectDetailsPage() {
                     className={cn(
                       "flex cursor-pointer flex-col items-center justify-between rounded-xl border p-3 text-center transition-all",
                       selectedEnv === "staging"
-                        ? "border-warning bg-warning/10 text-foreground ring-1 ring-warning"
+                        ? "border-warning bg-warning/10 text-foreground ring-warning ring-1"
                         : "border-border/80 bg-card hover:bg-muted/30"
                     )}
                   >
@@ -674,10 +674,10 @@ export function ProjectDetailsPage() {
                       id="env-staging"
                       className="sr-only"
                     />
-                    <span className="font-mono text-xs font-semibold text-warning">
+                    <span className="text-warning font-mono text-xs font-semibold">
                       Staging
                     </span>
-                    <span className="mt-1 text-[10px] text-muted-foreground">
+                    <span className="text-muted-foreground mt-1 text-[10px]">
                       Pre-prod Validation
                     </span>
                   </label>
@@ -687,7 +687,7 @@ export function ProjectDetailsPage() {
                     className={cn(
                       "flex cursor-pointer flex-col items-center justify-between rounded-xl border p-3 text-center transition-all",
                       selectedEnv === "production"
-                        ? "border-success bg-success/10 text-foreground ring-1 ring-success"
+                        ? "border-success bg-success/10 text-foreground ring-success ring-1"
                         : "border-border/80 bg-card hover:bg-muted/30"
                     )}
                   >
@@ -696,10 +696,10 @@ export function ProjectDetailsPage() {
                       id="env-prod"
                       className="sr-only"
                     />
-                    <span className="font-mono text-xs font-semibold text-success">
+                    <span className="text-success font-mono text-xs font-semibold">
                       Production
                     </span>
-                    <span className="mt-1 text-[10px] text-muted-foreground">
+                    <span className="text-muted-foreground mt-1 text-[10px]">
                       Live Production
                     </span>
                   </label>
@@ -707,14 +707,14 @@ export function ProjectDetailsPage() {
               </div>
 
               {updateMutation.isSuccess && (
-                <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 p-2.5 text-xs text-success">
+                <div className="border-success/30 bg-success/10 text-success flex items-center gap-2 rounded-lg border p-2.5 text-xs">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span>Project settings updated successfully.</span>
                 </div>
               )}
 
               {updateMutation.isError && (
-                <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-2.5 text-xs text-destructive">
+                <div className="border-destructive/20 bg-destructive/10 text-destructive rounded-lg border p-2.5 text-xs">
                   {updateMutation.error instanceof Error
                     ? updateMutation.error.message
                     : "Failed to update project settings."}
@@ -743,11 +743,11 @@ export function ProjectDetailsPage() {
 
           {/* Danger Zone */}
           <PermissionGuard allowedRoles={["owner", "admin"]}>
-            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
-              <h3 className="text-base font-semibold text-destructive">
+            <div className="border-destructive/30 bg-destructive/5 rounded-2xl border p-6">
+              <h3 className="text-destructive text-base font-semibold">
                 Danger Zone
               </h3>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Permanently delete this project and all its associated database
                 connections and migration pipelines. This action cannot be
                 undone.
@@ -760,7 +760,7 @@ export function ProjectDetailsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive gap-2"
                       />
                     }
                   >
@@ -774,7 +774,7 @@ export function ProjectDetailsPage() {
                       </AlertDialogTitle>
                       <AlertDialogDescription>
                         Are you sure you want to delete{" "}
-                        <span className="font-semibold text-foreground">
+                        <span className="text-foreground font-semibold">
                           "{project.name}"
                         </span>
                         ? All {connections.length} database connections and

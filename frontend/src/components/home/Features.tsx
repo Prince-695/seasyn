@@ -72,7 +72,7 @@ const FeatureCard = ({
         delay: (index % 2) * 0.15,
       }}
       className={cn(
-        "group relative flex h-full flex-col items-start rounded-sm border-2 border-border bg-card/40 p-8 backdrop-blur-sm transition-all duration-300",
+        "group border-border bg-card/40 relative flex h-full flex-col items-start rounded-sm border-2 p-8 backdrop-blur-sm transition-all duration-300",
         feature.color === "primary"
           ? "hover:border-primary/30 hover:shadow-primary/5"
           : "hover:border-secondary/30 hover:shadow-secondary/5",
@@ -92,10 +92,10 @@ const FeatureCard = ({
       </div>
 
       {/* Content */}
-      <h3 className="mb-3 text-xl font-bold tracking-tight text-foreground">
+      <h3 className="text-foreground mb-3 text-xl font-bold tracking-tight">
         {feature.title}
       </h3>
-      <p className="leading-relaxed text-muted-foreground">
+      <p className="text-muted-foreground leading-relaxed">
         {feature.description}
       </p>
 
@@ -116,10 +116,10 @@ const Features = () => {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
         {/* Sticky Left Column: Section Header */}
         <div className="text-center lg:sticky lg:top-32 lg:col-span-4 lg:h-fit lg:text-left">
-          <h2 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          <h2 className="text-foreground mb-6 text-4xl font-bold tracking-tight md:text-5xl">
             Why Choose <span className="text-primary">Seasyn?</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground lg:mx-0">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-lg lg:mx-0">
             The most powerful, secure, and flexible database migration bridge
             ever built.
           </p>

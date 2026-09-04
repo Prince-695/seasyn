@@ -81,29 +81,29 @@ function PersonalInformationCard({
     "U"
 
   return (
-    <div className="space-y-6 rounded-xl border border-border/70 bg-card/40 p-6 shadow-xs backdrop-blur-xs">
-      <div className="border-b border-border/40 pb-4">
-        <h3 className="flex items-center gap-2 text-base font-bold text-foreground">
-          <UserIcon className="h-4 w-4 text-primary" />
+    <div className="border-border/70 bg-card/40 space-y-6 rounded-xl border p-6 shadow-xs backdrop-blur-xs">
+      <div className="border-border/40 border-b pb-4">
+        <h3 className="text-foreground flex items-center gap-2 text-base font-bold">
+          <UserIcon className="text-primary h-4 w-4" />
           <span>Personal Information</span>
         </h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-0.5 text-xs">
           Update your display name and view account details.
         </p>
       </div>
 
       {/* Avatar Row */}
       <div className="flex items-center gap-4">
-        <div className="font-heading flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-xl font-extrabold text-primary ring-1 ring-border/80">
+        <div className="font-heading bg-primary/10 text-primary ring-border/80 flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-extrabold ring-1">
           {initials}
         </div>
         <div>
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-foreground text-sm font-semibold">
             {profile?.first_name
               ? `${profile.first_name} ${profile.last_name || ""}`
               : profile?.email}
           </p>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="text-muted-foreground font-mono text-xs">
             {profile?.email}
           </p>
         </div>
@@ -142,7 +142,7 @@ function PersonalInformationCard({
             Email Address
           </Label>
           {profile?.is_verified && (
-            <span className="flex items-center gap-1 text-[11px] font-medium text-success">
+            <span className="text-success flex items-center gap-1 text-[11px] font-medium">
               <ShieldCheck className="h-3.5 w-3.5" />
               Verified
             </span>
@@ -152,29 +152,29 @@ function PersonalInformationCard({
           id="email"
           value={profile?.email || ""}
           disabled
-          className="cursor-not-allowed bg-muted/40 font-mono text-xs text-muted-foreground"
+          className="bg-muted/40 text-muted-foreground cursor-not-allowed font-mono text-xs"
         />
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-muted-foreground text-[11px]">
           Email address is tied to your login credentials and cannot be changed
           directly.
         </p>
       </div>
 
       {profileErrorMsg && (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+        <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-xs">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{profileErrorMsg}</span>
         </div>
       )}
 
       {profileSuccessMsg && (
-        <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 p-3 text-xs text-success">
+        <div className="border-success/20 bg-success/10 text-success flex items-center gap-2 rounded-lg border p-3 text-xs">
           <Check className="h-4 w-4 shrink-0" />
           <span>{profileSuccessMsg}</span>
         </div>
       )}
 
-      <div className="border-t border-border/40 pt-4">
+      <div className="border-border/40 border-t pt-4">
         <Button
           onClick={() => updateProfileMutation.mutate()}
           disabled={
@@ -278,38 +278,38 @@ export function ProfilePage() {
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+        <h1 className="text-foreground text-2xl font-extrabold tracking-tight sm:text-3xl">
           Account Settings
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Manage your personal details, unique username handle, and account
           security.
         </p>
       </div>
 
       {isLoadingProfile ? (
-        <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <div className="text-muted-foreground flex items-center justify-center gap-3 py-16">
+          <Loader2 className="text-primary h-6 w-6 animate-spin" />
           <span className="text-sm">Loading your profile...</span>
         </div>
       ) : (
         <div className="space-y-8">
           {/* Card 1: Unique Username Handle */}
-          <div className="space-y-6 rounded-xl border border-border/70 bg-card/40 p-6 shadow-xs backdrop-blur-xs">
-            <div className="flex items-start justify-between border-b border-border/40 pb-4">
+          <div className="border-border/70 bg-card/40 space-y-6 rounded-xl border p-6 shadow-xs backdrop-blur-xs">
+            <div className="border-border/40 flex items-start justify-between border-b pb-4">
               <div>
-                <h3 className="flex items-center gap-2 text-base font-bold text-foreground">
-                  <AtSign className="h-4 w-4 text-primary" />
+                <h3 className="text-foreground flex items-center gap-2 text-base font-bold">
+                  <AtSign className="text-primary h-4 w-4" />
                   <span>Unique Username Handle</span>
                 </h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-0.5 text-xs">
                   Your username uniquely identifies your account across all
                   multi-tenant workspaces.
                 </p>
               </div>
 
               {currentProfile?.username && (
-                <div className="flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                <div className="border-primary/20 bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold">
                   <Lock className="h-3 w-3" />
                   <span>Permanent Handle</span>
                 </div>
@@ -318,16 +318,16 @@ export function ProfilePage() {
 
             {currentProfile?.username ? (
               /* Already Set (Permanent & Immutable) */
-              <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+              <div className="border-border/60 bg-muted/20 space-y-2 rounded-lg border p-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-muted-foreground text-sm">
                     Active Username:
                   </span>
-                  <span className="font-mono text-base font-bold text-primary">
+                  <span className="text-primary font-mono text-base font-bold">
                     @{currentProfile.username}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Your username is permanent and cannot be modified. It is used
                   for workspace invites and collaboration.
                 </p>
@@ -335,8 +335,8 @@ export function ProfilePage() {
             ) : (
               /* Not Set Yet (Claim Workflow) */
               <div className="space-y-4">
-                <div className="flex items-start gap-2.5 rounded-lg border border-warning/30 bg-warning/10 p-3.5 text-xs text-warning">
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+                <div className="border-warning/30 bg-warning/10 text-warning flex items-start gap-2.5 rounded-lg border p-3.5 text-xs">
+                  <AlertCircle className="text-warning mt-0.5 h-4 w-4 shrink-0" />
                   <div>
                     <span className="font-semibold">Important Notice:</span> You
                     can only choose your username once. Once claimed, it is
@@ -349,7 +349,7 @@ export function ProfilePage() {
                     Choose Your Username
                   </Label>
                   <div className="relative max-w-md">
-                    <span className="absolute top-1/2 left-3 -translate-y-1/2 font-mono text-sm text-muted-foreground">
+                    <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 font-mono text-sm">
                       @
                     </span>
                     <Input
@@ -373,14 +373,14 @@ export function ProfilePage() {
                   {/* Availability & Validation Feedback */}
                   <div className="h-5 text-xs">
                     {debouncedUsername.length > 0 && !isValidFormat && (
-                      <span className="flex items-center gap-1 text-warning">
+                      <span className="text-warning flex items-center gap-1">
                         <AlertCircle className="h-3.5 w-3.5" />
                         Must be 3–20 lowercase letters, numbers, or underscores.
                       </span>
                     )}
 
                     {isValidFormat && isCheckingAvailability && (
-                      <span className="flex items-center gap-1 text-muted-foreground">
+                      <span className="text-muted-foreground flex items-center gap-1">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         Checking availability...
                       </span>
@@ -389,7 +389,7 @@ export function ProfilePage() {
                     {isValidFormat &&
                       !isCheckingAvailability &&
                       isAvailable === true && (
-                        <span className="flex items-center gap-1 font-medium text-success">
+                        <span className="text-success flex items-center gap-1 font-medium">
                           <CheckCircle2 className="h-3.5 w-3.5" />@
                           {debouncedUsername} is available!
                         </span>
@@ -398,7 +398,7 @@ export function ProfilePage() {
                     {isValidFormat &&
                       !isCheckingAvailability &&
                       isAvailable === false && (
-                        <span className="flex items-center gap-1 font-medium text-destructive">
+                        <span className="text-destructive flex items-center gap-1 font-medium">
                           <XCircle className="h-3.5 w-3.5" />@
                           {debouncedUsername} is already taken.
                         </span>
@@ -407,14 +407,14 @@ export function ProfilePage() {
                 </div>
 
                 {usernameErrorMsg && (
-                  <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+                  <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-xs">
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     <span>{usernameErrorMsg}</span>
                   </div>
                 )}
 
                 {usernameSuccessMsg && (
-                  <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 p-3 text-xs text-success">
+                  <div className="border-success/20 bg-success/10 text-success flex items-center gap-2 rounded-lg border p-3 text-xs">
                     <Check className="h-4 w-4 shrink-0" />
                     <span>{usernameSuccessMsg}</span>
                   </div>
@@ -447,8 +447,8 @@ export function ProfilePage() {
 
           {/* Card 3: Account Metadata */}
           {currentProfile?.created_at && (
-            <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/20 p-4 text-xs text-muted-foreground">
-              <Calendar className="h-4 w-4 text-primary" />
+            <div className="border-border/60 bg-card/20 text-muted-foreground flex items-center gap-2 rounded-xl border p-4 text-xs">
+              <Calendar className="text-primary h-4 w-4" />
               <span>
                 Account registered on {formatDate(currentProfile.created_at)}.
               </span>

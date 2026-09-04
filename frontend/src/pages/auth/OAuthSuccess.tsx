@@ -79,14 +79,14 @@ export function OAuthSuccess() {
   // ── Error state ───────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-center">
-        <h1 className="mb-4 text-2xl font-bold text-destructive">
+      <div className="bg-background flex min-h-screen flex-col items-center justify-center p-4 text-center">
+        <h1 className="text-destructive mb-4 text-2xl font-bold">
           Authentication Error
         </h1>
-        <p className="mb-6 max-w-md text-muted-foreground">{error}</p>
+        <p className="text-muted-foreground mb-6 max-w-md">{error}</p>
         <button
           onClick={() => navigate("/sign-in")}
-          className="cursor-pointer rounded-lg bg-primary px-6 py-2 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer rounded-lg px-6 py-2 font-semibold transition-colors"
         >
           Back to Sign In
         </button>
@@ -96,9 +96,9 @@ export function OAuthSuccess() {
 
   // ── Loading state ─────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background">
-      <Loader2 className="mb-4 h-10 w-10 animate-spin text-primary" />
-      <p className="text-lg font-medium text-muted-foreground">
+    <div className="bg-background flex min-h-screen flex-col items-center justify-center">
+      <Loader2 className="text-primary mb-4 h-10 w-10 animate-spin" />
+      <p className="text-muted-foreground text-lg font-medium">
         Completing sign-in with{" "}
         <span className="text-foreground capitalize">{provider}</span>...
       </p>
