@@ -95,14 +95,14 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
             <Shield className="h-5 w-5" />
           </div>
           <div>
             <DialogTitle>Change Member Role</DialogTitle>
             <DialogDescription>
               Update access permissions for{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {member.first_name} {member.last_name} ({member.email})
               </span>
             </DialogDescription>
@@ -114,7 +114,7 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
         {serverError && (
           <div
             role="alert"
-            className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+            className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
           >
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{serverError}</span>
@@ -148,10 +148,10 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
                     className="mt-1"
                   />
                   <div className="flex-1 space-y-0.5">
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-foreground text-sm font-medium">
                       {opt.label}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {opt.description}
                     </p>
                   </div>
@@ -162,7 +162,7 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
         </div>
 
         {selectedRole !== member.role && (
-          <div className="flex items-start gap-2.5 rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning">
+          <div className="border-warning/30 bg-warning/10 text-warning flex items-start gap-2.5 rounded-lg border p-3 text-xs">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               Changing this user&apos;s role will immediately adjust what they

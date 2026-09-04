@@ -120,14 +120,14 @@ export function MembersPage() {
   if (!activeOrg) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+        <div className="bg-muted text-muted-foreground flex h-14 w-14 items-center justify-center rounded-2xl">
           <Building2 className="h-7 w-7" />
         </div>
         <div className="space-y-1">
           <h2 className="text-xl font-bold tracking-tight">
             No Active Organization
           </h2>
-          <p className="max-w-sm text-sm text-muted-foreground">
+          <p className="text-muted-foreground max-w-sm text-sm">
             Please select or create an organization from the workspace switcher
             in the header.
           </p>
@@ -142,14 +142,14 @@ export function MembersPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
               Team Members
             </h1>
-            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+            <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-semibold">
               {members.length} {members.length === 1 ? "member" : "members"}
             </span>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Manage your organization members, invite new teammates, and assign
             roles.
           </p>
@@ -184,35 +184,35 @@ export function MembersPage() {
       {/* Search Bar & Filters */}
       <div className="flex items-center gap-3">
         <div className="relative max-w-md flex-1">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, or handle..."
-            className="h-10 border-border/80 bg-card/40 pl-9"
+            className="border-border/80 bg-card/40 h-10 pl-9"
           />
         </div>
       </div>
 
       {/* Members Table */}
-      <div className="overflow-hidden rounded-xl border border-border/60 bg-card/30 shadow-sm backdrop-blur-xs">
+      <div className="border-border/60 bg-card/30 overflow-hidden rounded-xl border shadow-sm backdrop-blur-xs">
         {isLoading ? (
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-muted-foreground flex min-h-[300px] flex-col items-center justify-center gap-3 py-12 text-center">
+            <Loader2 className="text-primary h-8 w-8 animate-spin" />
             <p className="text-sm">Loading team members...</p>
           </div>
         ) : error ? (
-          <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 p-8 text-center text-destructive">
+          <div className="text-destructive flex min-h-[200px] flex-col items-center justify-center gap-2 p-8 text-center">
             <AlertCircle className="h-8 w-8" />
             <p className="text-sm font-semibold">Failed to load members</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Please check your connection or organization permissions.
             </p>
           </div>
         ) : filteredMembers.length === 0 ? (
-          <div className="flex min-h-[250px] flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
+          <div className="text-muted-foreground flex min-h-[250px] flex-col items-center justify-center gap-3 p-8 text-center">
             <Users className="h-10 w-10 stroke-1" />
-            <p className="font-medium text-foreground">No members found</p>
+            <p className="text-foreground font-medium">No members found</p>
             <p className="max-w-xs text-xs">
               {searchQuery
                 ? `No members match "${searchQuery}". Try adjusting your search query.`
@@ -223,7 +223,7 @@ export function MembersPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-border/60 bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                <tr className="border-border/60 bg-muted/40 text-muted-foreground border-b text-xs font-semibold tracking-wider uppercase">
                   <th className="px-6 py-3.5">Member</th>
                   <th className="px-6 py-3.5">Email</th>
                   <th className="px-6 py-3.5">Role</th>
@@ -233,7 +233,7 @@ export function MembersPage() {
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/40">
+              <tbody className="divide-border/40 divide-y">
                 {filteredMembers.map((member) => {
                   const isCurrentUser = member.user_id === currentUser?.id
                   const isMemberOwner = member.role === "owner"
@@ -255,39 +255,39 @@ export function MembersPage() {
                   return (
                     <tr
                       key={member.user_id}
-                      className="transition-colors hover:bg-muted/25"
+                      className="hover:bg-muted/25 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          <div className="bg-primary/10 text-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
                             {initials}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <span className="truncate font-medium text-foreground">
+                              <span className="text-foreground truncate font-medium">
                                 {displayName}
                               </span>
                               {isCurrentUser && (
-                                <span className="py-0.2 rounded bg-muted px-1.5 text-[10px] font-medium text-muted-foreground">
+                                <span className="py-0.2 bg-muted text-muted-foreground rounded px-1.5 text-[10px] font-medium">
                                   You
                                 </span>
                               )}
                             </div>
                             {member.username && (
-                              <p className="truncate text-xs text-muted-foreground">
+                              <p className="text-muted-foreground truncate text-xs">
                                 @{member.username}
                               </p>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
+                      <td className="text-muted-foreground px-6 py-4 font-mono text-xs">
                         {member.email}
                       </td>
                       <td className="px-6 py-4">
                         <RoleBadge role={member.role} />
                       </td>
-                      <td className="px-6 py-4 text-xs text-muted-foreground">
+                      <td className="text-muted-foreground px-6 py-4 text-xs">
                         {formatDate(member.joined_at)}
                       </td>
                       {canManageMembers && (
@@ -299,7 +299,7 @@ export function MembersPage() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 hover:bg-muted"
+                                    className="hover:bg-muted h-8 w-8"
                                     aria-label="Member actions"
                                   />
                                 }
@@ -311,7 +311,7 @@ export function MembersPage() {
                                   onClick={() => setRoleChangeMember(member)}
                                   className="cursor-pointer gap-2"
                                 >
-                                  <Shield className="h-4 w-4 text-muted-foreground" />
+                                  <Shield className="text-muted-foreground h-4 w-4" />
                                   <span>Change Role</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -321,7 +321,7 @@ export function MembersPage() {
                                     setMemberToRemove(member)
                                   }}
                                   variant="destructive"
-                                  className="cursor-pointer gap-2 text-destructive focus:text-destructive"
+                                  className="text-destructive focus:text-destructive cursor-pointer gap-2"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                   <span>Remove Member</span>
@@ -329,7 +329,7 @@ export function MembersPage() {
                               </DropdownMenuContent>
                             </DropdownMenu>
                           ) : (
-                            <span className="text-xs text-muted-foreground/60 italic">
+                            <span className="text-muted-foreground/60 text-xs italic">
                               {isCurrentUser ? "Self" : "Protected"}
                             </span>
                           )}
@@ -366,18 +366,18 @@ export function MembersPage() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <div className="flex items-center gap-2 text-destructive">
+            <div className="text-destructive flex items-center gap-2">
               <Trash2 className="h-5 w-5" />
               <DialogTitle>Remove Team Member</DialogTitle>
             </div>
             <DialogDescription>
               Are you sure you want to remove{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {memberToRemove?.first_name} {memberToRemove?.last_name} (
                 {memberToRemove?.email})
               </span>{" "}
               from{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {activeOrg.name}
               </span>
               ? They will immediately lose access to all projects and databases.
@@ -387,7 +387,7 @@ export function MembersPage() {
           {removeError && (
             <div
               role="alert"
-              className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+              className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{removeError}</span>

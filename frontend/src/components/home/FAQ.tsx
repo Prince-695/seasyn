@@ -42,15 +42,15 @@ export const FAQ = () => {
     <section className="relative z-10 mx-auto mt-32 flex w-full max-w-6xl flex-col items-center justify-center gap-9 px-6 pb-32">
       {/* Header */}
       <div className="mb-1 flex text-center">
-        <h2 className="mb-4 text-5xl font-bold tracking-wider text-foreground md:text-5xl">
+        <h2 className="text-foreground mb-4 text-5xl font-bold tracking-wider md:text-5xl">
           Everything <p className="text-primary">You Need to Know</p>
         </h2>
       </div>
 
       <div className="relative flex w-2/3 flex-col gap-4">
         {/* Decorative background glows using primary and secondary */}
-        <div className="pointer-events-none absolute top-1/4 left-[-15%] -z-10 h-72 w-72 rounded-full bg-primary/5 blur-[120px]" />
-        <div className="pointer-events-none absolute right-[-15%] bottom-1/4 -z-10 h-72 w-72 rounded-full bg-secondary/5 blur-[120px]" />
+        <div className="bg-primary/5 pointer-events-none absolute top-1/4 left-[-15%] -z-10 h-72 w-72 rounded-full blur-[120px]" />
+        <div className="bg-secondary/5 pointer-events-none absolute right-[-15%] bottom-1/4 -z-10 h-72 w-72 rounded-full blur-[120px]" />
 
         {faqData.map((item, index) => {
           const isOpen = openIndex === index
@@ -59,9 +59,9 @@ export const FAQ = () => {
             <div
               key={index}
               className={cn(
-                "group overflow-hidden rounded-xl border-b border-border bg-card/40 backdrop-blur-sm transition-all duration-300",
+                "group border-border bg-card/40 overflow-hidden rounded-xl border-b backdrop-blur-sm transition-all duration-300",
                 isOpen
-                  ? "border-secondary shadow-2xl shadow-primary/5"
+                  ? "border-secondary shadow-primary/5 shadow-2xl"
                   : "hover:border-primary/20 hover:bg-card/60"
               )}
             >
@@ -83,7 +83,7 @@ export const FAQ = () => {
                   className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-500 ease-in-out",
                     isOpen
-                      ? "rotate-180 text-primary-foreground shadow-lg shadow-primary/20"
+                      ? "text-primary-foreground shadow-primary/20 rotate-180 shadow-lg"
                       : "text-secondary group-hover:text-primary"
                   )}
                 >
@@ -107,8 +107,8 @@ export const FAQ = () => {
                     }}
                     className="overflow-hidden"
                   >
-                    <div className="px-2 pb-4 text-muted-foreground md:px-4">
-                      <div className="border-t border-border/40 pt-4">
+                    <div className="text-muted-foreground px-2 pb-4 md:px-4">
+                      <div className="border-border/40 border-t pt-4">
                         <p className="text-base leading-relaxed md:text-lg">
                           {item.answer}
                         </p>

@@ -70,18 +70,18 @@ export function OrgSwitcher() {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 w-full justify-start gap-2 border-border/70 bg-background/60 px-2.5 font-medium shadow-xs hover:bg-accent/80 hover:text-accent-foreground"
+              className="border-border/70 bg-background/60 hover:bg-accent/80 hover:text-accent-foreground h-10 w-full justify-start gap-2 px-2.5 font-medium shadow-xs"
             />
           }
         >
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <div className="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-md">
             <Building2 className="h-3.5 w-3.5" />
           </div>
 
           <div className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
             <span className="truncate text-xs font-semibold sm:text-sm">
               {isLoading ? (
-                <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="text-muted-foreground flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Loading...
                 </span>
@@ -94,12 +94,12 @@ export function OrgSwitcher() {
             )}
           </div>
 
-          <ChevronsUpDown className="ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <ChevronsUpDown className="text-muted-foreground ml-auto h-3.5 w-3.5 shrink-0" />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" className="w-64 p-1.5">
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+            <DropdownMenuLabel className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
               Organizations
             </DropdownMenuLabel>
             {orgs.map((org) => {
@@ -111,20 +111,20 @@ export function OrgSwitcher() {
                   className="flex cursor-pointer items-center justify-between gap-2 px-2 py-2 text-sm"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+                    <div className="bg-muted text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded">
                       <Building2 className="h-3 w-3" />
                     </div>
                     <span className="truncate font-medium">{org.name}</span>
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5">
                     <RoleBadge role={org.role} />
-                    {isSelected && <Check className="h-4 w-4 text-primary" />}
+                    {isSelected && <Check className="text-primary h-4 w-4" />}
                   </div>
                 </DropdownMenuItem>
               )
             })}
             {orgs.length === 0 && !isLoading && (
-              <div className="px-2 py-3 text-center text-xs text-muted-foreground">
+              <div className="text-muted-foreground px-2 py-3 text-center text-xs">
                 No organizations found. Create your first workspace below.
               </div>
             )}
@@ -134,7 +134,7 @@ export function OrgSwitcher() {
 
           <DropdownMenuItem
             onClick={() => setCreateModalOpen(true)}
-            className="flex cursor-pointer items-center gap-2 px-2 py-2 text-sm font-medium text-primary focus:text-primary"
+            className="text-primary focus:text-primary flex cursor-pointer items-center gap-2 px-2 py-2 text-sm font-medium"
           >
             <Plus className="h-4 w-4" />
             <span>Create New Organization</span>

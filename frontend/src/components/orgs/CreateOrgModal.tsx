@@ -102,7 +102,7 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
@@ -118,7 +118,7 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
           {serverError && (
             <div
               role="alert"
-              className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+              className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{serverError}</span>
@@ -144,7 +144,7 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
               aria-invalid={!!errors.name}
             />
             {errors.name && (
-              <p className="text-xs font-medium text-destructive">
+              <p className="text-destructive text-xs font-medium">
                 {errors.name.message}
               </p>
             )}
@@ -166,11 +166,11 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
                 aria-invalid={!!errors.slug}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Unique URL-friendly handle for your workspace.
             </p>
             {errors.slug && (
-              <p className="text-xs font-medium text-destructive">
+              <p className="text-destructive text-xs font-medium">
                 {errors.slug.message}
               </p>
             )}
@@ -186,7 +186,7 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
               aria-invalid={!!errors.description}
             />
             {errors.description && (
-              <p className="text-xs font-medium text-destructive">
+              <p className="text-destructive text-xs font-medium">
                 {errors.description.message}
               </p>
             )}

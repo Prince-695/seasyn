@@ -5,9 +5,9 @@ import { ArrowRight } from "lucide-react"
 
 export const CTASection = () => {
   return (
-    <section className="relative w-full overflow-hidden bg-secondary text-secondary-foreground">
+    <section className="bg-secondary text-secondary-foreground relative w-full overflow-hidden">
       {/* Decorative gradient overlay */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
+      <div className="via-primary/5 pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-transparent" />
 
       <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 py-28 text-center md:py-40">
         <motion.h2
@@ -21,7 +21,7 @@ export const CTASection = () => {
         </motion.h2>
 
         <motion.p
-          className="mt-6 max-w-lg text-base leading-relaxed text-secondary-foreground/60"
+          className="text-secondary-foreground/60 mt-6 max-w-lg text-base leading-relaxed"
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
@@ -49,7 +49,7 @@ export const CTASection = () => {
           <NavLink to="/docs">
             <Button
               variant="outline"
-              className="h-12 rounded-full border-secondary-foreground/30 bg-transparent px-8 text-base text-secondary-foreground hover:bg-secondary-foreground/10"
+              className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10 h-12 rounded-full bg-transparent px-8 text-base"
             >
               View Documentation
             </Button>
@@ -57,7 +57,7 @@ export const CTASection = () => {
         </motion.div>
 
         <motion.p
-          className="mt-8 text-xs tracking-wide text-secondary-foreground/40"
+          className="text-secondary-foreground/40 mt-8 text-xs tracking-wide"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

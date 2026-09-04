@@ -135,7 +135,7 @@ export function InviteMemberModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-lg">
               <UserPlus className="h-5 w-5" />
             </div>
             <div>
@@ -151,7 +151,7 @@ export function InviteMemberModal({
           {serverError && (
             <div
               role="alert"
-              className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+              className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{serverError}</span>
@@ -170,7 +170,7 @@ export function InviteMemberModal({
               aria-invalid={!!errors.email}
             />
             {errors.email && (
-              <p className="text-xs font-medium text-destructive">
+              <p className="text-destructive text-xs font-medium">
                 {errors.email.message}
               </p>
             )}
@@ -202,11 +202,11 @@ export function InviteMemberModal({
                       className="mt-1"
                     />
                     <div className="flex-1 space-y-0.5">
-                      <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
+                      <div className="text-foreground flex items-center gap-1.5 text-sm font-medium">
+                        <Icon className="text-muted-foreground h-4 w-4" />
                         <span>{opt.label}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         {opt.description}
                       </p>
                     </div>

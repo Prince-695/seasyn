@@ -122,7 +122,7 @@ export function OtpInput({
           className={cn(
             "h-12 w-12 rounded-lg border text-center font-mono text-lg font-semibold transition-all duration-200 outline-none",
             "bg-muted/30 text-foreground caret-primary",
-            "focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20",
+            "focus:border-primary focus:bg-background focus:ring-primary/20 focus:ring-2",
             hasError
               ? "border-destructive/60 focus:border-destructive focus:ring-destructive/20"
               : "border-border",

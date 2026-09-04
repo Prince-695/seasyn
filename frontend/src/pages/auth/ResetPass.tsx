@@ -81,7 +81,7 @@ export function ResetPass() {
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+            <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{serverError}</span>
             </div>
@@ -89,11 +89,11 @@ export function ResetPass() {
 
           {/* Email Field */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="font-semibold text-foreground/80">
+            <Label htmlFor="email" className="text-foreground/80 font-semibold">
               Email Address
             </Label>
             <div className="relative">
-              <span className="absolute top-3 left-3 h-5 w-5 text-muted-foreground">
+              <span className="text-muted-foreground absolute top-3 left-3 h-5 w-5">
                 <Mail className="h-5 w-5" />
               </span>
               <Input
@@ -102,11 +102,11 @@ export function ResetPass() {
                 placeholder="jane@example.com"
                 {...register("email")}
                 aria-invalid={!!errors.email}
-                className="h-11 border-muted/80 bg-muted/30 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 pl-10 transition-all duration-200"
               />
             </div>
             {errors.email && (
-              <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+              <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
                 <AlertCircle className="h-4 w-4" />
                 {errors.email?.message}
               </p>
@@ -115,11 +115,11 @@ export function ResetPass() {
 
           {/* OTP Field */}
           <div className="space-y-2">
-            <Label htmlFor="otp" className="font-semibold text-foreground/80">
+            <Label htmlFor="otp" className="text-foreground/80 font-semibold">
               Verification Code (OTP)
             </Label>
             <div className="relative">
-              <span className="absolute top-3 left-3 h-5 w-5 text-muted-foreground">
+              <span className="text-muted-foreground absolute top-3 left-3 h-5 w-5">
                 <Key className="h-5 w-5" />
               </span>
               <Input
@@ -129,11 +129,11 @@ export function ResetPass() {
                 placeholder="123456"
                 {...register("otp")}
                 aria-invalid={!!errors.otp}
-                className="h-11 border-muted/80 bg-muted/30 pl-10 font-mono tracking-widest transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 pl-10 font-mono tracking-widest transition-all duration-200"
               />
             </div>
             {errors.otp && (
-              <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+              <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
                 <AlertCircle className="h-4 w-4" />
                 {errors.otp?.message}
               </p>
@@ -144,12 +144,12 @@ export function ResetPass() {
           <div className="space-y-2">
             <Label
               htmlFor="password"
-              className="font-semibold text-foreground/80"
+              className="text-foreground/80 font-semibold"
             >
               New Password
             </Label>
             <div className="relative">
-              <span className="absolute top-3 left-3 h-5 w-5 text-muted-foreground">
+              <span className="text-muted-foreground absolute top-3 left-3 h-5 w-5">
                 <Lock className="h-5 w-5" />
               </span>
               <Input
@@ -158,12 +158,12 @@ export function ResetPass() {
                 placeholder="••••••••"
                 {...register("password")}
                 aria-invalid={!!errors.password}
-                className="h-11 w-full border-muted/80 bg-muted/30 pr-10 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pr-10 pl-10 transition-all duration-200"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer focus:outline-hidden"
               >
                 {showPassword ? (
                   <EyeOff className="h-4.5 w-4.5" />
@@ -173,7 +173,7 @@ export function ResetPass() {
               </button>
             </div>
             {errors.password && (
-              <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+              <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
                 <AlertCircle className="h-4 w-4" />
                 {errors.password?.message}
               </p>
@@ -184,12 +184,12 @@ export function ResetPass() {
           <div className="space-y-2">
             <Label
               htmlFor="confirmPassword"
-              className="font-semibold text-foreground/80"
+              className="text-foreground/80 font-semibold"
             >
               Confirm New Password
             </Label>
             <div className="relative">
-              <span className="absolute top-3 left-3 h-5 w-5 text-muted-foreground">
+              <span className="text-muted-foreground absolute top-3 left-3 h-5 w-5">
                 <Lock className="h-5 w-5" />
               </span>
               <Input
@@ -198,12 +198,12 @@ export function ResetPass() {
                 placeholder="••••••••"
                 {...register("confirmPassword")}
                 aria-invalid={!!errors.confirmPassword}
-                className="h-11 w-full border-muted/80 bg-muted/30 pr-10 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pr-10 pl-10 transition-all duration-200"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground focus:outline-hidden"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer focus:outline-hidden"
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4.5 w-4.5" />
@@ -213,7 +213,7 @@ export function ResetPass() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+              <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
                 <AlertCircle className="h-4 w-4" />
                 {errors.confirmPassword?.message}
               </p>
@@ -222,7 +222,7 @@ export function ResetPass() {
 
           <Button
             type="submit"
-            className="mt-3 h-11 w-full bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+            className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-3 h-11 w-full font-semibold shadow-md transition-all"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -239,7 +239,7 @@ export function ResetPass() {
         <div className="pt-2 text-center">
           <Link
             to="/forgot-password"
-            className="inline-flex items-center justify-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="text-muted-foreground hover:text-primary inline-flex items-center justify-center text-sm font-medium transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Forgot Password
@@ -250,16 +250,16 @@ export function ResetPass() {
       <Dialog open={isSuccessOpen}>
         <DialogContent className="space-y-5 py-6 text-center">
           <div className="flex justify-center">
-            <div className="rounded-full bg-success/10 p-4">
-              <CheckCircle2 className="h-14 w-14 text-success" />
+            <div className="bg-success/10 rounded-full p-4">
+              <CheckCircle2 className="text-success h-14 w-14" />
             </div>
           </div>
 
           <DialogHeader className="space-y-2 text-center sm:text-center">
-            <DialogTitle className="text-center text-2xl font-bold tracking-tight text-primary">
+            <DialogTitle className="text-primary text-center text-2xl font-bold tracking-tight">
               Password Updated!
             </DialogTitle>
-            <DialogDescription className="text-center text-sm text-muted-foreground">
+            <DialogDescription className="text-muted-foreground text-center text-sm">
               Your password has been changed successfully.
               <br />
               You can now sign in with your new password.
@@ -267,7 +267,7 @@ export function ResetPass() {
           </DialogHeader>
           <Button
             onClick={() => navigate("/sign-in")}
-            className="mt-2 h-11 w-full bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/80"
+            className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/80 mt-2 h-11 w-full font-semibold shadow-md transition-all"
           >
             Go to Sign In
           </Button>

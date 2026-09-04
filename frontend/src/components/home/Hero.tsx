@@ -41,18 +41,18 @@ export const Hero = ({
         >
           {/* Left: Text Content */}
           <div className="flex flex-1 flex-col items-center">
-            <h1 className="text-center text-5xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl lg:leading-[1.1]">
+            <h1 className="text-foreground text-center text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl lg:leading-[1.1]">
               {title}
             </h1>
 
-            <p className="mt-6 max-w-3xl text-center text-lg leading-relaxed text-muted-foreground md:text-xl">
+            <p className="text-muted-foreground mt-6 max-w-3xl text-center text-lg leading-relaxed md:text-xl">
               {description}
             </p>
 
             <div className="relative mt-10 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button
                 onClick={onCtaClick}
-                className="group relative flex items-center justify-center gap-3 border border-primary bg-primary/5 p-6 font-medium text-primary transition-all hover:bg-primary hover:text-primary-foreground"
+                className="group border-primary bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground relative flex items-center justify-center gap-3 border p-6 font-medium transition-all"
               >
                 {ctaText}
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

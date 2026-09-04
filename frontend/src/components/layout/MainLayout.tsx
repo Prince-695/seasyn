@@ -7,7 +7,7 @@ export function MainLayout() {
   const { mobileSidebarOpen, setMobileSidebarOpen } = useUIStore()
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background font-sans text-foreground antialiased">
+    <div className="bg-background text-foreground flex h-screen w-screen overflow-hidden font-sans antialiased">
       {/* Desktop Sidebar */}
       <div className="hidden h-full shrink-0 md:flex">
         <Sidebar />
@@ -18,13 +18,13 @@ export function MainLayout() {
         <div className="fixed inset-0 z-50 flex md:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-background/80 backdrop-blur-xs transition-opacity"
+            className="bg-background/80 fixed inset-0 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileSidebarOpen(false)}
             aria-hidden="true"
           />
 
           {/* Drawer */}
-          <div className="relative z-50 flex h-full w-72 max-w-[85vw] animate-in flex-col bg-card shadow-2xl duration-200 slide-in-from-left">
+          <div className="animate-in bg-card slide-in-from-left relative z-50 flex h-full w-72 max-w-[85vw] flex-col shadow-2xl duration-200">
             <Sidebar />
           </div>
         </div>
@@ -36,7 +36,7 @@ export function MainLayout() {
         <Header />
 
         {/* Scrollable Content Canvas */}
-        <main className="flex-1 overflow-y-auto bg-linear-to-b from-background via-background to-muted/15 px-4 py-6 sm:px-8 sm:py-8">
+        <main className="from-background via-background to-muted/15 flex-1 overflow-y-auto bg-linear-to-b px-4 py-6 sm:px-8 sm:py-8">
           <div className="mx-auto w-full max-w-7xl">
             <Outlet />
           </div>

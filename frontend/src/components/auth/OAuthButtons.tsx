@@ -33,7 +33,7 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
       <Button
         variant="outline"
         type="button"
-        className="h-11 flex-1 border-muted/80 bg-muted/20 font-medium hover:bg-muted"
+        className="border-muted/80 bg-muted/20 hover:bg-muted h-11 flex-1 font-medium"
         onClick={() => handleOAuthLogin("google")}
       >
         <FcGoogle className="mr-2 h-5 w-5" />
@@ -43,7 +43,7 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
       <Button
         variant="outline"
         type="button"
-        className="h-11 flex-1 border-muted/80 bg-muted/20 font-medium hover:bg-muted"
+        className="border-muted/80 bg-muted/20 hover:bg-muted h-11 flex-1 font-medium"
         onClick={() => handleOAuthLogin("github")}
       >
         <FaGithub className="mr-2 h-5 w-5" />

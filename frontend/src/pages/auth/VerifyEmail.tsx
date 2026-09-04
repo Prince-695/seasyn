@@ -123,8 +123,8 @@ export function VerifyEmail() {
   // Prevent flashing OTP form if user is already verified
   if (isInitialized && isAuthenticated && user?.is_verified) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     )
   }
@@ -146,8 +146,8 @@ export function VerifyEmail() {
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="flex justify-center"
         >
-          <div className="rounded-full bg-primary/10 p-4">
-            <MailCheck className="h-10 w-10 text-primary" />
+          <div className="bg-primary/10 rounded-full p-4">
+            <MailCheck className="text-primary h-10 w-10" />
           </div>
         </motion.div>
 
@@ -160,7 +160,7 @@ export function VerifyEmail() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="flex items-start gap-2.5 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+              className="border-destructive/20 bg-destructive/10 text-destructive flex items-start gap-2.5 rounded-lg border p-3 text-sm font-medium"
             >
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{serverError}</span>
@@ -179,7 +179,7 @@ export function VerifyEmail() {
             autoFocus
           />
 
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-center text-xs">
             Enter the 6-digit code from your email. It expires in 10 minutes.
           </p>
         </div>
@@ -187,7 +187,7 @@ export function VerifyEmail() {
         {/* Submit Button */}
         <Button
           type="button"
-          className="h-11 w-full bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+          className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 h-11 w-full font-semibold shadow-md transition-all"
           disabled={isSubmitting || otp.length < 6}
           onClick={() => handleVerify()}
         >
@@ -203,13 +203,13 @@ export function VerifyEmail() {
 
         {/* Resend + navigation */}
         <div className="space-y-3 text-center">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             {"Didn't receive it? "}
             <button
               type="button"
               disabled={resendTimer > 0 || resendLoading || !email}
               onClick={handleResend}
-              className="inline-flex items-center gap-1 font-semibold text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-primary hover:text-primary/80 inline-flex items-center gap-1 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {resendLoading ? (
                 <>
@@ -235,7 +235,7 @@ export function VerifyEmail() {
 
           <Link
             to="/sign-in"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Sign In

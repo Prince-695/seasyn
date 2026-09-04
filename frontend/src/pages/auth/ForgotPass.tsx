@@ -49,18 +49,18 @@ export function ForgotPass() {
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {serverError && (
-          <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+          <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{serverError}</span>
           </div>
         )}
 
         <div className="space-y-2.5">
-          <Label htmlFor="email" className="font-semibold text-foreground/80">
+          <Label htmlFor="email" className="text-foreground/80 font-semibold">
             Email Address
           </Label>
           <div className="relative">
-            <span className="absolute top-3 left-3 h-5 w-5 text-muted-foreground">
+            <span className="text-muted-foreground absolute top-3 left-3 h-5 w-5">
               <Mail className="h-5 w-5" />
             </span>
             <Input
@@ -69,11 +69,11 @@ export function ForgotPass() {
               placeholder="jane@example.com"
               {...register("email")}
               aria-invalid={!!errors.email}
-              className="h-11 w-full border-muted/80 bg-muted/30 pl-10 transition-all duration-200 focus-visible:border-primary focus-visible:ring-primary/20"
+              className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pl-10 transition-all duration-200"
             />
           </div>
           {errors.email && (
-            <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+            <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
               <AlertCircle className="h-4 w-4" />
               {errors.email?.message}
             </p>
@@ -82,7 +82,7 @@ export function ForgotPass() {
 
         <Button
           type="submit"
-          className="mt-2 h-11 w-full bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
+          className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-2 h-11 w-full font-semibold shadow-md transition-all"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -99,7 +99,7 @@ export function ForgotPass() {
       <div className="pt-2 text-center text-sm">
         <Link
           to="/sign-in"
-          className="inline-flex items-center gap-1.5 font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 font-semibold transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Sign In

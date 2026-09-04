@@ -4,7 +4,7 @@ interface ComingSoonProps {
 
 export function ComingSoon({ title }: ComingSoonProps) {
   return (
-    <div className="flex min-h-[60vh] items-center justify-center bg-background text-foreground">
+    <div className="bg-background text-foreground flex min-h-[60vh] items-center justify-center">
       <h1 className="text-3xl font-bold tracking-tight">
         {title} Page (Coming Soon)
       </h1>

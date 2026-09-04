@@ -7,10 +7,21 @@
 
 export const projectKeys = {
   all: ["projects"] as const,
-  lists: () => [...projectKeys.all, "list"] as const,
-  list: (filters: string) => [...projectKeys.lists(), { filters }] as const,
-  details: () => [...projectKeys.all, "detail"] as const,
-  detail: (id: string) => [...projectKeys.details(), id] as const,
+  byOrg: (orgId: string) => [...projectKeys.all, "org", orgId] as const,
+  lists: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
+  list: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
+  detail: (orgId: string, projectId: string) =>
+    [...projectKeys.byOrg(orgId), "detail", projectId] as const,
+}
+
+export const connectionKeys = {
+  all: ["connections"] as const,
+  byProject: (orgId: string, projectId: string) =>
+    [...connectionKeys.all, "org", orgId, "project", projectId] as const,
+  list: (orgId: string, projectId: string) =>
+    [...connectionKeys.byProject(orgId, projectId), "list"] as const,
+  detail: (orgId: string, projectId: string, connId: string) =>
+    [...connectionKeys.byProject(orgId, projectId), "detail", connId] as const,
 }
 
 export const migrationKeys = {
