@@ -35,7 +35,7 @@ import { useAuthStore } from "@/store/authStore"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
 import { InviteMemberModal } from "@/components/orgs/InviteMemberModal"
 import { ChangeRoleDialog } from "@/components/orgs/ChangeRoleDialog"
-import { PermissionGuard } from "@/components/auth/PermissionGuard"
+import { PermissionGuard } from "@/components/auth"
 import { useHasPermission } from "@/hooks/useHasPermission"
 import { formatDate } from "@/lib/formatters"
 

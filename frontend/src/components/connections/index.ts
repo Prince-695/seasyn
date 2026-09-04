@@ -1,3 +1,4 @@
+export * from "./EngineIcon"
 export * from "./EngineSelector"
 export * from "./DiagnosticPingButton"
 export * from "./ConnectionCard"
