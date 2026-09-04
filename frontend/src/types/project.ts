@@ -31,7 +31,7 @@ export interface PublicDatabaseConnection {
   database?: string
   username?: string
   ssl_mode?: SSLMode
-  file_path?: string // For SQLite
+  file_path?: string
   is_source: boolean
   created_at: string
   updated_at: string
