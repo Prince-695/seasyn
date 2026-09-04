@@ -38,7 +38,7 @@ import { updateOrgSchema, type UpdateOrgInput } from "@/lib/validators"
 import { orgsApi } from "@/api/orgs"
 import { orgKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
-import { PermissionGuard } from "@/components/auth/PermissionGuard"
+import { PermissionGuard } from "@/components/auth"
 import { useHasPermission } from "@/hooks/useHasPermission"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
 

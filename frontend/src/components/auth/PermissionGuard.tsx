@@ -1,6 +1,6 @@
 import React from "react"
 import { useHasPermission } from "@/hooks/useHasPermission"
-import type { OrgRole } from "@/types/org"
+import type { OrgRole } from "@/types"
 
 export interface PermissionGuardProps {
   allowedRoles: OrgRole[]

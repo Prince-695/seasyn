@@ -4,7 +4,3 @@ export * from "./ComingSoon"
 export * from "./OrgSwitcher"
 export * from "./Sidebar"
 export * from "./Header"
-
-export * from "../home/Navbar"
-export * from "../home/NavbarMobile"
-export * from "../home/Footer"

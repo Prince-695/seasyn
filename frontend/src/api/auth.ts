@@ -30,8 +30,7 @@ export const authApi = {
   },
 
   resendOtp: async (): Promise<ApiResponse<null>> => {
-    const response = await apiClient.post("/auth/otp/send")
-    return response.data
+    return authApi.sendOtp()
   },
 
   verifyEmail: async (data: VerifyEmailPayload): Promise<ApiResponse<null>> => {
@@ -71,15 +70,13 @@ export const authApi = {
   },
 
   getProfile: async (): Promise<ApiResponse<User>> => {
-    const response = await apiClient.get("/users/me")
-    return response.data
+    return userApi.getMyProfile()
   },
 
   updateProfile: async (
     data: UpdateProfilePayload
   ): Promise<ApiResponse<User>> => {
-    const response = await apiClient.put("/users/update", data)
-    return response.data
+    return userApi.updateProfile(data)
   },
 }
 
@@ -103,10 +100,9 @@ export const userApi = {
     return response.data
   },
 
-  updateProfile: async (data: {
-    first_name: string
-    last_name: string
-  }): Promise<ApiResponse<User>> => {
+  updateProfile: async (
+    data: UpdateProfilePayload
+  ): Promise<ApiResponse<User>> => {
     const response = await apiClient.put("/users/update", data)
     return response.data
   },

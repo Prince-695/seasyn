@@ -6,10 +6,6 @@ import {
   HardDrive,
   Globe,
   Database,
-  CheckCircle2,
-  XCircle,
-  Activity,
-  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,11 +27,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { EngineIcon } from "./EngineSelector"
+import { DiagnosticPingButton } from "./DiagnosticPingButton"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
-import { projectsApi } from "@/api/projects"
-import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
-import type { PublicDatabaseConnection, ConnectionTestResult } from "@/types"
+import type { PublicDatabaseConnection } from "@/types"
 
 interface ConnectionCardProps {
   connection: PublicDatabaseConnection
@@ -48,43 +43,7 @@ export function ConnectionCard({
   onDelete,
   onInspectSchema,
 }: ConnectionCardProps) {
-  const { activeOrg } = useWorkspaceStore()
-  const [testing, setTesting] = useState(false)
-  const [testResult, setTestResult] = useState<ConnectionTestResult | null>(
-    null
-  )
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
-  // Direct ping test for saved connection
-  const handleTestPing = async () => {
-    if (!activeOrg?.id) return
-    setTesting(true)
-    setTestResult(null)
-
-    try {
-      const res = await projectsApi.testSavedConnection(
-        activeOrg.id,
-        connection.project_id,
-        connection.id
-      )
-      setTestResult(
-        res.data || {
-          success: false,
-          latency_ms: 0,
-          error_message: "No response",
-        }
-      )
-    } catch (err: unknown) {
-      setTestResult({
-        success: false,
-        latency_ms: 0,
-        error_message:
-          err instanceof Error ? err.message : "Connection diagnostic failed",
-      })
-    } finally {
-      setTesting(false)
-    }
-  }
 
   return (
     <>
@@ -151,14 +110,6 @@ export function ConnectionCard({
                 <MoreVertical className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  onClick={handleTestPing}
-                  className="cursor-pointer gap-2"
-                >
-                  <Activity className="text-primary h-4 w-4" />
-                  <span>Test Connection</span>
-                </DropdownMenuItem>
-
                 {onInspectSchema && (
                   <DropdownMenuItem
                     onClick={() => onInspectSchema(connection)}
@@ -170,7 +121,7 @@ export function ConnectionCard({
                 )}
 
                 <PermissionGuard allowedRoles={["owner", "admin"]}>
-                  <DropdownMenuSeparator />
+                  {onInspectSchema && <DropdownMenuSeparator />}
                   <DropdownMenuItem
                     onClick={() => setShowDeleteConfirm(true)}
                     className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer gap-2"
@@ -220,60 +171,14 @@ export function ConnectionCard({
         </div>
 
         {/* Card Footer: Live Diagnostic Ping Feedback & Trigger */}
-        <div className="border-border/60 mt-4 flex flex-col gap-2 border-t pt-3">
-          {testResult ? (
-            <div
-              className={cn(
-                "flex items-center justify-between rounded-lg border px-2.5 py-1.5 text-xs transition-all",
-                testResult.success
-                  ? "border-success/30 bg-success/10 text-success"
-                  : "border-destructive/30 bg-destructive/10 text-destructive"
-              )}
-            >
-              <div className="flex items-center gap-1.5 truncate">
-                {testResult.success ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                ) : (
-                  <XCircle className="h-3.5 w-3.5 shrink-0" />
-                )}
-                <span className="truncate font-medium">
-                  {testResult.success
-                    ? `${testResult.latency_ms}ms • Operational`
-                    : "Connection Failed"}
-                </span>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleTestPing}
-                disabled={testing}
-                className="hover:bg-background/20 h-6 px-2 text-[11px]"
-              >
-                Re-test
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-[11px]">
-                Ephemeral credentials verified
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleTestPing}
-                disabled={testing}
-                className="h-7 gap-1.5 text-xs font-medium"
-              >
-                {testing ? (
-                  <Loader2 className="text-primary h-3 w-3 animate-spin" />
-                ) : (
-                  <Activity className="text-primary h-3 w-3" />
-                )}
-                <span>{testing ? "Testing..." : "Test Ping"}</span>
-              </Button>
-            </div>
-          )}
+        <div className="border-border/60 mt-4 border-t pt-3">
+          <DiagnosticPingButton
+            savedConnId={connection.id}
+            projectId={connection.project_id}
+            size="sm"
+            variant="outline"
+            className="w-full justify-center"
+          />
         </div>
       </div>
 

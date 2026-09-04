@@ -1,10 +1,40 @@
 import { z } from "zod"
 
+// ─── Reusable Field Primitives ───────────────────────────────────────────────
+
+const emailField = z.string().email({ message: "Invalid email address" })
+
+const otpField = z
+  .string()
+  .length(6, { message: "Verification code must be exactly 6 digits" })
+  .regex(/^\d+$/, { message: "OTP must only contain digits" })
+
+const passwordField = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters" })
+
+const roleField = z.enum(["admin", "member", "viewer"], {
+  error: "Role must be admin, member, or viewer",
+})
+
+const slugField = z
+  .string()
+  .min(2, { message: "Slug must be at least 2 characters" })
+  .max(50, { message: "Slug cannot exceed 50 characters" })
+  .regex(/^[a-z0-9-]+$/, {
+    message: "Slug must contain only lowercase letters, numbers, and hyphens",
+  })
+
+const descriptionField = z
+  .string()
+  .max(500, { message: "Description cannot exceed 500 characters" })
+  .optional()
+
+// ─── Authentication Schemas ──────────────────────────────────────────────────
+
 export const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
+  email: emailField,
+  password: passwordField,
 })
 
 export const registerSchema = z
@@ -17,10 +47,8 @@ export const registerSchema = z
       .string()
       .min(2, { message: "Last name must be at least 2 characters" })
       .max(50),
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters" })
+    email: emailField,
+    password: passwordField
       .regex(/[A-Z]/, { message: "Must include at least one uppercase letter" })
       .regex(/[a-z]/, { message: "Must include at least one lowercase letter" })
       .regex(/[0-9]/, { message: "Must include at least one number" })
@@ -35,28 +63,35 @@ export const registerSchema = z
   })
 
 export const otpVerificationSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  otp: z
-    .string()
-    .length(6, { message: "Verification code must be exactly 6 digits" })
-    .regex(/^\d+$/, { message: "OTP must only contain digits" }),
+  email: emailField,
+  otp: otpField,
 })
+
+export const forgotPasswordSchema = z.object({
+  email: emailField,
+})
+
+export const resetPasswordSchema = z
+  .object({
+    email: emailField,
+    otp: otpField,
+    password: passwordField,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  })
+
+// ─── Project Schemas ─────────────────────────────────────────────────────────
 
 export const createProjectSchema = z.object({
   name: z
     .string()
     .min(2, { message: "Project name must be at least 2 characters" })
     .max(100, { message: "Project name cannot exceed 100 characters" }),
-  slug: z
-    .string()
-    .min(2, { message: "Slug must be at least 2 characters" })
-    .max(50, { message: "Slug cannot exceed 50 characters" })
-    .regex(/^[a-z0-9-]+$/, {
-      message: "Slug must contain only lowercase letters, numbers, and hyphens",
-    })
-    .optional()
-    .or(z.literal("")),
-  description: z.string().max(500).optional(),
+  slug: slugField.optional().or(z.literal("")),
+  description: descriptionField,
   environment: z
     .enum(["development", "staging", "production"])
     .default("development"),
@@ -67,9 +102,13 @@ export const updateProjectSchema = z.object({
     .string()
     .min(2, { message: "Project name must be at least 2 characters" })
     .max(100),
-  description: z.string().max(500).optional(),
+  description: descriptionField,
   environment: z.enum(["development", "staging", "production"]).optional(),
 })
+
+export const projectSchema = createProjectSchema
+
+// ─── Database Connection Schema ──────────────────────────────────────────────
 
 export const databaseConnectionSchema = z
   .object({
@@ -111,45 +150,15 @@ export const databaseConnectionSchema = z
     }
   )
 
-export const projectSchema = createProjectSchema
-
-export const forgotPasswordSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-})
-
-export const resetPasswordSchema = z
-  .object({
-    email: z.string().email({ message: "Invalid email address" }),
-    otp: z
-      .string()
-      .length(6, { message: "OTP must be exactly 6 characters" })
-      .regex(/^\d+$/, { message: "OTP must contain only numbers" }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  })
+// ─── Organization Schemas ────────────────────────────────────────────────────
 
 export const createOrgSchema = z.object({
   name: z
     .string()
     .min(2, { message: "Organization name must be at least 2 characters" })
     .max(100, { message: "Organization name cannot exceed 100 characters" }),
-  slug: z
-    .string()
-    .min(2, { message: "Slug must be at least 2 characters" })
-    .max(50, { message: "Slug cannot exceed 50 characters" })
-    .regex(/^[a-z0-9-]+$/, {
-      message: "Slug must contain only lowercase letters, numbers, and hyphens",
-    }),
-  description: z
-    .string()
-    .max(500, { message: "Description cannot exceed 500 characters" })
-    .optional(),
+  slug: slugField,
+  description: descriptionField,
 })
 
 export const updateOrgSchema = z.object({
@@ -157,26 +166,20 @@ export const updateOrgSchema = z.object({
     .string()
     .min(2, { message: "Organization name must be at least 2 characters" })
     .max(100, { message: "Organization name cannot exceed 100 characters" }),
-  description: z
-    .string()
-    .max(500, { message: "Description cannot exceed 500 characters" })
-    .optional(),
+  description: descriptionField,
 })
 
 export const inviteMemberSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  role: z.enum(["admin", "member", "viewer"], {
-    error: "Role must be admin, member, or viewer",
-  }),
+  email: emailField,
+  role: roleField,
 })
 
 export const updateMemberRoleSchema = z.object({
-  role: z.enum(["admin", "member", "viewer"], {
-    error: "Role must be admin, member, or viewer",
-  }),
+  role: roleField,
 })
 
-// Infer types
+// ─── Inferred Types ──────────────────────────────────────────────────────────
+
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 export type OtpVerificationInput = z.infer<typeof otpVerificationSchema>
