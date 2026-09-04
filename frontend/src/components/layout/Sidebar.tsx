@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   FolderKanban,
+  Server,
   ArrowRightLeft,
   Database,
   Users,
@@ -52,6 +53,12 @@ export function Sidebar() {
           label: "Projects",
           path: "/projects",
           icon: FolderKanban,
+          badge: null,
+        },
+        {
+          label: "Connections",
+          path: "/connections",
+          icon: Server,
           badge: null,
         },
 

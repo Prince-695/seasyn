@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -35,11 +35,12 @@ export function CreateProjectModal({
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
   const { activeOrg, setActiveProjectId } = useWorkspaceStore()
+  const [selectedEnv, setSelectedEnv] = useState<Environment>("development")
+  const [slugTouched, setSlugTouched] = useState(false)
 
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     reset,
     formState: { errors },
@@ -52,21 +53,6 @@ export function CreateProjectModal({
       environment: "development",
     },
   })
-
-  const projectName = watch("name")
-  const selectedEnv = watch("environment") as Environment
-
-  // Auto-generate slug from name if slug hasn't been manually diverged
-  const [slugTouched, setSlugTouched] = useState(false)
-  useEffect(() => {
-    if (!slugTouched && projectName) {
-      const generated = projectName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-      setValue("slug", generated, { shouldValidate: true })
-    }
-  }, [projectName, slugTouched, setValue])
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateProjectPayload) => {
@@ -87,12 +73,24 @@ export function CreateProjectModal({
       }
       setOpen(false)
       reset()
+      setSelectedEnv("development")
       setSlugTouched(false)
       if (newProject) {
         onProjectCreated?.(newProject)
       }
     },
   })
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (!slugTouched) {
+      const generated = val
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+      setValue("slug", generated, { shouldValidate: true })
+    }
+  }
 
   const onSubmit = (data: CreateProjectPayload) => {
     createMutation.mutate(data)
@@ -105,6 +103,7 @@ export function CreateProjectModal({
         setOpen(isOpen)
         if (!isOpen) {
           reset()
+          setSelectedEnv("development")
           setSlugTouched(false)
           createMutation.reset()
         }
@@ -115,14 +114,13 @@ export function CreateProjectModal({
           trigger ? (
             (trigger as React.ReactElement)
           ) : (
-            <Button className="gap-2 font-semibold">
+            <Button className="gap-2 font-semibold shadow-xs">
               <Plus className="h-4 w-4" />
-              <span>New Project</span>
+              <span>Create Project</span>
             </Button>
           )
         }
       />
-
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-primary uppercase">
@@ -145,7 +143,9 @@ export function CreateProjectModal({
             <Input
               id="projectName"
               placeholder="e.g. Core Production DB"
-              {...register("name")}
+              {...register("name", {
+                onChange: handleNameChange,
+              })}
               disabled={createMutation.isPending}
             />
             {errors.name && (
@@ -166,11 +166,9 @@ export function CreateProjectModal({
             <Input
               id="projectSlug"
               placeholder="core-production-db"
-              {...register("slug")}
-              onChange={(e) => {
-                setSlugTouched(true)
-                register("slug").onChange(e)
-              }}
+              {...register("slug", {
+                onChange: () => setSlugTouched(true),
+              })}
               disabled={createMutation.isPending}
             />
             {errors.slug && (
@@ -183,9 +181,11 @@ export function CreateProjectModal({
             <Label className="text-xs font-semibold">Environment</Label>
             <RadioGroup
               value={selectedEnv}
-              onValueChange={(val) =>
-                setValue("environment", val as Environment)
-              }
+              onValueChange={(val) => {
+                const env = val as Environment
+                setSelectedEnv(env)
+                setValue("environment", env, { shouldValidate: true })
+              }}
               className="grid grid-cols-3 gap-2 pt-1"
             >
               <div>
@@ -234,7 +234,7 @@ export function CreateProjectModal({
                 >
                   <span className="font-semibold">Prod</span>
                   <span className="text-[10px] text-muted-foreground">
-                    Live data
+                    Live
                   </span>
                 </Label>
               </div>
@@ -244,30 +244,32 @@ export function CreateProjectModal({
           {/* Description */}
           <div className="space-y-1.5">
             <Label htmlFor="projectDesc" className="text-xs font-semibold">
-              Description{" "}
-              <span className="font-normal text-muted-foreground">
-                (Optional)
-              </span>
+              Description (Optional)
             </Label>
             <Textarea
               id="projectDesc"
-              rows={3}
-              placeholder="Primary databases and replication target for service..."
+              placeholder="Brief description of the database workloads and sync frequency..."
               {...register("description")}
+              rows={3}
               disabled={createMutation.isPending}
             />
+            {errors.description && (
+              <p className="text-xs text-destructive">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
-          {/* Server Error Alert */}
+          {/* Server Error Display */}
           {createMutation.isError && (
             <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
               {createMutation.error instanceof Error
                 ? createMutation.error.message
-                : "Failed to create project. Please check organization permissions."}
+                : "Failed to create project workspace."}
             </div>
           )}
 
-          <DialogFooter className="pt-3">
+          <DialogFooter className="pt-2">
             <Button
               type="button"
               variant="outline"

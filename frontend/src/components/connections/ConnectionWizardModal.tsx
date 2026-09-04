@@ -61,11 +61,13 @@ export function ConnectionWizardModal({
   const [selectedEngine, setSelectedEngine] = useState<DBType>("postgres")
   const [mongoMode, setMongoMode] = useState<"uri" | "params">("uri")
 
+  const [isSourceVal, setIsSourceVal] = useState(defaultIsSource)
+
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
+    getValues,
     reset,
     formState: { errors },
   } = useForm<DatabaseConnectionInput>({
@@ -96,11 +98,9 @@ export function ConnectionWizardModal({
     }
   }, [selectedEngine, setValue])
 
-  const isSourceVal = watch("is_source")
-
   // Function to extract current payload for live diagnostic ping test
   const getTestPayload = (): TestConnectionPayload => {
-    const values = watch()
+    const values = getValues()
     return {
       db_type: selectedEngine,
       host: values.host,
@@ -428,7 +428,10 @@ export function ConnectionWizardModal({
               </div>
               <Switch
                 checked={isSourceVal}
-                onCheckedChange={(checked) => setValue("is_source", checked)}
+                onCheckedChange={(checked) => {
+                  setIsSourceVal(checked)
+                  setValue("is_source", checked)
+                }}
                 disabled={createMutation.isPending}
               />
             </div>

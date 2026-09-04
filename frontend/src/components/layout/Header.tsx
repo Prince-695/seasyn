@@ -42,6 +42,8 @@ import { RoleBadge } from "@/components/orgs/RoleBadge"
 
 const routeTitles: Record<string, { section: string; title: string }> = {
   "/dashboard": { section: "Workspace", title: "Overview & Dashboard" },
+  "/projects": { section: "Workspace", title: "Projects Studio" },
+  "/connections": { section: "Workspace", title: "Database Connections" },
   "/org/members": { section: "Organization", title: "Team Members" },
   "/org/settings": { section: "Organization", title: "Workspace Settings" },
   "/migration": { section: "Studio", title: "Migration Studio" },
@@ -58,10 +60,12 @@ export function Header() {
   const { activeOrg, currentRole } = useWorkspaceStore()
   const { theme, setTheme } = useTheme()
 
-  const currentRouteMeta = routeTitles[location.pathname] ?? {
-    section: "Application",
-    title: "Workspace",
-  }
+  const currentRouteMeta = location.pathname.startsWith("/projects/")
+    ? { section: "Projects", title: "Project Studio" }
+    : (routeTitles[location.pathname] ?? {
+        section: activeOrg?.name || "Workspace",
+        title: "Overview",
+      })
 
   // Real Backend Health Check (polls every 30s)
   const { data: isHealthy, isLoading: isCheckingHealth } = useQuery({

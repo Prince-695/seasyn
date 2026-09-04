@@ -9,6 +9,7 @@ export const projectKeys = {
   all: ["projects"] as const,
   byOrg: (orgId: string) => [...projectKeys.all, "org", orgId] as const,
   lists: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
+  list: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
   detail: (orgId: string, projectId: string) =>
     [...projectKeys.byOrg(orgId), "detail", projectId] as const,
 }
