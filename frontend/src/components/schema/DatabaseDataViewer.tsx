@@ -100,7 +100,7 @@ export function DatabaseDataViewer({
               <FileCode
                 className={cn(
                   "h-3.5 w-3.5",
-                  isDocumentParadigm ? "text-emerald-500" : "text-primary"
+                  isDocumentParadigm ? "text-success" : "text-primary"
                 )}
               />
               <span>
@@ -115,7 +115,7 @@ export function DatabaseDataViewer({
             className={cn(
               "font-mono text-[10px]",
               isDocumentParadigm
-                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                ? "border-success/30 bg-success/10 text-success"
                 : "border-primary/30 bg-primary/10 text-primary"
             )}
           >

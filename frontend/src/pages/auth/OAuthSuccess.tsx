@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { authApi } from "@/api/auth"
 import { Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 //
@@ -84,12 +85,12 @@ export function OAuthSuccess() {
           Authentication Error
         </h1>
         <p className="text-muted-foreground mb-6 max-w-md">{error}</p>
-        <button
+        <Button
           onClick={() => navigate("/sign-in")}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer rounded-lg px-6 py-2 font-semibold transition-colors"
+          className="cursor-pointer font-semibold transition-colors"
         >
           Back to Sign In
-        </button>
+        </Button>
       </div>
     )
   }

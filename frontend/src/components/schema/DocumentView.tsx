@@ -99,17 +99,19 @@ function JsonNode({
         )}
       >
         {isExpandable ? (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-muted-foreground hover:text-foreground mt-0.5 shrink-0 cursor-pointer p-0.5"
+            className="text-muted-foreground hover:text-foreground mt-0.5 h-auto w-auto shrink-0 cursor-pointer p-0.5"
           >
             {isExpanded ? (
               <ChevronDown className="h-3 w-3" />
             ) : (
               <ChevronRight className="h-3 w-3" />
             )}
-          </button>
+          </Button>
         ) : (
           <span className="w-4 shrink-0" />
         )}
@@ -123,15 +125,14 @@ function JsonNode({
           className={cn(
             "rounded px-1 text-[10px] font-semibold tracking-wider uppercase",
             type === "ObjectId" &&
-              "border border-purple-500/20 bg-purple-500/10 text-purple-400",
-            type === "string" && "text-emerald-400",
-            (type === "int" || type === "double") && "text-amber-400",
-            type === "boolean" && "text-blue-400",
+              "border-primary/20 bg-primary/10 text-primary border",
+            type === "string" && "text-success",
+            (type === "int" || type === "double") && "text-warning",
+            type === "boolean" && "text-info",
             type === "array" && "text-muted-foreground",
             type === "object" && "text-muted-foreground",
-            type === "ISODate" &&
-              "border border-cyan-500/20 bg-cyan-500/10 text-cyan-400",
-            type === "null" && "text-zinc-500"
+            type === "ISODate" && "border-info/20 bg-info/10 text-info border",
+            type === "null" && "text-muted-foreground"
           )}
         >
           {type === "array"
@@ -297,7 +298,7 @@ function EditDocumentDialog({
         </DialogHeader>
 
         {/* Warning banner */}
-        <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-500">
+        <div className="border-warning/30 bg-warning/10 text-warning flex items-center gap-2 rounded-lg border px-3 py-2 text-xs">
           <ShieldAlert className="h-4 w-4 shrink-0" />
           <span>Sensitive fields are redacted and cannot be edited.</span>
         </div>
@@ -310,7 +311,7 @@ function EditDocumentDialog({
               if (error) setError(null)
             }}
             rows={14}
-            className="border-border w-full overflow-x-auto bg-zinc-950 font-mono text-xs break-all whitespace-pre-wrap text-emerald-400 ring-offset-0"
+            className="border-code-border bg-code-bg text-code-foreground w-full overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap ring-offset-0"
           />
 
           {error && (
@@ -412,7 +413,7 @@ function InsertDocumentDialog({
               if (error) setError(null)
             }}
             rows={12}
-            className="border-border w-full overflow-x-auto bg-zinc-950 font-mono text-xs break-all whitespace-pre-wrap text-emerald-400 ring-offset-0"
+            className="border-code-border bg-code-bg text-code-foreground w-full overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap ring-offset-0"
           />
 
           {error && (
@@ -515,8 +516,10 @@ export function DocumentView({
           <div className="flex items-center gap-3">
             {/* View Mode Toggle: Tree vs Raw JSON */}
             <div className="border-border/70 bg-muted/30 flex items-center gap-1 rounded-lg border p-1">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setViewStyle("tree")}
                 className={cn(
                   "flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
@@ -525,12 +528,14 @@ export function DocumentView({
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Braces className="h-3.5 w-3.5 text-emerald-500" />
+                <Braces className="text-success h-3.5 w-3.5" />
                 <span>Document Cards</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setViewStyle("raw")}
                 className={cn(
                   "flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
@@ -541,7 +546,7 @@ export function DocumentView({
               >
                 <Code2 className="text-primary h-3.5 w-3.5" />
                 <span>Raw JSON</span>
-              </button>
+              </Button>
             </div>
 
             {/* Document Count Info */}
@@ -585,7 +590,7 @@ export function DocumentView({
                 className="h-8 gap-1.5 text-xs font-medium"
               >
                 {copiedAll ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-500" />
+                  <Check className="text-success h-3.5 w-3.5" />
                 ) : (
                   <Copy className="h-3.5 w-3.5" />
                 )}
@@ -641,26 +646,26 @@ export function DocumentView({
         </div>
       ) : viewStyle === "raw" ? (
         /* ── Raw JSON View ── */
-        <div className="border-border/80 relative overflow-hidden rounded-xl border bg-zinc-950 shadow-inner">
-          <div className="border-border/60 flex items-center justify-between border-b bg-zinc-900/60 px-4 py-2">
-            <span className="font-mono text-xs text-zinc-400">
+        <div className="border-border/80 bg-code-bg relative overflow-hidden rounded-xl border shadow-inner">
+          <div className="border-border/60 bg-muted/30 flex items-center justify-between border-b px-4 py-2">
+            <span className="text-muted-foreground font-mono text-xs">
               {collectionName}.json ({filteredDocs.length} items)
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleCopyAll}
-              className="h-6 gap-1 text-[11px] text-zinc-400 hover:text-zinc-100"
+              className="text-muted-foreground hover:text-foreground h-6 gap-1 text-[11px]"
             >
               {copiedAll ? (
-                <Check className="h-3 w-3 text-emerald-400" />
+                <Check className="text-success h-3 w-3" />
               ) : (
                 <Copy className="h-3 w-3" />
               )}
               <span>{copiedAll ? "Copied" : "Copy"}</span>
             </Button>
           </div>
-          <pre className="max-h-155 overflow-auto p-4 font-mono text-xs leading-relaxed text-emerald-400">
+          <pre className="text-code-foreground max-h-155 overflow-auto p-4 font-mono text-xs leading-relaxed">
             {JSON.stringify(filteredDocs, null, 2)}
           </pre>
         </div>
@@ -707,7 +712,7 @@ export function DocumentView({
                       title="Copy Document JSON"
                     >
                       {copiedId === docId ? (
-                        <Check className="h-3.5 w-3.5 text-emerald-500" />
+                        <Check className="text-success h-3.5 w-3.5" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}

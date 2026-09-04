@@ -205,11 +205,13 @@ export function VerifyEmail() {
         <div className="space-y-3 text-center">
           <div className="text-muted-foreground text-sm">
             {"Didn't receive it? "}
-            <button
+            <Button
               type="button"
+              variant="link"
+              size="sm"
               disabled={resendTimer > 0 || resendLoading || !email}
               onClick={handleResend}
-              className="text-primary hover:text-primary/80 inline-flex items-center gap-1 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-primary hover:text-primary/80 inline-flex h-auto items-center gap-1 p-0 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {resendLoading ? (
                 <>
@@ -230,7 +232,7 @@ export function VerifyEmail() {
                   Resend code
                 </>
               )}
-            </button>
+            </Button>
           </div>
 
           <Link

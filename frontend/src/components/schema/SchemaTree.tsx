@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import type { TableSchema } from "@/types/schema"
 import { cn } from "@/lib/utils"
@@ -97,10 +98,12 @@ export function SchemaTree({
       {/* Tables / Collections Navigation Tree */}
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
         <div className="flex items-center justify-between px-2 py-1">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-[11px] font-semibold tracking-wider uppercase transition-colors"
+            className="text-muted-foreground hover:text-foreground flex h-auto items-center gap-1 p-0 text-[11px] font-semibold tracking-wider uppercase transition-colors hover:bg-transparent"
           >
             <ChevronRight
               className={cn(
@@ -111,7 +114,7 @@ export function SchemaTree({
             <span>
               {terminology.entityPlural} ({filteredTables.length})
             </span>
-          </button>
+          </Button>
           {search && (
             <Badge variant="outline" className="h-4 px-1.5 py-0 text-[10px]">
               filtered
@@ -143,14 +146,16 @@ export function SchemaTree({
               filteredTables.map((table) => {
                 const isSelected = selectedTable === table.name
                 return (
-                  <button
+                  <Button
                     key={table.name}
                     type="button"
+                    variant="ghost"
+                    size="xs"
                     onClick={() => onSelectTable(table.name)}
                     className={cn(
-                      "group flex w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-150",
+                      "group flex h-auto w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-150",
                       isSelected
-                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold shadow-xs"
                         : "text-foreground hover:bg-muted/50"
                     )}
                   >
@@ -161,7 +166,7 @@ export function SchemaTree({
                             "h-3.5 w-3.5 shrink-0 transition-colors",
                             isSelected
                               ? "text-primary-foreground"
-                              : "text-emerald-500 group-hover:text-emerald-400"
+                              : "text-success group-hover:text-success/80"
                           )}
                         />
                       ) : (
@@ -191,7 +196,7 @@ export function SchemaTree({
                           : table.row_count}
                       </span>
                     </div>
-                  </button>
+                  </Button>
                 )
               })
             )}

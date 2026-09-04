@@ -1,4 +1,5 @@
 import { useRef, type ClipboardEvent, type KeyboardEvent } from "react"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 interface OtpInputProps {
@@ -102,7 +103,7 @@ export function OtpInput({
       aria-label="One-time password input"
     >
       {digits.map((digit, index) => (
-        <input
+        <Input
           key={index}
           ref={(el) => {
             inputRefs.current[index] = el

@@ -353,7 +353,7 @@ export function SchemaExplorerPage() {
                 <h1 className="text-foreground text-sm font-bold">
                   Schema Studio
                 </h1>
-                <Badge className="border-emerald-500/20 bg-emerald-500/10 text-[10px] font-semibold text-emerald-500">
+                <Badge className="border-success/20 bg-success/10 text-success text-[10px] font-semibold">
                   Live
                 </Badge>
               </div>
@@ -413,11 +413,13 @@ export function SchemaExplorerPage() {
         {/* Studio View Mode Switcher */}
         <div className="flex items-center gap-3">
           <div className="border-border/70 bg-muted/30 flex items-center gap-1 rounded-xl border p-1">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveTab("structure")}
               className={cn(
-                "relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "relative flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === "structure"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -429,13 +431,15 @@ export function SchemaExplorerPage() {
                   ? `${terminology.entitySingular} Schema`
                   : "Structure"}
               </span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveTab("data")}
               className={cn(
-                "relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "relative flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === "data"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -443,13 +447,15 @@ export function SchemaExplorerPage() {
             >
               <TableIcon className="h-3.5 w-3.5" />
               <span>{`Live ${terminology.recordPlural}`}</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveTab("diff")}
               className={cn(
-                "relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "relative flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === "diff"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -457,7 +463,7 @@ export function SchemaExplorerPage() {
             >
               <ArrowRightLeft className="h-3.5 w-3.5" />
               <span>Schema Diff</span>
-            </button>
+            </Button>
           </div>
 
           <Button

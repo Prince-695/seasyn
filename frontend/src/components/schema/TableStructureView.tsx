@@ -101,7 +101,7 @@ export function TableStructureView({
           <div className="flex items-center gap-3">
             <div className="border-primary/40 bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-xl border shadow-xs">
               {isDocument ? (
-                <Braces className="h-5 w-5 text-emerald-500" />
+                <Braces className="text-success h-5 w-5" />
               ) : (
                 <TableIcon className="h-5 w-5" />
               )}
@@ -147,56 +147,64 @@ export function TableStructureView({
 
         {/* Sub-tab Navigation */}
         <div className="border-border/60 mt-4 flex items-center gap-1 border-t pt-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setActiveSubTab("columns")}
             className={cn(
               "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               activeSubTab === "columns"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
             {terminology.fieldPlural} ({table.columns.length})
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setActiveSubTab("indexes")}
             className={cn(
               "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               activeSubTab === "indexes"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
             Indexes ({table.indexes?.length || 0})
-          </button>
+          </Button>
           {!isDocument && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="xs"
               onClick={() => setActiveSubTab("constraints")}
               className={cn(
                 "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
                 activeSubTab === "constraints"
-                  ? "bg-primary text-primary-foreground shadow-xs"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
               )}
             >
               Constraints ({table.constraints?.length || 0})
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setActiveSubTab("ddl")}
             className={cn(
               "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               activeSubTab === "ddl"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
             {isDocument ? "Collection Validator" : "DDL SQL"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -225,7 +233,7 @@ export function TableStructureView({
                       <td className="px-3 py-2.5">
                         <div className="text-foreground flex items-center gap-1.5 font-semibold">
                           {col.is_primary_key && (
-                            <Key className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                            <Key className="text-warning h-3.5 w-3.5 shrink-0" />
                           )}
                           {col.is_foreign_key && (
                             <ArrowUpRight className="text-info h-3.5 w-3.5 shrink-0" />
@@ -260,7 +268,7 @@ export function TableStructureView({
 
                       <td className="px-3 py-2.5 font-sans">
                         {col.is_primary_key && (
-                          <Badge className="border-amber-500/20 bg-amber-500/10 text-[10px] text-amber-500">
+                          <Badge className="border-warning/20 bg-warning/10 text-warning text-[10px]">
                             Primary Key
                           </Badge>
                         )}
@@ -315,7 +323,7 @@ export function TableStructureView({
                       </td>
                       <td className="px-3 py-2.5 font-sans">
                         {idx.is_unique ? (
-                          <Badge className="border-emerald-500/20 bg-emerald-500/10 text-[10px] text-emerald-500">
+                          <Badge className="border-success/20 bg-success/10 text-success text-[10px]">
                             UNIQUE
                           </Badge>
                         ) : (
@@ -410,14 +418,14 @@ export function TableStructureView({
               className="h-7 gap-1 text-xs"
             >
               {copiedDdl ? (
-                <Check className="h-3 w-3 text-emerald-500" />
+                <Check className="text-success h-3 w-3" />
               ) : (
                 <Copy className="h-3 w-3" />
               )}
               <span>{copiedDdl ? "Copied" : "Copy SQL"}</span>
             </Button>
           </div>
-          <div className="overflow-x-auto bg-zinc-950 p-4 font-mono text-xs text-emerald-400">
+          <div className="bg-code-bg text-code-foreground border-code-border overflow-x-auto border-t p-4 font-mono text-xs">
             <pre>{generateDdl()}</pre>
           </div>
         </div>

@@ -614,8 +614,10 @@ export function ConnectionWizardModal({
                             className="pr-9 font-mono text-xs ring-offset-0"
                             disabled={createMutation.isPending}
                           />
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => setShowMongoUri(!showMongoUri)}
                             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer"
                             tabIndex={-1}
@@ -625,7 +627,7 @@ export function ConnectionWizardModal({
                             ) : (
                               <Eye className="h-4 w-4" />
                             )}
-                          </button>
+                          </Button>
                         </div>
                       </TabsContent>
 

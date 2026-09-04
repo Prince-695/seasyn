@@ -230,9 +230,11 @@ export function ConnectionsPage() {
                 { label: "SQLite", value: "sqlite" },
               ] as const
             ).map((opt) => (
-              <button
+              <Button
                 key={opt.value}
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setSelectedEngine(opt.value)}
                 className={cn(
                   "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-all",
@@ -242,7 +244,7 @@ export function ConnectionsPage() {
                 )}
               >
                 {opt.label}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -255,9 +257,11 @@ export function ConnectionsPage() {
                 { label: "Targets", value: "target" },
               ] as const
             ).map((opt) => (
-              <button
+              <Button
                 key={opt.value}
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setSelectedRole(opt.value)}
                 className={cn(
                   "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-all",
@@ -267,7 +271,7 @@ export function ConnectionsPage() {
                 )}
               >
                 {opt.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

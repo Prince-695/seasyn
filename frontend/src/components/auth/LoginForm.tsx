@@ -155,18 +155,20 @@ export function LoginForm({ setServerError }: LoginFormProps) {
               }`}
             />
             {field.id === "password" && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-xs"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer focus:outline-hidden"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 h-auto w-auto -translate-y-1/2 cursor-pointer p-1 focus:outline-hidden"
               >
                 {showPassword ? (
                   <Eye className="h-4.5 w-4.5" />
                 ) : (
                   <EyeOff className="h-4.5 w-4.5" />
                 )}
-              </button>
+              </Button>
             )}
           </div>
           {errors[field.id] && (

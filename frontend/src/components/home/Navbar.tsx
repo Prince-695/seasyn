@@ -137,12 +137,15 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             className="text-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-md sm:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <Menu className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
 

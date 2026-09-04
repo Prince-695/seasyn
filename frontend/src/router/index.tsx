@@ -16,6 +16,9 @@ import {
   ConnectionsPage,
   SchemaExplorerPage,
   SchemaDiffPage,
+  MigrationsPage,
+  NewMigrationPage,
+  MigrationLivePage,
 } from "@/pages"
 
 import { ProtectedRoute } from "./ProtectedRoute"
@@ -91,7 +94,15 @@ export const router = createBrowserRouter(
             },
             {
               path: "migration",
-              element: <ComingSoon title="Migration Studio" />,
+              element: <MigrationsPage />,
+            },
+            {
+              path: "migration/new",
+              element: <NewMigrationPage />,
+            },
+            {
+              path: "migration/:jobId",
+              element: <MigrationLivePage />,
             },
             {
               path: "editor",

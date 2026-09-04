@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { EditCellDialog } from "./EditCellDialog"
 import { DeleteRowDialog } from "./DeleteRowDialog"
@@ -210,14 +211,14 @@ export function RelationalGridView({
               <tr>
                 {/* Select All Checkbox */}
                 <th className="w-10 px-3 py-2.5 text-center">
-                  <input
-                    type="checkbox"
-                    checked={
-                      rows.length > 0 && selectedRowIds.size === rows.length
-                    }
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="accent-primary h-3.5 w-3.5 rounded"
-                  />
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={
+                        rows.length > 0 && selectedRowIds.size === rows.length
+                      }
+                      onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                    />
+                  </div>
                 </th>
 
                 {/* Column Headers */}
@@ -231,7 +232,7 @@ export function RelationalGridView({
                     >
                       <div className="flex items-center gap-1.5">
                         {col.is_primary_key && (
-                          <Key className="h-3 w-3 shrink-0 text-amber-500" />
+                          <Key className="text-warning h-3 w-3 shrink-0" />
                         )}
                         <span>{col.name}</span>
                         {isSorted ? (
@@ -298,12 +299,12 @@ export function RelationalGridView({
                     >
                       {/* Checkbox */}
                       <td className="px-3 py-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleSelectRow(pkVal)}
-                          className="accent-primary h-3.5 w-3.5 rounded"
-                        />
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() => handleSelectRow(pkVal)}
+                          />
+                        </div>
                       </td>
 
                       {/* Row Cells */}
@@ -333,7 +334,7 @@ export function RelationalGridView({
                                 className={cn(
                                   "px-1.5 py-0 text-[10px]",
                                   rawVal
-                                    ? "border-emerald-500/30 text-emerald-500"
+                                    ? "border-success/30 text-success"
                                     : "border-muted-foreground/30 text-muted-foreground"
                                 )}
                               >
@@ -353,25 +354,29 @@ export function RelationalGridView({
                       {/* Action Cell */}
                       <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() =>
                               setEditingCell({ row, column: columns[0] })
                             }
-                            className="text-muted-foreground hover:text-foreground cursor-pointer rounded p-1 transition-colors"
+                            className="text-muted-foreground hover:text-foreground h-auto w-auto cursor-pointer rounded p-1 transition-colors"
                             title="Edit row"
                           >
                             <Edit2 className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                           {onDeleteRow && (
-                            <button
+                            <Button
                               type="button"
+                              variant="ghost"
+                              size="icon-xs"
                               onClick={() => setRowToDelete(row)}
-                              className="text-muted-foreground hover:text-destructive cursor-pointer rounded p-1 transition-colors"
+                              className="text-muted-foreground hover:text-destructive h-auto w-auto cursor-pointer rounded p-1 transition-colors"
                               title="Delete row"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </td>

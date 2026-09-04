@@ -24,57 +24,57 @@ const TYPE_CONFIG: Record<
 > = {
   int: {
     label: "INT",
-    badgeClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    badgeClass: "bg-info/10 text-info border-info/20",
     icon: Hash,
   },
   float: {
     label: "FLOAT",
-    badgeClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    badgeClass: "bg-info/10 text-info border-info/20",
     icon: Hash,
   },
   decimal: {
     label: "DECIMAL",
-    badgeClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    badgeClass: "bg-info/10 text-info border-info/20",
     icon: Hash,
   },
   string: {
     label: "STRING",
-    badgeClass: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    badgeClass: "bg-success/10 text-success border-success/20",
     icon: Type,
   },
   uuid: {
     label: "UUID",
-    badgeClass: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    badgeClass: "bg-success/10 text-success border-success/20",
     icon: Key,
   },
   bool: {
     label: "BOOL",
-    badgeClass: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    badgeClass: "bg-primary/10 text-primary border-primary/20",
     icon: ToggleLeft,
   },
   timestamp: {
     label: "TIME",
-    badgeClass: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    badgeClass: "bg-warning/10 text-warning border-warning/20",
     icon: Clock,
   },
   json: {
     label: "JSON",
-    badgeClass: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+    badgeClass: "bg-primary/10 text-primary border-primary/20",
     icon: Code2,
   },
   array: {
     label: "ARRAY",
-    badgeClass: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+    badgeClass: "bg-primary/10 text-primary border-primary/20",
     icon: Layers,
   },
   binary: {
     label: "BINARY",
-    badgeClass: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    badgeClass: "bg-muted text-muted-foreground border-border",
     icon: Binary,
   },
   enum: {
     label: "ENUM",
-    badgeClass: "bg-pink-500/10 text-pink-500 border-pink-500/20",
+    badgeClass: "bg-accent text-accent-foreground border-border",
     icon: Type,
   },
   unknown: {

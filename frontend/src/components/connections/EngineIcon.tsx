@@ -4,12 +4,15 @@ import type { DBType } from "@/types"
 
 export function EngineIcon({
   type,
+  engine,
   className = "h-6 w-6",
 }: {
-  type: DBType
+  type?: DBType
+  engine?: DBType
   className?: string
 }) {
-  switch (type) {
+  const effectiveType = type || engine || "postgres"
+  switch (effectiveType) {
     case "postgres":
       return <SiPostgresql className={cn("text-info", className)} />
     case "mysql":

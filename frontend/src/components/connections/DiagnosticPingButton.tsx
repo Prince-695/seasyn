@@ -196,14 +196,16 @@ export function DiagnosticPingButton({
             )}
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             onClick={handleTest}
             title="Re-run ping test"
-            className="hover:bg-background/20 rounded p-1 transition-colors"
+            className="hover:bg-background/20 h-auto w-auto rounded p-1 transition-colors"
           >
             <RefreshCw className="h-3.5 w-3.5 opacity-70 hover:opacity-100" />
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -197,12 +197,12 @@ export function MembersPage() {
       {/* Members Table */}
       <div className="border-border/60 bg-card/30 overflow-hidden rounded-xl border shadow-sm backdrop-blur-xs">
         {isLoading ? (
-          <div className="text-muted-foreground flex min-h-[300px] flex-col items-center justify-center gap-3 py-12 text-center">
+          <div className="text-muted-foreground flex min-h-75 flex-col items-center justify-center gap-3 py-12 text-center">
             <Loader2 className="text-primary h-8 w-8 animate-spin" />
             <p className="text-sm">Loading team members...</p>
           </div>
         ) : error ? (
-          <div className="text-destructive flex min-h-[200px] flex-col items-center justify-center gap-2 p-8 text-center">
+          <div className="text-destructive flex min-h-50 flex-col items-center justify-center gap-2 p-8 text-center">
             <AlertCircle className="h-8 w-8" />
             <p className="text-sm font-semibold">Failed to load members</p>
             <p className="text-muted-foreground text-xs">
@@ -210,7 +210,7 @@ export function MembersPage() {
             </p>
           </div>
         ) : filteredMembers.length === 0 ? (
-          <div className="text-muted-foreground flex min-h-[250px] flex-col items-center justify-center gap-3 p-8 text-center">
+          <div className="text-muted-foreground flex min-h-62.5 flex-col items-center justify-center gap-3 p-8 text-center">
             <Users className="h-10 w-10 stroke-1" />
             <p className="text-foreground font-medium">No members found</p>
             <p className="max-w-xs text-xs">
