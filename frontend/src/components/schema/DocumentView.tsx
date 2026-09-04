@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Hash,
   RefreshCw,
+  ShieldAlert,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -184,6 +185,58 @@ function JsonNode({
   )
 }
 
+const SENSITIVE_KEYS_REGEX = /^(password|hash|secret|token|api_key)$/i
+
+// Recursively redact sensitive keys matching /^(password|hash|secret|token|api_key)$/i with "[REDACTED]"
+function redactDocument(doc: Record<string, unknown>): Record<string, unknown> {
+  const redact = (val: unknown, keyName?: string): unknown => {
+    if (keyName && SENSITIVE_KEYS_REGEX.test(keyName)) {
+      return "[REDACTED]"
+    }
+    if (val === null || val === undefined) return val
+    if (Array.isArray(val)) {
+      return val.map((item) => redact(item))
+    }
+    if (typeof val === "object") {
+      const res: Record<string, unknown> = {}
+      for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+        res[k] = redact(v, k)
+      }
+      return res
+    }
+    return val
+  }
+
+  return redact(doc) as Record<string, unknown>
+}
+
+// Strip any [REDACTED] values and sensitive keys before sending payload to prevent overwriting
+function stripRedactedValues(val: unknown, keyName?: string): unknown {
+  if (keyName && SENSITIVE_KEYS_REGEX.test(keyName)) {
+    return undefined
+  }
+  if (val === "[REDACTED]") {
+    return undefined
+  }
+  if (val === null || val === undefined) return val
+  if (Array.isArray(val)) {
+    return val
+      .filter((item) => item !== "[REDACTED]")
+      .map((item) => stripRedactedValues(item))
+  }
+  if (typeof val === "object") {
+    const res: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+      const cleaned = stripRedactedValues(v, k)
+      if (cleaned !== undefined) {
+        res[k] = cleaned
+      }
+    }
+    return res
+  }
+  return val
+}
+
 // Modal for editing entire JSON Document
 function EditDocumentDialog({
   open,
@@ -197,7 +250,7 @@ function EditDocumentDialog({
   onSave: (updated: Record<string, unknown>) => Promise<void>
 }) {
   const [jsonText, setJsonText] = useState(() =>
-    document ? JSON.stringify(document, null, 2) : ""
+    document ? JSON.stringify(redactDocument(document), null, 2) : ""
   )
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -216,7 +269,8 @@ function EditDocumentDialog({
       ) {
         throw new Error("Document must be a valid JSON object.")
       }
-      await onSave(parsed)
+      const stripped = stripRedactedValues(parsed) as Record<string, unknown>
+      await onSave(stripped)
       onOpenChange(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid JSON format.")
@@ -227,7 +281,7 @@ function EditDocumentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="w-full max-w-2xl overflow-hidden sm:max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <DialogTitle className="text-base font-bold">
@@ -242,7 +296,13 @@ function EditDocumentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 py-2">
+        {/* Warning banner */}
+        <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-500">
+          <ShieldAlert className="h-4 w-4 shrink-0" />
+          <span>Sensitive fields are redacted and cannot be edited.</span>
+        </div>
+
+        <div className="w-full space-y-2 overflow-x-auto py-2">
           <Textarea
             value={jsonText}
             onChange={(e) => {
@@ -250,7 +310,7 @@ function EditDocumentDialog({
               if (error) setError(null)
             }}
             rows={14}
-            className="border-border bg-zinc-950 font-mono text-xs text-emerald-400 ring-offset-0"
+            className="border-border w-full overflow-x-auto bg-zinc-950 font-mono text-xs break-all whitespace-pre-wrap text-emerald-400 ring-offset-0"
           />
 
           {error && (
@@ -330,7 +390,7 @@ function InsertDocumentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="w-full max-w-xl overflow-hidden sm:max-w-xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <DialogTitle className="text-base font-bold">
@@ -344,7 +404,7 @@ function InsertDocumentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 py-2">
+        <div className="w-full space-y-2 overflow-x-auto py-2">
           <Textarea
             value={jsonText}
             onChange={(e) => {
@@ -352,7 +412,7 @@ function InsertDocumentDialog({
               if (error) setError(null)
             }}
             rows={12}
-            className="border-border bg-zinc-950 font-mono text-xs text-emerald-400 ring-offset-0"
+            className="border-border w-full overflow-x-auto bg-zinc-950 font-mono text-xs break-all whitespace-pre-wrap text-emerald-400 ring-offset-0"
           />
 
           {error && (
@@ -600,7 +660,7 @@ export function DocumentView({
               <span>{copiedAll ? "Copied" : "Copy"}</span>
             </Button>
           </div>
-          <pre className="max-h-[620px] overflow-auto p-4 font-mono text-xs leading-relaxed text-emerald-400">
+          <pre className="max-h-155 overflow-auto p-4 font-mono text-xs leading-relaxed text-emerald-400">
             {JSON.stringify(filteredDocs, null, 2)}
           </pre>
         </div>

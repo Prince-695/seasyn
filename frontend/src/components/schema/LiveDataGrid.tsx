@@ -341,7 +341,7 @@ export function LiveDataGrid({
 
       {/* Main Table Grid Container */}
       <div className="border-border/70 bg-card overflow-hidden rounded-xl border shadow-xs">
-        <div className="max-h-[550px] overflow-auto">
+        <div className="max-h-137.5 overflow-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead className="border-border/60 bg-muted/60 sticky top-0 z-10 border-b backdrop-blur-md">
               <tr>
@@ -460,7 +460,7 @@ export function LiveDataGrid({
                               setEditingCell({ row, column: col })
                             }
                             title="Click to edit value"
-                            className="text-foreground max-w-[240px] cursor-pointer truncate px-3 py-2 text-xs hover:underline"
+                            className="text-foreground max-w-60 cursor-pointer truncate px-3 py-2 text-xs hover:underline"
                           >
                             {isNull ? (
                               <span className="text-muted-foreground/50 text-[11px] italic">
