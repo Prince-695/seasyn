@@ -33,22 +33,32 @@ export function SchemaDiffViewer({
   const [filter, setFilter] = useState<"all" | "diffs" | "added" | "altered">(
     "all"
   )
+
+  // Null-safe fallbacks for all diff array properties
+  const tablesAdded = diff?.tables_added ?? []
+  const tablesRemoved = diff?.tables_removed ?? []
+  const tablesAltered = diff?.tables_altered ?? []
+  const tablesSame = diff?.tables_same ?? []
+
   const [selectedTableDiff, setSelectedTableDiff] = useState<TableDiff | null>(
-    diff.tables_altered[0] || null
+    tablesAltered[0] || null
   )
   const [copiedMigrationSql, setCopiedMigrationSql] = useState(false)
 
-  // Filtered altered tables
-  const alteredList = diff.tables_altered
-
   const handleCopyMigrationDdl = async () => {
-    let sql = `-- SEASYN Automated Migration Script\n-- Source (${diff.source_db_type}) ➔ Target (${diff.target_db_type})\n-- Generated at: ${new Date(diff.generated_at).toLocaleString()}\n\n`
+    const srcType = diff?.source_db_type || "Source"
+    const tgtType = diff?.target_db_type || "Target"
+    const genAt = diff?.generated_at
+      ? new Date(diff.generated_at).toLocaleString()
+      : new Date().toLocaleString()
 
-    diff.tables_added.forEach((t) => {
+    let sql = `-- SEASYN Automated Migration Script\n-- Source (${srcType}) ➔ Target (${tgtType})\n-- Generated at: ${genAt}\n\n`
+
+    tablesAdded.forEach((t) => {
       sql += `-- Create table missing in target\nCREATE TABLE "${t}" (\n  "id" UUID PRIMARY KEY,\n  "created_at" TIMESTAMPTZ DEFAULT NOW()\n);\n\n`
     })
 
-    diff.tables_altered.forEach((td) => {
+    tablesAltered.forEach((td) => {
       td.column_diffs?.forEach((cd) => {
         if (cd.diff_type === "added" && cd.source_column) {
           sql += `ALTER TABLE "${td.name}" ADD COLUMN "${cd.name}" ${cd.source_column.data_type};\n`
@@ -89,7 +99,7 @@ export function SchemaDiffViewer({
             <PlusCircle className="text-success h-4 w-4" />
           </div>
           <span className="text-success mt-2 font-mono text-2xl font-bold">
-            +{diff.tables_added.length}
+            +{tablesAdded.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             Missing from target DB
@@ -105,7 +115,7 @@ export function SchemaDiffViewer({
             <MinusCircle className="text-destructive h-4 w-4" />
           </div>
           <span className="text-destructive mt-2 font-mono text-2xl font-bold">
-            -{diff.tables_removed.length}
+            -{tablesRemoved.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             Present only in target
@@ -130,7 +140,7 @@ export function SchemaDiffViewer({
             <AlertCircle className="text-warning h-4 w-4" />
           </div>
           <span className="text-warning mt-2 font-mono text-2xl font-bold">
-            ~{diff.tables_altered.length}
+            ~{tablesAltered.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             Schema type divergences
@@ -146,7 +156,7 @@ export function SchemaDiffViewer({
             <CheckCircle2 className="text-primary h-4 w-4" />
           </div>
           <span className="text-foreground mt-2 font-mono text-2xl font-bold">
-            {diff.tables_same.length}
+            {tablesSame.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             100% schema parity
@@ -182,7 +192,7 @@ export function SchemaDiffViewer({
               onClick={() => setFilter("added")}
               className="h-7 px-2.5 text-xs"
             >
-              Added ({diff.tables_added.length})
+              Added ({tablesAdded.length})
             </Button>
             <Button
               variant={filter === "altered" ? "default" : "outline"}
@@ -190,7 +200,7 @@ export function SchemaDiffViewer({
               onClick={() => setFilter("altered")}
               className="h-7 px-2.5 text-xs"
             >
-              Altered ({diff.tables_altered.length})
+              Altered ({tablesAltered.length})
             </Button>
           </div>
         </div>
@@ -222,7 +232,7 @@ export function SchemaDiffViewer({
 
           <div className="space-y-1">
             {/* Added Tables List */}
-            {diff.tables_added.map((tableName) => (
+            {tablesAdded.map((tableName) => (
               <div
                 key={`add-${tableName}`}
                 className="border-success/20 bg-success/5 flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
@@ -240,7 +250,7 @@ export function SchemaDiffViewer({
             ))}
 
             {/* Altered Tables List */}
-            {alteredList.map((td) => {
+            {tablesAltered.map((td) => {
               const isSelected = selectedTableDiff?.name === td.name
               return (
                 <Button
@@ -273,7 +283,7 @@ export function SchemaDiffViewer({
 
             {/* Same Tables List (if filter allows) */}
             {filter === "all" &&
-              diff.tables_same.map((tableName) => (
+              tablesSame.map((tableName) => (
                 <div
                   key={`same-${tableName}`}
                   className="border-border/50 bg-muted/10 flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
