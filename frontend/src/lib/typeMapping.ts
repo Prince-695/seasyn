@@ -5,34 +5,29 @@
  * Exposes helpers for retrieving the Display Name, and Brand Color (theme-compatible Tailwind classes).
  */
 
-export type DBType = "postgresql" | "mysql" | "mongodb" | "sqlite"
-
-interface DBTypeMeta {
-  displayName: string
-  colorClass: string // Tailwind text color
-  bgColorClass: string // Tailwind background color
-}
+import type { DBType, DBTypeMeta } from "@/types"
 
 export const dbTypeMapping: Record<DBType, DBTypeMeta> = {
-  postgresql: {
+  postgres: {
     displayName: "PostgreSQL",
-    colorClass: "text-blue-500",
-    bgColorClass: "bg-blue-500/10",
+    colorClass: "text-info",
+    bgColorClass: "bg-info/10",
   },
+
   mysql: {
     displayName: "MySQL",
-    colorClass: "text-orange-500",
-    bgColorClass: "bg-orange-500/10",
+    colorClass: "text-warning",
+    bgColorClass: "bg-warning/10",
   },
   mongodb: {
     displayName: "MongoDB",
-    colorClass: "text-green-500",
-    bgColorClass: "bg-green-500/10",
+    colorClass: "text-success",
+    bgColorClass: "bg-success/10",
   },
   sqlite: {
     displayName: "SQLite",
-    colorClass: "text-sky-500",
-    bgColorClass: "bg-sky-500/10",
+    colorClass: "text-primary",
+    bgColorClass: "bg-primary/10",
   },
 }
 
@@ -41,8 +36,8 @@ export const getDBTypeMeta = (type: DBType | string): DBTypeMeta => {
   return (
     dbTypeMapping[normalizedType] || {
       displayName: type,
-      colorClass: "text-gray-500",
-      bgColorClass: "bg-gray-500/10",
+      colorClass: "text-muted-foreground",
+      bgColorClass: "bg-muted",
     }
   )
 }

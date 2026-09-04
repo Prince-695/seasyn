@@ -11,3 +11,6 @@ build/
 .env*
 
 temp/
+
+phase*.md
+*.zip

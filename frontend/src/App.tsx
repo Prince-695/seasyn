@@ -1,44 +1,19 @@
-import { Routes, Route } from "react-router-dom"
-import { Home } from "./pages/Home"
-import SignUp from "./pages/authpages/SignUp"
-import SignIn from "./pages/authpages/SignIn"
-import ForgotPass from "./pages/authpages/ForgotPass"
-import ResetPass from "./pages/authpages/ResetPass"
-import AuthCallback from "./pages/authpages/AuthCallback"
-import Dashboard from "./pages/dashboard/Dashboard"
-import { ProtectedRoute } from "@/components/layout/ProtectedRoute"
-// import { useAuthStore } from "@/store/authStore"
+import { RouterProvider } from "react-router-dom"
+import { QueryClientProvider } from "@tanstack/react-query"
+import { router } from "./router"
+import { queryClient } from "./lib/queryClient"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AuthInitializer } from "@/components/auth"
 
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-    <h1 className="text-4xl font-bold">{title} Page (Coming Soon)</h1>
-  </div>
-)
-
-const App = () => {
+export function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/sign-in" element={<SignIn />} />
-      <Route path="/sign-up" element={<SignUp />} />
-      <Route path="/forgot-password" element={<ForgotPass />} />
-      <Route path="/reset-password" element={<ResetPass />} />
-      <Route path="/auth/callback/:provider" element={<AuthCallback />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="/docs" element={<PlaceholderPage title="Docs" />} />
-      <Route
-        path="/migration"
-        element={<PlaceholderPage title="Migration" />}
-      />
-      <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
-    </Routes>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthInitializer>
+          <RouterProvider router={router} />
+        </AuthInitializer>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }
 

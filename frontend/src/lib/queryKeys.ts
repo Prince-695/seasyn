@@ -28,3 +28,10 @@ export const schemaKeys = {
   tableData: (projectId: string, tableName: string) =>
     [...schemaKeys.all, "tableData", projectId, tableName] as const,
 }
+
+export const orgKeys = {
+  all: ["organizations"] as const,
+  lists: () => [...orgKeys.all, "list"] as const,
+  detail: (id: string) => [...orgKeys.all, "detail", id] as const,
+  members: (orgId: string) => [...orgKeys.all, "members", orgId] as const,
+}
