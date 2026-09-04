@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SeasonTypeBadge } from "./SeasonTypeBadge"
+import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import type { TableSchema } from "@/types/schema"
 import { cn } from "@/lib/utils"
 
@@ -30,7 +31,8 @@ export function TableStructureView({
   onSwitchToDataGrid,
   className,
 }: TableStructureViewProps) {
-  const isMongo = dbType === "mongodb"
+  const terminology = getDatabaseTerminology(dbType)
+  const isDocument = terminology.paradigm === "document"
   const [activeSubTab, setActiveSubTab] = useState<
     "columns" | "indexes" | "constraints" | "ddl"
   >("columns")
@@ -38,7 +40,7 @@ export function TableStructureView({
 
   // Generate synthetic DDL / MongoDB Validator for quick preview
   const generateDdl = () => {
-    if (isMongo) {
+    if (isDocument) {
       const properties: Record<string, unknown> = {}
       table.columns.forEach((col) => {
         properties[col.name] = {
@@ -98,7 +100,7 @@ export function TableStructureView({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="border-primary/40 bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-xl border shadow-xs">
-              {isMongo ? (
+              {isDocument ? (
                 <Braces className="h-5 w-5 text-emerald-500" />
               ) : (
                 <TableIcon className="h-5 w-5" />
@@ -110,16 +112,16 @@ export function TableStructureView({
                   {table.name}
                 </h2>
                 <Badge variant="outline" className="font-mono text-[10px]">
-                  {table.columns.length} {isMongo ? "fields" : "columns"}
+                  {table.columns.length} {terminology.fieldPlural.toLowerCase()}
                 </Badge>
                 <Badge variant="secondary" className="text-[10px]">
                   {table.row_count.toLocaleString()}{" "}
-                  {isMongo ? "documents" : "rows"}
+                  {terminology.recordPlural.toLowerCase()}
                 </Badge>
               </div>
               <p className="text-muted-foreground text-xs">
-                {isMongo
-                  ? "MongoDB Collection in database schema"
+                {isDocument
+                  ? `${terminology.entitySingular} in database schema`
                   : "Physical relation in database schema"}{" "}
                 · Size approx{" "}
                 {table.size_bytes
@@ -137,7 +139,7 @@ export function TableStructureView({
                 className="gap-1.5 text-xs font-semibold"
               >
                 <Database className="h-3.5 w-3.5" />
-                <span>View Live {isMongo ? "Documents" : "Data"}</span>
+                <span>View Live {terminology.recordPlural}</span>
               </Button>
             )}
           </div>
@@ -155,7 +157,7 @@ export function TableStructureView({
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            {isMongo ? "Fields" : "Columns"} ({table.columns.length})
+            {terminology.fieldPlural} ({table.columns.length})
           </button>
           <button
             type="button"
@@ -169,7 +171,7 @@ export function TableStructureView({
           >
             Indexes ({table.indexes?.length || 0})
           </button>
-          {!isMongo && (
+          {!isDocument && (
             <button
               type="button"
               onClick={() => setActiveSubTab("constraints")}
@@ -193,7 +195,7 @@ export function TableStructureView({
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            {isMongo ? "Collection Validator" : "DDL SQL"}
+            {isDocument ? "Collection Validator" : "DDL SQL"}
           </button>
         </div>
       </div>

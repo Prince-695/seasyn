@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import type { TableSchema } from "@/types/schema"
 import { cn } from "@/lib/utils"
 
@@ -32,7 +33,8 @@ export function SchemaTree({
   isLoading = false,
   className,
 }: SchemaTreeProps) {
-  const isMongo = dbType === "mongodb"
+  const terminology = getDatabaseTerminology(dbType)
+  const isDocument = terminology.paradigm === "document"
   const [search, setSearch] = useState("")
   const [isOpen, setIsOpen] = useState(true)
 
@@ -71,8 +73,9 @@ export function SchemaTree({
               </span>
             </div>
             <p className="text-muted-foreground text-[10px]">
-              {tables.length} {isMongo ? "collections" : "tables"} ·{" "}
-              {totalRowCount.toLocaleString()} {isMongo ? "docs" : "rows"}
+              {tables.length} {terminology.entityPlural.toLowerCase()} ·{" "}
+              {totalRowCount.toLocaleString()}{" "}
+              {terminology.recordPlural.toLowerCase()}
             </p>
           </div>
         </div>
@@ -85,9 +88,7 @@ export function SchemaTree({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={
-              isMongo ? "Filter collections..." : "Filter tables & columns..."
-            }
+            placeholder={`Filter ${terminology.entityPlural.toLowerCase()}...`}
             className="h-8 pl-8 text-xs ring-offset-0"
           />
         </div>
@@ -108,7 +109,7 @@ export function SchemaTree({
               )}
             />
             <span>
-              {isMongo ? "Collections" : "Tables"} ({filteredTables.length})
+              {terminology.entityPlural} ({filteredTables.length})
             </span>
           </button>
           {search && (
@@ -134,12 +135,8 @@ export function SchemaTree({
                 <Filter className="text-muted-foreground/40 mx-auto h-6 w-6" />
                 <p className="text-muted-foreground mt-1.5 text-xs">
                   {search
-                    ? isMongo
-                      ? "No collections match filter"
-                      : "No tables match filter"
-                    : isMongo
-                      ? "No collections discovered"
-                      : "No tables discovered"}
+                    ? `No ${terminology.entityPlural.toLowerCase()} match filter`
+                    : `No ${terminology.entityPlural.toLowerCase()} discovered`}
                 </p>
               </div>
             ) : (
@@ -158,7 +155,7 @@ export function SchemaTree({
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      {isMongo ? (
+                      {isDocument ? (
                         <Braces
                           className={cn(
                             "h-3.5 w-3.5 shrink-0 transition-colors",
@@ -207,7 +204,7 @@ export function SchemaTree({
         <span className="flex items-center gap-1 font-mono text-[10px]">
           <Hash className="h-3 w-3" />
           <span>
-            {tables.length} {isMongo ? "Collections" : "Objects"}
+            {tables.length} {terminology.entityPlural}
           </span>
         </span>
         <span className="text-[10px]">Schema Introspected</span>

@@ -18,12 +18,13 @@ import { Badge } from "@/components/ui/badge"
 import {
   SchemaTree,
   TableStructureView,
-  LiveDataGrid,
+  DatabaseDataViewer,
   SchemaDiffViewer,
 } from "@/components/schema"
 import { schemaApi } from "@/api/schema"
 import { projectsApi } from "@/api/projects"
 import { schemaKeys, projectKeys, connectionKeys } from "@/lib/queryKeys"
+import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import type { ColumnSchema, TableRowQueryParams } from "@/types/schema"
 import { cn } from "@/lib/utils"
@@ -98,6 +99,10 @@ export function SchemaExplorerPage() {
   const activeConnection = useMemo(() => {
     return connections.find((c) => c.id === effectiveConnId) || null
   }, [connections, effectiveConnId])
+
+  const terminology = useMemo(() => {
+    return getDatabaseTerminology(activeConnection?.db_type)
+  }, [activeConnection?.db_type])
 
   // 3. Fetch Database Schema for selected connection
   const {
@@ -223,7 +228,7 @@ export function SchemaExplorerPage() {
         throw new Error("Missing parameters")
       const pkField =
         activeTable?.primary_keys[0] ||
-        (activeConnection?.db_type === "mongodb" ? "_id" : "id")
+        (terminology.paradigm === "document" ? "_id" : "id")
       const pkRecord = { [pkField]: row[pkField] }
       await schemaApi.updateRow(
         activeOrg.id,
@@ -256,7 +261,7 @@ export function SchemaExplorerPage() {
         throw new Error("Missing parameters")
       const pkField =
         activeTable?.primary_keys[0] ||
-        (activeConnection?.db_type === "mongodb" ? "_id" : "id")
+        (terminology.paradigm === "document" ? "_id" : "id")
       const pkRecord = { [pkField]: row[pkField] }
       await schemaApi.updateRow(
         activeOrg.id,
@@ -420,8 +425,8 @@ export function SchemaExplorerPage() {
             >
               <Layers className="h-3.5 w-3.5" />
               <span>
-                {activeConnection?.db_type === "mongodb"
-                  ? "Collection Schema"
+                {terminology.paradigm === "document"
+                  ? `${terminology.entitySingular} Schema`
                   : "Structure"}
               </span>
             </button>
@@ -437,11 +442,7 @@ export function SchemaExplorerPage() {
               )}
             >
               <TableIcon className="h-3.5 w-3.5" />
-              <span>
-                {activeConnection?.db_type === "mongodb"
-                  ? "Live Documents"
-                  : "Live Data"}
-              </span>
+              <span>{`Live ${terminology.recordPlural}`}</span>
             </button>
 
             <button
@@ -547,9 +548,8 @@ export function SchemaExplorerPage() {
                     />
                   ) : (
                     <div className="text-muted-foreground p-8 text-center text-xs">
-                      {activeConnection?.db_type === "mongodb"
-                        ? "Select a collection from the tree on the left."
-                        : "Select a table from the tree on the left."}
+                      Select a {terminology.entitySingular.toLowerCase()} from
+                      the tree on the left.
                     </div>
                   )}
                 </motion.div>
@@ -565,7 +565,7 @@ export function SchemaExplorerPage() {
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
                   {activeTable ? (
-                    <LiveDataGrid
+                    <DatabaseDataViewer
                       table={activeTable}
                       queryResult={queryResult || null}
                       isLoading={isRowsLoading}
@@ -609,9 +609,9 @@ export function SchemaExplorerPage() {
                     />
                   ) : (
                     <div className="text-muted-foreground p-8 text-center text-xs">
-                      {activeConnection?.db_type === "mongodb"
-                        ? "Select a collection from the tree on the left to inspect documents."
-                        : "Select a table from the tree on the left to inspect rows."}
+                      Select a {terminology.entitySingular.toLowerCase()} from
+                      the tree on the left to inspect{" "}
+                      {terminology.recordPlural.toLowerCase()}.
                     </div>
                   )}
                 </motion.div>

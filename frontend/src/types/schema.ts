@@ -45,6 +45,7 @@ export interface ConstraintSchema {
 
 export interface TableSchema {
   name: string
+  schema?: string
   columns: ColumnSchema[]
   primary_keys: string[]
   constraints?: ConstraintSchema[]
