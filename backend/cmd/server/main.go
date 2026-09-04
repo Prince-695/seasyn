@@ -173,17 +173,17 @@ func main() {
 	orgService := orgs.NewOrgService(orgRepo, userRepo)
 	orgHandler := handlers.NewOrgHandler(orgService)
 
-	encryptor := crypto.NewEncryptor(cfg.JWTSecret)
-	connector := adapters.NewConnector()
-	projectRepo := repository.NewProjectRepository(db)
-	projectService := project.NewProjectService(projectRepo, orgRepo, encryptor, connector)
-	projectHandler := handlers.NewProjectHandler(projectService)
-
 	adapterRegistry := registry.NewAdapterRegistry()
 	adapterRegistry.Register(domain.DBTypePostgres, pgadapter.NewAdapter())
 	adapterRegistry.Register(domain.DBTypeMongoDB, mongoadapter.NewAdapter())
 	adapterRegistry.Register(domain.DBTypeMySQL, mysqladapter.NewAdapter())
 	adapterRegistry.Register(domain.DBTypeSQLite, sqliteadapter.NewAdapter())
+
+	encryptor := crypto.NewEncryptor(cfg.JWTSecret)
+	connector := adapters.NewConnector(adapterRegistry)
+	projectRepo := repository.NewProjectRepository(db)
+	projectService := project.NewProjectService(projectRepo, orgRepo, encryptor, connector)
+	projectHandler := handlers.NewProjectHandler(projectService)
 
 	schemaService := editor.NewSchemaService(projectRepo, orgRepo, adapterRegistry, encryptor)
 	schemaHandler := handlers.NewSchemaHandler(schemaService)
