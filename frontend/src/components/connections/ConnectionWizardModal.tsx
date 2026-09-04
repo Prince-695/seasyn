@@ -264,7 +264,7 @@ export function ConnectionWizardModal({
           )
         }
       />
-      <DialogContent className="max-w-2xl overflow-hidden p-6 sm:max-w-3xl">
+      <DialogContent className="max-w-3xl overflow-hidden p-6 sm:max-w-3xl">
         <DialogHeader className="gap-1 pb-2">
           <div className="flex items-center justify-between">
             <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
@@ -374,9 +374,10 @@ export function ConnectionWizardModal({
                       <Input
                         id="connName"
                         placeholder="e.g. Primary Aurora Postgres"
+                        autoComplete="off"
                         {...register("name")}
                         disabled={createMutation.isPending}
-                        className="text-xs"
+                        className="text-xs ring-offset-0"
                       />
                       {errors.name && (
                         <p className="text-destructive text-xs">
@@ -761,38 +762,41 @@ export function ConnectionWizardModal({
                       </span>
                     </div>
 
-                    <div className="border-border/60 text-muted-foreground grid grid-cols-2 gap-2 border-t pt-2 font-mono text-xs sm:grid-cols-4">
-                      <div>
-                        <span className="text-foreground/70 block text-[10px] font-medium uppercase">
+                    <div className="border-border/60 divide-border/50 divide-y border-t pt-1 font-mono text-xs">
+                      <div className="flex items-start justify-between py-1.5">
+                        <span className="text-muted-foreground w-24 shrink-0 text-[11px] font-medium">
                           Endpoint
                         </span>
-                        <span className="truncate">
+                        <span className="text-foreground max-w-[75%] text-right text-[11px] font-medium break-all">
                           {selectedEngine === "sqlite"
                             ? formValues.file_path || "-"
-                            : `${formValues.host || "localhost"}:${formValues.port || 5432}`}
+                            : selectedEngine === "mongodb" &&
+                                mongoMode === "uri"
+                              ? formValues.uri || "-"
+                              : `${formValues.host || "localhost"}:${formValues.port || 5432}`}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-foreground/70 block text-[10px] font-medium uppercase">
+                      <div className="flex items-center justify-between py-1.5">
+                        <span className="text-muted-foreground w-24 shrink-0 text-[11px] font-medium">
                           Database
                         </span>
-                        <span className="truncate">
+                        <span className="text-foreground text-[11px] font-medium">
                           {formValues.database || "-"}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-foreground/70 block text-[10px] font-medium uppercase">
+                      <div className="flex items-center justify-between py-1.5">
+                        <span className="text-muted-foreground w-24 shrink-0 text-[11px] font-medium">
                           User
                         </span>
-                        <span className="truncate">
+                        <span className="text-foreground text-[11px] font-medium">
                           {formValues.username || "-"}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-foreground/70 block text-[10px] font-medium uppercase">
+                      <div className="flex items-center justify-between py-1.5">
+                        <span className="text-muted-foreground w-24 shrink-0 text-[11px] font-medium">
                           SSL Mode
                         </span>
-                        <span className="truncate">
+                        <span className="text-foreground text-[11px] font-medium">
                           {formValues.ssl_mode || "disable"}
                         </span>
                       </div>
