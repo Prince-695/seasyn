@@ -20,7 +20,7 @@ import {
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
 import { cn } from "@/lib/utils"
-import type { Project, Environment } from "@/types/project"
+import type { Project, Environment } from "@/types"
 
 interface ProjectCardProps {
   project: Project

@@ -20,7 +20,7 @@ import { PermissionGuard } from "@/components/auth/PermissionGuard"
 import { projectsApi } from "@/api/projects"
 import { projectKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
-import type { Project, Environment } from "@/types/project"
+import type { Project, Environment } from "@/types"
 
 type EnvFilter = "all" | Environment
 

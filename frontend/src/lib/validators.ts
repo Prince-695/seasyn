@@ -79,16 +79,16 @@ export const databaseConnectionSchema = z
       .max(100),
     db_type: z.enum(["postgres", "mysql", "mongodb", "sqlite"]),
     host: z.string().optional(),
-    port: z.coerce.number().int().positive().optional(),
+    port: z.number().int().positive().optional(),
     database: z.string().optional(),
     username: z.string().optional(),
     password: z.string().optional(),
     ssl_mode: z
       .enum(["disable", "require", "verify-ca", "verify-full", "prefer"])
-      .default("disable"),
+      .optional(),
     file_path: z.string().optional(),
     uri: z.string().optional(),
-    is_source: z.boolean().default(true),
+    is_source: z.boolean(),
   })
   .refine(
     (data) => {
@@ -112,7 +112,6 @@ export const databaseConnectionSchema = z
   )
 
 export const projectSchema = createProjectSchema
-export const connectionConfigSchema = databaseConnectionSchema
 
 export const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -181,7 +180,7 @@ export const updateMemberRoleSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 export type OtpVerificationInput = z.infer<typeof otpVerificationSchema>
-export type ConnectionConfigInput = z.infer<typeof connectionConfigSchema>
+export type DatabaseConnectionInput = z.infer<typeof databaseConnectionSchema>
 export type ProjectInput = z.infer<typeof projectSchema>
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>

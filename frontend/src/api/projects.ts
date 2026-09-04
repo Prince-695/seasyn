@@ -10,7 +10,7 @@ import type {
   UpdateConnectionPayload,
   TestConnectionPayload,
   ConnectionTestResult,
-} from "@/types/project"
+} from "@/types"
 
 export const projectsApi = {
   // ─── Projects CRUD ──────────────────────────────────────────────────────────

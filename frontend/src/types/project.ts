@@ -1,4 +1,5 @@
-export type DBType = "postgres" | "mysql" | "mongodb" | "sqlite"
+import type { DBType } from "./index"
+
 export type Environment = "development" | "staging" | "production"
 
 export interface Project {
@@ -13,6 +14,13 @@ export interface Project {
   updated_at: string
 }
 
+export type SSLMode =
+  | "disable"
+  | "require"
+  | "verify-ca"
+  | "verify-full"
+  | "prefer"
+
 export interface PublicDatabaseConnection {
   id: string
   project_id: string
@@ -22,7 +30,7 @@ export interface PublicDatabaseConnection {
   port?: number
   database?: string
   username?: string
-  ssl_mode?: "disable" | "require" | "verify-ca" | "verify-full" | "prefer"
+  ssl_mode?: SSLMode
   file_path?: string // For SQLite
   is_source: boolean
   created_at: string
@@ -54,7 +62,7 @@ export interface CreateConnectionPayload {
   database?: string
   username?: string
   password?: string
-  ssl_mode?: string
+  ssl_mode?: SSLMode
   file_path?: string
   uri?: string
   is_source: boolean
@@ -67,7 +75,7 @@ export interface UpdateConnectionPayload {
   database?: string
   username?: string
   password?: string
-  ssl_mode?: string
+  ssl_mode?: SSLMode
   file_path?: string
   uri?: string
   is_source?: boolean
@@ -80,7 +88,7 @@ export interface TestConnectionPayload {
   database?: string
   username?: string
   password?: string
-  ssl_mode?: string
+  ssl_mode?: SSLMode
   file_path?: string
   uri?: string
 }

@@ -45,5 +45,6 @@ export interface ProtectedRouteProps {
   children?: ReactNode
 }
 
-// ─── Organization & RBAC Types ────────────────────────────────────────────────
+// ─── Domain & Feature Types ───────────────────────────────────────────────────
 export * from "./org"
+export * from "./project"

@@ -21,11 +21,7 @@ import { createProjectSchema } from "@/lib/validators"
 import { projectKeys } from "@/lib/queryKeys"
 import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
-import type {
-  CreateProjectPayload,
-  Environment,
-  Project,
-} from "@/types/project"
+import type { CreateProjectPayload, Environment, Project } from "@/types"
 
 interface CreateProjectModalProps {
   onProjectCreated?: (project: Project) => void
