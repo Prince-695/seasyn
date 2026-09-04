@@ -14,6 +14,8 @@ import {
   ProjectsListPage,
   ProjectDetailsPage,
   ConnectionsPage,
+  SchemaExplorerPage,
+  SchemaDiffPage,
 } from "@/pages"
 
 import { ProtectedRoute } from "./ProtectedRoute"
@@ -93,7 +95,11 @@ export const router = createBrowserRouter(
             },
             {
               path: "editor",
-              element: <ComingSoon title="Live Schema Editor" />,
+              element: <SchemaExplorerPage />,
+            },
+            {
+              path: "schema-diff",
+              element: <SchemaDiffPage />,
             },
             {
               path: "docs",

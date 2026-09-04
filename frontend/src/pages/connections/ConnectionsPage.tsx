@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Link } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import {
   Database,
   Plus,
@@ -24,6 +24,7 @@ type EngineFilter = "all" | DBType
 type RoleFilter = "all" | "source" | "target"
 
 export function ConnectionsPage() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { activeOrg } = useWorkspaceStore()
   const [searchQuery, setSearchQuery] = useState("")
@@ -287,6 +288,9 @@ export function ConnectionsPage() {
               <ConnectionCard
                 connection={conn}
                 onDelete={handleDeleteConnection}
+                onInspectSchema={(c) =>
+                  navigate(`/editor?projectId=${c.project_id}&connId=${c.id}`)
+                }
               />
               {/* Parent Project Tag */}
               {conn.projectName && (
