@@ -344,6 +344,11 @@ export function ProjectDetailsPage() {
                     key={conn.id}
                     connection={conn}
                     onDelete={handleDeleteConnection}
+                    onInspectSchema={(c) =>
+                      navigate(
+                        `/editor?projectId=${c.project_id}&connId=${c.id}`
+                      )
+                    }
                   />
                 ))}
               </div>
@@ -426,6 +431,11 @@ export function ProjectDetailsPage() {
                     key={conn.id}
                     connection={conn}
                     onDelete={handleDeleteConnection}
+                    onInspectSchema={(c) =>
+                      navigate(
+                        `/editor?projectId=${c.project_id}&connId=${c.id}`
+                      )
+                    }
                   />
                 ))}
               </div>

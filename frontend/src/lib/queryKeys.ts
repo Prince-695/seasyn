@@ -5,6 +5,8 @@
  * throughout the application for reliable caching and invalidation.
  */
 
+import type { TableRowQueryParams } from "@/types/schema"
+
 export const projectKeys = {
   all: ["projects"] as const,
   byOrg: (orgId: string) => [...projectKeys.all, "org", orgId] as const,
@@ -34,10 +36,51 @@ export const migrationKeys = {
 
 export const schemaKeys = {
   all: ["schema"] as const,
-  tables: (projectId: string) =>
-    [...schemaKeys.all, "tables", projectId] as const,
-  tableData: (projectId: string, tableName: string) =>
-    [...schemaKeys.all, "tableData", projectId, tableName] as const,
+  byConn: (orgId: string, projectId: string, connId: string) =>
+    [
+      ...schemaKeys.all,
+      "org",
+      orgId,
+      "project",
+      projectId,
+      "connection",
+      connId,
+    ] as const,
+  database: (orgId: string, projectId: string, connId: string) =>
+    [...schemaKeys.byConn(orgId, projectId, connId), "full"] as const,
+  tables: (orgId: string, projectId: string, connId: string) =>
+    [...schemaKeys.byConn(orgId, projectId, connId), "tables"] as const,
+  table: (
+    orgId: string,
+    projectId: string,
+    connId: string,
+    tableName: string
+  ) =>
+    [
+      ...schemaKeys.byConn(orgId, projectId, connId),
+      "table",
+      tableName,
+    ] as const,
+  rows: (
+    orgId: string,
+    projectId: string,
+    connId: string,
+    tableName: string,
+    params?: TableRowQueryParams | Record<string, unknown>
+  ) =>
+    [
+      ...schemaKeys.byConn(orgId, projectId, connId),
+      "rows",
+      tableName,
+      params ?? {},
+    ] as const,
+  diff: (
+    orgId: string,
+    projectId: string,
+    sourceId: string,
+    targetId: string
+  ) =>
+    [...schemaKeys.all, "diff", orgId, projectId, sourceId, targetId] as const,
 }
 
 export const orgKeys = {

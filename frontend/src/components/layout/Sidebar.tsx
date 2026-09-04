@@ -72,7 +72,7 @@ export function Sidebar() {
           label: "Live Editor",
           path: "/editor",
           icon: Database,
-          badge: "Soon",
+          badge: "Live",
         },
       ],
     },
