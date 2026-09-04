@@ -6,6 +6,7 @@ import {
   Database,
   Hash,
   Filter,
+  Braces,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -31,6 +32,7 @@ export function SchemaTree({
   isLoading = false,
   className,
 }: SchemaTreeProps) {
+  const isMongo = dbType === "mongodb"
   const [search, setSearch] = useState("")
   const [isOpen, setIsOpen] = useState(true)
 
@@ -69,7 +71,8 @@ export function SchemaTree({
               </span>
             </div>
             <p className="text-muted-foreground text-[10px]">
-              {tables.length} tables · {totalRowCount.toLocaleString()} rows
+              {tables.length} {isMongo ? "collections" : "tables"} ·{" "}
+              {totalRowCount.toLocaleString()} {isMongo ? "docs" : "rows"}
             </p>
           </div>
         </div>
@@ -82,13 +85,15 @@ export function SchemaTree({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter tables & columns..."
+            placeholder={
+              isMongo ? "Filter collections..." : "Filter tables & columns..."
+            }
             className="h-8 pl-8 text-xs ring-offset-0"
           />
         </div>
       </div>
 
-      {/* Tables Navigation Tree */}
+      {/* Tables / Collections Navigation Tree */}
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
         <div className="flex items-center justify-between px-2 py-1">
           <button
@@ -102,7 +107,9 @@ export function SchemaTree({
                 isOpen && "rotate-90"
               )}
             />
-            <span>Tables ({filteredTables.length})</span>
+            <span>
+              {isMongo ? "Collections" : "Tables"} ({filteredTables.length})
+            </span>
           </button>
           {search && (
             <Badge variant="outline" className="h-4 px-1.5 py-0 text-[10px]">
@@ -126,7 +133,13 @@ export function SchemaTree({
               <div className="p-4 text-center">
                 <Filter className="text-muted-foreground/40 mx-auto h-6 w-6" />
                 <p className="text-muted-foreground mt-1.5 text-xs">
-                  {search ? "No tables match filter" : "No tables discovered"}
+                  {search
+                    ? isMongo
+                      ? "No collections match filter"
+                      : "No tables match filter"
+                    : isMongo
+                      ? "No collections discovered"
+                      : "No tables discovered"}
                 </p>
               </div>
             ) : (
@@ -145,14 +158,25 @@ export function SchemaTree({
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <Table2
-                        className={cn(
-                          "h-3.5 w-3.5 shrink-0 transition-colors",
-                          isSelected
-                            ? "text-primary-foreground"
-                            : "text-muted-foreground group-hover:text-foreground"
-                        )}
-                      />
+                      {isMongo ? (
+                        <Braces
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 transition-colors",
+                            isSelected
+                              ? "text-primary-foreground"
+                              : "text-emerald-500 group-hover:text-emerald-400"
+                          )}
+                        />
+                      ) : (
+                        <Table2
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 transition-colors",
+                            isSelected
+                              ? "text-primary-foreground"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          )}
+                        />
+                      )}
                       <span className="truncate font-mono">{table.name}</span>
                     </div>
 
@@ -182,7 +206,9 @@ export function SchemaTree({
       <div className="border-border/60 bg-muted/10 text-muted-foreground flex items-center justify-between border-t p-2 text-[11px]">
         <span className="flex items-center gap-1 font-mono text-[10px]">
           <Hash className="h-3 w-3" />
-          <span>{tables.length} Objects</span>
+          <span>
+            {tables.length} {isMongo ? "Collections" : "Objects"}
+          </span>
         </span>
         <span className="text-[10px]">Schema Introspected</span>
       </div>

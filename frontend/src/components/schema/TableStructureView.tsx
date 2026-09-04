@@ -9,6 +9,7 @@ import {
   Table as TableIcon,
   Check,
   Copy,
+  Braces,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,22 +19,54 @@ import { cn } from "@/lib/utils"
 
 interface TableStructureViewProps {
   table: TableSchema
+  dbType?: string
   onSwitchToDataGrid?: () => void
   className?: string
 }
 
 export function TableStructureView({
   table,
+  dbType = "postgres",
   onSwitchToDataGrid,
   className,
 }: TableStructureViewProps) {
+  const isMongo = dbType === "mongodb"
   const [activeSubTab, setActiveSubTab] = useState<
     "columns" | "indexes" | "constraints" | "ddl"
   >("columns")
   const [copiedDdl, setCopiedDdl] = useState(false)
 
-  // Generate synthetic DDL for quick preview
+  // Generate synthetic DDL / MongoDB Validator for quick preview
   const generateDdl = () => {
+    if (isMongo) {
+      const properties: Record<string, unknown> = {}
+      table.columns.forEach((col) => {
+        properties[col.name] = {
+          bsonType:
+            col.season_type === "int"
+              ? "int"
+              : col.season_type === "float" || col.season_type === "decimal"
+                ? "double"
+                : col.season_type === "bool"
+                  ? "bool"
+                  : col.season_type === "json"
+                    ? "object"
+                    : col.season_type === "array"
+                      ? "array"
+                      : "string",
+          description: `${col.name} field${col.is_primary_key ? " (Document Identifier)" : ""}`,
+        }
+      })
+      const validator = {
+        $jsonSchema: {
+          bsonType: "object",
+          required: table.primary_keys,
+          properties,
+        },
+      }
+      return `// MongoDB Collection Schema Validator\n// Collection: "${table.name}"\ndb.createCollection("${table.name}", {\n  validator: ${JSON.stringify(validator, null, 2)}\n});`
+    }
+
     const colDefs = table.columns.map((col) => {
       let def = `  "${col.name}" ${col.data_type.toUpperCase()}`
       if (!col.is_nullable) def += " NOT NULL"
@@ -65,7 +98,11 @@ export function TableStructureView({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="border-primary/40 bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-xl border shadow-xs">
-              <TableIcon className="h-5 w-5" />
+              {isMongo ? (
+                <Braces className="h-5 w-5 text-emerald-500" />
+              ) : (
+                <TableIcon className="h-5 w-5" />
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -73,14 +110,18 @@ export function TableStructureView({
                   {table.name}
                 </h2>
                 <Badge variant="outline" className="font-mono text-[10px]">
-                  {table.columns.length} columns
+                  {table.columns.length} {isMongo ? "fields" : "columns"}
                 </Badge>
                 <Badge variant="secondary" className="text-[10px]">
-                  {table.row_count.toLocaleString()} rows
+                  {table.row_count.toLocaleString()}{" "}
+                  {isMongo ? "documents" : "rows"}
                 </Badge>
               </div>
               <p className="text-muted-foreground text-xs">
-                Physical relation in database schema · Size approx{" "}
+                {isMongo
+                  ? "MongoDB Collection in database schema"
+                  : "Physical relation in database schema"}{" "}
+                · Size approx{" "}
                 {table.size_bytes
                   ? `${(table.size_bytes / (1024 * 1024)).toFixed(2)} MB`
                   : "< 1 MB"}
@@ -96,7 +137,7 @@ export function TableStructureView({
                 className="gap-1.5 text-xs font-semibold"
               >
                 <Database className="h-3.5 w-3.5" />
-                <span>View Live Data</span>
+                <span>View Live {isMongo ? "Documents" : "Data"}</span>
               </Button>
             )}
           </div>
@@ -114,7 +155,7 @@ export function TableStructureView({
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            Columns ({table.columns.length})
+            {isMongo ? "Fields" : "Columns"} ({table.columns.length})
           </button>
           <button
             type="button"
@@ -128,18 +169,20 @@ export function TableStructureView({
           >
             Indexes ({table.indexes?.length || 0})
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveSubTab("constraints")}
-            className={cn(
-              "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
-              activeSubTab === "constraints"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-            )}
-          >
-            Constraints ({table.constraints?.length || 0})
-          </button>
+          {!isMongo && (
+            <button
+              type="button"
+              onClick={() => setActiveSubTab("constraints")}
+              className={cn(
+                "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+                activeSubTab === "constraints"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              )}
+            >
+              Constraints ({table.constraints?.length || 0})
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setActiveSubTab("ddl")}
@@ -150,7 +193,7 @@ export function TableStructureView({
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            DDL SQL
+            {isMongo ? "Collection Validator" : "DDL SQL"}
           </button>
         </div>
       </div>

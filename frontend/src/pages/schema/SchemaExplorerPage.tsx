@@ -221,7 +221,9 @@ export function SchemaExplorerPage() {
         !effectiveTableName
       )
         throw new Error("Missing parameters")
-      const pkField = activeTable?.primary_keys[0] || "id"
+      const pkField =
+        activeTable?.primary_keys[0] ||
+        (activeConnection?.db_type === "mongodb" ? "_id" : "id")
       const pkRecord = { [pkField]: row[pkField] }
       await schemaApi.updateRow(
         activeOrg.id,
@@ -229,6 +231,39 @@ export function SchemaExplorerPage() {
         effectiveConnId,
         effectiveTableName,
         { [col.name]: newVal },
+        pkRecord
+      )
+    },
+    onSuccess: () => {
+      refetchRows()
+    },
+  })
+
+  const updateRowMutation = useMutation({
+    mutationFn: async ({
+      row,
+      updatedRow,
+    }: {
+      row: Record<string, unknown>
+      updatedRow: Record<string, unknown>
+    }) => {
+      if (
+        !activeOrg?.id ||
+        !effectiveProjectId ||
+        !effectiveConnId ||
+        !effectiveTableName
+      )
+        throw new Error("Missing parameters")
+      const pkField =
+        activeTable?.primary_keys[0] ||
+        (activeConnection?.db_type === "mongodb" ? "_id" : "id")
+      const pkRecord = { [pkField]: row[pkField] }
+      await schemaApi.updateRow(
+        activeOrg.id,
+        effectiveProjectId,
+        effectiveConnId,
+        effectiveTableName,
+        updatedRow,
         pkRecord
       )
     },
@@ -384,7 +419,11 @@ export function SchemaExplorerPage() {
               )}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>Structure</span>
+              <span>
+                {activeConnection?.db_type === "mongodb"
+                  ? "Collection Schema"
+                  : "Structure"}
+              </span>
             </button>
 
             <button
@@ -398,7 +437,11 @@ export function SchemaExplorerPage() {
               )}
             >
               <TableIcon className="h-3.5 w-3.5" />
-              <span>Live Data</span>
+              <span>
+                {activeConnection?.db_type === "mongodb"
+                  ? "Live Documents"
+                  : "Live Data"}
+              </span>
             </button>
 
             <button
@@ -499,11 +542,14 @@ export function SchemaExplorerPage() {
                   {activeTable ? (
                     <TableStructureView
                       table={activeTable}
+                      dbType={activeConnection?.db_type || "postgres"}
                       onSwitchToDataGrid={() => setActiveTab("data")}
                     />
                   ) : (
                     <div className="text-muted-foreground p-8 text-center text-xs">
-                      Select a table from the tree on the left.
+                      {activeConnection?.db_type === "mongodb"
+                        ? "Select a collection from the tree on the left."
+                        : "Select a table from the tree on the left."}
                     </div>
                   )}
                 </motion.div>
@@ -523,6 +569,7 @@ export function SchemaExplorerPage() {
                       table={activeTable}
                       queryResult={queryResult || null}
                       isLoading={isRowsLoading}
+                      dbType={activeConnection?.db_type || "postgres"}
                       onRefresh={refetchRows}
                       onSortChange={(field, dir) => {
                         setQueryParams((prev) => ({
@@ -547,6 +594,12 @@ export function SchemaExplorerPage() {
                           newVal,
                         })
                       }}
+                      onUpdateRow={async (row, updatedRow) => {
+                        await updateRowMutation.mutateAsync({
+                          row,
+                          updatedRow,
+                        })
+                      }}
                       onDeleteRow={async (pkValues) => {
                         await deleteRowMutation.mutateAsync(pkValues)
                       }}
@@ -556,7 +609,9 @@ export function SchemaExplorerPage() {
                     />
                   ) : (
                     <div className="text-muted-foreground p-8 text-center text-xs">
-                      Select a table from the tree on the left to inspect rows.
+                      {activeConnection?.db_type === "mongodb"
+                        ? "Select a collection from the tree on the left to inspect documents."
+                        : "Select a table from the tree on the left to inspect rows."}
                     </div>
                   )}
                 </motion.div>

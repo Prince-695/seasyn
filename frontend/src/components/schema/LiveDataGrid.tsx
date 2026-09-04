@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Download,
   Key,
+  FileCode,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { EditCellDialog } from "./EditCellDialog"
 import { DeleteRowDialog } from "./DeleteRowDialog"
 import { InsertRowModal } from "./InsertRowModal"
+import { DocumentView } from "./DocumentView"
 import type { TableSchema, ColumnSchema, QueryResult } from "@/types/schema"
 import { cn } from "@/lib/utils"
 
@@ -25,6 +27,7 @@ interface LiveDataGridProps {
   table: TableSchema
   queryResult: QueryResult | null
   isLoading?: boolean
+  dbType?: string
   onRefresh?: () => void
   onSortChange?: (field: string, dir: "asc" | "desc") => void
   onPageChange?: (page: number) => void
@@ -35,6 +38,10 @@ interface LiveDataGridProps {
     col: ColumnSchema,
     newVal: unknown
   ) => Promise<void>
+  onUpdateRow?: (
+    row: Record<string, unknown>,
+    updatedRow: Record<string, unknown>
+  ) => Promise<void>
   onDeleteRow?: (pkValues: Record<string, unknown>) => Promise<void>
   onInsertRow?: (data: Record<string, unknown>) => Promise<void>
   className?: string
@@ -44,16 +51,22 @@ export function LiveDataGrid({
   table,
   queryResult,
   isLoading = false,
+  dbType = "postgres",
   onRefresh,
   onSortChange,
   onPageChange,
   onPageSizeChange,
   onSearchChange,
   onUpdateCell,
+  onUpdateRow,
   onDeleteRow,
   onInsertRow,
   className,
 }: LiveDataGridProps) {
+  const isMongo = dbType === "mongodb"
+  const [viewMode, setViewMode] = useState<"table" | "documents">(() =>
+    isMongo ? "documents" : "table"
+  )
   const [searchTerm, setSearchTerm] = useState("")
   const [sortField, setSortField] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
@@ -138,11 +151,135 @@ export function LiveDataGrid({
     document.body.removeChild(link)
   }
 
+  if (viewMode === "documents") {
+    return (
+      <div className={cn("flex flex-col space-y-3", className)}>
+        {/* Action Toolbar */}
+        <div className="border-border/70 bg-card flex flex-wrap items-center justify-between gap-2.5 rounded-xl border p-3 shadow-xs">
+          <div className="flex items-center gap-2">
+            <div className="border-border/70 bg-muted/30 flex items-center gap-1 rounded-lg border p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode("table")}
+                className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+              >
+                <TableIcon className="h-3.5 w-3.5" />
+                <span>Table</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("documents")}
+                className="bg-background text-foreground flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium shadow-xs transition-colors"
+              >
+                <FileCode className="h-3.5 w-3.5 text-emerald-500" />
+                <span>{isMongo ? "Documents" : "Document JSON"}</span>
+              </button>
+            </div>
+
+            <Badge
+              variant="outline"
+              className="border-emerald-500/30 bg-emerald-500/10 font-mono text-[10px] text-emerald-500"
+            >
+              {isMongo ? "MongoDB BSON" : "Document View"}
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onRefresh && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefresh}
+                disabled={isLoading}
+                className="h-8 gap-1.5 text-xs"
+                title="Refresh rows"
+              >
+                <RefreshCw
+                  className={cn("h-3.5 w-3.5", isLoading && "animate-spin")}
+                />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCsv}
+              disabled={rows.length === 0}
+              className="h-8 gap-1.5 text-xs"
+              title="Export CSV"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Export CSV</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Full Document View */}
+        <DocumentView
+          documents={rows}
+          collectionName={table.name}
+          primaryKeyField={table.primary_keys[0] || (isMongo ? "_id" : "id")}
+          totalDocuments={totalRows}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          isLoading={isLoading}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          onRefresh={onRefresh}
+          onUpdateDocument={async (origDoc, updatedDoc) => {
+            if (onUpdateRow) {
+              await onUpdateRow(origDoc, updatedDoc)
+            } else if (onUpdateCell) {
+              for (const col of table.columns) {
+                if (origDoc[col.name] !== updatedDoc[col.name]) {
+                  await onUpdateCell(origDoc, col, updatedDoc[col.name])
+                }
+              }
+            }
+          }}
+          onDeleteDocument={async (doc) => {
+            if (onDeleteRow) {
+              const pkField = table.primary_keys[0] || (isMongo ? "_id" : "id")
+              await onDeleteRow({ [pkField]: doc[pkField] })
+            }
+          }}
+          onInsertDocument={async (newDoc) => {
+            if (onInsertRow) {
+              await onInsertRow(newDoc)
+            }
+          }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className={cn("flex flex-col space-y-3", className)}>
       {/* Action Toolbar */}
       <div className="border-border/70 bg-card flex flex-wrap items-center justify-between gap-2.5 rounded-xl border p-3 shadow-xs">
         <div className="flex items-center gap-2">
+          {/* Format Mode Switcher */}
+          <div className="border-border/70 bg-muted/30 flex items-center gap-1 rounded-lg border p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className="bg-background text-foreground flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium shadow-xs transition-colors"
+            >
+              <TableIcon className="h-3.5 w-3.5" />
+              <span>Table</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("documents")}
+              className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+            >
+              <FileCode className="h-3.5 w-3.5" />
+              <span>{isMongo ? "Documents" : "Document JSON"}</span>
+            </button>
+          </div>
+
           {/* Quick Search */}
           <form onSubmit={handleSearchSubmit} className="relative w-64">
             <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2" />

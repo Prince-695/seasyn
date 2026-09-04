@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import {
   MoreVertical,
   Trash2,
@@ -6,6 +7,7 @@ import {
   HardDrive,
   Globe,
   Database,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -44,6 +46,17 @@ export function ConnectionCard({
   onInspectSchema,
 }: ConnectionCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const navigate = useNavigate()
+
+  const handleOpenStudio = () => {
+    if (onInspectSchema) {
+      onInspectSchema(connection)
+    } else {
+      navigate(
+        `/editor?projectId=${connection.project_id}&connId=${connection.id}`
+      )
+    }
+  }
 
   return (
     <>
@@ -52,15 +65,28 @@ export function ConnectionCard({
         <div>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="border-border/80 bg-muted/30 group-hover:border-primary/20 flex h-11 w-11 items-center justify-center rounded-xl border transition-colors">
+              <button
+                type="button"
+                onClick={handleOpenStudio}
+                className="border-border/80 bg-muted/30 group-hover:border-primary/40 group-hover:bg-primary/5 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border transition-all"
+                title={`Open ${connection.name} in Schema Studio`}
+              >
                 <EngineIcon type={connection.db_type} className="h-6 w-6" />
-              </div>
+              </button>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-foreground line-clamp-1 font-semibold tracking-tight">
-                    {connection.name}
-                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleOpenStudio}
+                    className="hover:text-primary group/title flex cursor-pointer items-center gap-1.5 text-left font-semibold tracking-tight transition-colors"
+                    title={`Open ${connection.name} in Schema Studio`}
+                  >
+                    <h3 className="text-foreground group-hover/title:text-primary line-clamp-1 font-semibold transition-colors">
+                      {connection.name}
+                    </h3>
+                    <ChevronRight className="text-primary h-3.5 w-3.5 opacity-0 transition-all duration-150 group-hover/title:translate-x-0.5 group-hover/title:opacity-100" />
+                  </button>
                 </div>
 
                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5">

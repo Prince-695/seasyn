@@ -127,9 +127,17 @@ export const projectsApi = {
     projectId: string,
     data: TestConnectionPayload
   ): Promise<ApiResponse<ConnectionTestResult>> => {
+    console.log(
+      `[API Request] POST /organizations/${orgId}/projects/${projectId}/connections/test`,
+      data
+    )
     const response = await apiClient.post<ApiResponse<ConnectionTestResult>>(
       `/organizations/${orgId}/projects/${projectId}/connections/test`,
       data
+    )
+    console.log(
+      `[API Response] POST /organizations/${orgId}/projects/${projectId}/connections/test`,
+      response.data
     )
     return response.data
   },
@@ -139,8 +147,15 @@ export const projectsApi = {
     projectId: string,
     connId: string
   ): Promise<ApiResponse<ConnectionTestResult>> => {
+    console.log(
+      `[API Request] POST /organizations/${orgId}/projects/${projectId}/connections/${connId}/test`
+    )
     const response = await apiClient.post<ApiResponse<ConnectionTestResult>>(
       `/organizations/${orgId}/projects/${projectId}/connections/${connId}/test`
+    )
+    console.log(
+      `[API Response] POST /organizations/${orgId}/projects/${projectId}/connections/${connId}/test`,
+      response.data
     )
     return response.data
   },

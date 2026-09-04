@@ -37,6 +37,8 @@ import {
   ArrowLeft,
   CheckCircle2,
   Sparkles,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import type {
   DBType,
@@ -72,6 +74,7 @@ export function ConnectionWizardModal({
   const [isSourceVal, setIsSourceVal] = useState(defaultIsSource)
   const [quickPasteOpen, setQuickPasteOpen] = useState(false)
   const [quickPasteUri, setQuickPasteUri] = useState("")
+  const [showMongoUri, setShowMongoUri] = useState(false)
 
   const {
     register,
@@ -135,7 +138,27 @@ export function ConnectionWizardModal({
       else if (protocol.includes("mongo")) {
         setSelectedEngine("mongodb")
         setMongoMode("uri")
+        setValue("db_type", "mongodb")
         setValue("uri", trimmed)
+        setValue("host", "")
+        setValue("port", undefined as unknown as number)
+        const isSrv = trimmed.startsWith("mongodb+srv://")
+        const hasTls =
+          parsed.searchParams.get("tls") === "true" ||
+          parsed.searchParams.get("ssl") === "true"
+        setValue("ssl_mode", isSrv || hasTls ? "require" : "disable")
+        if (parsed.pathname) {
+          const dbName = parsed.pathname.replace(/^\//, "")
+          if (dbName) setValue("database", dbName)
+        }
+        if (parsed.username) {
+          setValue("username", decodeURIComponent(parsed.username))
+        }
+        if (parsed.password) {
+          setValue("password", decodeURIComponent(parsed.password))
+        }
+        setQuickPasteOpen(false)
+        setQuickPasteUri("")
         return
       }
 
@@ -168,17 +191,50 @@ export function ConnectionWizardModal({
   // Extract payload for live diagnostic ping
   const getTestPayload = (): TestConnectionPayload => {
     const values = getValues()
-    return {
-      db_type: selectedEngine,
-      host: values.host,
-      port: values.port,
-      database: values.database,
-      username: values.username,
-      password: values.password,
-      ssl_mode: values.ssl_mode as SSLMode | undefined,
-      file_path: values.file_path,
-      uri: values.uri,
+
+    let payload: TestConnectionPayload
+
+    if (selectedEngine === "sqlite") {
+      payload = {
+        db_type: "sqlite",
+        file_path: values.file_path,
+      }
+    } else if (selectedEngine === "mongodb" && mongoMode === "uri") {
+      const isSrv = values.uri?.startsWith("mongodb+srv://")
+      const parsedSsl = isSrv
+        ? "require"
+        : (values.ssl_mode as SSLMode | undefined)
+      payload = {
+        db_type: "mongodb",
+        uri: values.uri,
+        ssl_mode: parsedSsl,
+        database: values.database,
+      }
+    } else {
+      payload = {
+        db_type: selectedEngine,
+        host: values.host,
+        port: values.port,
+        database: values.database,
+        username: values.username,
+        password: values.password,
+        ssl_mode: values.ssl_mode as SSLMode | undefined,
+        file_path: values.file_path,
+        uri: selectedEngine === "mongodb" ? values.uri : undefined,
+      }
     }
+
+    // Diagnostic console trace for debugging connection tests
+    console.groupCollapsed(
+      `[SEASYN Diagnostics] Prepared Test Payload (${selectedEngine})`
+    )
+    console.log("Selected Engine:", selectedEngine)
+    console.log("Mongo Mode:", mongoMode)
+    console.log("Raw Form Values:", values)
+    console.log("Final Sent Payload:", payload)
+    console.groupEnd()
+
+    return payload
   }
 
   const createMutation = useMutation({
@@ -205,7 +261,31 @@ export function ConnectionWizardModal({
   })
 
   const onSubmit = (data: DatabaseConnectionInput) => {
-    createMutation.mutate(data)
+    const payload: CreateConnectionPayload = {
+      ...data,
+      db_type: selectedEngine,
+      is_source: Boolean(data.is_source),
+    }
+
+    if (selectedEngine === "sqlite") {
+      delete payload.host
+      delete payload.port
+      delete payload.database
+      delete payload.username
+      delete payload.password
+      delete payload.ssl_mode
+      delete payload.uri
+    } else if (selectedEngine === "mongodb" && mongoMode === "uri") {
+      delete payload.host
+      delete payload.port
+      delete payload.username
+      delete payload.password
+      if (payload.uri?.startsWith("mongodb+srv://")) {
+        payload.ssl_mode = "require"
+      }
+    }
+
+    createMutation.mutate(payload)
   }
 
   // Step 1 Validation -> Proceed to Step 2
@@ -335,7 +415,7 @@ export function ConnectionWizardModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-1">
-          <div className="relative min-h-[290px] overflow-hidden">
+          <div className="relative min-h-72.5 overflow-hidden">
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               {/* ── STEP 1: Engine & Role ── */}
               {step === 1 && (
@@ -514,14 +594,39 @@ export function ConnectionWizardModal({
                           MongoDB Connection URI{" "}
                           <span className="text-destructive">*</span>
                         </Label>
-                        <Input
-                          id="mongoUri"
-                          type="password"
-                          placeholder="mongodb+srv://user:password@cluster.mongodb.net/database"
-                          {...register("uri")}
-                          className="font-mono text-xs"
-                          disabled={createMutation.isPending}
-                        />
+                        <div className="relative">
+                          <Input
+                            id="mongoUri"
+                            type={showMongoUri ? "text" : "password"}
+                            placeholder="mongodb+srv://user:password@cluster.mongodb.net/database"
+                            {...register("uri", {
+                              onChange: (e) => {
+                                const val = String(e.target.value || "").trim()
+                                if (
+                                  val.startsWith("mongodb+srv://") ||
+                                  val.includes("tls=true") ||
+                                  val.includes("ssl=true")
+                                ) {
+                                  setValue("ssl_mode", "require")
+                                }
+                              },
+                            })}
+                            className="pr-9 font-mono text-xs ring-offset-0"
+                            disabled={createMutation.isPending}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowMongoUri(!showMongoUri)}
+                            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer"
+                            tabIndex={-1}
+                          >
+                            {showMongoUri ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
                       </TabsContent>
 
                       <TabsContent value="params" className="space-y-2.5 pt-2">
@@ -596,6 +701,27 @@ export function ConnectionWizardModal({
                               className="text-xs"
                             />
                           </div>
+                        </div>
+
+                        {/* MongoDB SSL Mode selector */}
+                        <div className="flex items-center justify-between pt-1">
+                          <Label
+                            htmlFor="mongo_ssl_mode"
+                            className="text-muted-foreground text-xs font-medium"
+                          >
+                            SSL / TLS Mode
+                          </Label>
+                          <select
+                            id="mongo_ssl_mode"
+                            {...register("ssl_mode")}
+                            className="border-input bg-background text-foreground h-8 rounded-md border px-2.5 text-xs shadow-xs focus:ring-1"
+                          >
+                            <option value="disable">Disable</option>
+                            <option value="require">Require (TLS/SSL)</option>
+                            <option value="verify-ca">Verify CA</option>
+                            <option value="verify-full">Verify Full</option>
+                            <option value="prefer">Prefer</option>
+                          </select>
                         </div>
                       </TabsContent>
                     </Tabs>
@@ -797,7 +923,11 @@ export function ConnectionWizardModal({
                           SSL Mode
                         </span>
                         <span className="text-foreground text-[11px] font-medium">
-                          {formValues.ssl_mode || "disable"}
+                          {selectedEngine === "mongodb" &&
+                          mongoMode === "uri" &&
+                          formValues.uri?.startsWith("mongodb+srv://")
+                            ? "require (TLS SRV)"
+                            : formValues.ssl_mode || "disable"}
                         </span>
                       </div>
                     </div>
