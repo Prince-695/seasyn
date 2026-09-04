@@ -6,25 +6,72 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Prince-695/seasyn/backend/internal/domain"
+	"github.com/Prince-695/seasyn/backend/internal/ports"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 // Connector provides live connection diagnostics and ping capabilities for target databases.
-type Connector struct{}
+type Connector struct {
+	registry ports.AdapterRegistry
+}
 
-func NewConnector() *Connector {
-	return &Connector{}
+func NewConnector(registry ...ports.AdapterRegistry) *Connector {
+	var reg ports.AdapterRegistry
+	if len(registry) > 0 {
+		reg = registry[0]
+	}
+	return &Connector{registry: reg}
 }
 
 // TestConnection attempts to connect to the target database and measure round-trip latency.
 func (c *Connector) TestConnection(ctx context.Context, req domain.TestConnectionRequest) (*domain.ConnectionTestResult, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
 	defer cancel()
 
 	start := time.Now()
+
+	// If adapter registry is available, use the specialized driver adapter for true end-to-end ping & auth check
+	if c.registry != nil {
+		adapter, err := c.registry.Get(req.DBType)
+		if err == nil && adapter != nil {
+			connMeta := domain.DatabaseConnection{
+				DBType:   req.DBType,
+				Host:     req.Host,
+				Port:     req.Port,
+				Database: req.Database,
+				Username: req.Username,
+				SSLMode:  req.SSLMode,
+				FilePath: req.FilePath,
+			}
+			dbConn, err := adapter.Connect(ctx, connMeta, req.Password, req.URI)
+			if err != nil {
+				return &domain.ConnectionTestResult{
+					Success:      false,
+					LatencyMs:    time.Since(start).Milliseconds(),
+					ErrorMessage: err.Error(),
+				}, nil
+			}
+			defer dbConn.Close()
+
+			if err := dbConn.Ping(ctx); err != nil {
+				return &domain.ConnectionTestResult{
+					Success:      false,
+					LatencyMs:    time.Since(start).Milliseconds(),
+					ErrorMessage: fmt.Sprintf("ping failed: %v", err),
+				}, nil
+			}
+
+			return &domain.ConnectionTestResult{
+				Success:    true,
+				LatencyMs:  time.Since(start).Milliseconds(),
+				ServerInfo: fmt.Sprintf("%s connected successfully", strings.ToUpper(string(req.DBType))),
+			}, nil
+		}
+	}
 
 	switch req.DBType {
 	case domain.DBTypePostgres:

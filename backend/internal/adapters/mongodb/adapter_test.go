@@ -1,6 +1,7 @@
 package mongodb
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -60,5 +61,44 @@ func TestBuildBsonFilter(t *testing.T) {
 	filter := buildBsonFilter(pk)
 	if filter["_id"] != oid {
 		t.Errorf("expected filter _id to be parsed ObjectID, got %v", filter["_id"])
+	}
+}
+
+func TestBuildMongoURI(t *testing.T) {
+	// Case 1: Atlas cluster host without URI
+	atlasConn := domain.DatabaseConnection{
+		Host:     "cluster0.fwpju1g.mongodb.net",
+		Port:     27017,
+		Username: "adminUser",
+		Database: "myDatabase",
+	}
+	atlasURI := buildMongoURI(atlasConn, "SecretPass@123", "")
+	expectedPrefix := "mongodb+srv://adminUser:SecretPass%40123@cluster0.fwpju1g.mongodb.net/myDatabase"
+	if !strings.HasPrefix(atlasURI, expectedPrefix) {
+		t.Errorf("expected Atlas URI starting with %q, got %q", expectedPrefix, atlasURI)
+	}
+	if strings.Contains(atlasURI, ":27017") {
+		t.Errorf("Atlas URI must not contain port :27017, got %q", atlasURI)
+	}
+
+	// Case 2: Atlas URI with accidental mongodb:// and port :27017
+	dirtyURI := "mongodb://user:pass@cluster0.fwpju1g.mongodb.net:27017/prodDB"
+	correctedURI := buildMongoURI(domain.DatabaseConnection{}, "", dirtyURI)
+	expectedCorrected := "mongodb+srv://user:pass@cluster0.fwpju1g.mongodb.net/prodDB"
+	if correctedURI != expectedCorrected {
+		t.Errorf("expected %q, got %q", expectedCorrected, correctedURI)
+	}
+
+	// Case 3: Local MongoDB
+	localConn := domain.DatabaseConnection{
+		Host:     "127.0.0.1",
+		Port:     27017,
+		Username: "root",
+		Database: "testdb",
+	}
+	localURI := buildMongoURI(localConn, "localpass", "")
+	expectedLocal := "mongodb://root:localpass@127.0.0.1:27017/testdb"
+	if localURI != expectedLocal {
+		t.Errorf("expected %q, got %q", expectedLocal, localURI)
 	}
 }
