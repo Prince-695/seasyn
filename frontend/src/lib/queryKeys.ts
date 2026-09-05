@@ -28,10 +28,18 @@ export const connectionKeys = {
 
 export const migrationKeys = {
   all: ["migrations"] as const,
-  lists: (projectId: string) =>
-    [...migrationKeys.all, "list", projectId] as const,
-  detail: (migrationId: string) =>
-    [...migrationKeys.all, "detail", migrationId] as const,
+  byProject: (orgId: string, projectId: string) =>
+    [...migrationKeys.all, "org", orgId, "project", projectId] as const,
+  list: (orgId: string, projectId: string) =>
+    [...migrationKeys.byProject(orgId, projectId), "list"] as const,
+  lists: (orgId: string, projectId: string) =>
+    [...migrationKeys.byProject(orgId, projectId), "list"] as const,
+  detail: (orgId: string, projectId: string, migrationId: string) =>
+    [
+      ...migrationKeys.byProject(orgId, projectId),
+      "detail",
+      migrationId,
+    ] as const,
 }
 
 export const schemaKeys = {

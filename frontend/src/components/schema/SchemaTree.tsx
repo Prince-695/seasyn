@@ -6,9 +6,12 @@ import {
   Database,
   Hash,
   Filter,
+  Braces,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import type { TableSchema } from "@/types/schema"
 import { cn } from "@/lib/utils"
 
@@ -31,6 +34,8 @@ export function SchemaTree({
   isLoading = false,
   className,
 }: SchemaTreeProps) {
+  const terminology = getDatabaseTerminology(dbType)
+  const isDocument = terminology.paradigm === "document"
   const [search, setSearch] = useState("")
   const [isOpen, setIsOpen] = useState(true)
 
@@ -69,7 +74,9 @@ export function SchemaTree({
               </span>
             </div>
             <p className="text-muted-foreground text-[10px]">
-              {tables.length} tables · {totalRowCount.toLocaleString()} rows
+              {tables.length} {terminology.entityPlural.toLowerCase()} ·{" "}
+              {totalRowCount.toLocaleString()}{" "}
+              {terminology.recordPlural.toLowerCase()}
             </p>
           </div>
         </div>
@@ -82,19 +89,21 @@ export function SchemaTree({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter tables & columns..."
+            placeholder={`Filter ${terminology.entityPlural.toLowerCase()}...`}
             className="h-8 pl-8 text-xs ring-offset-0"
           />
         </div>
       </div>
 
-      {/* Tables Navigation Tree */}
+      {/* Tables / Collections Navigation Tree */}
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
         <div className="flex items-center justify-between px-2 py-1">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-[11px] font-semibold tracking-wider uppercase transition-colors"
+            className="text-muted-foreground hover:text-foreground flex h-auto items-center gap-1 p-0 text-[11px] font-semibold tracking-wider uppercase transition-colors hover:bg-transparent"
           >
             <ChevronRight
               className={cn(
@@ -102,8 +111,10 @@ export function SchemaTree({
                 isOpen && "rotate-90"
               )}
             />
-            <span>Tables ({filteredTables.length})</span>
-          </button>
+            <span>
+              {terminology.entityPlural} ({filteredTables.length})
+            </span>
+          </Button>
           {search && (
             <Badge variant="outline" className="h-4 px-1.5 py-0 text-[10px]">
               filtered
@@ -126,33 +137,48 @@ export function SchemaTree({
               <div className="p-4 text-center">
                 <Filter className="text-muted-foreground/40 mx-auto h-6 w-6" />
                 <p className="text-muted-foreground mt-1.5 text-xs">
-                  {search ? "No tables match filter" : "No tables discovered"}
+                  {search
+                    ? `No ${terminology.entityPlural.toLowerCase()} match filter`
+                    : `No ${terminology.entityPlural.toLowerCase()} discovered`}
                 </p>
               </div>
             ) : (
               filteredTables.map((table) => {
                 const isSelected = selectedTable === table.name
                 return (
-                  <button
+                  <Button
                     key={table.name}
                     type="button"
+                    variant="ghost"
+                    size="xs"
                     onClick={() => onSelectTable(table.name)}
                     className={cn(
-                      "group flex w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-150",
+                      "group flex h-auto w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-150",
                       isSelected
-                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold shadow-xs"
                         : "text-foreground hover:bg-muted/50"
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <Table2
-                        className={cn(
-                          "h-3.5 w-3.5 shrink-0 transition-colors",
-                          isSelected
-                            ? "text-primary-foreground"
-                            : "text-muted-foreground group-hover:text-foreground"
-                        )}
-                      />
+                      {isDocument ? (
+                        <Braces
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 transition-colors",
+                            isSelected
+                              ? "text-primary-foreground"
+                              : "text-success group-hover:text-success/80"
+                          )}
+                        />
+                      ) : (
+                        <Table2
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 transition-colors",
+                            isSelected
+                              ? "text-primary-foreground"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          )}
+                        />
+                      )}
                       <span className="truncate font-mono">{table.name}</span>
                     </div>
 
@@ -170,7 +196,7 @@ export function SchemaTree({
                           : table.row_count}
                       </span>
                     </div>
-                  </button>
+                  </Button>
                 )
               })
             )}
@@ -182,7 +208,9 @@ export function SchemaTree({
       <div className="border-border/60 bg-muted/10 text-muted-foreground flex items-center justify-between border-t p-2 text-[11px]">
         <span className="flex items-center gap-1 font-mono text-[10px]">
           <Hash className="h-3 w-3" />
-          <span>{tables.length} Objects</span>
+          <span>
+            {tables.length} {terminology.entityPlural}
+          </span>
         </span>
         <span className="text-[10px]">Schema Introspected</span>
       </div>

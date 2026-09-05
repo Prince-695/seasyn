@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const faqData = [
@@ -65,9 +66,11 @@ export const FAQ = () => {
                   : "hover:border-primary/20 hover:bg-card/60"
               )}
             >
-              <button
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => toggleItem(index)}
-                className="flex w-full items-center justify-between bg-transparent p-2 text-left md:p-4"
+                className="flex h-auto w-full items-center justify-between bg-transparent p-2 text-left hover:bg-transparent md:p-4"
               >
                 <span
                   className={cn(
@@ -89,7 +92,7 @@ export const FAQ = () => {
                 >
                   <ChevronDown className="h-6 w-6" />
                 </div>
-              </button>
+              </Button>
 
               <AnimatePresence initial={false}>
                 {isOpen && (

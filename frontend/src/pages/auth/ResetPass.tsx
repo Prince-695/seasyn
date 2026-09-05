@@ -160,17 +160,19 @@ export function ResetPass() {
                 aria-invalid={!!errors.password}
                 className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pr-10 pl-10 transition-all duration-200"
               />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-xs"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer focus:outline-hidden"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 h-auto w-auto -translate-y-1/2 cursor-pointer p-1 focus:outline-hidden"
               >
                 {showPassword ? (
                   <EyeOff className="h-4.5 w-4.5" />
                 ) : (
                   <Eye className="h-4.5 w-4.5" />
                 )}
-              </button>
+              </Button>
             </div>
             {errors.password && (
               <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
@@ -200,17 +202,19 @@ export function ResetPass() {
                 aria-invalid={!!errors.confirmPassword}
                 className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pr-10 pl-10 transition-all duration-200"
               />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-xs"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer focus:outline-hidden"
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 h-auto w-auto -translate-y-1/2 cursor-pointer p-1 focus:outline-hidden"
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4.5 w-4.5" />
                 ) : (
                   <Eye className="h-4.5 w-4.5" />
                 )}
-              </button>
+              </Button>
             </div>
             {errors.confirmPassword && (
               <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">

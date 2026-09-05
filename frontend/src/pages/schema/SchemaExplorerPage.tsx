@@ -18,12 +18,13 @@ import { Badge } from "@/components/ui/badge"
 import {
   SchemaTree,
   TableStructureView,
-  LiveDataGrid,
+  DatabaseDataViewer,
   SchemaDiffViewer,
 } from "@/components/schema"
 import { schemaApi } from "@/api/schema"
 import { projectsApi } from "@/api/projects"
 import { schemaKeys, projectKeys, connectionKeys } from "@/lib/queryKeys"
+import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import type { ColumnSchema, TableRowQueryParams } from "@/types/schema"
 import { cn } from "@/lib/utils"
@@ -98,6 +99,10 @@ export function SchemaExplorerPage() {
   const activeConnection = useMemo(() => {
     return connections.find((c) => c.id === effectiveConnId) || null
   }, [connections, effectiveConnId])
+
+  const terminology = useMemo(() => {
+    return getDatabaseTerminology(activeConnection?.db_type)
+  }, [activeConnection?.db_type])
 
   // 3. Fetch Database Schema for selected connection
   const {
@@ -221,7 +226,9 @@ export function SchemaExplorerPage() {
         !effectiveTableName
       )
         throw new Error("Missing parameters")
-      const pkField = activeTable?.primary_keys[0] || "id"
+      const pkField =
+        activeTable?.primary_keys[0] ||
+        (terminology.paradigm === "document" ? "_id" : "id")
       const pkRecord = { [pkField]: row[pkField] }
       await schemaApi.updateRow(
         activeOrg.id,
@@ -229,6 +236,39 @@ export function SchemaExplorerPage() {
         effectiveConnId,
         effectiveTableName,
         { [col.name]: newVal },
+        pkRecord
+      )
+    },
+    onSuccess: () => {
+      refetchRows()
+    },
+  })
+
+  const updateRowMutation = useMutation({
+    mutationFn: async ({
+      row,
+      updatedRow,
+    }: {
+      row: Record<string, unknown>
+      updatedRow: Record<string, unknown>
+    }) => {
+      if (
+        !activeOrg?.id ||
+        !effectiveProjectId ||
+        !effectiveConnId ||
+        !effectiveTableName
+      )
+        throw new Error("Missing parameters")
+      const pkField =
+        activeTable?.primary_keys[0] ||
+        (terminology.paradigm === "document" ? "_id" : "id")
+      const pkRecord = { [pkField]: row[pkField] }
+      await schemaApi.updateRow(
+        activeOrg.id,
+        effectiveProjectId,
+        effectiveConnId,
+        effectiveTableName,
+        updatedRow,
         pkRecord
       )
     },
@@ -313,7 +353,7 @@ export function SchemaExplorerPage() {
                 <h1 className="text-foreground text-sm font-bold">
                   Schema Studio
                 </h1>
-                <Badge className="border-emerald-500/20 bg-emerald-500/10 text-[10px] font-semibold text-emerald-500">
+                <Badge className="border-success/20 bg-success/10 text-success text-[10px] font-semibold">
                   Live
                 </Badge>
               </div>
@@ -373,39 +413,49 @@ export function SchemaExplorerPage() {
         {/* Studio View Mode Switcher */}
         <div className="flex items-center gap-3">
           <div className="border-border/70 bg-muted/30 flex items-center gap-1 rounded-xl border p-1">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveTab("structure")}
               className={cn(
-                "relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "relative flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === "structure"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>Structure</span>
-            </button>
+              <span>
+                {terminology.paradigm === "document"
+                  ? `${terminology.entitySingular} Schema`
+                  : "Structure"}
+              </span>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveTab("data")}
               className={cn(
-                "relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "relative flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === "data"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               <TableIcon className="h-3.5 w-3.5" />
-              <span>Live Data</span>
-            </button>
+              <span>{`Live ${terminology.recordPlural}`}</span>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveTab("diff")}
               className={cn(
-                "relative flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "relative flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === "diff"
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -413,7 +463,7 @@ export function SchemaExplorerPage() {
             >
               <ArrowRightLeft className="h-3.5 w-3.5" />
               <span>Schema Diff</span>
-            </button>
+            </Button>
           </div>
 
           <Button
@@ -499,11 +549,13 @@ export function SchemaExplorerPage() {
                   {activeTable ? (
                     <TableStructureView
                       table={activeTable}
+                      dbType={activeConnection?.db_type || "postgres"}
                       onSwitchToDataGrid={() => setActiveTab("data")}
                     />
                   ) : (
                     <div className="text-muted-foreground p-8 text-center text-xs">
-                      Select a table from the tree on the left.
+                      Select a {terminology.entitySingular.toLowerCase()} from
+                      the tree on the left.
                     </div>
                   )}
                 </motion.div>
@@ -519,10 +571,11 @@ export function SchemaExplorerPage() {
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
                   {activeTable ? (
-                    <LiveDataGrid
+                    <DatabaseDataViewer
                       table={activeTable}
                       queryResult={queryResult || null}
                       isLoading={isRowsLoading}
+                      dbType={activeConnection?.db_type || "postgres"}
                       onRefresh={refetchRows}
                       onSortChange={(field, dir) => {
                         setQueryParams((prev) => ({
@@ -547,6 +600,12 @@ export function SchemaExplorerPage() {
                           newVal,
                         })
                       }}
+                      onUpdateRow={async (row, updatedRow) => {
+                        await updateRowMutation.mutateAsync({
+                          row,
+                          updatedRow,
+                        })
+                      }}
                       onDeleteRow={async (pkValues) => {
                         await deleteRowMutation.mutateAsync(pkValues)
                       }}
@@ -556,7 +615,9 @@ export function SchemaExplorerPage() {
                     />
                   ) : (
                     <div className="text-muted-foreground p-8 text-center text-xs">
-                      Select a table from the tree on the left to inspect rows.
+                      Select a {terminology.entitySingular.toLowerCase()} from
+                      the tree on the left to inspect{" "}
+                      {terminology.recordPlural.toLowerCase()}.
                     </div>
                   )}
                 </motion.div>

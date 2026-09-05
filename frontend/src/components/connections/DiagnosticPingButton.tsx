@@ -1,4 +1,5 @@
 import { useState } from "react"
+import axios from "axios"
 import {
   Activity,
   CheckCircle2,
@@ -44,14 +45,26 @@ export function DiagnosticPingButton({
     e.preventDefault()
     e.stopPropagation()
 
-    if (!activeOrg?.id) return
+    if (!activeOrg?.id) {
+      console.warn("[SEASYN Ping] Diagnostic aborted: No active organization.")
+      return
+    }
     setTesting(true)
     setResult(null)
+
+    console.group(
+      `[SEASYN Ping] Connection Diagnostic Test (${new Date().toLocaleTimeString()})`
+    )
 
     try {
       let testRes: ConnectionTestResult
 
       if (savedConnId && projectId) {
+        console.log("Mode: Testing Saved Connection", {
+          orgId: activeOrg.id,
+          projectId,
+          savedConnId,
+        })
         const res = await projectsApi.testSavedConnection(
           activeOrg.id,
           projectId,
@@ -65,10 +78,19 @@ export function DiagnosticPingButton({
       } else if (getPayload) {
         const payload = getPayload()
         if (!payload) {
+          console.warn(
+            "[SEASYN Ping] Diagnostic aborted: getPayload returned null."
+          )
+          console.groupEnd()
           setTesting(false)
           return
         }
         const effectiveProjectId = projectId || "draft"
+        console.log("Mode: Direct Connection Payload", {
+          orgId: activeOrg.id,
+          projectId: effectiveProjectId,
+          payload,
+        })
         const res = await projectsApi.testDirectConnection(
           activeOrg.id,
           effectiveProjectId,
@@ -83,9 +105,19 @@ export function DiagnosticPingButton({
         throw new Error("Invalid diagnostic configuration")
       }
 
+      console.log("[SEASYN Ping Result]", testRes)
+      console.groupEnd()
+
       setResult(testRes)
       onResult?.(testRes)
     } catch (err: unknown) {
+      console.error("[SEASYN Ping Error]", err)
+      if (axios.isAxiosError(err)) {
+        console.error("HTTP Status:", err.response?.status)
+        console.error("Backend Response Data:", err.response?.data)
+      }
+      console.groupEnd()
+
       const errorMsg =
         err instanceof Error ? err.message : "Connection diagnostic failed."
       const failResult: ConnectionTestResult = {
@@ -164,14 +196,16 @@ export function DiagnosticPingButton({
             )}
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             onClick={handleTest}
             title="Re-run ping test"
-            className="hover:bg-background/20 rounded p-1 transition-colors"
+            className="hover:bg-background/20 h-auto w-auto rounded p-1 transition-colors"
           >
             <RefreshCw className="h-3.5 w-3.5 opacity-70 hover:opacity-100" />
-          </button>
+          </Button>
         </div>
       )}
     </div>

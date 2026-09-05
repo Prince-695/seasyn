@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils"
 import type { DBType } from "@/types"
 import { ENGINES } from "@/lib/constants/engines"
 import { EngineIcon } from "./EngineIcon"
+import { Button } from "@/components/ui/button"
 
 export { EngineIcon }
 
@@ -23,13 +24,14 @@ export function EngineSelector({
       {ENGINES.map((engine) => {
         const isSelected = value === engine.type
         return (
-          <button
+          <Button
             key={engine.type}
             type="button"
+            variant="ghost"
             disabled={disabled}
             onClick={() => onChange(engine.type)}
             className={cn(
-              "group relative flex cursor-pointer flex-col items-start rounded-xl border p-4 text-left transition-all duration-200",
+              "group relative flex h-auto w-full cursor-pointer flex-col items-start rounded-xl border p-4 text-left transition-all duration-200",
               "hover:shadow-xs",
               isSelected
                 ? "border-primary bg-primary/3 ring-primary shadow-xs ring-1"
@@ -70,7 +72,7 @@ export function EngineSelector({
             <p className="text-muted-foreground mt-2.5 line-clamp-2 text-xs leading-relaxed">
               {engine.description}
             </p>
-          </button>
+          </Button>
         )
       })}
     </div>

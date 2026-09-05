@@ -9,31 +9,66 @@ import {
   Table as TableIcon,
   Check,
   Copy,
+  Braces,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SeasonTypeBadge } from "./SeasonTypeBadge"
+import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import type { TableSchema } from "@/types/schema"
 import { cn } from "@/lib/utils"
 
 interface TableStructureViewProps {
   table: TableSchema
+  dbType?: string
   onSwitchToDataGrid?: () => void
   className?: string
 }
 
 export function TableStructureView({
   table,
+  dbType = "postgres",
   onSwitchToDataGrid,
   className,
 }: TableStructureViewProps) {
+  const terminology = getDatabaseTerminology(dbType)
+  const isDocument = terminology.paradigm === "document"
   const [activeSubTab, setActiveSubTab] = useState<
     "columns" | "indexes" | "constraints" | "ddl"
   >("columns")
   const [copiedDdl, setCopiedDdl] = useState(false)
 
-  // Generate synthetic DDL for quick preview
+  // Generate synthetic DDL / MongoDB Validator for quick preview
   const generateDdl = () => {
+    if (isDocument) {
+      const properties: Record<string, unknown> = {}
+      table.columns.forEach((col) => {
+        properties[col.name] = {
+          bsonType:
+            col.season_type === "int"
+              ? "int"
+              : col.season_type === "float" || col.season_type === "decimal"
+                ? "double"
+                : col.season_type === "bool"
+                  ? "bool"
+                  : col.season_type === "json"
+                    ? "object"
+                    : col.season_type === "array"
+                      ? "array"
+                      : "string",
+          description: `${col.name} field${col.is_primary_key ? " (Document Identifier)" : ""}`,
+        }
+      })
+      const validator = {
+        $jsonSchema: {
+          bsonType: "object",
+          required: table.primary_keys,
+          properties,
+        },
+      }
+      return `// MongoDB Collection Schema Validator\n// Collection: "${table.name}"\ndb.createCollection("${table.name}", {\n  validator: ${JSON.stringify(validator, null, 2)}\n});`
+    }
+
     const colDefs = table.columns.map((col) => {
       let def = `  "${col.name}" ${col.data_type.toUpperCase()}`
       if (!col.is_nullable) def += " NOT NULL"
@@ -65,7 +100,11 @@ export function TableStructureView({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="border-primary/40 bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-xl border shadow-xs">
-              <TableIcon className="h-5 w-5" />
+              {isDocument ? (
+                <Braces className="text-success h-5 w-5" />
+              ) : (
+                <TableIcon className="h-5 w-5" />
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -73,14 +112,18 @@ export function TableStructureView({
                   {table.name}
                 </h2>
                 <Badge variant="outline" className="font-mono text-[10px]">
-                  {table.columns.length} columns
+                  {table.columns.length} {terminology.fieldPlural.toLowerCase()}
                 </Badge>
                 <Badge variant="secondary" className="text-[10px]">
-                  {table.row_count.toLocaleString()} rows
+                  {table.row_count.toLocaleString()}{" "}
+                  {terminology.recordPlural.toLowerCase()}
                 </Badge>
               </div>
               <p className="text-muted-foreground text-xs">
-                Physical relation in database schema · Size approx{" "}
+                {isDocument
+                  ? `${terminology.entitySingular} in database schema`
+                  : "Physical relation in database schema"}{" "}
+                · Size approx{" "}
                 {table.size_bytes
                   ? `${(table.size_bytes / (1024 * 1024)).toFixed(2)} MB`
                   : "< 1 MB"}
@@ -96,7 +139,7 @@ export function TableStructureView({
                 className="gap-1.5 text-xs font-semibold"
               >
                 <Database className="h-3.5 w-3.5" />
-                <span>View Live Data</span>
+                <span>View Live {terminology.recordPlural}</span>
               </Button>
             )}
           </div>
@@ -104,54 +147,64 @@ export function TableStructureView({
 
         {/* Sub-tab Navigation */}
         <div className="border-border/60 mt-4 flex items-center gap-1 border-t pt-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setActiveSubTab("columns")}
             className={cn(
               "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               activeSubTab === "columns"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            Columns ({table.columns.length})
-          </button>
-          <button
+            {terminology.fieldPlural} ({table.columns.length})
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setActiveSubTab("indexes")}
             className={cn(
               "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               activeSubTab === "indexes"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
             Indexes ({table.indexes?.length || 0})
-          </button>
-          <button
+          </Button>
+          {!isDocument && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              onClick={() => setActiveSubTab("constraints")}
+              className={cn(
+                "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+                activeSubTab === "constraints"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              )}
+            >
+              Constraints ({table.constraints?.length || 0})
+            </Button>
+          )}
+          <Button
             type="button"
-            onClick={() => setActiveSubTab("constraints")}
-            className={cn(
-              "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
-              activeSubTab === "constraints"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-            )}
-          >
-            Constraints ({table.constraints?.length || 0})
-          </button>
-          <button
-            type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setActiveSubTab("ddl")}
             className={cn(
               "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               activeSubTab === "ddl"
-                ? "bg-primary text-primary-foreground shadow-xs"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            DDL SQL
-          </button>
+            {isDocument ? "Collection Validator" : "DDL SQL"}
+          </Button>
         </div>
       </div>
 
@@ -180,7 +233,7 @@ export function TableStructureView({
                       <td className="px-3 py-2.5">
                         <div className="text-foreground flex items-center gap-1.5 font-semibold">
                           {col.is_primary_key && (
-                            <Key className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                            <Key className="text-warning h-3.5 w-3.5 shrink-0" />
                           )}
                           {col.is_foreign_key && (
                             <ArrowUpRight className="text-info h-3.5 w-3.5 shrink-0" />
@@ -215,7 +268,7 @@ export function TableStructureView({
 
                       <td className="px-3 py-2.5 font-sans">
                         {col.is_primary_key && (
-                          <Badge className="border-amber-500/20 bg-amber-500/10 text-[10px] text-amber-500">
+                          <Badge className="border-warning/20 bg-warning/10 text-warning text-[10px]">
                             Primary Key
                           </Badge>
                         )}
@@ -270,7 +323,7 @@ export function TableStructureView({
                       </td>
                       <td className="px-3 py-2.5 font-sans">
                         {idx.is_unique ? (
-                          <Badge className="border-emerald-500/20 bg-emerald-500/10 text-[10px] text-emerald-500">
+                          <Badge className="border-success/20 bg-success/10 text-success text-[10px]">
                             UNIQUE
                           </Badge>
                         ) : (
@@ -365,14 +418,14 @@ export function TableStructureView({
               className="h-7 gap-1 text-xs"
             >
               {copiedDdl ? (
-                <Check className="h-3 w-3 text-emerald-500" />
+                <Check className="text-success h-3 w-3" />
               ) : (
                 <Copy className="h-3 w-3" />
               )}
               <span>{copiedDdl ? "Copied" : "Copy SQL"}</span>
             </Button>
           </div>
-          <div className="overflow-x-auto bg-zinc-950 p-4 font-mono text-xs text-emerald-400">
+          <div className="bg-code-bg text-code-foreground border-code-border overflow-x-auto border-t p-4 font-mono text-xs">
             <pre>{generateDdl()}</pre>
           </div>
         </div>

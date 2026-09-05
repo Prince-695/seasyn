@@ -34,6 +34,9 @@
   --mac-close: #ff5f56;
   --mac-minimize: #ffbd2e;
   --mac-maximize: #27c93f;
+  --code-bg: #0d0e12;
+  --code-foreground: #34d399;
+  --code-border: #27272a;
 
 
   --ring: #a1a1a1;
@@ -100,6 +103,9 @@
   --mac-close: #ff5f56;
   --mac-minimize: #ffbd2e;
   --mac-maximize: #27c93f;
+  --code-bg: #09090b;
+  --code-foreground: #34d399;
+  --code-border: #27272a;
 
 
   --ring: #737373;
@@ -163,7 +169,9 @@
   --color-mac-close: var(--mac-close);
   --color-mac-minimize: var(--mac-minimize);
   --color-mac-maximize: var(--mac-maximize);
-
+  --color-code-bg: var(--code-bg);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-border: var(--code-border);
 
   --color-input: var(--input);
   --color-ring: var(--ring);

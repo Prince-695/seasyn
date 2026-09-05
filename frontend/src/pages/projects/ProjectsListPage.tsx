@@ -127,7 +127,10 @@ export function ProjectsListPage() {
 
         {/* Environment Filter Tabs */}
         <div className="border-border/80 bg-muted/30 flex flex-wrap items-center gap-1.5 rounded-lg border p-1 text-xs">
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setEnvFilter("all")}
             className={`rounded-md px-3 py-1.5 font-medium transition-all ${
               envFilter === "all"
@@ -136,8 +139,11 @@ export function ProjectsListPage() {
             }`}
           >
             All ({stats.total})
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setEnvFilter("development")}
             className={`rounded-md px-3 py-1.5 font-medium transition-all ${
               envFilter === "development"
@@ -146,8 +152,11 @@ export function ProjectsListPage() {
             }`}
           >
             Dev ({stats.dev})
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setEnvFilter("staging")}
             className={`rounded-md px-3 py-1.5 font-medium transition-all ${
               envFilter === "staging"
@@ -156,8 +165,11 @@ export function ProjectsListPage() {
             }`}
           >
             Staging ({stats.staging})
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
             onClick={() => setEnvFilter("production")}
             className={`rounded-md px-3 py-1.5 font-medium transition-all ${
               envFilter === "production"
@@ -166,7 +178,7 @@ export function ProjectsListPage() {
             }`}
           >
             Prod ({stats.prod})
-          </button>
+          </Button>
         </div>
       </div>
 

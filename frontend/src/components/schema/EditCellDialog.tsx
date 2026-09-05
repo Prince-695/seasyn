@@ -138,7 +138,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
                 if (jsonError) setJsonError(null)
               }}
               rows={8}
-              className="bg-zinc-950 font-mono text-xs text-emerald-400"
+              className="border-code-border bg-code-bg text-code-foreground font-mono text-xs"
             />
           </div>
         ) : (

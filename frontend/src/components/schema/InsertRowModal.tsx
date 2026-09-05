@@ -131,7 +131,7 @@ export function InsertRowModal({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      {isPk && <Key className="h-3.5 w-3.5 text-amber-500" />}
+                      {isPk && <Key className="text-warning h-3.5 w-3.5" />}
                       <Label
                         htmlFor={`col-${col.name}`}
                         className="font-mono text-xs font-semibold"
@@ -174,7 +174,7 @@ export function InsertRowModal({
                       onChange={(e) =>
                         handleFieldChange(col.name, e.target.value)
                       }
-                      className="bg-zinc-950 font-mono text-xs text-emerald-400"
+                      className="border-code-border bg-code-bg text-code-foreground font-mono text-xs"
                     />
                   ) : (
                     <Input

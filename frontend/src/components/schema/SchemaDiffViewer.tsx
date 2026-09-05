@@ -33,22 +33,32 @@ export function SchemaDiffViewer({
   const [filter, setFilter] = useState<"all" | "diffs" | "added" | "altered">(
     "all"
   )
+
+  // Null-safe fallbacks for all diff array properties
+  const tablesAdded = diff?.tables_added ?? []
+  const tablesRemoved = diff?.tables_removed ?? []
+  const tablesAltered = diff?.tables_altered ?? []
+  const tablesSame = diff?.tables_same ?? []
+
   const [selectedTableDiff, setSelectedTableDiff] = useState<TableDiff | null>(
-    diff.tables_altered[0] || null
+    tablesAltered[0] || null
   )
   const [copiedMigrationSql, setCopiedMigrationSql] = useState(false)
 
-  // Filtered altered tables
-  const alteredList = diff.tables_altered
-
   const handleCopyMigrationDdl = async () => {
-    let sql = `-- SEASYN Automated Migration Script\n-- Source (${diff.source_db_type}) ➔ Target (${diff.target_db_type})\n-- Generated at: ${new Date(diff.generated_at).toLocaleString()}\n\n`
+    const srcType = diff?.source_db_type || "Source"
+    const tgtType = diff?.target_db_type || "Target"
+    const genAt = diff?.generated_at
+      ? new Date(diff.generated_at).toLocaleString()
+      : new Date().toLocaleString()
 
-    diff.tables_added.forEach((t) => {
+    let sql = `-- SEASYN Automated Migration Script\n-- Source (${srcType}) ➔ Target (${tgtType})\n-- Generated at: ${genAt}\n\n`
+
+    tablesAdded.forEach((t) => {
       sql += `-- Create table missing in target\nCREATE TABLE "${t}" (\n  "id" UUID PRIMARY KEY,\n  "created_at" TIMESTAMPTZ DEFAULT NOW()\n);\n\n`
     })
 
-    diff.tables_altered.forEach((td) => {
+    tablesAltered.forEach((td) => {
       td.column_diffs?.forEach((cd) => {
         if (cd.diff_type === "added" && cd.source_column) {
           sql += `ALTER TABLE "${td.name}" ADD COLUMN "${cd.name}" ${cd.source_column.data_type};\n`
@@ -72,28 +82,29 @@ export function SchemaDiffViewer({
       {/* ── Summary Metric Cards ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {/* Added Tables */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setFilter("added")}
           className={cn(
-            "border-border/70 bg-card hover:bg-muted/20 flex cursor-pointer flex-col items-start rounded-xl border p-3.5 text-left shadow-xs transition-all duration-150",
+            "border-border/70 bg-card hover:bg-muted/20 flex h-auto cursor-pointer flex-col items-start rounded-xl border p-3.5 text-left shadow-xs transition-all duration-150",
             filter === "added" &&
-              "border-emerald-500/50 bg-emerald-500/5 ring-1 ring-emerald-500/30"
+              "border-success/50 bg-success/5 ring-success/30 ring-1"
           )}
         >
           <div className="flex w-full items-center justify-between">
             <span className="text-muted-foreground text-xs font-semibold">
               Tables to Add
             </span>
-            <PlusCircle className="h-4 w-4 text-emerald-500" />
+            <PlusCircle className="text-success h-4 w-4" />
           </div>
-          <span className="mt-2 font-mono text-2xl font-bold text-emerald-500">
-            +{diff.tables_added.length}
+          <span className="text-success mt-2 font-mono text-2xl font-bold">
+            +{tablesAdded.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             Missing from target DB
           </span>
-        </button>
+        </Button>
 
         {/* Removed Tables */}
         <div className="border-border/70 bg-card flex flex-col items-start rounded-xl border p-3.5 text-left shadow-xs">
@@ -101,10 +112,10 @@ export function SchemaDiffViewer({
             <span className="text-muted-foreground text-xs font-semibold">
               Target Orphans
             </span>
-            <MinusCircle className="h-4 w-4 text-rose-500" />
+            <MinusCircle className="text-destructive h-4 w-4" />
           </div>
-          <span className="mt-2 font-mono text-2xl font-bold text-rose-500">
-            -{diff.tables_removed.length}
+          <span className="text-destructive mt-2 font-mono text-2xl font-bold">
+            -{tablesRemoved.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             Present only in target
@@ -112,28 +123,29 @@ export function SchemaDiffViewer({
         </div>
 
         {/* Altered Tables */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setFilter("altered")}
           className={cn(
-            "border-border/70 bg-card hover:bg-muted/20 flex cursor-pointer flex-col items-start rounded-xl border p-3.5 text-left shadow-xs transition-all duration-150",
+            "border-border/70 bg-card hover:bg-muted/20 flex h-auto cursor-pointer flex-col items-start rounded-xl border p-3.5 text-left shadow-xs transition-all duration-150",
             filter === "altered" &&
-              "border-amber-500/50 bg-amber-500/5 ring-1 ring-amber-500/30"
+              "border-warning/50 bg-warning/5 ring-warning/30 ring-1"
           )}
         >
           <div className="flex w-full items-center justify-between">
             <span className="text-muted-foreground text-xs font-semibold">
               Altered Tables
             </span>
-            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertCircle className="text-warning h-4 w-4" />
           </div>
-          <span className="mt-2 font-mono text-2xl font-bold text-amber-500">
-            ~{diff.tables_altered.length}
+          <span className="text-warning mt-2 font-mono text-2xl font-bold">
+            ~{tablesAltered.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             Schema type divergences
           </span>
-        </button>
+        </Button>
 
         {/* Identical Tables */}
         <div className="border-border/70 bg-card flex flex-col items-start rounded-xl border p-3.5 text-left shadow-xs">
@@ -144,7 +156,7 @@ export function SchemaDiffViewer({
             <CheckCircle2 className="text-primary h-4 w-4" />
           </div>
           <span className="text-foreground mt-2 font-mono text-2xl font-bold">
-            {diff.tables_same.length}
+            {tablesSame.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
             100% schema parity
@@ -180,7 +192,7 @@ export function SchemaDiffViewer({
               onClick={() => setFilter("added")}
               className="h-7 px-2.5 text-xs"
             >
-              Added ({diff.tables_added.length})
+              Added ({tablesAdded.length})
             </Button>
             <Button
               variant={filter === "altered" ? "default" : "outline"}
@@ -188,7 +200,7 @@ export function SchemaDiffViewer({
               onClick={() => setFilter("altered")}
               className="h-7 px-2.5 text-xs"
             >
-              Altered ({diff.tables_altered.length})
+              Altered ({tablesAltered.length})
             </Button>
           </div>
         </div>
@@ -200,7 +212,7 @@ export function SchemaDiffViewer({
           className="h-7 gap-1.5 text-xs font-semibold"
         >
           {copiedMigrationSql ? (
-            <Check className="h-3.5 w-3.5 text-emerald-500" />
+            <Check className="text-success h-3.5 w-3.5" />
           ) : (
             <FileCode className="text-primary h-3.5 w-3.5" />
           )}
@@ -220,57 +232,58 @@ export function SchemaDiffViewer({
 
           <div className="space-y-1">
             {/* Added Tables List */}
-            {diff.tables_added.map((tableName) => (
+            {tablesAdded.map((tableName) => (
               <div
                 key={`add-${tableName}`}
-                className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs"
+                className="border-success/20 bg-success/5 flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
               >
                 <div className="flex items-center gap-2 font-mono">
-                  <PlusCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                  <PlusCircle className="text-success h-3.5 w-3.5 shrink-0" />
                   <span className="text-foreground font-semibold">
                     {tableName}
                   </span>
                 </div>
-                <Badge className="border-emerald-500/20 bg-emerald-500/10 text-[10px] text-emerald-500">
+                <Badge className="border-success/20 bg-success/10 text-success text-[10px]">
                   + New in Target
                 </Badge>
               </div>
             ))}
 
             {/* Altered Tables List */}
-            {alteredList.map((td) => {
+            {tablesAltered.map((td) => {
               const isSelected = selectedTableDiff?.name === td.name
               return (
-                <button
+                <Button
                   key={`alt-${td.name}`}
                   type="button"
+                  variant="ghost"
                   onClick={() => setSelectedTableDiff(td)}
                   className={cn(
-                    "flex w-full cursor-pointer items-center justify-between rounded-lg border px-3 py-2 text-left text-xs transition-all duration-150",
+                    "flex h-auto w-full cursor-pointer items-center justify-between rounded-lg border px-3 py-2 text-left text-xs transition-all duration-150",
                     isSelected
-                      ? "border-amber-500 bg-amber-500/10 shadow-xs"
+                      ? "border-warning bg-warning/10 shadow-xs"
                       : "border-border/60 hover:bg-muted/40"
                   )}
                 >
                   <div className="flex items-center gap-2 font-mono">
-                    <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                    <AlertCircle className="text-warning h-3.5 w-3.5 shrink-0" />
                     <span className="text-foreground font-semibold">
                       {td.name}
                     </span>
                   </div>
                   <Badge
                     variant="outline"
-                    className="border-amber-500/30 text-[10px] text-amber-500"
+                    className="border-warning/30 text-warning text-[10px]"
                   >
                     ~ {td.column_diffs?.length || 0} Diffs
                   </Badge>
-                </button>
+                </Button>
               )
             })}
 
             {/* Same Tables List (if filter allows) */}
             {filter === "all" &&
-              diff.tables_same.map((tableName) => (
+              tablesSame.map((tableName) => (
                 <div
                   key={`same-${tableName}`}
                   className="border-border/50 bg-muted/10 flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
@@ -331,8 +344,8 @@ export function SchemaDiffViewer({
                           key={cd.name}
                           className={cn(
                             "transition-colors",
-                            isAdded && "bg-emerald-500/5",
-                            isAltered && "bg-amber-500/5"
+                            isAdded && "bg-success/5",
+                            isAltered && "bg-warning/5"
                           )}
                         >
                           <td className="text-foreground px-3 py-2.5 font-semibold">
@@ -341,11 +354,11 @@ export function SchemaDiffViewer({
 
                           <td className="px-3 py-2.5 font-sans">
                             {isAdded ? (
-                              <Badge className="border-emerald-500/20 bg-emerald-500/10 text-[10px] text-emerald-500">
+                              <Badge className="border-success/20 bg-success/10 text-success text-[10px]">
                                 + Added
                               </Badge>
                             ) : isAltered ? (
-                              <Badge className="border-amber-500/20 bg-amber-500/10 text-[10px] text-amber-500">
+                              <Badge className="border-warning/20 bg-warning/10 text-warning text-[10px]">
                                 ~ Altered
                               </Badge>
                             ) : (
@@ -389,11 +402,11 @@ export function SchemaDiffViewer({
 
                           <td className="text-muted-foreground px-3 py-2.5 font-sans text-xs">
                             {cd.alter_details && cd.alter_details.length > 0 ? (
-                              <span className="text-[11px] text-amber-500">
+                              <span className="text-warning text-[11px]">
                                 {cd.alter_details.join("; ")}
                               </span>
                             ) : isAdded ? (
-                              <span className="text-[11px] text-emerald-500">
+                              <span className="text-success text-[11px]">
                                 Will be migrated to target schema
                               </span>
                             ) : (

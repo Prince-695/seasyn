@@ -90,14 +90,16 @@ export function Header() {
     <header className="border-border/70 bg-card/40 sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b px-4 backdrop-blur-md sm:px-6">
       {/* Left: Mobile trigger & Breadcrumbs */}
       <div className="flex items-center gap-3">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={toggleMobileSidebar}
           aria-label="Toggle navigation menu"
           className="border-border/60 text-muted-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-lg border transition-colors md:hidden"
         >
           <Menu className="h-4 w-4" />
-        </button>
+        </Button>
 
         {/* Breadcrumb Navigation */}
         <nav

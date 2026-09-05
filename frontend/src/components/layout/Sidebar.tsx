@@ -20,6 +20,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 import { authApi } from "@/api/auth"
 import { OrgSwitcher } from "./OrgSwitcher"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export function Sidebar() {
@@ -130,14 +131,16 @@ export function Sidebar() {
         </NavLink>
 
         {sidebarOpen && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             onClick={toggleSidebar}
             aria-label="Collapse sidebar"
             className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
           >
             <PanelLeftClose className="h-4 w-4" />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -253,35 +256,41 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={handleLogout}
               title="Sign Out"
               className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors"
               aria-label="Sign out"
             >
               <LogOut className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={toggleSidebar}
               aria-label="Expand sidebar"
               className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
             >
               <PanelLeftOpen className="h-4 w-4" />
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={handleLogout}
               title="Sign Out"
               className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
               aria-label="Sign out"
             >
               <LogOut className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         )}
 

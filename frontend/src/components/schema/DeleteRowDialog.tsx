@@ -73,7 +73,7 @@ export function DeleteRowDialog({
         {/* Primary Key Identification */}
         <div className="border-border/70 bg-muted/20 space-y-1.5 rounded-xl border p-3">
           <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase">
-            <Key className="h-3.5 w-3.5 text-amber-500" />
+            <Key className="text-warning h-3.5 w-3.5" />
             <span>Target Primary Key Identification</span>
           </span>
           <div className="divide-border/50 divide-y font-mono text-xs">
