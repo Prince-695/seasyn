@@ -292,8 +292,10 @@ export function ConnectionsPage() {
               <ConnectionCard
                 connection={conn}
                 onDelete={handleDeleteConnection}
-                onInspectSchema={(c) =>
-                  navigate(`/editor?projectId=${c.project_id}&connId=${c.id}`)
+                onInspectSchema={() =>
+                  navigate(
+                    `/editor?project=${conn.projectSlug || conn.project_id}&conn=${conn.name || conn.id}`
+                  )
                 }
               />
               {/* Parent Project Tag */}

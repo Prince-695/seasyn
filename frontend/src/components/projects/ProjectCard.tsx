@@ -62,7 +62,7 @@ export function ProjectCard({
 
   const handleOpen = () => {
     setActiveProjectId(project.id)
-    navigate(`/projects/${project.id}`)
+    navigate(`/projects/${project.slug || project.id}`)
   }
 
   const formattedDate = new Date(project.created_at).toLocaleDateString(
@@ -113,9 +113,6 @@ export function ProjectCard({
                   </Badge>
                 )}
               </div>
-              <p className="text-muted-foreground line-clamp-1 font-mono text-xs">
-                {project.slug || project.id.slice(0, 8)}
-              </p>
             </div>
           </div>
 

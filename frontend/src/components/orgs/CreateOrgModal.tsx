@@ -1,5 +1,4 @@
 import { useState } from "react"
-
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -28,32 +27,34 @@ interface CreateOrgModalProps {
 }
 
 function generateSlug(name: string): string {
-  return name
+  const base = name
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .slice(0, 50)
+
+  if (base.length >= 2) return base
+  return base
+    ? `${base}-${Math.floor(1000 + Math.random() * 9000)}`
+    : `org-${Math.floor(1000 + Math.random() * 9000)}`
 }
 
 export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
   const queryClient = useQueryClient()
   const setActiveOrg = useWorkspaceStore((state) => state.setActiveOrg)
   const [serverError, setServerError] = useState<string | null>(null)
-  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
 
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<CreateOrgInput>({
     resolver: zodResolver(createOrgSchema),
     defaultValues: {
       name: "",
-      slug: "",
       description: "",
     },
   })
@@ -62,13 +63,19 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
     if (!nextOpen) {
       reset()
       setServerError(null)
-      setIsSlugManuallyEdited(false)
     }
     onOpenChange(nextOpen)
   }
 
   const createOrgMutation = useMutation({
-    mutationFn: (data: CreateOrgInput) => orgsApi.createOrg(data),
+    mutationFn: (data: CreateOrgInput) => {
+      const slug = generateSlug(data.name)
+      return orgsApi.createOrg({
+        name: data.name.trim(),
+        slug,
+        description: data.description?.trim() || undefined,
+      })
+    },
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: orgKeys.lists() })
       if (res.data) {
@@ -82,7 +89,7 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
         setServerError(
           err.response?.data?.message ??
             err.response?.data?.error ??
-            "Failed to create organization. The slug might already be taken."
+            "Failed to create organization. Please try again."
         )
       } else {
         setServerError("An unexpected error occurred. Please try again.")
@@ -94,8 +101,6 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
     setServerError(null)
     createOrgMutation.mutate(data)
   }
-
-  const nameRegister = register("name")
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -132,46 +137,12 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
             <Input
               id="org-name"
               placeholder="e.g. Acme Corp"
-              {...nameRegister}
-              onChange={(e) => {
-                nameRegister.onChange(e)
-                if (!isSlugManuallyEdited) {
-                  setValue("slug", generateSlug(e.target.value), {
-                    shouldValidate: true,
-                  })
-                }
-              }}
+              {...register("name")}
               aria-invalid={!!errors.name}
             />
             {errors.name && (
               <p className="text-destructive text-xs font-medium">
                 {errors.name.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="org-slug">
-              Slug / Identifier <span className="text-destructive">*</span>
-            </Label>
-            <div className="relative">
-              <Input
-                id="org-slug"
-                placeholder="acme-corp"
-                {...register("slug")}
-                onChange={(e) => {
-                  setIsSlugManuallyEdited(true)
-                  setValue("slug", e.target.value, { shouldValidate: true })
-                }}
-                aria-invalid={!!errors.slug}
-              />
-            </div>
-            <p className="text-muted-foreground text-xs">
-              Unique URL-friendly handle for your workspace.
-            </p>
-            {errors.slug && (
-              <p className="text-destructive text-xs font-medium">
-                {errors.slug.message}
               </p>
             )}
           </div>

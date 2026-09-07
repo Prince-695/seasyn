@@ -36,12 +36,17 @@ export function SchemaExplorerPage() {
   const { activeOrg, activeProjectId } = useWorkspaceStore()
 
   // Selected Connection & Table state from URL or fallback
-  const initialConnId = searchParams.get("connId") || ""
-  const initialProjectId =
-    searchParams.get("projectId") || activeProjectId || ""
-  const [selectedProjectId, setSelectedProjectId] =
-    useState<string>(initialProjectId)
-  const [selectedConnId, setSelectedConnId] = useState<string>(initialConnId)
+  const projectParam =
+    searchParams.get("project") ||
+    searchParams.get("projectId") ||
+    activeProjectId ||
+    ""
+  const connParam = searchParams.get("conn") || searchParams.get("connId") || ""
+
+  const [selectedProjectIdentifier, setSelectedProjectIdentifier] =
+    useState<string>(projectParam)
+  const [selectedConnIdentifier, setSelectedConnIdentifier] =
+    useState<string>(connParam)
   const [selectedTableName, setSelectedTableName] = useState<string | null>(
     null
   )
@@ -65,7 +70,20 @@ export function SchemaExplorerPage() {
     enabled: !!activeOrg?.id,
   })
 
-  const effectiveProjectId = selectedProjectId || projects[0]?.id || ""
+  const matchedProject = useMemo(() => {
+    if (!projects.length) return null
+    return (
+      projects.find(
+        (p) =>
+          p.slug === selectedProjectIdentifier ||
+          p.id === selectedProjectIdentifier
+      ) ||
+      projects.find((p) => p.slug === projectParam || p.id === projectParam) ||
+      projects[0]
+    )
+  }, [projects, selectedProjectIdentifier, projectParam])
+
+  const effectiveProjectId = matchedProject?.id || ""
 
   // 2. Fetch Connections for the selected project
   const { data: connections = [], isLoading: isConnectionsLoading } = useQuery({
@@ -81,24 +99,42 @@ export function SchemaExplorerPage() {
     enabled: !!activeOrg?.id && !!effectiveProjectId,
   })
 
-  const effectiveConnId =
-    selectedConnId && connections.some((c) => c.id === selectedConnId)
-      ? selectedConnId
-      : connections[0]?.id || ""
-
-  // Sync to URL search params
-  useEffect(() => {
-    if (effectiveProjectId && effectiveConnId) {
-      setSearchParams(
-        { projectId: effectiveProjectId, connId: effectiveConnId },
-        { replace: true }
-      )
-    }
-  }, [effectiveProjectId, effectiveConnId, setSearchParams])
-
   const activeConnection = useMemo(() => {
-    return connections.find((c) => c.id === effectiveConnId) || null
-  }, [connections, effectiveConnId])
+    if (!connections.length) return null
+    return (
+      connections.find(
+        (c) =>
+          c.name === selectedConnIdentifier || c.id === selectedConnIdentifier
+      ) ||
+      connections.find((c) => c.name === connParam || c.id === connParam) ||
+      connections[0]
+    )
+  }, [connections, selectedConnIdentifier, connParam])
+
+  const effectiveConnId = activeConnection?.id || ""
+
+  // Sync clean, human-friendly slug & connection name to URL
+  useEffect(() => {
+    if (matchedProject && activeConnection) {
+      const projectSlug = matchedProject.slug || matchedProject.id
+      const connName = activeConnection.name || activeConnection.id
+
+      const currentProject = searchParams.get("project")
+      const currentConn = searchParams.get("conn")
+
+      if (
+        currentProject !== projectSlug ||
+        currentConn !== connName ||
+        searchParams.has("projectId") ||
+        searchParams.has("connId")
+      ) {
+        setSearchParams(
+          { project: projectSlug, conn: connName },
+          { replace: true }
+        )
+      }
+    }
+  }, [matchedProject, activeConnection, searchParams, setSearchParams])
 
   const terminology = useMemo(() => {
     return getDatabaseTerminology(activeConnection?.db_type)
@@ -373,8 +409,8 @@ export function SchemaExplorerPage() {
                 <select
                   value={effectiveProjectId}
                   onChange={(e) => {
-                    setSelectedProjectId(e.target.value)
-                    setSelectedConnId("")
+                    setSelectedProjectIdentifier(e.target.value)
+                    setSelectedConnIdentifier("")
                     setSelectedTableName(null)
                   }}
                   className="border-input bg-background text-foreground h-8 rounded-lg border px-2 text-xs font-medium shadow-xs"
@@ -394,7 +430,7 @@ export function SchemaExplorerPage() {
                 <select
                   value={effectiveConnId}
                   onChange={(e) => {
-                    setSelectedConnId(e.target.value)
+                    setSelectedConnIdentifier(e.target.value)
                     setSelectedTableName(null)
                   }}
                   className="border-input bg-background text-foreground h-8 rounded-lg border px-2 font-mono text-xs font-medium shadow-xs"
