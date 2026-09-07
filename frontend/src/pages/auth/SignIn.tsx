@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate, useLocation, Link } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { AuthLayout } from "@/components/layout"
 import { LoginForm, OAuthButtons } from "@/components/auth"
@@ -8,15 +8,21 @@ import { AlertCircle } from "lucide-react"
 
 export function SignIn() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated, isInitialized } = useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
-      navigate("/dashboard", { replace: true })
+      const fromLocation = location.state?.from
+      const dest =
+        fromLocation?.pathname && fromLocation.pathname !== "/"
+          ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+          : "/dashboard"
+      navigate(dest, { replace: true })
     }
-  }, [isAuthenticated, isInitialized, navigate])
+  }, [isAuthenticated, isInitialized, navigate, location.state])
 
   return (
     <AuthLayout

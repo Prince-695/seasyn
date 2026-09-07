@@ -28,6 +28,21 @@ interface CreateProjectModalProps {
   trigger?: React.ReactNode
 }
 
+function generateSlug(name: string): string {
+  const base = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 50)
+
+  if (base.length >= 2) return base
+  return base
+    ? `${base}-${Math.floor(1000 + Math.random() * 9000)}`
+    : `proj-${Math.floor(1000 + Math.random() * 9000)}`
+}
+
 export function CreateProjectModal({
   onProjectCreated,
   trigger,
@@ -36,7 +51,6 @@ export function CreateProjectModal({
   const queryClient = useQueryClient()
   const { activeOrg, setActiveProjectId } = useWorkspaceStore()
   const [selectedEnv, setSelectedEnv] = useState<Environment>("development")
-  const [slugTouched, setSlugTouched] = useState(false)
 
   const {
     register,
@@ -48,7 +62,6 @@ export function CreateProjectModal({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: "",
-      slug: "",
       description: "",
       environment: "development",
     },
@@ -59,7 +72,14 @@ export function CreateProjectModal({
       if (!activeOrg?.id) {
         throw new Error("No active organization selected.")
       }
-      const res = await projectsApi.create(activeOrg.id, data)
+      const slug = generateSlug(data.name)
+      const payload: CreateProjectPayload = {
+        name: data.name.trim(),
+        slug,
+        description: data.description?.trim() || undefined,
+        environment: data.environment,
+      }
+      const res = await projectsApi.create(activeOrg.id, payload)
       return res.data
     },
     onSuccess: (newProject) => {
@@ -74,23 +94,11 @@ export function CreateProjectModal({
       setOpen(false)
       reset()
       setSelectedEnv("development")
-      setSlugTouched(false)
       if (newProject) {
         onProjectCreated?.(newProject)
       }
     },
   })
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
-    if (!slugTouched) {
-      const generated = val
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-      setValue("slug", generated, { shouldValidate: true })
-    }
-  }
 
   const onSubmit = (data: CreateProjectPayload) => {
     createMutation.mutate(data)
@@ -104,7 +112,6 @@ export function CreateProjectModal({
         if (!isOpen) {
           reset()
           setSelectedEnv("development")
-          setSlugTouched(false)
           createMutation.reset()
         }
       }}
@@ -143,36 +150,12 @@ export function CreateProjectModal({
             <Input
               id="projectName"
               placeholder="e.g. Core Production DB"
-              {...register("name", {
-                onChange: handleNameChange,
-              })}
+              {...register("name")}
               disabled={createMutation.isPending}
+              aria-invalid={!!errors.name}
             />
             {errors.name && (
               <p className="text-destructive text-xs">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Project Slug */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="projectSlug" className="text-xs font-semibold">
-                Project Slug
-              </Label>
-              <span className="text-muted-foreground font-mono text-[11px]">
-                Unique identifier
-              </span>
-            </div>
-            <Input
-              id="projectSlug"
-              placeholder="core-production-db"
-              {...register("slug", {
-                onChange: () => setSlugTouched(true),
-              })}
-              disabled={createMutation.isPending}
-            />
-            {errors.slug && (
-              <p className="text-destructive text-xs">{errors.slug.message}</p>
             )}
           </div>
 
@@ -294,3 +277,5 @@ export function CreateProjectModal({
     </Dialog>
   )
 }
+
+export default CreateProjectModal

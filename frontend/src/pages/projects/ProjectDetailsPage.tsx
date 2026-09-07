@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
@@ -44,55 +44,91 @@ const envBadgeStyles: Record<
 }
 
 export function ProjectDetailsPage() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { projectId: projectSlugOrId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { activeOrg, setActiveProjectId } = useWorkspaceStore()
   const [activeTab, setActiveTab] = useState("connections")
 
+  // 1. Fetch organization projects to resolve slug to ID
+  const { data: orgProjects = [], isLoading: isOrgProjectsLoading } = useQuery({
+    queryKey: projectKeys.lists(activeOrg?.id || "none"),
+    queryFn: async () => {
+      if (!activeOrg?.id) return []
+      const res = await projectsApi.list(activeOrg.id)
+      return res.data || []
+    },
+    enabled: !!activeOrg?.id,
+  })
+
+  const matchedProjectFromList = useMemo(() => {
+    if (!projectSlugOrId) return null
+    return (
+      orgProjects.find(
+        (p) => p.slug === projectSlugOrId || p.id === projectSlugOrId
+      ) || null
+    )
+  }, [orgProjects, projectSlugOrId])
+
+  const actualProjectId = matchedProjectFromList?.id || projectSlugOrId || ""
+
   // Sync active project id in workspace store
   useEffect(() => {
-    if (projectId) {
-      setActiveProjectId(projectId)
+    if (actualProjectId) {
+      setActiveProjectId(actualProjectId)
     }
-  }, [projectId, setActiveProjectId])
+  }, [actualProjectId, setActiveProjectId])
 
   // Fetch Project Details
   const {
-    data: project,
-    isLoading: isProjectLoading,
-    isError: isProjectError,
+    data: projectDetail,
+    isLoading: isProjectDetailLoading,
+    isError: isProjectDetailError,
   } = useQuery({
-    queryKey: projectKeys.detail(activeOrg?.id || "", projectId || ""),
+    queryKey: projectKeys.detail(activeOrg?.id || "", actualProjectId),
     queryFn: async () => {
-      if (!activeOrg?.id || !projectId) return null
-      const res = await projectsApi.get(activeOrg.id, projectId)
-      return res.data
+      if (!activeOrg?.id || !actualProjectId) return null
+      try {
+        const res = await projectsApi.get(activeOrg.id, actualProjectId)
+        return res.data
+      } catch (err) {
+        if (matchedProjectFromList) return matchedProjectFromList
+        throw err
+      }
     },
-    enabled: !!activeOrg?.id && !!projectId,
+    enabled: !!activeOrg?.id && !!actualProjectId,
   })
+
+  const project = projectDetail || matchedProjectFromList
+  const isProjectLoading =
+    (isOrgProjectsLoading && !project) || (isProjectDetailLoading && !project)
+  const isProjectError = isProjectDetailError && !project
 
   // Fetch Database Connections for this Project
   const { data: connections = [], isLoading: isConnectionsLoading } = useQuery({
-    queryKey: connectionKeys.list(activeOrg?.id || "", projectId || ""),
+    queryKey: connectionKeys.list(activeOrg?.id || "", actualProjectId),
     queryFn: async () => {
-      if (!activeOrg?.id || !projectId) return []
-      const res = await projectsApi.listConnections(activeOrg.id, projectId)
+      if (!activeOrg?.id || !actualProjectId) return []
+      const res = await projectsApi.listConnections(
+        activeOrg.id,
+        actualProjectId
+      )
       return res.data || []
     },
-    enabled: !!activeOrg?.id && !!projectId,
+    enabled: !!activeOrg?.id && !!actualProjectId,
   })
 
   // Delete Connection Mutation
   const deleteConnectionMutation = useMutation({
     mutationFn: async (connId: string) => {
-      if (!activeOrg?.id || !projectId) throw new Error("Missing parameters")
-      await projectsApi.deleteConnection(activeOrg.id, projectId, connId)
+      if (!activeOrg?.id || !actualProjectId)
+        throw new Error("Missing parameters")
+      await projectsApi.deleteConnection(activeOrg.id, actualProjectId, connId)
     },
     onSuccess: () => {
-      if (activeOrg?.id && projectId) {
+      if (activeOrg?.id && actualProjectId) {
         queryClient.invalidateQueries({
-          queryKey: connectionKeys.list(activeOrg.id, projectId),
+          queryKey: connectionKeys.list(activeOrg.id, actualProjectId),
         })
       }
     },
@@ -147,8 +183,9 @@ export function ProjectDetailsPage() {
     )
   }
 
-  const envConfig = envBadgeStyles[project.environment] || {
-    label: project.environment || "Dev",
+  const envConfig = (project?.environment &&
+    envBadgeStyles[project.environment as Environment]) || {
+    label: project?.environment || "Dev",
     className: "border-muted bg-muted text-muted-foreground",
   }
 
@@ -198,15 +235,9 @@ export function ProjectDetailsPage() {
                 <h1 className="text-foreground text-2xl font-bold tracking-tight">
                   {project.name}
                 </h1>
-                <div className="mt-0.5 flex items-center gap-2">
-                  <span className="text-muted-foreground font-mono text-xs">
-                    slug: {project.slug}
-                  </span>
-                  <span className="text-muted-foreground">•</span>
-                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                    <Calendar className="h-3 w-3" />
-                    <span>Created {formattedDate}</span>
-                  </div>
+                <div className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-xs">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>Created {formattedDate}</span>
                 </div>
               </div>
             </div>
@@ -346,7 +377,7 @@ export function ProjectDetailsPage() {
                     onDelete={handleDeleteConnection}
                     onInspectSchema={(c) =>
                       navigate(
-                        `/editor?projectId=${c.project_id}&connId=${c.id}`
+                        `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
                       )
                     }
                   />
@@ -433,7 +464,7 @@ export function ProjectDetailsPage() {
                     onDelete={handleDeleteConnection}
                     onInspectSchema={(c) =>
                       navigate(
-                        `/editor?projectId=${c.project_id}&connId=${c.id}`
+                        `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
                       )
                     }
                   />

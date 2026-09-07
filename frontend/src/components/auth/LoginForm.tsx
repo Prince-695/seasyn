@@ -24,9 +24,10 @@ export function LoginForm({ setServerError }: LoginFormProps) {
   const { setAuth } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
 
+  const fromLocation = location.state?.from
   const from =
-    location.state?.from?.pathname && location.state?.from?.pathname !== "/"
-      ? location.state.from.pathname
+    fromLocation?.pathname && fromLocation.pathname !== "/"
+      ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
       : "/dashboard"
 
   const {

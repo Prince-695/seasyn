@@ -18,7 +18,16 @@ export function useAuth() {
   // the browser attaches them automatically on every request without JS touching them.
   const hasLocalUser = !!localStorage.getItem("user")
   const hasPendingOAuth = !!sessionStorage.getItem("oauth_pending")
-  const isDashboard = window.location.pathname.startsWith("/dashboard")
+  const pathname = window.location.pathname
+  const isPublic =
+    pathname === "/" ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/verify-email") ||
+    pathname.startsWith("/auth/")
+  const isProtected = !isPublic
 
   const { data, isSuccess, isError, isLoading } = useQuery({
     queryKey: ["userProfile"],
@@ -51,8 +60,8 @@ export function useAuth() {
         : null
     },
 
-    // Fire when localStorage has a user, or returning from OAuth, or landing on /dashboard
-    enabled: hasLocalUser || hasPendingOAuth || isDashboard,
+    // Fire when localStorage has a user, or returning from OAuth, or landing on any protected route
+    enabled: hasLocalUser || hasPendingOAuth || isProtected,
     staleTime: 0,
     retry: false,
   })
@@ -66,12 +75,21 @@ export function useAuth() {
 
     const currentHasLocal = !!localStorage.getItem("user")
     const currentHasOAuth = !!sessionStorage.getItem("oauth_pending")
-    const onDashboard = window.location.pathname.startsWith("/dashboard")
+    const currentPathname = window.location.pathname
+    const onProtected = !(
+      currentPathname === "/" ||
+      currentPathname.startsWith("/sign-in") ||
+      currentPathname.startsWith("/sign-up") ||
+      currentPathname.startsWith("/forgot-password") ||
+      currentPathname.startsWith("/reset-password") ||
+      currentPathname.startsWith("/verify-email") ||
+      currentPathname.startsWith("/auth/")
+    )
 
     if (
       isSuccess &&
       data &&
-      (currentHasLocal || currentHasOAuth || onDashboard)
+      (currentHasLocal || currentHasOAuth || onProtected)
     ) {
       setAuth(data)
       setInitialized(true)
@@ -80,8 +98,8 @@ export function useAuth() {
       // Clear everything so the user is redirected to /sign-in.
       clearAuth()
       setInitialized(true)
-    } else if (!currentHasLocal && !currentHasOAuth && !onDashboard) {
-      // No localStorage user, no pending OAuth, not dashboard → unauthenticated
+    } else if (!currentHasLocal && !currentHasOAuth && !onProtected) {
+      // No localStorage user, no pending OAuth, on a public route → unauthenticated
       setInitialized(true)
     }
   }, [isSuccess, isError, data, setAuth, clearAuth, setInitialized])

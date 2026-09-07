@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { FcGoogle } from "react-icons/fc"
 import { FaGithub } from "react-icons/fa"
@@ -8,6 +9,8 @@ interface OAuthButtonsProps {
 }
 
 export function OAuthButtons({ onError }: OAuthButtonsProps) {
+  const location = useLocation()
+
   const handleOAuthLogin = async (provider: "google" | "github") => {
     onError(null)
 
@@ -20,6 +23,14 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
 
       // Set a flag so the frontend knows to fetch the user profile upon return
       sessionStorage.setItem("oauth_pending", "true")
+
+      const fromLocation = location.state?.from
+      if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+        const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+        sessionStorage.setItem("oauth_redirect", dest)
+      } else {
+        sessionStorage.removeItem("oauth_redirect")
+      }
 
       // Redirect the current window to the provider's login page
       window.location.href = urlRes.data.auth_url

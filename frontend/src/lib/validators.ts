@@ -157,7 +157,7 @@ export const createOrgSchema = z.object({
     .string()
     .min(2, { message: "Organization name must be at least 2 characters" })
     .max(100, { message: "Organization name cannot exceed 100 characters" }),
-  slug: slugField,
+  slug: slugField.optional().or(z.literal("")),
   description: descriptionField,
 })
 

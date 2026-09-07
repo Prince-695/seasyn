@@ -62,7 +62,10 @@ export function OAuthSuccess() {
           // ── Full-page redirect flow ─────────────────────────────────────
           // No popup opener — user was redirected through a full page navigation.
           setAuth(user as Parameters<typeof setAuth>[0])
-          navigate("/dashboard", { replace: true })
+          const redirectTarget =
+            sessionStorage.getItem("oauth_redirect") || "/dashboard"
+          sessionStorage.removeItem("oauth_redirect")
+          navigate(redirectTarget, { replace: true })
         }
       } catch (err) {
         setError(

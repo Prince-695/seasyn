@@ -1,7 +1,6 @@
 export * from "./SeasonTypeBadge"
 export * from "./SchemaTree"
 export * from "./TableStructureView"
-export * from "./LiveDataGrid"
 export * from "./DatabaseDataViewer"
 export * from "./RelationalGridView"
 export * from "./InsertRowModal"
