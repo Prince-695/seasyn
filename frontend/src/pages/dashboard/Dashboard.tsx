@@ -6,7 +6,7 @@ import {
   Users,
   Settings,
   Shield,
-  Layers,
+  FolderKanban,
   ArrowRight,
   UserPlus,
   Calendar,
@@ -20,8 +20,9 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
 import { CreateOrgModal } from "@/components/orgs/CreateOrgModal"
 import { orgsApi } from "@/api/orgs"
+import { projectsApi } from "@/api/projects"
 import { userApi } from "@/api/auth"
-import { orgKeys } from "@/lib/queryKeys"
+import { orgKeys, projectKeys } from "@/lib/queryKeys"
 import { formatDate } from "@/lib/formatters"
 import { Button, buttonVariants } from "@/components/ui/button"
 
@@ -41,17 +42,18 @@ export function Dashboard() {
 
   const currentProfile = profileData ?? user
 
-  // Fetch real organizations for this user
-
-  const { data: orgsRes, isLoading: isLoadingOrgs } = useQuery({
-    queryKey: orgKeys.lists(),
+  // Fetch real projects scoped strictly to active organization
+  const { data: projectsRes, isLoading: isLoadingProjects } = useQuery({
+    queryKey: projectKeys.lists(activeOrg?.id ?? "none"),
     queryFn: async () => {
-      const res = await orgsApi.getOrgs()
+      if (!activeOrg?.id) return []
+      const res = await projectsApi.list(activeOrg.id)
       return res.data ?? []
     },
+    enabled: !!activeOrg?.id,
   })
 
-  // Fetch real members for active organization
+  // Fetch real members scoped strictly to active organization
   const { data: membersRes, isLoading: isLoadingMembers } = useQuery({
     queryKey: orgKeys.members(activeOrg?.id ?? ""),
     queryFn: async () => {
@@ -62,7 +64,7 @@ export function Dashboard() {
     enabled: !!activeOrg?.id,
   })
 
-  const orgs = orgsRes ?? []
+  const projects = projectsRes ?? []
   const members = membersRes ?? []
 
   const canManage = currentRole === "owner" || currentRole === "admin"
@@ -135,7 +137,6 @@ export function Dashboard() {
       )}
 
       {/* When no organization exists or none is active */}
-
       {!activeOrg && (
         <div className="border-border/80 bg-card/30 flex flex-col items-center justify-center rounded-2xl border border-dashed p-12 text-center shadow-xs">
           <div className="bg-primary/10 text-primary mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
@@ -159,14 +160,14 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Live Workspace Metrics Grid */}
+      {/* Live Workspace Metrics Grid (Scoped strictly to active workspace) */}
       {activeOrg && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* Card 1: Active Workspace */}
           <div className="border-border/60 bg-card/40 flex flex-col justify-between rounded-xl border p-5 shadow-xs backdrop-blur-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-                Workspace
+                Active Workspace
               </span>
               <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-lg">
                 <Building2 className="h-4 w-4" />
@@ -179,8 +180,10 @@ export function Dashboard() {
               >
                 {activeOrg.name}
               </h4>
-              <p className="text-muted-foreground truncate font-mono text-[11px]">
-                {activeOrg.slug}
+              <p className="text-muted-foreground truncate text-[11px]">
+                {activeOrg.created_at
+                  ? `Created ${formatDate(activeOrg.created_at)}`
+                  : "Active workspace"}
               </p>
             </div>
           </div>
@@ -237,26 +240,26 @@ export function Dashboard() {
                   </div>
                   <p className="text-muted-foreground text-[11px]">
                     {members.length === 1
-                      ? "Active member"
-                      : "Active team members"}
+                      ? "Active collaborator"
+                      : "Active team collaborators"}
                   </p>
                 </>
               )}
             </div>
           </div>
 
-          {/* Card 4: Total Organizations */}
+          {/* Card 4: Scoped Projects in this Workspace */}
           <div className="border-border/60 bg-card/40 flex flex-col justify-between rounded-xl border p-5 shadow-xs backdrop-blur-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-                All Workspaces
+                Projects
               </span>
               <div className="bg-success/10 text-success flex h-8 w-8 items-center justify-center rounded-lg">
-                <Layers className="h-4 w-4" />
+                <FolderKanban className="h-4 w-4" />
               </div>
             </div>
             <div className="mt-3">
-              {isLoadingOrgs ? (
+              {isLoadingProjects ? (
                 <div className="flex items-center gap-2 py-1">
                   <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
                   <span className="text-muted-foreground text-xs">
@@ -266,12 +269,12 @@ export function Dashboard() {
               ) : (
                 <>
                   <div className="text-foreground text-2xl font-extrabold">
-                    {orgs.length}
+                    {projects.length}
                   </div>
                   <p className="text-muted-foreground text-[11px]">
-                    {orgs.length === 1
-                      ? "Organization connected"
-                      : "Organizations connected"}
+                    {projects.length === 1
+                      ? "Configured project"
+                      : "Configured projects"}
                   </p>
                 </>
               )}
@@ -321,22 +324,25 @@ export function Dashboard() {
                 <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
                   <div className="border-border/50 bg-muted/20 rounded-lg border p-3">
                     <span className="text-muted-foreground text-[11px] font-medium">
-                      Unique Handle
+                      Status
                     </span>
-                    <p className="text-foreground mt-0.5 font-mono text-xs font-semibold">
-                      {activeOrg.slug}
-                    </p>
+                    <div className="text-success mt-1 flex items-center gap-1.5 text-xs font-semibold">
+                      <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
+                      <span>Operational & Active</span>
+                    </div>
                   </div>
                   <div className="border-border/50 bg-muted/20 rounded-lg border p-3">
                     <span className="text-muted-foreground text-[11px] font-medium">
-                      Organization ID
+                      Access Role
                     </span>
-                    <p
-                      className="text-muted-foreground mt-0.5 truncate font-mono text-xs"
-                      title={activeOrg.id}
-                    >
-                      {activeOrg.id}
-                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="text-foreground text-xs font-bold capitalize">
+                        {currentRole ?? "Member"}
+                      </span>
+                      {currentRole && (
+                        <RoleBadge role={currentRole} className="scale-90" />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
