@@ -15,12 +15,7 @@ export function SignIn() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
-      const fromLocation = location.state?.from
-      const dest =
-        fromLocation?.pathname && fromLocation.pathname !== "/"
-          ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
-          : "/dashboard"
-      navigate(dest, { replace: true })
+      navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
     }
   }, [isAuthenticated, isInitialized, navigate, location.state])
 
@@ -62,6 +57,25 @@ export function SignIn() {
       </div>
     </AuthLayout>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Validates and returns a safe same-origin redirect target.
+ */
+function getSafeRedirectTarget(fromLocation?: {
+  pathname?: string
+  search?: string
+  hash?: string
+}): string {
+  if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+    const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+    if (dest.startsWith("/") && !dest.startsWith("//")) {
+      return dest
+    }
+  }
+  return "/dashboard"
 }
 
 export default SignIn

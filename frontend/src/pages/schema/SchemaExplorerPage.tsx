@@ -399,7 +399,7 @@ export function SchemaExplorerPage() {
             </div>
           </div>
 
-          <div className="bg-border/60 hidden h-6 w-[1px] sm:block" />
+          <div className="bg-border/60 hidden h-6 w-px sm:block" />
 
           {/* Project & Connection Selectors */}
           <div className="flex items-center gap-2">

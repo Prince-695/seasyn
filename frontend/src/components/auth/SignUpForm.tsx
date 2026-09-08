@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react"
 import { registerSchema } from "@/lib/validators"
 import type { RegisterInput } from "@/lib/validators"
-import { authApi } from "@/api/auth"
+import { authApi, userApi } from "@/api/auth"
 import { useAuthStore } from "@/store/authStore"
 import type { SignupPayload, User } from "@/types"
 import { Input } from "@/components/ui/input"
@@ -42,17 +42,30 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
         last_name: data.lastName,
       }
 
-      const response = await authApi.register(signupPayload)
+      await authApi.register(signupPayload)
 
-      // The backend sets session cookies upon registration.
-      const registeredUser: User = response.data ??
-        response.user ?? {
-          id: "registered-user",
+      // Fetch newly created user profile
+      let registeredUser: User
+      try {
+        const profileRes = await userApi.getMyProfile()
+        if (profileRes.data) {
+          registeredUser = {
+            ...profileRes.data,
+            is_verified: false,
+          }
+        } else {
+          throw new Error("No profile data")
+        }
+      } catch {
+        registeredUser = {
+          id: data.email,
           email: data.email,
           first_name: data.firstName,
           last_name: data.lastName,
           is_verified: false,
         }
+      }
+
       setAuth(registeredUser)
 
       // Dispatch the OTP verification email via POST /v1/auth/otp/send

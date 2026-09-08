@@ -1,24 +1,10 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
-import { authApi } from "@/api/auth"
+import { userApi } from "@/api/auth"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-// ─── Component ─────────────────────────────────────────────────────────────────
-//
-// This page is the frontend OAuth callback handler. It is mounted at:
-//   /auth/:provider/callback
-//
-// Flow:
-//   1. Backend handles the OAuth code exchange and sets HttpOnly cookies.
-//   2. Backend redirects the browser (popup) to this page.
-//   3. This page calls GET /auth/me — the browser auto-sends the cookies.
-//   4a. If running inside a popup (window.opener exists):
-//         → Send { type: "OAUTH_SUCCESS", user } to the parent via postMessage.
-//         → Close the popup. OAuthButtons.tsx in the parent handles navigation.
-//   4b. If running as a full-page redirect (no opener):
-//         → Save user to the auth store and navigate to /dashboard directly.
+import type { User } from "@/types"
 
 export function OAuthSuccess() {
   const { provider } = useParams<{ provider: string }>()
@@ -34,40 +20,26 @@ export function OAuthSuccess() {
       }
 
       try {
-        // By the time we land here, the backend has already:
-        //   • exchanged the OAuth code for tokens
-        //   • set HttpOnly access_token + refresh_token cookies
-        // So a simple /auth/me call is all we need.
-        const meRes = await authApi.me()
-        const user = meRes.data ?? meRes.user
+        const user = await fetchAuthenticatedUser()
 
-        if (!user?.id && !user?.email) {
+        if (!user) {
           throw new Error(
-            `GET /auth/me returned no valid user object for provider "${provider}"`
+            `Failed to retrieve authenticated profile for provider "${provider}"`
           )
         }
 
         if (window.opener && !window.opener.closed) {
-          // ── Popup flow ──────────────────────────────────────────────────
-          // Notify the parent window (OAuthButtons) that auth completed.
-          // The parent already has the HttpOnly cookies (same origin), so it
-          // can call /auth/me itself — but we pass the user to avoid a second
-          // round-trip.
           window.opener.postMessage(
             { type: "OAUTH_SUCCESS", user },
             window.location.origin
           )
           window.close()
         } else {
-          // ── Full-page redirect flow ─────────────────────────────────────
-          // No popup opener — user was redirected through a full page navigation.
-          setAuth(user as Parameters<typeof setAuth>[0])
-          const redirectTarget =
-            sessionStorage.getItem("oauth_redirect") || "/dashboard"
-          sessionStorage.removeItem("oauth_redirect")
-          navigate(redirectTarget, { replace: true })
+          setAuth(user)
+          navigate(getSafeRedirectTarget(), { replace: true })
         }
       } catch (err) {
+        console.error("OAuth callback failed:", err)
         setError(
           err instanceof Error
             ? err.message
@@ -77,10 +49,8 @@ export function OAuthSuccess() {
     }
 
     handleAuth()
-    // provider is derived from the URL and won't change during this mount
   }, [provider, navigate, setAuth])
 
-  // ── Error state ───────────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="bg-background flex min-h-screen flex-col items-center justify-center p-4 text-center">
@@ -98,7 +68,6 @@ export function OAuthSuccess() {
     )
   }
 
-  // ── Loading state ─────────────────────────────────────────────────────────
   return (
     <div className="bg-background flex min-h-screen flex-col items-center justify-center">
       <Loader2 className="text-primary mb-4 h-10 w-10 animate-spin" />
@@ -108,6 +77,43 @@ export function OAuthSuccess() {
       </p>
     </div>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Fetches the authenticated user's profile.
+ * Returns null if the profile genuinely can't be retrieved — callers
+ * must treat that as a hard failure, not synthesize a placeholder user.
+ */
+async function fetchAuthenticatedUser(): Promise<User | null> {
+  try {
+    const profileRes = await userApi.getMyProfile()
+    if (!profileRes.data) return null
+
+    return {
+      ...profileRes.data,
+      is_verified: profileRes.data.is_verified ?? false, // fail closed
+    }
+  } catch (err) {
+    console.error("Failed to fetch user profile:", err)
+    return null
+  }
+}
+
+/**
+ * Reads and validates the stored post-login redirect target.
+ * Only allows same-origin relative paths to avoid an open-redirect
+ * if sessionStorage is ever tampered with or written by other code.
+ */
+function getSafeRedirectTarget(): string {
+  const target = sessionStorage.getItem("oauth_redirect")
+  sessionStorage.removeItem("oauth_redirect")
+
+  if (target && target.startsWith("/") && !target.startsWith("//")) {
+    return target
+  }
+  return "/dashboard"
 }
 
 export default OAuthSuccess

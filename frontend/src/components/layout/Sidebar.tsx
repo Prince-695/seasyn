@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils"
 export function Sidebar() {
   const { sidebarOpen, toggleSidebar, setMobileSidebarOpen } = useUIStore()
   const { user, clearAuth } = useAuthStore()
-  const { currentRole } = useWorkspaceStore()
+  const { activeOrg, currentRole } = useWorkspaceStore()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -49,18 +49,21 @@ export function Sidebar() {
           path: "/dashboard",
           icon: LayoutDashboard,
           badge: null,
+          requiresOrg: false,
         },
         {
           label: "Projects",
           path: "/projects",
           icon: FolderKanban,
           badge: null,
+          requiresOrg: true,
         },
         {
           label: "Connections",
           path: "/connections",
           icon: Server,
           badge: null,
+          requiresOrg: true,
         },
 
         {
@@ -68,12 +71,14 @@ export function Sidebar() {
           path: "/migration",
           icon: ArrowRightLeft,
           badge: "Live",
+          requiresOrg: true,
         },
         {
           label: "Live Editor",
           path: "/editor",
           icon: Database,
           badge: "Live",
+          requiresOrg: true,
         },
       ],
     },
@@ -85,18 +90,21 @@ export function Sidebar() {
           path: "/org/members",
           icon: Users,
           badge: null,
+          requiresOrg: true,
         },
         {
           label: "Settings",
           path: "/org/settings",
           icon: Settings,
           badge: null,
+          requiresOrg: true,
         },
         {
           label: "Documentation",
           path: "/docs",
           icon: BookOpen,
           badge: null,
+          requiresOrg: false,
         },
       ],
     },
@@ -175,6 +183,36 @@ export function Sidebar() {
             <nav className="space-y-1 pt-1">
               {group.items.map((item) => {
                 const Icon = item.icon
+                const isDisabled = !!item.requiresOrg && !activeOrg
+
+                if (isDisabled) {
+                  return (
+                    <div
+                      key={item.path}
+                      title={
+                        sidebarOpen
+                          ? "Select or create a workspace to access this section"
+                          : `${item.label} (Workspace required)`
+                      }
+                      aria-disabled="true"
+                      className={cn(
+                        "text-muted-foreground/40 relative flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium opacity-40 transition-all select-none",
+                        !sidebarOpen && "justify-center px-2"
+                      )}
+                    >
+                      <Icon className="text-muted-foreground/40 h-4 w-4 shrink-0" />
+                      {sidebarOpen && (
+                        <span className="flex-1 truncate">{item.label}</span>
+                      )}
+                      {sidebarOpen && item.badge && (
+                        <span className="bg-muted/40 text-muted-foreground/40 rounded px-1.5 py-0.5 text-[10px] font-semibold">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  )
+                }
+
                 return (
                   <NavLink
                     key={item.path}

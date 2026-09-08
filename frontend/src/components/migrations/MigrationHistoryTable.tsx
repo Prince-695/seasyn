@@ -9,11 +9,16 @@ import { EngineIcon } from "@/components/connections/EngineIcon"
 import { CancelMigrationDialog } from "./CancelMigrationDialog"
 import { MigrationDetailsModal } from "./MigrationDetailsModal"
 import type { MigrationJob, MigrationStatus } from "@/types/migration"
+import { projectsApi } from "@/api/projects"
+import { projectKeys } from "@/lib/queryKeys"
+import { useQuery } from "@tanstack/react-query"
+import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
 
 interface MigrationHistoryTableProps {
   jobs: MigrationJob[]
   isLoading?: boolean
+  projectSlug?: string
   onCancelJob?: (jobId: string) => Promise<void>
   isCancellingJob?: boolean
   className?: string
@@ -24,12 +29,33 @@ type FilterTab = "all" | MigrationStatus
 export function MigrationHistoryTable({
   jobs,
   isLoading = false,
+  projectSlug,
   onCancelJob,
   isCancellingJob = false,
   className,
 }: MigrationHistoryTableProps) {
+  const { activeOrg, activeProjectId } = useWorkspaceStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<FilterTab>("all")
+
+  // Auto-resolve project slug if not explicitly passed
+  const { data: projects = [] } = useQuery({
+    queryKey: projectKeys.list(activeOrg?.id || ""),
+    queryFn: async () => {
+      if (!activeOrg?.id) return []
+      const res = await projectsApi.list(activeOrg.id)
+      return res.data || []
+    },
+    enabled: !!activeOrg?.id && !projectSlug,
+  })
+
+  const matchedProject = useMemo(() => {
+    if (projectSlug) return null
+    return projects.find((p) => p.id === activeProjectId) || null
+  }, [projects, projectSlug, activeProjectId])
+
+  const projectSlugOrId =
+    projectSlug || matchedProject?.slug || activeProjectId || ""
 
   // Modals state
   const [jobToCancel, setJobToCancel] = useState<MigrationJob | null>(null)
@@ -268,7 +294,9 @@ export function MigrationHistoryTable({
                       <td className="px-4 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {/* Live Telemetry View */}
-                          <Link to={`/migration/${job.id}`}>
+                          <Link
+                            to={`/migration/${job.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+                          >
                             <Button
                               variant="outline"
                               size="xs"

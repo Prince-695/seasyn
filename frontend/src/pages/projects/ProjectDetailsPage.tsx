@@ -44,7 +44,8 @@ const envBadgeStyles: Record<
 }
 
 export function ProjectDetailsPage() {
-  const { projectId: projectSlugOrId } = useParams<{ projectId: string }>()
+  const params = useParams<{ projectSlug?: string; projectId?: string }>()
+  const projectSlugOrId = params.projectSlug || params.projectId || ""
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { activeOrg, setActiveProjectId } = useWorkspaceStore()
@@ -52,7 +53,7 @@ export function ProjectDetailsPage() {
 
   // 1. Fetch organization projects to resolve slug to ID
   const { data: orgProjects = [], isLoading: isOrgProjectsLoading } = useQuery({
-    queryKey: projectKeys.lists(activeOrg?.id || "none"),
+    queryKey: projectKeys.list(activeOrg?.id || "none"),
     queryFn: async () => {
       if (!activeOrg?.id) return []
       const res = await projectsApi.list(activeOrg.id)

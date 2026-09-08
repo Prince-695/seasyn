@@ -44,7 +44,7 @@ export function Dashboard() {
 
   // Fetch real projects scoped strictly to active organization
   const { data: projectsRes, isLoading: isLoadingProjects } = useQuery({
-    queryKey: projectKeys.lists(activeOrg?.id ?? "none"),
+    queryKey: projectKeys.list(activeOrg?.id ?? "none"),
     queryFn: async () => {
       if (!activeOrg?.id) return []
       const res = await projectsApi.list(activeOrg.id)

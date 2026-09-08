@@ -8,7 +8,7 @@ import {
   ArrowLeft,
   RefreshCw,
 } from "lucide-react"
-import { authApi } from "@/api/auth"
+import { authApi, userApi } from "@/api/auth"
 import { useAuthStore } from "@/store/authStore"
 import { AuthLayout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -72,15 +72,17 @@ export function VerifyEmail() {
         await authApi.verifyEmail({ otp: code })
 
         // Fetch freshly verified user profile
-        try {
-          const meRes = await authApi.me()
-          const verifiedUser = meRes.data ?? meRes.user
-          if (verifiedUser) setAuth(verifiedUser)
-        } catch {
-          if (user) setAuth({ ...user, is_verified: true })
+        const profileRes = await userApi.getMyProfile()
+        if (!profileRes.data) {
+          throw new Error("Unable to retrieve user profile after verification.")
         }
 
-        navigate("/dashboard", { replace: true })
+        setAuth({
+          ...profileRes.data,
+          is_verified: true,
+        })
+
+        navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
       } catch (err) {
         if (axios.isAxiosError(err)) {
           setServerError(
@@ -95,7 +97,7 @@ export function VerifyEmail() {
         setIsSubmitting(false)
       }
     },
-    [otp, email, user, setAuth, navigate]
+    [otp, email, setAuth, navigate, location.state]
   )
 
   const handleResend = async () => {
@@ -246,6 +248,25 @@ export function VerifyEmail() {
       </div>
     </AuthLayout>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Validates and returns a safe same-origin redirect target.
+ */
+function getSafeRedirectTarget(fromLocation?: {
+  pathname?: string
+  search?: string
+  hash?: string
+}): string {
+  if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+    const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+    if (dest.startsWith("/") && !dest.startsWith("//")) {
+      return dest
+    }
+  }
+  return "/dashboard"
 }
 
 export default VerifyEmail

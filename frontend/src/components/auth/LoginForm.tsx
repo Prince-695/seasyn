@@ -24,12 +24,6 @@ export function LoginForm({ setServerError }: LoginFormProps) {
   const { setAuth } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
 
-  const fromLocation = location.state?.from
-  const from =
-    fromLocation?.pathname && fromLocation.pathname !== "/"
-      ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
-      : "/dashboard"
-
   const {
     register,
     handleSubmit,
@@ -43,39 +37,21 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       setServerError(null)
       await authApi.login(data)
 
-      // Query profile and verification status
-      let user: User
-      try {
-        const profileRes = await userApi.getMyProfile()
-        const profile = profileRes.data
-        const meRes = await authApi.me().catch(() => null)
-        const isVerified =
-          profile?.is_verified ??
-          (meRes?.data as { is_verified?: boolean } | undefined)?.is_verified ??
-          true
+      // Query authenticated user profile
+      const profileRes = await userApi.getMyProfile()
+      if (!profileRes.data) {
+        throw new Error("Unable to retrieve user profile after login.")
+      }
 
-        user = {
-          id: (profile as unknown as { id?: string })?.id ?? data.email,
-          email: profile?.email || data.email,
-          first_name: profile?.first_name || data.email.split("@")[0],
-          last_name: profile?.last_name || "",
-          username: profile?.username || "",
-          is_verified: isVerified,
-        }
-      } catch {
-        user = {
-          id: "authenticated-user",
-          email: data.email,
-          first_name: data.email.split("@")[0],
-          last_name: "",
-          is_verified: true,
-        }
+      const user: User = {
+        ...profileRes.data,
+        is_verified: profileRes.data.is_verified ?? false, // fail closed
       }
 
       setAuth(user)
 
       // If user account is not verified, dispatch OTP and route to /verify-email
-      if (user.is_verified === false) {
+      if (!user.is_verified) {
         try {
           await authApi.sendOtp()
         } catch {
@@ -88,7 +64,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
         return
       }
 
-      navigate(from, { replace: true })
+      navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setServerError(
@@ -97,7 +73,11 @@ export function LoginForm({ setServerError }: LoginFormProps) {
             "Invalid credentials"
         )
       } else {
-        setServerError("Something went wrong. Please check your credentials.")
+        setServerError(
+          err instanceof Error
+            ? err.message
+            : "Something went wrong. Please check your credentials."
+        )
       }
     }
   }
@@ -197,6 +177,25 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       </Button>
     </form>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Validates and returns a safe same-origin redirect target.
+ */
+function getSafeRedirectTarget(fromLocation?: {
+  pathname?: string
+  search?: string
+  hash?: string
+}): string {
+  if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+    const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+    if (dest.startsWith("/") && !dest.startsWith("//")) {
+      return dest
+    }
+  }
+  return "/dashboard"
 }
 
 export default LoginForm

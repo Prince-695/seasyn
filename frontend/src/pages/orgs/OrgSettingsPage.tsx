@@ -91,7 +91,7 @@ export function OrgSettingsPage() {
     onSuccess: (res) => {
       setGeneralSuccess("Organization details updated successfully.")
       setGeneralError(null)
-      queryClient.invalidateQueries({ queryKey: orgKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: orgKeys.list() })
       if (res.data && currentRole) {
         setActiveOrg(res.data, currentRole)
       }
@@ -119,7 +119,7 @@ export function OrgSettingsPage() {
     },
     onSuccess: () => {
       clearWorkspace()
-      queryClient.invalidateQueries({ queryKey: orgKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: orgKeys.list() })
       setDeleteModalOpen(false)
       navigate("/dashboard", { replace: true })
     },
@@ -218,34 +218,19 @@ export function OrgSettingsPage() {
               </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="org-name">Organization Name</Label>
-                <Input
-                  id="org-name"
-                  disabled={!canEditGeneral || updateOrgMutation.isPending}
-                  {...register("name")}
-                  aria-invalid={!!errors.name}
-                />
-                {errors.name && (
-                  <p className="text-destructive text-xs font-medium">
-                    {errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="org-slug">Slug Identifier</Label>
-                <Input
-                  id="org-slug"
-                  value={activeOrg.slug}
-                  disabled
-                  className="bg-muted/50 cursor-not-allowed font-mono text-xs"
-                />
-                <p className="text-muted-foreground text-[11px]">
-                  Organization slug is immutable once established.
+            <div className="space-y-2">
+              <Label htmlFor="org-name">Organization Name</Label>
+              <Input
+                id="org-name"
+                disabled={!canEditGeneral || updateOrgMutation.isPending}
+                {...register("name")}
+                aria-invalid={!!errors.name}
+              />
+              {errors.name && (
+                <p className="text-destructive text-xs font-medium">
+                  {errors.name.message}
                 </p>
-              </div>
+              )}
             </div>
 
             <div className="space-y-2">

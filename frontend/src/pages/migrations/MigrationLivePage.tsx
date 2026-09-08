@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useState, useEffect, useMemo } from "react"
+import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { ArrowLeft, Ban, CheckCircle2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,22 +10,73 @@ import { ThroughputGauge } from "@/components/migrations/ThroughputGauge"
 import { CancelMigrationDialog } from "@/components/migrations/CancelMigrationDialog"
 import { EngineIcon } from "@/components/connections/EngineIcon"
 import { migrationsApi } from "@/api/migrations"
-import { migrationKeys } from "@/lib/queryKeys"
+import { projectsApi } from "@/api/projects"
+import { migrationKeys, projectKeys } from "@/lib/queryKeys"
 import { useMigrationStream } from "@/hooks/useMigrationStream"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 
 export function MigrationLivePage() {
-  const { jobId = "" } = useParams<{ jobId: string }>()
+  const params = useParams<{
+    jobId?: string
+    projectSlug?: string
+    projectId?: string
+  }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
+  const { activeOrg, activeProjectId, setActiveProjectId } = useWorkspaceStore()
 
   const orgId = activeOrg?.id || ""
-  const projectId = activeProjectId || ""
+  const jobId = params.jobId || ""
+  const projectParam =
+    params.projectSlug ||
+    params.projectId ||
+    searchParams.get("project") ||
+    searchParams.get("projectId") ||
+    ""
 
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
 
-  // 1. Fetch initial migration job record from REST API
+  // 1. Fetch organization projects to resolve project slug / ID
+  const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
+    queryKey: projectKeys.list(orgId),
+    queryFn: async () => {
+      if (!orgId) return []
+      const res = await projectsApi.list(orgId)
+      return res.data || []
+    },
+    enabled: !!orgId,
+  })
+
+  // Resolve project from route param, query param, or store fallback
+  const resolvedProject = useMemo(() => {
+    if (!projects.length) return null
+    if (projectParam) {
+      const matched = projects.find(
+        (p) => p.slug === projectParam || p.id === projectParam
+      )
+      if (matched) return matched
+    }
+    if (activeProjectId) {
+      const matched = projects.find((p) => p.id === activeProjectId)
+      if (matched) return matched
+    }
+    return projects[0] ?? null
+  }, [projects, projectParam, activeProjectId])
+
+  const projectId =
+    resolvedProject?.id ||
+    activeProjectId ||
+    (projectParam && !projects.length ? projectParam : "")
+
+  // Sync resolved project back into workspace store
+  useEffect(() => {
+    if (resolvedProject && resolvedProject.id !== activeProjectId) {
+      setActiveProjectId(resolvedProject.id)
+    }
+  }, [resolvedProject, activeProjectId, setActiveProjectId])
+
+  // 2. Fetch initial migration job record from REST API
   const {
     data: job,
     isLoading: isJobLoading,
@@ -41,7 +92,7 @@ export function MigrationLivePage() {
     enabled: !!orgId && !!projectId && !!jobId,
   })
 
-  // 2. Connect to Server-Sent Events (SSE) Live Telemetry Stream
+  // 3. Connect to Server-Sent Events (SSE) Live Telemetry Stream
   const {
     status,
     totalRows,
@@ -68,7 +119,7 @@ export function MigrationLivePage() {
     },
   })
 
-  // 3. Cancel Mutation
+  // 4. Cancel Mutation
   const cancelMutation = useMutation({
     mutationFn: async () => {
       if (!orgId || !projectId || !jobId) return
@@ -85,15 +136,44 @@ export function MigrationLivePage() {
     },
   })
 
-  if (isJobLoading) {
+  if (!orgId) {
+    return (
+      <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
+        <h2 className="text-foreground text-lg font-bold">
+          No Workspace Selected
+        </h2>
+        <p className="text-muted-foreground text-xs">
+          Please select or create an organization from the workspace switcher to
+          view migration telemetry.
+        </p>
+        <Link to="/dashboard">
+          <Button size="sm" className="mt-2 text-xs">
+            Return to Dashboard
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  if ((isProjectsLoading && !projectId) || isJobLoading) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
         <Card className="border-border/70 bg-card/60 text-muted-foreground p-12 text-center text-xs">
-          Loading pipeline telemetry stream...
+          <div className="flex flex-col items-center justify-center gap-2">
+            <RefreshCw className="text-primary h-5 w-5 animate-spin" />
+            <span>Loading pipeline telemetry stream...</span>
+          </div>
         </Card>
       </div>
     )
   }
+
+  const projectSlugOrId =
+    resolvedProject?.slug ||
+    resolvedProject?.id ||
+    projectParam ||
+    activeProjectId ||
+    ""
 
   if (jobError || !job) {
     return (
@@ -104,7 +184,13 @@ export function MigrationLivePage() {
         <p className="text-muted-foreground text-xs">
           The requested migration pipeline does not exist or has been deleted.
         </p>
-        <Link to="/migration">
+        <Link
+          to={
+            projectSlugOrId
+              ? `/migration?project=${projectSlugOrId}`
+              : "/migration"
+          }
+        >
           <Button size="sm" className="mt-2 text-xs">
             Return to Migration Studio
           </Button>
@@ -121,7 +207,13 @@ export function MigrationLivePage() {
       {/* Top Header Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/migration">
+          <Link
+            to={
+              projectSlugOrId
+                ? `/migration?project=${projectSlugOrId}`
+                : "/migration"
+            }
+          >
             <Button
               variant="outline"
               size="sm"
@@ -172,7 +264,13 @@ export function MigrationLivePage() {
           {isCompleted && (
             <Button
               size="sm"
-              onClick={() => navigate("/migration")}
+              onClick={() =>
+                navigate(
+                  projectSlugOrId
+                    ? `/migration?project=${projectSlugOrId}`
+                    : "/migration"
+                )
+              }
               className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-semibold shadow-xs"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />

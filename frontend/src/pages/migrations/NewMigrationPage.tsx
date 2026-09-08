@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft, Plus, AlertCircle } from "lucide-react"
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MigrationWizard } from "@/components/migrations/MigrationWizard"
 import { projectsApi } from "@/api/projects"
-import { connectionKeys } from "@/lib/queryKeys"
+import { connectionKeys, projectKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 
 export function NewMigrationPage() {
@@ -13,7 +14,40 @@ export function NewMigrationPage() {
   const { activeOrg, activeProjectId } = useWorkspaceStore()
 
   const orgId = activeOrg?.id || ""
-  const projectId = activeProjectId || ""
+  const projectParam =
+    searchParams.get("project") ||
+    searchParams.get("projectId") ||
+    activeProjectId ||
+    ""
+
+  // Fetch projects to resolve slug to ID
+  const { data: projects = [] } = useQuery({
+    queryKey: projectKeys.list(orgId),
+    queryFn: async () => {
+      if (!orgId) return []
+      const res = await projectsApi.list(orgId)
+      return res.data || []
+    },
+    enabled: !!orgId,
+  })
+
+  const matchedProject = useMemo(() => {
+    if (!projects.length) return null
+    if (projectParam) {
+      return (
+        projects.find(
+          (p) => p.slug === projectParam || p.id === projectParam
+        ) || null
+      )
+    }
+    if (activeProjectId) {
+      return projects.find((p) => p.id === activeProjectId) || null
+    }
+    return projects[0] ?? null
+  }, [projects, projectParam, activeProjectId])
+
+  const projectId = matchedProject?.id || activeProjectId || ""
+  const projectSlugOrId = matchedProject?.slug || projectId
 
   const initialSourceConn = searchParams.get("sourceConn") || ""
   const initialSourceTable = searchParams.get("sourceTable") || ""
@@ -33,7 +67,9 @@ export function NewMigrationPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Top Header & Navigation Back */}
       <div className="flex items-center gap-3">
-        <Link to="/migration">
+        <Link
+          to={`/migration${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+        >
           <Button
             variant="outline"
             size="sm"
@@ -87,6 +123,7 @@ export function NewMigrationPage() {
         <MigrationWizard
           orgId={orgId}
           projectId={projectId}
+          projectSlug={matchedProject?.slug}
           connections={connections}
           initialSourceConnId={initialSourceConn}
           initialSourceTable={initialSourceTable}

@@ -77,7 +77,7 @@ export const router = createBrowserRouter(
               element: <ProjectsListPage />,
             },
             {
-              path: "projects/:projectId",
+              path: "projects/:projectSlug",
               element: <ProjectDetailsPage />,
             },
             {
@@ -102,6 +102,10 @@ export const router = createBrowserRouter(
             },
             {
               path: "migration/:jobId",
+              element: <MigrationLivePage />,
+            },
+            {
+              path: "migration/:projectSlug/:jobId",
               element: <MigrationLivePage />,
             },
             {

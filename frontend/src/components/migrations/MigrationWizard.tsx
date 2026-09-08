@@ -22,6 +22,7 @@ import type { StartMigrationPayload } from "@/types/migration"
 interface MigrationWizardProps {
   orgId: string
   projectId: string
+  projectSlug?: string
   connections: PublicDatabaseConnection[]
   initialSourceConnId?: string
   initialSourceTable?: string
@@ -30,6 +31,7 @@ interface MigrationWizardProps {
 export function MigrationWizard({
   orgId,
   projectId,
+  projectSlug,
   connections,
   initialSourceConnId = "",
   initialSourceTable = "",
@@ -61,6 +63,8 @@ export function MigrationWizard({
     }
   }
 
+  const projectSlugOrId = projectSlug || projectId
+
   // Mutation to start migration
   const startMutation = useMutation({
     mutationFn: async (payload: StartMigrationPayload) => {
@@ -73,9 +77,15 @@ export function MigrationWizard({
         queryKey: migrationKeys.list(orgId, projectId),
       })
       if (job?.id) {
-        navigate(`/migration/${job.id}`)
+        navigate(
+          `/migration/${job.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`
+        )
       } else {
-        navigate("/migration")
+        navigate(
+          projectSlugOrId
+            ? `/migration?project=${projectSlugOrId}`
+            : "/migration"
+        )
       }
     },
     onError: (err: unknown) => {

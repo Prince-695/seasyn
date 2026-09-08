@@ -77,7 +77,7 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
       })
     },
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: orgKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: orgKeys.list() })
       if (res.data) {
         // Creator is the owner of the newly created organization
         setActiveOrg(res.data, "owner")

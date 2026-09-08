@@ -1,20 +1,55 @@
 import { useMemo } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus, Activity, RefreshCw, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MigrationHistoryTable } from "@/components/migrations/MigrationHistoryTable"
 import { migrationsApi } from "@/api/migrations"
-import { migrationKeys } from "@/lib/queryKeys"
+import { projectsApi } from "@/api/projects"
+import { migrationKeys, projectKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 
 export function MigrationsPage() {
+  const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const { activeOrg, activeProjectId } = useWorkspaceStore()
 
   const orgId = activeOrg?.id || ""
-  const projectId = activeProjectId || ""
+  const projectParam =
+    searchParams.get("project") ||
+    searchParams.get("projectId") ||
+    activeProjectId ||
+    ""
+
+  // Fetch projects to resolve slug to ID
+  const { data: projects = [] } = useQuery({
+    queryKey: projectKeys.list(orgId),
+    queryFn: async () => {
+      if (!orgId) return []
+      const res = await projectsApi.list(orgId)
+      return res.data || []
+    },
+    enabled: !!orgId,
+  })
+
+  const currentProject = useMemo(() => {
+    if (!projects.length) return null
+    if (projectParam) {
+      return (
+        projects.find(
+          (p) => p.slug === projectParam || p.id === projectParam
+        ) || null
+      )
+    }
+    if (activeProjectId) {
+      return projects.find((p) => p.id === activeProjectId) || null
+    }
+    return projects[0] ?? null
+  }, [projects, projectParam, activeProjectId])
+
+  const projectId = currentProject?.id || activeProjectId || ""
+  const projectSlugOrId = currentProject?.slug || projectId
 
   // Fetch all migration pipelines for this project
   const {
@@ -90,7 +125,9 @@ export function MigrationsPage() {
             <span>Refresh</span>
           </Button>
 
-          <Link to="/migration/new">
+          <Link
+            to={`/migration/new${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+          >
             <Button
               size="sm"
               className="gap-1.5 text-xs font-semibold shadow-xs"
@@ -127,7 +164,9 @@ export function MigrationsPage() {
               </div>
             </div>
 
-            <Link to={`/migration/${activeRunningJob.id}`}>
+            <Link
+              to={`/migration/${activeRunningJob.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+            >
               <Button
                 size="sm"
                 className="bg-info text-info-foreground hover:bg-info/90 gap-1.5 text-xs font-semibold shadow-xs"
@@ -190,6 +229,7 @@ export function MigrationsPage() {
         <MigrationHistoryTable
           jobs={jobs}
           isLoading={isLoading}
+          projectSlug={currentProject?.slug}
           onCancelJob={async (jobId) => {
             await cancelMutation.mutateAsync(jobId)
           }}

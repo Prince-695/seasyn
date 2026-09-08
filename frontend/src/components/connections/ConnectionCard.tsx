@@ -52,9 +52,11 @@ export function ConnectionCard({
     if (onInspectSchema) {
       onInspectSchema(connection)
     } else {
-      navigate(
-        `/editor?projectId=${connection.project_id}&connId=${connection.id}`
-      )
+      const projectSlugOrId =
+        (connection as { projectSlug?: string }).projectSlug ||
+        connection.project_id
+      const connNameOrId = connection.name || connection.id
+      navigate(`/editor?project=${projectSlugOrId}&conn=${connNameOrId}`)
     }
   }
 

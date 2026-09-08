@@ -38,7 +38,7 @@ export function ProjectsListPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: projectKeys.lists(activeOrg?.id || "none"),
+    queryKey: projectKeys.list(activeOrg?.id || "none"),
     queryFn: async () => {
       if (!activeOrg?.id) return []
       const res = await projectsApi.list(activeOrg.id)
