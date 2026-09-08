@@ -118,36 +118,54 @@ export function Sidebar() {
       )}
     >
       {/* Top Brand Header */}
-      <div className="border-border/60 flex h-16 items-center justify-between border-b px-4">
-        <NavLink
-          to="/dashboard"
-          className="flex items-center gap-3 overflow-hidden transition-opacity hover:opacity-90"
-        >
-          <div className="font-heading from-primary to-primary/80 text-primary-foreground shadow-primary/20 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br font-extrabold shadow-sm">
-            S
-          </div>
-          {sidebarOpen && (
-            <div className="flex flex-col">
-              <span className="font-heading text-foreground text-base font-bold tracking-tight">
-                SEASYN
-              </span>
-              <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase">
-                Data Studio
-              </span>
-            </div>
-          )}
-        </NavLink>
+      <div
+        className={cn(
+          "border-border/60 flex h-16 items-center border-b",
+          sidebarOpen ? "justify-between px-4" : "justify-center px-2"
+        )}
+      >
+        {sidebarOpen ? (
+          <>
+            <NavLink
+              to="/dashboard"
+              className="flex items-center gap-3 overflow-hidden transition-opacity hover:opacity-90"
+            >
+              <div className="font-heading from-primary to-primary/80 text-primary-foreground shadow-primary/20 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br font-extrabold shadow-sm">
+                S
+              </div>
+              <div className="flex flex-col">
+                <span className="font-heading text-foreground text-base font-bold tracking-tight">
+                  SEASYN
+                </span>
+                <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase">
+                  Data Studio
+                </span>
+              </div>
+            </NavLink>
 
-        {sidebarOpen && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleSidebar}
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+              className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+          </>
+        ) : (
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
             onClick={toggleSidebar}
-            aria-label="Collapse sidebar"
-            className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            aria-label="Expand sidebar"
+            title="Expand sidebar"
+            className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
           >
-            <PanelLeftClose className="h-4 w-4" />
+            <PanelLeftOpen className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -308,16 +326,15 @@ export function Sidebar() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={toggleSidebar}
-              aria-label="Expand sidebar"
-              className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+            <NavLink
+              to="/profile"
+              className="hover:bg-muted/60 flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+              title="Account Settings"
             >
-              <PanelLeftOpen className="h-4 w-4" />
-            </Button>
+              <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
+              </div>
+            </NavLink>
             <Button
               type="button"
               variant="ghost"
