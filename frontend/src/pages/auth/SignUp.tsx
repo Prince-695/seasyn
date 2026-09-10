@@ -24,20 +24,20 @@ export function SignUp() {
       description="Join Seasyn to start managing your migrations"
     >
       {serverError && (
-        <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="border-destructive/20 bg-destructive/10 text-destructive mb-2 flex items-center gap-2 rounded-lg border p-2 text-xs font-medium">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           <span>{serverError}</span>
         </div>
       )}
 
       <SignUpForm setServerError={setServerError} />
 
-      <div className="relative my-4">
+      <div className="relative my-2.5">
         <div className="absolute inset-0 flex items-center">
-          <span className="border-border w-full border-t" />
+          <span className="border-border/70 w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2 font-semibold">
+          <span className="bg-muted/60 dark:bg-muted/40 text-muted-foreground rounded-full px-2.5 font-medium">
             Or continue with
           </span>
         </div>
@@ -45,7 +45,7 @@ export function SignUp() {
 
       <OAuthButtons onError={setServerError} />
 
-      <div className="text-muted-foreground pt-2 text-center text-sm">
+      <div className="text-muted-foreground pt-2.5 text-center text-sm">
         Already have an account?{" "}
         <Link
           to="/sign-in"

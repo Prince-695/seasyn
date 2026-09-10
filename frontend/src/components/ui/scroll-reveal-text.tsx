@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 export interface ScrollRevealTextProps {
   /** Array of text lines to reveal, or a single string (split by newlines) */
-  lines?: string[]
+  lines?: (string | React.ReactNode)[]
   children?: React.ReactNode
   /** "scroll" for continuous scrub with scroll position, "in-view" for entry animation */
   mode?: "scroll" | "in-view"
@@ -27,7 +27,7 @@ export interface ScrollRevealTextProps {
 }
 
 interface ScrollLineProps {
-  text: string
+  content: React.ReactNode
   index: number
   totalLines: number
   progress: MotionValue<number>
@@ -36,7 +36,7 @@ interface ScrollLineProps {
 }
 
 const ScrollScrubLine: React.FC<ScrollLineProps> = ({
-  text,
+  content,
   index,
   totalLines,
   progress,
@@ -65,21 +65,21 @@ const ScrollScrubLine: React.FC<ScrollLineProps> = ({
           lineClassName
         )}
       >
-        {text}
+        {content}
       </motion.span>
     </span>
   )
 }
 
 interface InViewLineProps {
-  text: string
+  content: React.ReactNode
   index: number
   lineClassName?: string
   maskClassName?: string
 }
 
 const InViewLine: React.FC<InViewLineProps> = ({
-  text,
+  content,
   index,
   lineClassName,
   maskClassName,
@@ -105,7 +105,7 @@ const InViewLine: React.FC<InViewLineProps> = ({
           lineClassName
         )}
       >
-        {text}
+        {content}
       </motion.span>
     </span>
   )
@@ -123,7 +123,7 @@ export const ScrollRevealText: React.FC<ScrollRevealTextProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const rawLines: string[] = React.useMemo(() => {
+  const rawLines: (string | React.ReactNode)[] = React.useMemo(() => {
     if (lines && lines.length > 0) return lines
     if (typeof children === "string") {
       return children.split("\n").filter((l) => l.trim().length > 0)
@@ -184,7 +184,7 @@ export const ScrollRevealText: React.FC<ScrollRevealTextProps> = ({
         mode === "scroll" ? (
           <ScrollScrubLine
             key={idx}
-            text={line}
+            content={line}
             index={idx}
             totalLines={rawLines.length}
             progress={smoothProgress}
@@ -194,7 +194,7 @@ export const ScrollRevealText: React.FC<ScrollRevealTextProps> = ({
         ) : (
           <InViewLine
             key={idx}
-            text={line}
+            content={line}
             index={idx}
             lineClassName={lineClassName}
             maskClassName={maskClassName}

@@ -25,9 +25,9 @@ const footerColumns = [
     title: "Company",
     links: [
       { name: "About", href: "/" },
-      { name: "Careers", href: "/" },
+      // { name: "Careers", href: "/" },
       { name: "Contact", href: "/" },
-      { name: "Blog", href: "/" },
+      // { name: "Blog", href: "/" },
     ],
   },
 ]
@@ -67,14 +67,14 @@ export const Footer = () => {
 
           <div className="flex gap-3">
             <a
-              href="mailto:hello@seasyn.io"
+              href="mailto:seasyn.app@gmail.com"
               className="border-border text-muted-foreground hover:border-primary hover:text-primary flex h-8 w-8 items-center justify-center border transition-all"
               aria-label="Email"
             >
               <Mail size={14} />
             </a>
             <a
-              href="https://github.com/seasyn"
+              href="https://github.com/Prince-695/seasyn/"
               target="_blank"
               rel="noopener noreferrer"
               className="border-border text-muted-foreground hover:border-primary hover:text-primary flex h-8 w-8 items-center justify-center border transition-all"
@@ -96,7 +96,7 @@ export const Footer = () => {
       </div>
 
       {/* Giant "SEASYN" text at bottom — like WhisperFlow's large logo */}
-      <div className="pointer-events-none relative z-0 mt-8 text-center select-none">
+      <div className="pointer-events-none relative z-0 mt-2 text-center select-none">
         <span className="text-foreground/5 text-[10rem] leading-none font-bold tracking-tighter sm:text-[14rem] md:text-[18rem]">
           SEASYN
         </span>

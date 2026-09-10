@@ -40,24 +40,24 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
   }
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-2.5">
       <Button
         variant="outline"
         type="button"
-        className="border-muted/80 bg-muted/20 hover:bg-muted h-11 flex-1 font-medium"
+        className="border-border/80 bg-background/60 hover:bg-muted h-10 flex-1 cursor-pointer text-xs font-medium sm:text-sm"
         onClick={() => handleOAuthLogin("google")}
       >
-        <FcGoogle className="mr-2 h-5 w-5" />
+        <FcGoogle className="mr-2 h-4 w-4" />
         Google
       </Button>
 
       <Button
         variant="outline"
         type="button"
-        className="border-muted/80 bg-muted/20 hover:bg-muted h-11 flex-1 font-medium"
+        className="border-border/80 bg-background/60 hover:bg-muted h-10 flex-1 cursor-pointer text-xs font-medium sm:text-sm"
         onClick={() => handleOAuthLogin("github")}
       >
-        <FaGithub className="mr-2 h-5 w-5" />
+        <FaGithub className="mr-2 h-4 w-4" />
         GitHub
       </Button>
     </div>

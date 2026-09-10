@@ -4,7 +4,8 @@ import { Navbar } from "@/components/home/Navbar"
 import Footer from "@/components/home/Footer"
 import { FAQ } from "@/components/home/FAQ"
 import Features from "@/components/home/Features"
-import { MigrationShowcase } from "@/components/home/MigrationShowcase"
+import CTA from "@/components/home/CTA"
+import HowItWorks from "@/components/home/HowItWorks"
 import { Hero } from "@/components/home/Hero"
 import { DatabaseTiles } from "@/components/home/DatabaseTiles"
 
@@ -25,15 +26,22 @@ export const Home = () => {
 
         {/* 3D Floating Database Tiles */}
         <DatabaseTiles />
-        {/* Why Choose Seasyn Section */}
+
+        {/* Core Product Capabilities */}
         <Features />
 
-        <MigrationShowcase />
+        {/* 3-Step Interactive Migration Lifecycle */}
+        <HowItWorks />
 
-        {/* FAQ Section */}
+        {/* High-Intent Technical FAQ */}
         <FAQ />
+
+        {/* Dramatic Minimal Closing CTA */}
+        <CTA onCtaClick={handleStartMigrating} />
       </main>
       <Footer />
     </div>
   )
 }
+
+export default Home

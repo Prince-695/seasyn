@@ -40,7 +40,7 @@ export const Hero = ({
   onCtaClick,
 }: HeroProps) => {
   return (
-    <section className="relative z-10 mt-40 flex w-full max-w-6xl">
+    <section className="relative z-10 mt-35 flex w-full max-w-6xl">
       <div className="w-full pt-10">
         <motion.div
           className="flex w-full flex-col items-center justify-between gap-16 lg:flex-row"
