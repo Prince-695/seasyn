@@ -4,10 +4,9 @@ import { Navbar } from "@/components/home/Navbar"
 import Footer from "@/components/home/Footer"
 import { FAQ } from "@/components/home/FAQ"
 import Features from "@/components/home/Features"
-import { Slider } from "@/components/home/Slider"
 import { MigrationShowcase } from "@/components/home/MigrationShowcase"
 import { Hero } from "@/components/home/Hero"
-import { DashboardPreview } from "@/components/home/DashboardPreview"
+import { DatabaseTiles } from "@/components/home/DatabaseTiles"
 
 export const Home = () => {
   const navigate = useNavigate()
@@ -24,12 +23,10 @@ export const Home = () => {
         {/* Hero Section */}
         <Hero onCtaClick={handleStartMigrating} />
 
-        <DashboardPreview />
+        {/* 3D Floating Database Tiles */}
+        <DatabaseTiles />
         {/* Why Choose Seasyn Section */}
         <Features />
-
-        {/* Database Slider Section */}
-        <Slider />
 
         <MigrationShowcase />
 

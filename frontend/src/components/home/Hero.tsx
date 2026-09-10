@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface HeroProps {
+  badge?: React.ReactNode
   title?: React.ReactNode
   description?: string
   ctaText?: string
@@ -14,20 +15,28 @@ const curtainRevealVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
   },
 }
 
 export const Hero = ({
+  // badge = (
+  //   <div className="border-border bg-muted/60 text-foreground mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium tracking-wide shadow-2xs">
+  //     <Zap className="text-primary fill-primary/20 h-3.5 w-3.5" />
+  //     <span>Cross-Database Migration Studio</span>
+  //   </div>
+  // ),
   title = (
     <>
-      Fluid Database Migrations,
+      <span className="bg-highlight text-highlight-foreground inline-block rounded-2xl px-3.5 py-0.5 font-semibold shadow-2xs">
+        Migrate database.
+      </span>
       <br />
-      <span className="">Zero Friction.</span>
+      In seconds, not sprint cycles.
     </>
   ),
-  description = "The intelligent, stateless bridge between Postgres, MySQL, SQLite, and MongoDB. No persistent data, no stored credentials—just fast, secure migrations.",
-  ctaText = "Start Migrating",
+  description = "The universal sync engine for PostgreSQL, MySQL, MongoDB, and SQLite. Stream millions of records cross-paradigm with zero downtime and live throughput telemetry.",
+  ctaText = "Launch Studio",
   onCtaClick,
 }: HeroProps) => {
   return (
@@ -39,8 +48,10 @@ export const Hero = ({
           initial="hidden"
           animate="visible"
         >
-          {/* Left: Text Content */}
+          {/* Center: Text Content */}
           <div className="flex flex-1 flex-col items-center">
+            {/* {badge} */}
+
             <h1 className="text-foreground text-center text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl lg:leading-[1.1]">
               {title}
             </h1>
@@ -49,13 +60,13 @@ export const Hero = ({
               {description}
             </p>
 
-            <div className="relative mt-10 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="relative mt-8 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button
                 onClick={onCtaClick}
-                className="group border-primary bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground relative flex items-center justify-center gap-3 border p-6 font-medium transition-all"
+                className="group bg-primary text-primary-foreground hover:bg-primary/90 relative flex items-center justify-center gap-2.5 rounded-xl px-7 py-6 text-base font-semibold shadow-md transition-all hover:shadow-lg"
               >
                 {ctaText}
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </div>
           </div>
