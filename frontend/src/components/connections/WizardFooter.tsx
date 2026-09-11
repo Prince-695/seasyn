@@ -29,7 +29,7 @@ export function WizardFooter({
             size="sm"
             onClick={onBack}
             disabled={isPending}
-            className="gap-1.5 text-xs"
+            className="cursor-pointer gap-1.5 text-xs"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Back</span>
@@ -41,7 +41,7 @@ export function WizardFooter({
             size="sm"
             onClick={onCancel}
             disabled={isPending}
-            className="text-xs"
+            className="text-muted-foreground hover:text-foreground cursor-pointer text-xs"
           >
             Cancel
           </Button>
@@ -54,7 +54,7 @@ export function WizardFooter({
             type="button"
             size="sm"
             onClick={onNextFromStep1}
-            className="gap-1.5 text-xs font-semibold"
+            className="cursor-pointer gap-1.5 text-xs font-semibold"
           >
             <span>Next: Credentials</span>
             <ArrowRight className="h-3.5 w-3.5" />

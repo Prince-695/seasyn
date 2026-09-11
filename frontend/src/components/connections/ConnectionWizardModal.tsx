@@ -85,7 +85,7 @@ export function ConnectionWizardModal({
           }}
           className="mt-1"
         >
-          <div className="relative min-h-72.5 overflow-hidden">
+          <div className="relative min-h-62.5 overflow-hidden">
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               {/* ── STEP 1: Engine & Role ── */}
               {step === 1 && (

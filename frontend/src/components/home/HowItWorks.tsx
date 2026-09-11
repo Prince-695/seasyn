@@ -189,8 +189,8 @@ export const HowItWorks = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                      <div className="bg-success/10 text-success inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                        <span className="bg-success h-1.5 w-1.5 animate-pulse rounded-full" />
                         Connected
                       </div>
                     </div>
@@ -221,8 +221,8 @@ export const HowItWorks = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <div className="bg-success/10 text-success inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                        <span className="bg-success h-1.5 w-1.5 rounded-full" />
                         Target Ready
                       </div>
                     </div>
@@ -280,7 +280,7 @@ export const HowItWorks = () => {
                   </div>
 
                   <div className="border-border/50 text-muted-foreground mt-4 flex items-center justify-between border-t pt-3 text-[11px]">
-                    <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="text-success flex items-center gap-1 font-medium">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       100% Type Compatibility Verified
                     </span>
@@ -300,8 +300,8 @@ export const HowItWorks = () => {
                       <span className="bg-mac-minimize h-2.5 w-2.5 rounded-full" />
                       <span className="bg-mac-maximize h-2.5 w-2.5 rounded-full" />
                     </div>
-                    <div className="flex items-center gap-1.5 font-mono text-[11px] text-emerald-600 dark:text-emerald-400">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                    <div className="text-success flex items-center gap-1.5 font-mono text-[11px]">
+                      <span className="bg-success h-1.5 w-1.5 animate-pulse rounded-full" />
                       <span>STREAM_ACTIVE</span>
                     </div>
                   </div>
@@ -343,10 +343,10 @@ export const HowItWorks = () => {
                     </div>
                     <div>
                       <div className="text-muted-foreground flex items-center justify-center gap-1 text-[10px]">
-                        <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                        <ShieldCheck className="text-success h-3 w-3" />
                         <span>Checksum</span>
                       </div>
-                      <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      <div className="text-success font-mono font-bold">
                         CRC32 OK
                       </div>
                     </div>
@@ -364,8 +364,8 @@ export const HowItWorks = () => {
                     <div className="text-info">
                       [12:44:02] Batch #175 streaming in volatile buffer...
                     </div>
-                    <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                      <span className="h-1 w-1 animate-pulse rounded-full bg-emerald-500" />
+                    <div className="text-success flex items-center gap-1">
+                      <span className="bg-success h-1 w-1 animate-pulse rounded-full" />
                       <span>
                         [12:44:03] Checksum verified: 87,400 rows match origin
                       </span>

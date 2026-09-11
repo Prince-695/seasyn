@@ -28,10 +28,10 @@ export function WizardProgressTracker({
         <div className="flex items-center gap-1.5 text-xs">
           <span
             className={cn(
-              "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold transition-colors",
+              "flex h-5.5 w-5.5 items-center justify-center rounded-full text-[11px] font-semibold transition-colors",
               step === 1
-                ? "bg-primary text-primary-foreground"
-                : "bg-primary/20 text-primary"
+                ? "bg-primary text-primary-foreground shadow-2xs"
+                : "border-primary/30 bg-primary/20 text-primary border"
             )}
           >
             1
@@ -39,17 +39,17 @@ export function WizardProgressTracker({
           <div
             className={cn(
               "h-0.5 w-6 rounded-full transition-colors",
-              step >= 2 ? "bg-primary" : "bg-muted"
+              step >= 2 ? "bg-primary" : "bg-border"
             )}
           />
           <span
             className={cn(
-              "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold transition-colors",
+              "flex h-5.5 w-5.5 items-center justify-center rounded-full text-[11px] font-semibold transition-colors",
               step === 2
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground shadow-2xs"
                 : step > 2
-                  ? "bg-primary/20 text-primary"
-                  : "bg-muted text-muted-foreground"
+                  ? "border-primary/30 bg-primary/20 text-primary border"
+                  : "border-border/80 bg-muted/40 text-muted-foreground border"
             )}
           >
             2
@@ -57,15 +57,15 @@ export function WizardProgressTracker({
           <div
             className={cn(
               "h-0.5 w-6 rounded-full transition-colors",
-              step === 3 ? "bg-primary" : "bg-muted"
+              step === 3 ? "bg-primary" : "bg-border"
             )}
           />
           <span
             className={cn(
-              "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold transition-colors",
+              "flex h-5.5 w-5.5 items-center justify-center rounded-full text-[11px] font-semibold transition-colors",
               step === 3
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                ? "bg-primary text-primary-foreground shadow-2xs"
+                : "border-border/80 bg-muted/40 text-muted-foreground border"
             )}
           >
             3

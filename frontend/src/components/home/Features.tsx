@@ -1,27 +1,59 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   ShieldCheck,
   Zap,
   Lock,
-  MousePointer,
+  Hand,
   GripVertical,
   ArrowRight,
   Activity,
   Database,
 } from "lucide-react"
-import { SiPostgresql, SiMysql, SiMongodb } from "react-icons/si"
-import { motion } from "framer-motion"
+import {
+  SiPostgresql,
+  SiMysql,
+  SiMongodb,
+  SiSqlite,
+  SiRedis,
+  SiSupabase,
+  SiSnowflake,
+} from "react-icons/si"
+import { motion, useScroll, useTransform } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
 
 /* =========================================================================
-   Mockup 1: Stateless & Agentless Architecture (Compact & Static)
+   Mockup 1: Stateless & Agentless Architecture (Scroll-Linked Card Docking)
    ========================================================================= */
 const SecurityMockup = () => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 85%", "center 25%"],
+  })
+
+  // Slower, wide-distance scroll-linked docking motion fully visible in viewport
+  const x = useTransform(scrollYProgress, [0.05, 0.88], [62, 0])
+  const y = useTransform(scrollYProgress, [0.05, 0.88], [20, 0])
+  const rotate = useTransform(scrollYProgress, [0.05, 0.88], [8.5, 0])
+  const cursorOpacity = useTransform(
+    scrollYProgress,
+    [0.05, 0.78, 0.92],
+    [1, 1, 0]
+  )
+  const floatingShadowOpacity = useTransform(
+    scrollYProgress,
+    [0.05, 0.88],
+    [1, 0]
+  )
+
   return (
-    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl border p-3">
-      {/* macOS Window Frame */}
-      <div className="bg-card border-border relative w-full max-w-xs rounded-lg border p-2.5 shadow-sm">
+    <div
+      ref={containerRef}
+      className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border p-3"
+    >
+      {/* macOS Window Frame (positioned slightly left so the floating card has full canvas on the right) */}
+      <div className="bg-card border-border relative w-full max-w-65 -translate-x-3.5 rounded-lg border p-2.5 shadow-sm sm:-translate-x-4.5">
         {/* macOS Window Controls */}
         <div className="mb-2 flex items-center gap-1.5">
           <span className="bg-mac-close h-2 w-2 rounded-full" />
@@ -31,24 +63,46 @@ const SecurityMockup = () => {
 
         {/* Feature Rows */}
         <div className="flex flex-col gap-1.5">
-          {/* Row 1: Elevated Card with Pink Icon & Pointer Cursor (Static) */}
-          <div className="bg-card border-border relative z-10 flex items-start gap-2.5 rounded-lg border p-2 shadow-md">
-            <div className="bg-secondary text-secondary-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-md shadow-2xs">
-              <ShieldCheck className="h-3.5 w-3.5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h4 className="text-foreground truncate text-[11px] font-semibold">
-                Ephemeral Credentials
-              </h4>
-              <p className="text-muted-foreground truncate text-[10px] leading-tight">
-                Zero data retention — 100% in-flight
-              </p>
-            </div>
+          {/* Row 1 Slot: Target drop zone with scroll-driven docking card */}
+          <div className="relative h-11.5 w-full">
+            {/* Target Slot Placeholder */}
+            <div className="border-border/60 bg-muted/20 absolute inset-0 rounded-lg border border-dashed" />
 
-            {/* Static Mouse Pointer Cursor */}
-            <div className="pointer-events-none absolute -right-1.5 -bottom-1.5 drop-shadow-sm">
-              <MousePointer className="fill-foreground/20 text-foreground h-3.5 w-3.5" />
-            </div>
+            {/* Draggable Card that docks into place as user scrolls */}
+            <motion.div
+              style={{
+                x,
+                y,
+                rotate,
+              }}
+              className="bg-card border-border relative z-10 flex h-full items-start gap-2.5 rounded-lg border p-2 shadow-xs will-change-transform"
+            >
+              {/* Elevated floating shadow (uses --shadow-xl from index.css) */}
+              <motion.div
+                style={{ opacity: floatingShadowOpacity }}
+                className="pointer-events-none absolute inset-0 rounded-lg shadow-xl"
+              />
+
+              <div className="bg-secondary text-secondary-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-md shadow-2xs">
+                <ShieldCheck className="h-3.5 w-3.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-foreground truncate text-[11px] font-semibold">
+                  Ephemeral Credentials
+                </h4>
+                <p className="text-muted-foreground truncate text-[10px] leading-tight">
+                  Zero data retention — 100% in-flight
+                </p>
+              </div>
+
+              {/* Hand Cursor Grabbing the Card (smoothly releases as it docks) */}
+              <motion.div
+                style={{ opacity: cursorOpacity }}
+                className="pointer-events-none absolute -right-2 -bottom-2 z-20 drop-shadow-md"
+              >
+                <Hand className="fill-card text-foreground h-4 w-4 -rotate-12 stroke-[1.8]" />
+              </motion.div>
+            </motion.div>
           </div>
 
           {/* Row 2: Agentless Connection */}
@@ -87,120 +141,140 @@ const SecurityMockup = () => {
 }
 
 /* =========================================================================
-   Mockup 2: Universal Compatibility (Compact & Static with Interactive Toggles)
+   Mockup 2: Universal Compatibility (Continuous Infinite Vertical Scroll)
    ========================================================================= */
+const integrationEngines = [
+  {
+    id: "postgres",
+    name: "PostgreSQL",
+    icon: SiPostgresql,
+    iconColor: "text-info",
+    iconBg: "bg-info/10",
+    active: true,
+  },
+  {
+    id: "mysql",
+    name: "MySQL",
+    icon: SiMysql,
+    iconColor: "text-primary",
+    iconBg: "bg-primary/10",
+    active: true,
+  },
+  {
+    id: "mongodb",
+    name: "MongoDB",
+    icon: SiMongodb,
+    iconColor: "text-success",
+    iconBg: "bg-success/10",
+    active: false,
+  },
+  {
+    id: "sqlite",
+    name: "SQLite",
+    icon: SiSqlite,
+    iconColor: "text-chart-4",
+    iconBg: "bg-chart-4/10",
+    active: true,
+  },
+  {
+    id: "redis",
+    name: "Redis",
+    icon: SiRedis,
+    iconColor: "text-destructive",
+    iconBg: "bg-destructive/10",
+    active: false,
+  },
+  {
+    id: "supabase",
+    name: "Supabase",
+    icon: SiSupabase,
+    iconColor: "text-accent",
+    iconBg: "bg-accent/10",
+    active: true,
+  },
+  {
+    id: "snowflake",
+    name: "Snowflake",
+    icon: SiSnowflake,
+    iconColor: "text-info",
+    iconBg: "bg-info/10",
+    active: false,
+  },
+]
+
 const IntegrationsMockup = () => {
-  const [activeEngines, setActiveEngines] = useState({
-    postgres: true,
-    mongodb: true,
-    mysql: false,
-  })
-
-  const toggleEngine = (key: keyof typeof activeEngines) => {
-    setActiveEngines((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
-
   return (
-    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl border p-3">
+    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border p-3">
       <div className="bg-card border-border flex w-full max-w-xs flex-col gap-2 rounded-lg border p-2.5 shadow-sm">
-        {/* Top "+ Add new integration" Button */}
+        {/* Top "+ Add new integration" Button (Fixed at top) */}
         <button
           type="button"
-          className="border-border hover:border-primary/40 hover:text-primary bg-muted/20 text-muted-foreground flex w-full cursor-pointer items-center justify-center gap-1 rounded-md border border-dashed px-2 py-1 text-[11px] font-medium transition-colors"
+          className="border-border hover:border-primary/40 hover:text-primary bg-muted/20 text-muted-foreground z-10 flex w-full cursor-pointer items-center justify-center gap-1 rounded-md border border-dashed px-2 py-1 text-[11px] font-medium transition-colors"
         >
           <span className="text-xs leading-none">+</span>
           <span>Add new integration</span>
         </button>
 
-        {/* Database Engine Rows */}
-        <div className="flex flex-col gap-1.5">
-          {/* PostgreSQL */}
-          <div className="bg-muted/40 border-border/50 flex items-center justify-between rounded-lg border p-1.5 px-2">
-            <div className="flex items-center gap-2">
-              <GripVertical className="text-muted-foreground/40 h-3 w-3 shrink-0" />
-              <div className="bg-info/10 flex h-6 w-6 items-center justify-center rounded-md">
-                <SiPostgresql className="text-info h-3.5 w-3.5" />
-              </div>
-              <span className="text-foreground text-[11px] font-semibold">
-                PostgreSQL
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => toggleEngine("postgres")}
-              className={cn(
-                "relative inline-flex h-4 w-7 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-200",
-                activeEngines.postgres
-                  ? "bg-accent"
-                  : "bg-input dark:bg-input/80"
-              )}
-            >
-              <span
-                className={cn(
-                  "bg-background block h-3 w-3 rounded-full shadow-xs transition-transform duration-200",
-                  activeEngines.postgres ? "translate-x-3" : "translate-x-0"
-                )}
-              />
-            </button>
-          </div>
+        {/* Continuous Infinite Vertical Scrolling Reel */}
+        <div className="relative h-24.5 overflow-hidden">
+          {/* Top & Bottom subtle fade gradients */}
+          <div className="from-card pointer-events-none absolute inset-x-0 top-0 z-10 h-3.5 bg-linear-to-b to-transparent" />
+          <div className="from-card pointer-events-none absolute inset-x-0 bottom-0 z-10 h-3.5 bg-linear-to-t to-transparent" />
 
-          {/* MongoDB */}
-          <div className="bg-muted/40 border-border/50 flex items-center justify-between rounded-lg border p-1.5 px-2">
-            <div className="flex items-center gap-2">
-              <GripVertical className="text-muted-foreground/40 h-3 w-3 shrink-0" />
-              <div className="bg-success/10 flex h-6 w-6 items-center justify-center rounded-md">
-                <SiMongodb className="text-success h-3.5 w-3.5" />
-              </div>
-              <span className="text-foreground text-[11px] font-semibold">
-                MongoDB
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => toggleEngine("mongodb")}
-              className={cn(
-                "relative inline-flex h-4 w-7 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-200",
-                activeEngines.mongodb
-                  ? "bg-accent"
-                  : "bg-input dark:bg-input/80"
-              )}
-            >
-              <span
-                className={cn(
-                  "bg-background block h-3 w-3 rounded-full shadow-xs transition-transform duration-200",
-                  activeEngines.mongodb ? "translate-x-3" : "translate-x-0"
-                )}
-              />
-            </button>
-          </div>
+          {/* Seamless Infinite Marquee Track */}
+          <motion.div
+            className="flex flex-col gap-1.5"
+            animate={{ y: ["0%", "-50%"] }}
+            transition={{
+              duration: 14,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            {[...integrationEngines, ...integrationEngines].map(
+              (engine, idx) => {
+                const Icon = engine.icon
+                return (
+                  <div
+                    key={`${engine.id}-${idx}`}
+                    className="bg-muted/40 border-border/50 flex items-center justify-between rounded-lg border p-1.5 px-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <GripVertical className="text-muted-foreground/40 h-3 w-3 shrink-0" />
+                      <div
+                        className={cn(
+                          "flex h-6 w-6 items-center justify-center rounded-md",
+                          engine.iconBg
+                        )}
+                      >
+                        <Icon className={cn("h-3.5 w-3.5", engine.iconColor)} />
+                      </div>
+                      <span className="text-foreground text-[11px] font-semibold">
+                        {engine.name}
+                      </span>
+                    </div>
 
-          {/* MySQL */}
-          <div className="bg-muted/40 border-border/50 flex items-center justify-between rounded-lg border p-1.5 px-2">
-            <div className="flex items-center gap-2">
-              <GripVertical className="text-muted-foreground/40 h-3 w-3 shrink-0" />
-              <div className="bg-primary/10 flex h-6 w-6 items-center justify-center rounded-md">
-                <SiMysql className="text-primary h-3.5 w-3.5" />
-              </div>
-              <span className="text-foreground text-[11px] font-semibold">
-                MySQL
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => toggleEngine("mysql")}
-              className={cn(
-                "relative inline-flex h-4 w-7 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-200",
-                activeEngines.mysql ? "bg-accent" : "bg-input dark:bg-input/80"
-              )}
-            >
-              <span
-                className={cn(
-                  "bg-background block h-3 w-3 rounded-full shadow-xs transition-transform duration-200",
-                  activeEngines.mysql ? "translate-x-3" : "translate-x-0"
-                )}
-              />
-            </button>
-          </div>
+                    {/* Switch Pill */}
+                    <div
+                      className={cn(
+                        "relative inline-flex h-4 w-7 shrink-0 items-center rounded-full p-0.5 transition-colors",
+                        engine.active
+                          ? "bg-accent"
+                          : "bg-input dark:bg-input/80"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "bg-background block h-3 w-3 rounded-full shadow-xs transition-transform",
+                          engine.active ? "translate-x-3" : "translate-x-0"
+                        )}
+                      />
+                    </div>
+                  </div>
+                )
+              }
+            )}
+          </motion.div>
         </div>
       </div>
     </div>
@@ -212,7 +286,7 @@ const IntegrationsMockup = () => {
    ========================================================================= */
 const SchemaTranslationMockup = () => {
   return (
-    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl border p-3">
+    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border p-3">
       <div className="bg-card border-border flex w-full max-w-xs flex-col gap-2 rounded-lg border p-2.5 shadow-sm">
         {/* Header Bar */}
         <div className="flex items-center justify-between">
@@ -299,11 +373,48 @@ const SchemaTranslationMockup = () => {
 }
 
 /* =========================================================================
-   Mockup 4: High-Throughput Streaming & Telemetry (Compact & Static)
+   Mockup 4: High-Throughput Streaming & Telemetry (Live Ingestion Stream)
    ========================================================================= */
+const TOTAL_RECORDS = 3000000
+const INITIAL_RECORDS = 2450000
+
 const TelemetryStreamMockup = () => {
+  const [syncedRecords, setSyncedRecords] = useState(INITIAL_RECORDS)
+  const [rate, setRate] = useState(125480)
+  const [latency, setLatency] = useState("0.4")
+  const [ram, setRam] = useState(38)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSyncedRecords((prev) => {
+        const increment = Math.floor(Math.random() * 1400) + 1200
+        const next = prev + increment
+        if (next >= TOTAL_RECORDS - 8000) {
+          return INITIAL_RECORDS
+        }
+        return next
+      })
+
+      // Fluctuate rate around 124,500 - 126,500 rec/s
+      setRate(124800 + Math.floor(Math.random() * 1600))
+
+      // Micro-jitter latency 0.3 - 0.5 ms
+      setLatency((0.35 + Math.random() * 0.15).toFixed(1))
+
+      // Slight RAM jitter between 38 and 39 MB
+      setRam(Math.random() > 0.65 ? 39 : 38)
+    }, 240)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const progressPercent = Math.min(
+    100,
+    (syncedRecords / TOTAL_RECORDS) * 100
+  ).toFixed(1)
+
   return (
-    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-full min-h-[170px] w-full items-center justify-center overflow-hidden rounded-xl border p-3">
+    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-full min-h-42.5 w-full items-center justify-center overflow-hidden rounded-xl border p-3">
       <div className="bg-card border-border flex w-full max-w-md flex-col gap-2.5 rounded-lg border p-3.5 shadow-sm">
         {/* Header with Live Throughput */}
         <div className="flex items-center justify-between">
@@ -315,28 +426,22 @@ const TelemetryStreamMockup = () => {
           </div>
           <span className="bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold">
             <span className="bg-primary h-1.5 w-1.5 animate-pulse rounded-full" />
-            125,480 rec/s
+            {rate.toLocaleString()} rec/s
           </span>
         </div>
 
-        {/* Progress Bar (Animated Live Streaming Motion) */}
+        {/* Progress Bar (Linked to Real Dynamic Ingestion Progress) */}
         <div className="bg-muted/60 relative h-2.5 w-full overflow-hidden rounded-full">
-          <motion.div
-            initial={{ width: "30%" }}
-            animate={{ width: ["30%", "85%", "30%"] }}
-            transition={{
-              duration: 3.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="bg-primary h-full rounded-full"
+          <div
+            style={{ width: `${progressPercent}%` }}
+            className="bg-primary h-full rounded-full transition-all duration-300 ease-out"
           />
         </div>
 
         <div className="text-muted-foreground flex items-center justify-between text-[11px]">
           <span>Synchronizing records</span>
           <span className="text-foreground font-mono font-medium">
-            2,450,000 / 3,000,000
+            {syncedRecords.toLocaleString()} / {TOTAL_RECORDS.toLocaleString()}
           </span>
         </div>
 
@@ -348,7 +453,7 @@ const TelemetryStreamMockup = () => {
             </span>
             <div className="mt-0.5 flex items-center justify-between">
               <span className="text-foreground font-mono text-xs font-bold">
-                38 MB
+                {ram} MB
               </span>
               <span className="text-accent bg-accent/15 py-0.2 rounded px-1.5 text-[9px] font-bold">
                 Adaptive
@@ -362,7 +467,7 @@ const TelemetryStreamMockup = () => {
             </span>
             <div className="mt-0.5 flex items-center justify-between">
               <span className="text-foreground font-mono text-xs font-bold">
-                0.4 ms
+                {latency} ms
               </span>
               <span className="text-primary bg-primary/15 py-0.2 rounded px-1.5 text-[9px] font-bold">
                 Real-time

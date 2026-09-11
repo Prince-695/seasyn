@@ -24,8 +24,7 @@ export const ENGINES: EngineOption[] = [
     type: "postgres",
     name: "PostgreSQL",
     paradigm: "Relational • SQL",
-    description:
-      "Advanced open-source relational database with robust transactional ACID guarantees.",
+    description: "Advanced transactional SQL engine with ACID guarantees.",
     colorClass: "border-info/30 hover:border-info/60",
     badgeClass: "border-info/30 bg-info/10 text-info",
   },
@@ -33,8 +32,7 @@ export const ENGINES: EngineOption[] = [
     type: "mysql",
     name: "MySQL",
     paradigm: "Relational • SQL",
-    description:
-      "Ubiquitous, high-speed relational database optimized for web applications and scale.",
+    description: "Ubiquitous, high-speed relational DB optimized for scale.",
     colorClass: "border-primary/30 hover:border-primary/60",
     badgeClass: "border-primary/30 bg-primary/10 text-primary",
   },
@@ -42,17 +40,15 @@ export const ENGINES: EngineOption[] = [
     type: "mongodb",
     name: "MongoDB",
     paradigm: "Document • NoSQL",
-    description:
-      "Flexible JSON-like document model supporting dynamic schemas and nested objects.",
+    description: "Flexible JSON-like document model for dynamic schemas.",
     colorClass: "border-success/30 hover:border-success/60",
     badgeClass: "border-success/30 bg-success/10 text-success",
   },
   {
     type: "sqlite",
     name: "SQLite",
-    paradigm: "Embedded • Serverless",
-    description:
-      "Self-contained, serverless zero-configuration file database engine.",
+    paradigm: "Embedded • SQL",
+    description: "Self-contained, serverless zero-configuration file database.",
     colorClass: "border-warning/30 hover:border-warning/60",
     badgeClass: "border-warning/30 bg-warning/10 text-warning",
   },

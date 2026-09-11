@@ -44,10 +44,13 @@ export function WizardStep1Engine({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 pt-1 sm:grid-cols-2">
         {/* Connection Name */}
         <div className="space-y-1.5">
-          <Label htmlFor="connName" className="text-xs font-semibold">
+          <Label
+            htmlFor="connName"
+            className="text-foreground text-xs font-semibold"
+          >
             Connection Identifier <span className="text-destructive">*</span>
           </Label>
           <Input
@@ -56,33 +59,40 @@ export function WizardStep1Engine({
             autoComplete="off"
             {...register("name")}
             disabled={disabled}
-            className="text-xs ring-offset-0"
+            className="h-10 rounded-xl text-xs ring-offset-0"
           />
-          {errors.name && (
+          {errors.name ? (
             <p className="text-destructive text-xs">{errors.name.message}</p>
+          ) : (
+            <p className="text-muted-foreground text-[11px]">
+              A recognizable name for this database connection.
+            </p>
           )}
         </div>
 
         {/* Source vs Target Switcher */}
-        <div className="border-border/70 bg-muted/20 flex items-center justify-between rounded-xl border p-3">
-          <div className="space-y-0.5">
+        <div className="space-y-1.5">
+          <Label className="text-foreground text-xs font-semibold">
+            Synchronization Role
+          </Label>
+          <div className="border-border/70 bg-card/60 flex h-10 items-center justify-between rounded-xl border px-3.5 shadow-2xs">
             <span className="text-foreground text-xs font-semibold">
               {isSourceVal ? "Source Database" : "Target Database"}
             </span>
-            <p className="text-muted-foreground text-[11px]">
-              {isSourceVal
-                ? "Read for schema & data introspection."
-                : "Destination for synced schemas & tables."}
-            </p>
+            <Switch
+              checked={isSourceVal}
+              onCheckedChange={(checked) => {
+                setIsSourceVal(checked)
+                setValue("is_source", checked)
+              }}
+              disabled={disabled}
+            />
           </div>
-          <Switch
-            checked={isSourceVal}
-            onCheckedChange={(checked) => {
-              setIsSourceVal(checked)
-              setValue("is_source", checked)
-            }}
-            disabled={disabled}
-          />
+          <p className="text-muted-foreground text-[11px]">
+            {isSourceVal
+              ? "Read for schema extraction & data introspection."
+              : "Destination for synced schemas & tables."}
+          </p>
         </div>
       </div>
     </div>
