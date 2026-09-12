@@ -7,9 +7,6 @@ import type {
   SchemaDiff,
   TableRowQueryParams,
 } from "@/types/schema"
-import { schemaMockStore } from "./mock/schemaMockStore"
-
-// ─── Production API Client with Isolated Mock Fallbacks ─────────────────────
 
 export const schemaApi = {
   /**
@@ -20,15 +17,10 @@ export const schemaApi = {
     projectId: string,
     connId: string
   ): Promise<ApiResponse<DatabaseSchema>> => {
-    try {
-      const res = await apiClient.get<ApiResponse<DatabaseSchema>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/schema`
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback until live endpoints are deployed
-    }
-    return schemaMockStore.getSchema(connId)
+    const res = await apiClient.get<ApiResponse<DatabaseSchema>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/schema`
+    )
+    return res.data
   },
 
   /**
@@ -38,16 +30,11 @@ export const schemaApi = {
     orgId: string,
     projectId: string,
     connId: string
-  ): Promise<ApiResponse<TableSchema[]>> => {
-    try {
-      const res = await apiClient.get<ApiResponse<TableSchema[]>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables`
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.listTables(connId)
+  ): Promise<ApiResponse<string[]>> => {
+    const res = await apiClient.get<ApiResponse<string[]>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables`
+    )
+    return res.data
   },
 
   /**
@@ -59,15 +46,10 @@ export const schemaApi = {
     connId: string,
     tableName: string
   ): Promise<ApiResponse<TableSchema>> => {
-    try {
-      const res = await apiClient.get<ApiResponse<TableSchema>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}`
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.getTable(connId, tableName)
+    const res = await apiClient.get<ApiResponse<TableSchema>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}`
+    )
+    return res.data
   },
 
   /**
@@ -80,16 +62,18 @@ export const schemaApi = {
     tableName: string,
     params: TableRowQueryParams = {}
   ): Promise<ApiResponse<QueryResult>> => {
-    try {
-      const res = await apiClient.get<ApiResponse<QueryResult>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
-        { params }
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.getTableRows(connId, tableName, params)
+    const queryParams: Record<string, unknown> = {}
+    if (params.page !== undefined) queryParams.page = params.page
+    if (params.limit !== undefined) queryParams.limit = params.limit
+    if (params.sort_by) queryParams.order_by = params.sort_by
+    if (params.sort_dir) queryParams.order_dir = params.sort_dir
+    if (params.search) queryParams.search = params.search
+
+    const res = await apiClient.get<ApiResponse<QueryResult>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
+      { params: queryParams }
+    )
+    return res.data
   },
 
   /**
@@ -102,16 +86,11 @@ export const schemaApi = {
     tableName: string,
     rowData: Record<string, unknown>
   ): Promise<ApiResponse<Record<string, unknown>>> => {
-    try {
-      const res = await apiClient.post<ApiResponse<Record<string, unknown>>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
-        rowData
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.insertRow(connId, tableName, rowData)
+    const res = await apiClient.post<ApiResponse<Record<string, unknown>>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
+      { data: rowData }
+    )
+    return res.data
   },
 
   /**
@@ -125,16 +104,11 @@ export const schemaApi = {
     rowData: Record<string, unknown>,
     primaryKeys: Record<string, unknown>
   ): Promise<ApiResponse<Record<string, unknown>>> => {
-    try {
-      const res = await apiClient.put<ApiResponse<Record<string, unknown>>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
-        { rowData, primaryKeys }
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.updateRow(connId, tableName, rowData, primaryKeys)
+    const res = await apiClient.put<ApiResponse<Record<string, unknown>>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
+      { primary_key: primaryKeys, data: rowData }
+    )
+    return res.data
   },
 
   /**
@@ -147,16 +121,11 @@ export const schemaApi = {
     tableName: string,
     primaryKeys: Record<string, unknown>
   ): Promise<ApiResponse<null>> => {
-    try {
-      const res = await apiClient.delete<ApiResponse<null>>(
-        `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
-        { data: { primaryKeys } }
-      )
-      if (res.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.deleteRow(connId, tableName, primaryKeys)
+    const res = await apiClient.delete<ApiResponse<null>>(
+      `/organizations/${orgId}/projects/${projectId}/connections/${connId}/tables/${tableName}/rows`,
+      { data: { primary_key: primaryKeys } }
+    )
+    return res.data
   },
 
   /**
@@ -168,18 +137,13 @@ export const schemaApi = {
     sourceConnId: string,
     targetConnId: string
   ): Promise<ApiResponse<SchemaDiff>> => {
-    try {
-      const res = await apiClient.post<ApiResponse<SchemaDiff>>(
-        `/organizations/${orgId}/projects/${projectId}/schema/diff`,
-        {
-          source_connection_id: sourceConnId,
-          target_connection_id: targetConnId,
-        }
-      )
-      if (res.data?.data) return res.data
-    } catch {
-      // Backend route fallback
-    }
-    return schemaMockStore.generateDiff(sourceConnId, targetConnId)
+    const res = await apiClient.post<ApiResponse<SchemaDiff>>(
+      `/organizations/${orgId}/projects/${projectId}/schema/diff`,
+      {
+        source_connection_id: sourceConnId,
+        target_connection_id: targetConnId,
+      }
+    )
+    return res.data
   },
 }

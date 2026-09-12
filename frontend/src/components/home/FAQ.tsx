@@ -3,32 +3,39 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
 
 const faqData = [
   {
-    question: "What is Seasyn?",
+    question: "How does Seasyn ensure zero downtime during migration?",
     answer:
-      "Seasyn is an intelligent, stateless bridge designed for seamless database migrations. It allows you to move data between Postgres, MySQL, SQLite, and MongoDB without the need for persistent storage or middle-man servers.",
+      "Seasyn utilizes non-blocking read streams with cursor-based pagination and change-data-capture (CDC) semantics. Your production source database continues servicing queries normally while data is streamed directly to the destination without locking tables.",
   },
   {
-    question: "Is my database credential data safe?",
+    question:
+      "Are database credentials or table records stored on your servers?",
     answer:
-      "Absolutely. Seasyn is built with a 'Stateless' philosophy. We don't store your database credentials or your data on our servers. Migrations happen directly between your source and destination, ensuring maximum security and privacy.",
+      "Never. Seasyn operates with a strictly stateless architecture. Ephemeral connection secrets exist solely in volatile memory during the active session, and records stream socket-to-socket over TLS 1.3 without touching disk storage.",
   },
   {
-    question: "Which databases are supported?",
+    question: "How does automatic schema translation handle SQL to NoSQL?",
     answer:
-      "Currently, we support Postgres, MySQL, SQLite, and MongoDB. We are constantly working on adding more database variants, including other SQL dialects and NoSQL engines.",
+      "Our introspection engine analyzes relational tables, constraints, foreign keys, and indexes, converting them into optimized document structures (e.g. SQL UUID to BSON ObjectId, JSONB to nested objects). You retain full granular control to override mappings before running.",
   },
   {
-    question: "Do I need to install anything on my server?",
+    question: "What happens if a network interruption occurs during migration?",
     answer:
-      "No installation is required on your servers. Seasyn uses standard connection protocols to introspect and convert schemas in real-time, providing a zero-footprint migration experience.",
+      "Seasyn employs deterministic batch checkpointing. If a connection drops, the engine resumes from the last successfully committed batch ID rather than restarting from zero, preventing duplicate rows and wasted bandwidth.",
   },
   {
-    question: "Can I migrate between SQL and NoSQL?",
+    question: "Which databases and versions are currently supported?",
     answer:
-      "Yes! Seasyn includes a built-in transformation engine that automatically handles the schema conversion between relational (SQL) and document-based (NoSQL) formats.",
+      "Seasyn natively supports PostgreSQL (12+), MySQL (8.0+), MongoDB (5.0+), and SQLite (3.x). We are actively expanding engine adapters to include Redis, ClickHouse, and Snowflake in upcoming releases.",
+  },
+  {
+    question: "Do I need to install any background daemons or agents?",
+    answer:
+      "No. Seasyn is 100% agentless. It connects directly via standard database wire protocols. There are no kernel modules, sidecars, or persistent daemons to manage or configure on your servers.",
   },
 ]
 
@@ -40,57 +47,69 @@ export const FAQ = () => {
   }
 
   return (
-    <section className="relative z-10 mx-auto mt-32 flex w-full max-w-6xl flex-col items-center justify-center gap-9 px-6 pb-32">
-      {/* Header */}
-      <div className="mb-1 flex text-center">
-        <h2 className="text-foreground mb-4 text-5xl font-bold tracking-wider md:text-5xl">
-          Everything <p className="text-primary">You Need to Know</p>
-        </h2>
+    <section className="relative z-10 mx-auto mt-36 flex w-full max-w-5xl flex-col items-center justify-center px-6">
+      {/* Header with ScrollRevealText */}
+      <div className="mb-12 flex flex-col items-center text-center">
+        <div className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+          FAQ
+        </div>
+
+        <ScrollRevealText
+          as="h2"
+          lines={["Frequently Asked", "Questions."]}
+          className="text-foreground font-serif text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
+          lineClassName="font-serif leading-[1.05]"
+        />
+
+        <p className="text-muted-foreground mt-3 max-w-xl text-base leading-snug sm:text-lg">
+          Everything you need to know about our stateless architecture,
+          security, and migration guarantees.
+        </p>
       </div>
 
-      <div className="relative flex w-2/3 flex-col gap-4">
-        {/* Decorative background glows using primary and secondary */}
-        <div className="bg-primary/5 pointer-events-none absolute top-1/4 left-[-15%] -z-10 h-72 w-72 rounded-full blur-[120px]" />
-        <div className="bg-secondary/5 pointer-events-none absolute right-[-15%] bottom-1/4 -z-10 h-72 w-72 rounded-full blur-[120px]" />
+      <div className="relative flex w-full flex-col gap-3.5">
+        {/* Decorative background glows */}
+        <div className="bg-primary/5 pointer-events-none absolute top-1/4 left-[-10%] -z-10 h-72 w-72 rounded-full blur-[120px]" />
+        <div className="bg-secondary/5 pointer-events-none absolute right-[-10%] bottom-1/4 -z-10 h-72 w-72 rounded-full blur-[120px]" />
 
         {faqData.map((item, index) => {
           const isOpen = openIndex === index
 
           return (
             <div
-              key={index}
+              key={item.question}
               className={cn(
-                "group border-border bg-card/40 overflow-hidden rounded-xl border-b backdrop-blur-sm transition-all duration-300",
+                "group border-border/80 bg-card overflow-hidden rounded-xl border transition-all duration-300",
                 isOpen
-                  ? "border-secondary shadow-primary/5 shadow-2xl"
-                  : "hover:border-primary/20 hover:bg-card/60"
+                  ? "border-primary/40 shadow-sm"
+                  : "hover:border-border hover:bg-card/80"
               )}
             >
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => toggleItem(index)}
-                className="flex h-auto w-full items-center justify-between bg-transparent p-2 text-left hover:bg-transparent md:p-4"
+                className="flex h-auto w-full items-center justify-between gap-4 p-4 text-left hover:bg-transparent sm:p-5"
               >
                 <span
                   className={cn(
-                    "text-lg font-semibold transition-colors duration-300 md:text-xl",
+                    "text-base font-semibold transition-colors duration-200 sm:text-lg",
                     isOpen
                       ? "text-primary"
-                      : "text-foreground group-hover:text-secondary"
+                      : "text-foreground group-hover:text-primary"
                   )}
                 >
                   {item.question}
                 </span>
                 <div
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-500 ease-in-out",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-300",
                     isOpen
-                      ? "text-primary-foreground shadow-primary/20 rotate-180 shadow-lg"
-                      : "text-secondary group-hover:text-primary"
+                      ? "border-primary bg-primary text-primary-foreground rotate-180 shadow-xs"
+                      : "border-border bg-muted/50 text-foreground group-hover:border-primary/50 group-hover:text-primary"
                   )}
                 >
-                  <ChevronDown className="h-6 w-6" />
+                  <ChevronDown className="h-4 w-4" />
                 </div>
               </Button>
 
@@ -105,14 +124,14 @@ export const FAQ = () => {
                       collapsed: { opacity: 0, height: 0 },
                     }}
                     transition={{
-                      duration: 0.4,
-                      ease: [0.04, 0.62, 0.23, 0.98],
+                      duration: 0.3,
+                      ease: [0.16, 1, 0.3, 1],
                     }}
                     className="overflow-hidden"
                   >
-                    <div className="text-muted-foreground px-2 pb-4 md:px-4">
-                      <div className="border-border/40 border-t pt-4">
-                        <p className="text-base leading-relaxed md:text-lg">
+                    <div className="text-muted-foreground px-4 pb-5 sm:px-5">
+                      <div className="border-border/50 border-t pt-3.5">
+                        <p className="text-sm leading-relaxed sm:text-base">
                           {item.answer}
                         </p>
                       </div>

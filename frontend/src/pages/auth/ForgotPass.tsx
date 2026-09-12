@@ -10,7 +10,7 @@ import { AuthLayout } from "@/components/layout"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 export function ForgotPass() {
   const navigate = useNavigate()
@@ -30,15 +30,12 @@ export function ForgotPass() {
       await authApi.forgotPassword(data)
       navigate("/reset-password", { state: { email: data.email } })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Something went wrong"
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to send password reset code. Please verify that your email address is correct and try again."
         )
-      } else {
-        setServerError("Something went wrong. Please try again.")
-      }
+      )
     }
   }
 

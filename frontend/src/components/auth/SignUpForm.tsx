@@ -5,13 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react"
 import { registerSchema } from "@/lib/validators"
 import type { RegisterInput } from "@/lib/validators"
-import { authApi } from "@/api/auth"
+import { authApi, userApi } from "@/api/auth"
 import { useAuthStore } from "@/store/authStore"
 import type { SignupPayload, User } from "@/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface SignUpFormProps {
   setServerError: (error: string | null) => void
@@ -42,17 +42,30 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
         last_name: data.lastName,
       }
 
-      const response = await authApi.register(signupPayload)
+      await authApi.register(signupPayload)
 
-      // The backend sets session cookies upon registration.
-      const registeredUser: User = response.data ??
-        response.user ?? {
-          id: "registered-user",
+      // Fetch newly created user profile
+      let registeredUser: User
+      try {
+        const profileRes = await userApi.getMyProfile()
+        if (profileRes.data) {
+          registeredUser = {
+            ...profileRes.data,
+            is_verified: false,
+          }
+        } else {
+          throw new Error("Unable to retrieve user profile after registration.")
+        }
+      } catch {
+        registeredUser = {
+          id: data.email,
           email: data.email,
           first_name: data.firstName,
           last_name: data.lastName,
           is_verified: false,
         }
+      }
+
       setAuth(registeredUser)
 
       // Dispatch the OTP verification email via POST /v1/auth/otp/send
@@ -68,26 +81,23 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
         state: { email: data.email },
       })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Registration failed. Please try again."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to create your account. Please check that your email is not already registered and try again."
         )
-      } else {
-        setServerError("Something went wrong during registration.")
-      }
+      )
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
       {/* First Name & Last Name inputs in a single row */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="space-y-1">
           <Label
             htmlFor="firstName"
-            className="text-foreground/80 font-semibold"
+            className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
           >
             First Name
           </Label>
@@ -97,20 +107,20 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             placeholder="Jane"
             {...register("firstName")}
             aria-invalid={!!errors.firstName}
-            className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full transition-all duration-200"
+            className="border-border/80 bg-background/60 focus-visible:border-primary focus-visible:ring-primary/20 h-9.5 w-full text-sm transition-all duration-200"
           />
           {errors.firstName && (
-            <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
-              <AlertCircle className="h-4 w-4" />
+            <p className="text-destructive flex items-center gap-1 text-xs font-medium">
+              <AlertCircle className="h-3 w-3" />
               {errors.firstName?.message}
             </p>
           )}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1">
           <Label
             htmlFor="lastName"
-            className="text-foreground/80 font-semibold"
+            className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
           >
             Last Name
           </Label>
@@ -120,11 +130,11 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             placeholder="Doe"
             {...register("lastName")}
             aria-invalid={!!errors.lastName}
-            className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full transition-all duration-200"
+            className="border-border/80 bg-background/60 focus-visible:border-primary focus-visible:ring-primary/20 h-9.5 w-full text-sm transition-all duration-200"
           />
           {errors.lastName && (
-            <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
-              <AlertCircle className="h-4 w-4" />
+            <p className="text-destructive flex items-center gap-1 text-xs font-medium">
+              <AlertCircle className="h-3 w-3" />
               {errors.lastName?.message}
             </p>
           )}
@@ -132,8 +142,11 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
       </div>
 
       {/* Email Address */}
-      <div className="space-y-2">
-        <Label htmlFor="email" className="text-foreground/80 font-semibold">
+      <div className="space-y-1">
+        <Label
+          htmlFor="email"
+          className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+        >
           Email Address
         </Label>
         <Input
@@ -142,19 +155,22 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
           placeholder="jane@example.com"
           {...register("email")}
           aria-invalid={!!errors.email}
-          className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full transition-all duration-200"
+          className="border-border/80 bg-background/60 focus-visible:border-primary focus-visible:ring-primary/20 h-9.5 w-full text-sm transition-all duration-200"
         />
         {errors.email && (
-          <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
-            <AlertCircle className="h-4 w-4" />
+          <p className="text-destructive flex items-center gap-1 text-xs font-medium">
+            <AlertCircle className="h-3 w-3" />
             {errors.email?.message}
           </p>
         )}
       </div>
 
       {/* Password */}
-      <div className="space-y-2">
-        <Label htmlFor="password" className="text-foreground/80 font-semibold">
+      <div className="space-y-1">
+        <Label
+          htmlFor="password"
+          className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+        >
           Password
         </Label>
         <div className="relative">
@@ -164,7 +180,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             placeholder="••••••••"
             {...register("password")}
             aria-invalid={!!errors.password}
-            className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pr-10 transition-all duration-200"
+            className="border-border/80 bg-background/60 focus-visible:border-primary focus-visible:ring-primary/20 h-9.5 w-full pr-9 text-sm transition-all duration-200"
           />
           <Button
             type="button"
@@ -175,25 +191,25 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 h-auto w-auto -translate-y-1/2 cursor-pointer p-1 focus:outline-hidden"
           >
             {showPassword ? (
-              <Eye className="h-4.5 w-4.5" />
+              <Eye className="h-4 w-4" />
             ) : (
-              <EyeOff className="h-4.5 w-4.5" />
+              <EyeOff className="h-4 w-4" />
             )}
           </Button>
         </div>
         {errors.password && (
-          <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
-            <AlertCircle className="h-4 w-4" />
+          <p className="text-destructive flex items-center gap-1 text-xs font-medium">
+            <AlertCircle className="h-3 w-3" />
             {errors.password?.message}
           </p>
         )}
       </div>
 
       {/* Confirm Password */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label
           htmlFor="confirmPassword"
-          className="text-foreground/80 font-semibold"
+          className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
         >
           Confirm Password
         </Label>
@@ -204,7 +220,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             placeholder="••••••••"
             {...register("confirmPassword")}
             aria-invalid={!!errors.confirmPassword}
-            className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pr-10 transition-all duration-200"
+            className="border-border/80 bg-background/60 focus-visible:border-primary focus-visible:ring-primary/20 h-9.5 w-full pr-9 text-sm transition-all duration-200"
           />
           <Button
             type="button"
@@ -215,15 +231,15 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 h-auto w-auto -translate-y-1/2 cursor-pointer p-1 focus:outline-hidden"
           >
             {showConfirmPassword ? (
-              <Eye className="h-4.5 w-4.5" />
+              <Eye className="h-4 w-4" />
             ) : (
-              <EyeOff className="h-4.5 w-4.5" />
+              <EyeOff className="h-4 w-4" />
             )}
           </Button>
         </div>
         {errors.confirmPassword && (
-          <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
-            <AlertCircle className="h-4 w-4" />
+          <p className="text-destructive flex items-center gap-1 text-xs font-medium">
+            <AlertCircle className="h-3 w-3" />
             {errors.confirmPassword?.message}
           </p>
         )}
@@ -231,12 +247,12 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
 
       <Button
         type="submit"
-        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-3 h-11 w-full font-semibold shadow-md transition-all"
+        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-1 h-10 w-full cursor-pointer text-sm font-semibold shadow-xs transition-all"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Creating Account
           </>
         ) : (

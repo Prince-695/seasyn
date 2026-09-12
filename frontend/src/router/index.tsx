@@ -11,8 +11,8 @@ import {
   MembersPage,
   OrgSettingsPage,
   ProfilePage,
-  ProjectsListPage,
   ProjectDetailsPage,
+  ProjectSettingsPage,
   ConnectionsPage,
   SchemaExplorerPage,
   SchemaDiffPage,
@@ -74,11 +74,15 @@ export const router = createBrowserRouter(
             },
             {
               path: "projects",
-              element: <ProjectsListPage />,
+              element: <Navigate to="/dashboard" replace />,
             },
             {
-              path: "projects/:projectId",
+              path: "projects/:projectSlug",
               element: <ProjectDetailsPage />,
+            },
+            {
+              path: "projects/:projectSlug/settings",
+              element: <ProjectSettingsPage />,
             },
             {
               path: "connections",
@@ -102,6 +106,10 @@ export const router = createBrowserRouter(
             },
             {
               path: "migration/:jobId",
+              element: <MigrationLivePage />,
+            },
+            {
+              path: "migration/:projectSlug/:jobId",
               element: <MigrationLivePage />,
             },
             {

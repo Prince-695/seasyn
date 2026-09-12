@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import type { User } from "@/types"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface LoginFormProps {
   setServerError: (error: string | null) => void
@@ -23,12 +23,6 @@ export function LoginForm({ setServerError }: LoginFormProps) {
   const location = useLocation()
   const { setAuth } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
-
-  const fromLocation = location.state?.from
-  const from =
-    fromLocation?.pathname && fromLocation.pathname !== "/"
-      ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
-      : "/dashboard"
 
   const {
     register,
@@ -43,39 +37,21 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       setServerError(null)
       await authApi.login(data)
 
-      // Query profile and verification status
-      let user: User
-      try {
-        const profileRes = await userApi.getMyProfile()
-        const profile = profileRes.data
-        const meRes = await authApi.me().catch(() => null)
-        const isVerified =
-          profile?.is_verified ??
-          (meRes?.data as { is_verified?: boolean } | undefined)?.is_verified ??
-          true
+      // Query authenticated user profile
+      const profileRes = await userApi.getMyProfile()
+      if (!profileRes.data) {
+        throw new Error("Unable to retrieve user profile after login.")
+      }
 
-        user = {
-          id: (profile as unknown as { id?: string })?.id ?? data.email,
-          email: profile?.email || data.email,
-          first_name: profile?.first_name || data.email.split("@")[0],
-          last_name: profile?.last_name || "",
-          username: profile?.username || "",
-          is_verified: isVerified,
-        }
-      } catch {
-        user = {
-          id: "authenticated-user",
-          email: data.email,
-          first_name: data.email.split("@")[0],
-          last_name: "",
-          is_verified: true,
-        }
+      const user: User = {
+        ...profileRes.data,
+        is_verified: profileRes.data.is_verified ?? false, // fail closed
       }
 
       setAuth(user)
 
       // If user account is not verified, dispatch OTP and route to /verify-email
-      if (user.is_verified === false) {
+      if (!user.is_verified) {
         try {
           await authApi.sendOtp()
         } catch {
@@ -88,17 +64,14 @@ export function LoginForm({ setServerError }: LoginFormProps) {
         return
       }
 
-      navigate(from, { replace: true })
+      navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Invalid credentials"
+      setServerError(
+        getErrorMessage(
+          err,
+          "Invalid email or password. Please double-check your credentials and try again."
         )
-      } else {
-        setServerError("Something went wrong. Please check your credentials.")
-      }
+      )
     }
   }
 
@@ -123,13 +96,13 @@ export function LoginForm({ setServerError }: LoginFormProps) {
   ]
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
       {fields.map((field) => (
-        <div key={field.id} className="space-y-2">
+        <div key={field.id} className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label
               htmlFor={field.id}
-              className="text-foreground/80 font-semibold"
+              className="text-foreground text-sm font-medium"
             >
               {field.label}
             </Label>
@@ -151,7 +124,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
               placeholder={field.placeholder}
               {...register(field.id)}
               aria-invalid={!!errors[field.id]}
-              className={`border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full transition-all duration-200 ${
+              className={`border-border/80 bg-background/60 focus-visible:border-primary focus-visible:ring-primary/20 h-10 w-full text-sm transition-all duration-200 ${
                 field.id === "password" ? "pr-10" : ""
               }`}
             />
@@ -165,16 +138,16 @@ export function LoginForm({ setServerError }: LoginFormProps) {
                 className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 h-auto w-auto -translate-y-1/2 cursor-pointer p-1 focus:outline-hidden"
               >
                 {showPassword ? (
-                  <Eye className="h-4.5 w-4.5" />
+                  <Eye className="h-4 w-4" />
                 ) : (
-                  <EyeOff className="h-4.5 w-4.5" />
+                  <EyeOff className="h-4 w-4" />
                 )}
               </Button>
             )}
           </div>
           {errors[field.id] && (
-            <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
-              <AlertCircle className="h-4 w-4" />
+            <p className="text-destructive flex items-center gap-1 text-xs font-medium">
+              <AlertCircle className="h-3.5 w-3.5" />
               {errors[field.id]?.message}
             </p>
           )}
@@ -183,12 +156,12 @@ export function LoginForm({ setServerError }: LoginFormProps) {
 
       <Button
         type="submit"
-        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-3 h-11 w-full font-semibold shadow-md transition-all"
+        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-2 h-10 w-full cursor-pointer text-sm font-semibold shadow-xs transition-all"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Authenticating
           </>
         ) : (
@@ -197,6 +170,25 @@ export function LoginForm({ setServerError }: LoginFormProps) {
       </Button>
     </form>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Validates and returns a safe same-origin redirect target.
+ */
+function getSafeRedirectTarget(fromLocation?: {
+  pathname?: string
+  search?: string
+  hash?: string
+}): string {
+  if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+    const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+    if (dest.startsWith("/") && !dest.startsWith("//")) {
+      return dest
+    }
+  }
+  return "/dashboard"
 }
 
 export default LoginForm

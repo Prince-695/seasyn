@@ -1,10 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom"
 import { Sun, Moon, Menu } from "lucide-react"
 import { useTheme } from "../theme-provider"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
+import { motion, useScroll, useMotionValueEvent } from "framer-motion"
 import { authApi } from "@/api/auth"
 import { useAuthStore } from "@/store/authStore"
 import { NavbarMobile } from "./NavbarMobile"
@@ -21,6 +21,33 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isAuthenticated, user, clearAuth } = useAuthStore()
 
+  const { scrollY } = useScroll()
+  const [isVisible, setIsVisible] = useState(true)
+  const lastScrollY = useRef(0)
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = lastScrollY.current
+    lastScrollY.current = latest
+
+    // Always visible at the top of the page
+    if (latest <= 20) {
+      setIsVisible(true)
+      return
+    }
+
+    const diff = latest - previous
+    // Ignore minor jitters
+    if (Math.abs(diff) < 6) return
+
+    if (diff > 0) {
+      // Scrolling down the page -> hide navbar into top
+      setIsVisible(false)
+    } else {
+      // Scrolling up the page -> reveal navbar
+      setIsVisible(true)
+    }
+  })
+
   const handleLogout = async () => {
     try {
       await authApi.logout()
@@ -35,9 +62,12 @@ export const Navbar = () => {
 
   return (
     <motion.header
-      initial={{ y: -100, opacity: 1 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ y: -100, opacity: 0 }}
+      animate={{
+        y: isVisible || isMobileMenuOpen ? 0 : -100,
+        opacity: isVisible || isMobileMenuOpen ? 1 : 0,
+      }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         "border-border bg-background/80 fixed inset-x-0 top-6 z-50 mx-auto w-[95%] max-w-5xl rounded-xl border shadow-sm backdrop-blur-md"
       )}
@@ -60,7 +90,7 @@ export const Navbar = () => {
         </NavLink>
 
         {/* Navigation Links (Desktop) */}
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+        {/* <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           {navItems.map((item) => (
             <NavLink
               key={item.name}
@@ -74,7 +104,7 @@ export const Navbar = () => {
               {item.name}
             </NavLink>
           ))}
-        </nav>
+        </nav> */}
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-4">

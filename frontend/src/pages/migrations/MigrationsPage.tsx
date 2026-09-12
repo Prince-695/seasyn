@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus, Activity, RefreshCw, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -7,14 +7,17 @@ import { Card } from "@/components/ui/card"
 import { MigrationHistoryTable } from "@/components/migrations/MigrationHistoryTable"
 import { migrationsApi } from "@/api/migrations"
 import { migrationKeys } from "@/lib/queryKeys"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { useActiveProject } from "@/hooks/useActiveProject"
 
 export function MigrationsPage() {
+  const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
 
-  const orgId = activeOrg?.id || ""
-  const projectId = activeProjectId || ""
+  const projectParam =
+    searchParams.get("project") || searchParams.get("projectId") || ""
+
+  // Resolves active project from URL param, store, or first-project fallback
+  const { projectId, projectSlugOrId, orgId } = useActiveProject(projectParam)
 
   // Fetch all migration pipelines for this project
   const {
@@ -29,7 +32,14 @@ export function MigrationsPage() {
       return res.data || []
     },
     enabled: !!orgId && !!projectId,
-    refetchInterval: 10000, // Background poll every 10s for updates
+    // Only poll while at least one job is actively running
+    refetchInterval: (query) => {
+      const data = query.state.data
+      if (Array.isArray(data) && data.some((j) => j.status === "running")) {
+        return 10_000
+      }
+      return false
+    },
   })
 
   // Cancel running job mutation
@@ -60,7 +70,7 @@ export function MigrationsPage() {
   const activeRunningJob = jobs.find((j) => j.status === "running")
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* Studio Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -90,7 +100,9 @@ export function MigrationsPage() {
             <span>Refresh</span>
           </Button>
 
-          <Link to="/migration/new">
+          <Link
+            to={`/migration/new${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+          >
             <Button
               size="sm"
               className="gap-1.5 text-xs font-semibold shadow-xs"
@@ -127,7 +139,9 @@ export function MigrationsPage() {
               </div>
             </div>
 
-            <Link to={`/migration/${activeRunningJob.id}`}>
+            <Link
+              to={`/migration/${activeRunningJob.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+            >
               <Button
                 size="sm"
                 className="bg-info text-info-foreground hover:bg-info/90 gap-1.5 text-xs font-semibold shadow-xs"
@@ -190,6 +204,7 @@ export function MigrationsPage() {
         <MigrationHistoryTable
           jobs={jobs}
           isLoading={isLoading}
+          projectSlugOrId={projectSlugOrId}
           onCancelJob={async (jobId) => {
             await cancelMutation.mutateAsync(jobId)
           }}

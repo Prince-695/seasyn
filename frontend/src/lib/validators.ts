@@ -2,19 +2,21 @@ import { z } from "zod"
 
 // ─── Reusable Field Primitives ───────────────────────────────────────────────
 
-const emailField = z.string().email({ message: "Invalid email address" })
+const emailField = z.string().email({
+  message: "Please enter a valid email address (e.g., name@company.com)",
+})
 
 const otpField = z
   .string()
   .length(6, { message: "Verification code must be exactly 6 digits" })
-  .regex(/^\d+$/, { message: "OTP must only contain digits" })
+  .regex(/^\d+$/, { message: "Verification code must contain digits only" })
 
 const passwordField = z
   .string()
-  .min(8, { message: "Password must be at least 8 characters" })
+  .min(8, { message: "Password must be at least 8 characters long" })
 
 const roleField = z.enum(["admin", "member", "viewer"], {
-  error: "Role must be admin, member, or viewer",
+  error: "Please select a valid member role (Admin, Member, or Viewer)",
 })
 
 const slugField = z
@@ -22,7 +24,8 @@ const slugField = z
   .min(2, { message: "Slug must be at least 2 characters" })
   .max(50, { message: "Slug cannot exceed 50 characters" })
   .regex(/^[a-z0-9-]+$/, {
-    message: "Slug must contain only lowercase letters, numbers, and hyphens",
+    message:
+      "Slug must contain only lowercase letters, numbers, and hyphens (e.g., my-project)",
   })
 
 const descriptionField = z
@@ -42,23 +45,29 @@ export const registerSchema = z
     firstName: z
       .string()
       .min(2, { message: "First name must be at least 2 characters" })
-      .max(50),
+      .max(50, { message: "First name cannot exceed 50 characters" }),
     lastName: z
       .string()
       .min(2, { message: "Last name must be at least 2 characters" })
-      .max(50),
+      .max(50, { message: "Last name cannot exceed 50 characters" }),
     email: emailField,
     password: passwordField
-      .regex(/[A-Z]/, { message: "Must include at least one uppercase letter" })
-      .regex(/[a-z]/, { message: "Must include at least one lowercase letter" })
-      .regex(/[0-9]/, { message: "Must include at least one number" })
+      .regex(/[A-Z]/, {
+        message: "Password must include at least one uppercase letter",
+      })
+      .regex(/[a-z]/, {
+        message: "Password must include at least one lowercase letter",
+      })
+      .regex(/[0-9]/, { message: "Password must include at least one number" })
       .regex(/[^A-Za-z0-9]/, {
-        message: "Must include at least one special character",
+        message:
+          "Password must include at least one special character (!@#$%^&*)",
       }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message:
+      "Passwords do not match. Please re-enter your password to confirm.",
     path: ["confirmPassword"],
   })
 
@@ -79,7 +88,8 @@ export const resetPasswordSchema = z
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message:
+      "Passwords do not match. Please re-enter your password to confirm.",
     path: ["confirmPassword"],
   })
 
@@ -101,7 +111,7 @@ export const updateProjectSchema = z.object({
   name: z
     .string()
     .min(2, { message: "Project name must be at least 2 characters" })
-    .max(100),
+    .max(100, { message: "Project name cannot exceed 100 characters" }),
   description: descriptionField,
   environment: z.enum(["development", "staging", "production"]).optional(),
 })
@@ -115,7 +125,7 @@ export const databaseConnectionSchema = z
     name: z
       .string()
       .min(2, { message: "Connection name must be at least 2 characters" })
-      .max(100),
+      .max(100, { message: "Connection name cannot exceed 100 characters" }),
     db_type: z.enum(["postgres", "mysql", "mongodb", "sqlite"]),
     host: z.string().optional(),
     port: z.number().int().positive().optional(),
@@ -145,7 +155,7 @@ export const databaseConnectionSchema = z
     },
     {
       message:
-        "Please provide either a valid SQLite file path, MongoDB URI, or Host & Database details.",
+        "Please provide complete database credentials: enter a valid SQLite file path, MongoDB connection URI, or Host and Database name.",
       path: ["host"],
     }
   )

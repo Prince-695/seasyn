@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { orgsApi } from "@/api/orgs"
-import { orgKeys, projectKeys, schemaKeys } from "@/lib/queryKeys"
+import {
+  orgKeys,
+  projectKeys,
+  schemaKeys,
+  migrationKeys,
+} from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { CreateOrgModal } from "@/components/orgs/CreateOrgModal"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
@@ -24,7 +29,7 @@ export function OrgSwitcher() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const { data: orgsRes, isLoading } = useQuery({
-    queryKey: orgKeys.lists(),
+    queryKey: orgKeys.list(),
     queryFn: async () => {
       const res = await orgsApi.getOrgs()
       return res.data ?? []
@@ -32,6 +37,15 @@ export function OrgSwitcher() {
   })
 
   const orgs: OrgWithRole[] = useMemo(() => orgsRes ?? [], [orgsRes])
+
+  const ownedOrgs = useMemo(
+    () => orgs.filter((o) => o.role === "owner"),
+    [orgs]
+  )
+  const sharedOrgs = useMemo(
+    () => orgs.filter((o) => o.role !== "owner"),
+    [orgs]
+  )
 
   // Auto-sync active organization if not set or if current activeOrg was deleted/removed
   useEffect(() => {
@@ -60,6 +74,7 @@ export function OrgSwitcher() {
     queryClient.invalidateQueries({ queryKey: orgKeys.members(orgWithRole.id) })
     queryClient.invalidateQueries({ queryKey: projectKeys.all })
     queryClient.invalidateQueries({ queryKey: schemaKeys.all })
+    queryClient.invalidateQueries({ queryKey: migrationKeys.all })
   }
 
   return (
@@ -98,37 +113,78 @@ export function OrgSwitcher() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" className="w-64 p-1.5">
-          <DropdownMenuGroup>
-            <DropdownMenuLabel className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
-              Organizations
-            </DropdownMenuLabel>
-            {orgs.map((org) => {
-              const isSelected = activeOrg?.id === org.id
-              return (
-                <DropdownMenuItem
-                  key={org.id}
-                  onClick={() => handleSelectOrg(org)}
-                  className="flex cursor-pointer items-center justify-between gap-2 px-2 py-2 text-sm"
-                >
-                  <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <div className="bg-muted text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded">
-                      <Building2 className="h-3 w-3" />
+          {/* Section 1: Owned Organizations */}
+          {ownedOrgs.length > 0 && (
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold tracking-wider uppercase">
+                My Workspaces ({ownedOrgs.length})
+              </DropdownMenuLabel>
+              {ownedOrgs.map((org) => {
+                const isSelected = activeOrg?.id === org.id
+                return (
+                  <DropdownMenuItem
+                    key={org.id}
+                    onClick={() => handleSelectOrg(org)}
+                    className="flex cursor-pointer items-center justify-between gap-2 px-2 py-2 text-sm"
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                      <div className="bg-primary/10 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded">
+                        <Building2 className="h-3 w-3" />
+                      </div>
+                      <span className="truncate font-medium">{org.name}</span>
                     </div>
-                    <span className="truncate font-medium">{org.name}</span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    <RoleBadge role={org.role} />
-                    {isSelected && <Check className="text-primary h-4 w-4" />}
-                  </div>
-                </DropdownMenuItem>
-              )
-            })}
-            {orgs.length === 0 && !isLoading && (
-              <div className="text-muted-foreground px-2 py-3 text-center text-xs">
-                No organizations found. Create your first workspace below.
-              </div>
-            )}
-          </DropdownMenuGroup>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <RoleBadge role={org.role} />
+                      {isSelected && <Check className="text-primary h-4 w-4" />}
+                    </div>
+                  </DropdownMenuItem>
+                )
+              })}
+            </DropdownMenuGroup>
+          )}
+
+          {/* Section 2: Shared Organizations */}
+          {sharedOrgs.length > 0 && (
+            <>
+              {ownedOrgs.length > 0 && (
+                <DropdownMenuSeparator className="my-1" />
+              )}
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold tracking-wider uppercase">
+                  Shared With Me ({sharedOrgs.length})
+                </DropdownMenuLabel>
+                {sharedOrgs.map((org) => {
+                  const isSelected = activeOrg?.id === org.id
+                  return (
+                    <DropdownMenuItem
+                      key={org.id}
+                      onClick={() => handleSelectOrg(org)}
+                      className="flex cursor-pointer items-center justify-between gap-2 px-2 py-2 text-sm"
+                    >
+                      <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <div className="bg-muted text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded">
+                          <Building2 className="h-3 w-3" />
+                        </div>
+                        <span className="truncate font-medium">{org.name}</span>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <RoleBadge role={org.role} />
+                        {isSelected && (
+                          <Check className="text-primary h-4 w-4" />
+                        )}
+                      </div>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuGroup>
+            </>
+          )}
+
+          {orgs.length === 0 && !isLoading && (
+            <div className="text-muted-foreground px-2 py-3 text-center text-xs">
+              No organizations found. Create your first workspace below.
+            </div>
+          )}
 
           <DropdownMenuSeparator className="my-1" />
 

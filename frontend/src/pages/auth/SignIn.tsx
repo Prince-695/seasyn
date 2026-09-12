@@ -15,12 +15,7 @@ export function SignIn() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
-      const fromLocation = location.state?.from
-      const dest =
-        fromLocation?.pathname && fromLocation.pathname !== "/"
-          ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
-          : "/dashboard"
-      navigate(dest, { replace: true })
+      navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
     }
   }, [isAuthenticated, isInitialized, navigate, location.state])
 
@@ -30,20 +25,20 @@ export function SignIn() {
       description="Enter your credentials to access your account"
     >
       {serverError && (
-        <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="border-destructive/20 bg-destructive/10 text-destructive mb-2 flex items-center gap-2 rounded-lg border p-2 text-xs font-medium">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           <span>{serverError}</span>
         </div>
       )}
 
       <LoginForm setServerError={setServerError} />
 
-      <div className="relative my-4">
+      <div className="relative my-3">
         <div className="absolute inset-0 flex items-center">
-          <span className="border-border w-full border-t" />
+          <span className="border-border/70 w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2 font-semibold">
+          <span className="bg-muted/60 dark:bg-muted/40 text-muted-foreground rounded-full px-2.5 font-medium">
             Or continue with
           </span>
         </div>
@@ -51,7 +46,7 @@ export function SignIn() {
 
       <OAuthButtons onError={setServerError} />
 
-      <div className="text-muted-foreground pt-2 text-center text-sm">
+      <div className="text-muted-foreground pt-3 text-center text-sm">
         Don&apos;t have an account yet?{" "}
         <Link
           to="/sign-up"
@@ -62,6 +57,25 @@ export function SignIn() {
       </div>
     </AuthLayout>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Validates and returns a safe same-origin redirect target.
+ */
+function getSafeRedirectTarget(fromLocation?: {
+  pathname?: string
+  search?: string
+  hash?: string
+}): string {
+  if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+    const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+    if (dest.startsWith("/") && !dest.startsWith("//")) {
+      return dest
+    }
+  }
+  return "/dashboard"
 }
 
 export default SignIn

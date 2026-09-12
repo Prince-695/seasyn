@@ -8,13 +8,13 @@ import {
   ArrowLeft,
   RefreshCw,
 } from "lucide-react"
-import { authApi } from "@/api/auth"
+import { authApi, userApi } from "@/api/auth"
 import { useAuthStore } from "@/store/authStore"
 import { AuthLayout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 
 import { OtpInput } from "@/components/auth/OtpInput"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 const RESEND_COOLDOWN = 60 // seconds
 
@@ -72,30 +72,29 @@ export function VerifyEmail() {
         await authApi.verifyEmail({ otp: code })
 
         // Fetch freshly verified user profile
-        try {
-          const meRes = await authApi.me()
-          const verifiedUser = meRes.data ?? meRes.user
-          if (verifiedUser) setAuth(verifiedUser)
-        } catch {
-          if (user) setAuth({ ...user, is_verified: true })
+        const profileRes = await userApi.getMyProfile()
+        if (!profileRes.data) {
+          throw new Error("Unable to retrieve user profile after verification.")
         }
 
-        navigate("/dashboard", { replace: true })
+        setAuth({
+          ...profileRes.data,
+          is_verified: true,
+        })
+
+        navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
       } catch (err) {
-        if (axios.isAxiosError(err)) {
-          setServerError(
-            err.response?.data?.message ??
-              err.response?.data?.error ??
-              "Invalid or expired code. Please try again."
+        setServerError(
+          getErrorMessage(
+            err,
+            "The 6-digit verification code is invalid or has expired. Please check your email or request a new code below."
           )
-        } else {
-          setServerError("Something went wrong. Please try again.")
-        }
+        )
       } finally {
         setIsSubmitting(false)
       }
     },
-    [otp, email, user, setAuth, navigate]
+    [otp, email, setAuth, navigate, location.state]
   )
 
   const handleResend = async () => {
@@ -107,14 +106,12 @@ export function VerifyEmail() {
       setResendTimer(RESEND_COOLDOWN)
       setOtp("")
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            "Failed to resend code. Please try again."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to send a new verification code right now. Please wait a moment before requesting another code."
         )
-      } else {
-        setServerError("Failed to resend code. Please try again.")
-      }
+      )
     } finally {
       setResendLoading(false)
     }
@@ -246,6 +243,25 @@ export function VerifyEmail() {
       </div>
     </AuthLayout>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Validates and returns a safe same-origin redirect target.
+ */
+function getSafeRedirectTarget(fromLocation?: {
+  pathname?: string
+  search?: string
+  hash?: string
+}): string {
+  if (fromLocation?.pathname && fromLocation.pathname !== "/") {
+    const dest = `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}`
+    if (dest.startsWith("/") && !dest.startsWith("//")) {
+      return dest
+    }
+  }
+  return "/dashboard"
 }
 
 export default VerifyEmail

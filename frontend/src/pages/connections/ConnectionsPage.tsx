@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, Link } from "react-router-dom"
 import {
   Database,
@@ -14,9 +14,10 @@ import { Input } from "@/components/ui/input"
 import { ConnectionCard } from "@/components/connections/ConnectionCard"
 import { ConnectionWizardModal } from "@/components/connections/ConnectionWizardModal"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
-import { projectKeys, connectionKeys } from "@/lib/queryKeys"
+import { connectionKeys } from "@/lib/queryKeys"
 import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
+import { useOrgConnections } from "@/hooks/useOrgConnections"
 import { cn } from "@/lib/utils"
 import type { DBType, PublicDatabaseConnection } from "@/types"
 
@@ -32,45 +33,13 @@ export function ConnectionsPage() {
   const [selectedEngine, setSelectedEngine] = useState<EngineFilter>("all")
   const [selectedRole, setSelectedRole] = useState<RoleFilter>("all")
 
-  // Fetch all projects in active organization
-  const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
-    queryKey: projectKeys.list(activeOrg?.id || ""),
-    queryFn: async () => {
-      if (!activeOrg?.id) return []
-      const res = await projectsApi.list(activeOrg.id)
-      return res.data || []
-    },
-    enabled: !!activeOrg?.id,
-  })
-
-  // Fetch connections for all projects
-  const { data: allProjectConnections = [], isLoading: isConnectionsLoading } =
-    useQuery({
-      queryKey: ["allConnections", activeOrg?.id, projects.map((p) => p.id)],
-      queryFn: async () => {
-        if (!activeOrg?.id || projects.length === 0) return []
-        const results = await Promise.all(
-          projects.map(async (project) => {
-            try {
-              const res = await projectsApi.listConnections(
-                activeOrg.id,
-                project.id
-              )
-              return (res.data || []).map((conn) => ({
-                ...conn,
-                projectName: project.name,
-                projectSlug: project.slug,
-                projectEnvironment: project.environment,
-              }))
-            } catch {
-              return []
-            }
-          })
-        )
-        return results.flat()
-      },
-      enabled: !!activeOrg?.id && projects.length > 0,
-    })
+  // Fetch all projects & aggregate connections via custom hook
+  const {
+    projects,
+    connections: allProjectConnections,
+    isLoading: isConnectionsLoading,
+    isProjectsLoading,
+  } = useOrgConnections(activeOrg?.id)
 
   // Delete Connection Mutation
   const deleteConnectionMutation = useMutation({
@@ -81,7 +50,11 @@ export function ConnectionsPage() {
       projectId: string
       connId: string
     }) => {
-      if (!activeOrg?.id) throw new Error("Missing organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization to manage database connections."
+        )
+      }
       await projectsApi.deleteConnection(activeOrg.id, projectId, connId)
     },
     onSuccess: (_, variables) => {
@@ -90,7 +63,7 @@ export function ConnectionsPage() {
           queryKey: connectionKeys.list(activeOrg.id, variables.projectId),
         })
         queryClient.invalidateQueries({
-          queryKey: ["allConnections", activeOrg.id],
+          queryKey: connectionKeys.all,
         })
       }
     },
@@ -305,7 +278,7 @@ export function ConnectionsPage() {
                     <FolderKanban className="h-3 w-3" />
                     <span>Project:</span>
                     <Link
-                      to={`/projects/${conn.project_id}`}
+                      to={`/projects/${conn.projectSlug || conn.project_id}`}
                       className="text-primary font-medium hover:underline"
                     >
                       {conn.projectName}

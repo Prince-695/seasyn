@@ -13,3 +13,6 @@ build/
 temp/
 
 phase*.md
+
+.DS_Store
+*.DS_Store

@@ -26,7 +26,7 @@ import { inviteMemberSchema, type InviteMemberInput } from "@/lib/validators"
 import { orgsApi } from "@/api/orgs"
 import { orgKeys } from "@/lib/queryKeys"
 import type { OrgRole } from "@/types/org"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface InviteMemberModalProps {
   orgId: string
@@ -105,15 +105,12 @@ export function InviteMemberModal({
     },
 
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Failed to invite member. Verify the email is registered."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to send invitation. Please verify that the email belongs to a registered user and is not already a member of this organization."
         )
-      } else {
-        setServerError("An unexpected error occurred. Please try again.")
-      }
+      )
     },
   })
 

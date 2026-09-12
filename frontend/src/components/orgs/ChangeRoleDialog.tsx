@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { orgsApi } from "@/api/orgs"
 import { orgKeys } from "@/lib/queryKeys"
 import type { OrgMemberDetail } from "@/types/org"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface ChangeRoleDialogProps {
   orgId: string
@@ -72,15 +72,12 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
       onClose()
     },
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Failed to update role. Please verify your permissions."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to update member role. Please ensure you have administrator privileges and try again."
         )
-      } else {
-        setServerError("An unexpected error occurred. Please try again.")
-      }
+      )
     },
   })
 

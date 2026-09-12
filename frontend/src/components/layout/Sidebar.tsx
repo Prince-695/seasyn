@@ -1,6 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom"
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom"
 import {
-  LayoutDashboard,
   FolderKanban,
   Server,
   ArrowRightLeft,
@@ -12,22 +11,30 @@ import {
   PanelLeftOpen,
   LogOut,
   User,
-  ShieldCheck,
+  ArrowLeft,
 } from "lucide-react"
 import { useUIStore } from "@/store/uiStore"
 import { useAuthStore } from "@/store/authStore"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { authApi } from "@/api/auth"
-import { OrgSwitcher } from "./OrgSwitcher"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export function Sidebar() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const { sidebarOpen, toggleSidebar, setMobileSidebarOpen } = useUIStore()
   const { user, clearAuth } = useAuthStore()
-  const { currentRole } = useWorkspaceStore()
-  const navigate = useNavigate()
+  const {
+    activeOrg,
+    currentRole,
+    activeProjectId,
+    activeProjectSlug,
+    activeProjectName,
+    activeProjectEnv,
+    clearActiveProject,
+  } = useWorkspaceStore()
 
   const handleLogout = async () => {
     try {
@@ -40,67 +47,115 @@ export function Sidebar() {
     }
   }
 
-  const navGroups = [
-    {
-      title: "Workspace",
-      items: [
-        {
-          label: "Dashboard",
-          path: "/dashboard",
-          icon: LayoutDashboard,
-          badge: null,
-        },
-        {
-          label: "Projects",
-          path: "/projects",
-          icon: FolderKanban,
-          badge: null,
-        },
-        {
-          label: "Connections",
-          path: "/connections",
-          icon: Server,
-          badge: null,
-        },
+  // Determine if we are in Project Context or Organization Context
+  const isProjectRoute = location.pathname.startsWith("/projects/")
+  const isToolRoute =
+    location.pathname.startsWith("/migration") ||
+    location.pathname.startsWith("/editor") ||
+    location.pathname.startsWith("/schema-diff") ||
+    location.pathname.startsWith("/connections")
 
-        {
-          label: "Migration Studio",
-          path: "/migration",
-          icon: ArrowRightLeft,
-          badge: "Live",
-        },
-        {
-          label: "Live Editor",
-          path: "/editor",
-          icon: Database,
-          badge: "Live",
-        },
-      ],
+  const isProjectContext = isProjectRoute || (isToolRoute && !!activeProjectId)
+  const projectSlug =
+    (location.pathname.startsWith("/projects/")
+      ? location.pathname.split("/")[2]
+      : null) ||
+    activeProjectSlug ||
+    activeProjectId ||
+    ""
+
+  // 1. Organization Level Navigation (Clean & Minimal)
+  const orgNavItems = [
+    {
+      label: "Projects",
+      path: "/dashboard",
+      icon: FolderKanban,
+      aliases: ["/dashboard", "/projects"],
+      exact: true,
+      requiresOrg: false,
     },
     {
-      title: "Organization",
-      items: [
-        {
-          label: "Team Members",
-          path: "/org/members",
-          icon: Users,
-          badge: null,
-        },
-        {
-          label: "Settings",
-          path: "/org/settings",
-          icon: Settings,
-          badge: null,
-        },
-        {
-          label: "Documentation",
-          path: "/docs",
-          icon: BookOpen,
-          badge: null,
-        },
-      ],
+      label: "People",
+      path: "/org/members",
+      icon: Users,
+      requiresOrg: true,
+    },
+    {
+      label: "Settings",
+      path: "/org/settings",
+      icon: Settings,
+      requiresOrg: true,
+    },
+    {
+      label: "Documentation",
+      path: "/docs",
+      icon: BookOpen,
+      requiresOrg: false,
+      isExternal: true,
     },
   ]
+
+  // 2. Project Level Navigation
+  const projectNavItems = [
+    {
+      label: "Databases & Overview",
+      path: `/projects/${projectSlug}`,
+      basePath: `/projects/${projectSlug}`,
+      icon: Server,
+      exact: true,
+    },
+    {
+      label: "Migration Studio",
+      path: `/migration?project=${projectSlug}`,
+      basePath: "/migration",
+      icon: ArrowRightLeft,
+      badge: "Live",
+    },
+    {
+      label: "Live Schema Editor",
+      path: `/editor?project=${projectSlug}`,
+      basePath: "/editor",
+      icon: Database,
+      badge: "Live",
+    },
+    {
+      label: "Project Settings",
+      path: `/projects/${projectSlug}/settings`,
+      basePath: `/projects/${projectSlug}/settings`,
+      icon: Settings,
+    },
+  ]
+
+  const projectOrgItems = [
+    {
+      label: "Workspace Settings",
+      path: "/org/settings",
+      icon: Settings,
+      requiresOrg: true,
+    },
+    {
+      label: "Documentation",
+      path: "/docs",
+      icon: BookOpen,
+      requiresOrg: false,
+      isExternal: true,
+    },
+  ]
+
+  const isItemActive = (item: {
+    path: string
+    basePath?: string
+    exact?: boolean
+    aliases?: string[]
+  }) => {
+    if (item.aliases?.includes(location.pathname)) return true
+    if (item.exact) return location.pathname === item.path
+    if (item.basePath) return location.pathname.startsWith(item.basePath)
+    return (
+      location.pathname === item.path ||
+      location.pathname.startsWith(`${item.path}/`)
+    )
+  }
 
   return (
     <aside
@@ -110,124 +165,328 @@ export function Sidebar() {
       )}
     >
       {/* Top Brand Header */}
-      <div className="border-border/60 flex h-16 items-center justify-between border-b px-4">
-        <NavLink
-          to="/dashboard"
-          className="flex items-center gap-3 overflow-hidden transition-opacity hover:opacity-90"
-        >
-          <div className="font-heading from-primary to-primary/80 text-primary-foreground shadow-primary/20 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br font-extrabold shadow-sm">
-            S
-          </div>
-          {sidebarOpen && (
-            <div className="flex flex-col">
-              <span className="font-heading text-foreground text-base font-bold tracking-tight">
-                SEASYN
-              </span>
-              <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase">
-                Data Studio
-              </span>
-            </div>
-          )}
-        </NavLink>
+      <div
+        className={cn(
+          "border-border/60 flex h-16 items-center border-b",
+          sidebarOpen ? "justify-between px-4" : "justify-center px-2"
+        )}
+      >
+        {sidebarOpen ? (
+          <>
+            <Link
+              to="/dashboard"
+              onClick={() => clearActiveProject()}
+              className="flex items-center gap-3 overflow-hidden transition-opacity hover:opacity-90"
+            >
+              <div className="font-heading from-primary to-primary/80 text-primary-foreground shadow-primary/20 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br font-extrabold shadow-sm">
+                S
+              </div>
+              <div className="flex flex-col">
+                <span className="font-heading text-foreground text-base font-bold tracking-tight">
+                  SEASYN
+                </span>
+                <span className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase">
+                  Data Studio
+                </span>
+              </div>
+            </Link>
 
-        {sidebarOpen && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleSidebar}
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+              className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+          </>
+        ) : (
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
             onClick={toggleSidebar}
-            aria-label="Collapse sidebar"
-            className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            aria-label="Expand sidebar"
+            title="Expand sidebar"
+            className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
           >
-            <PanelLeftClose className="h-4 w-4" />
+            <PanelLeftOpen className="h-4 w-4" />
           </Button>
         )}
       </div>
 
-      {/* Organization Switcher Row */}
-      <div className="border-border/50 border-b p-3">
-        {sidebarOpen ? (
-          <div className="w-full">
-            <OrgSwitcher />
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <div
-              title="Expand sidebar to switch organizations"
-              className="border-border/70 bg-background/60 text-primary hover:bg-accent flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border shadow-xs"
-              onClick={toggleSidebar}
-            >
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Switcher Row: Project Return vs Clean Workspace (Only in Project Context) */}
+      {isProjectContext && (
+        <div className="border-border/50 border-b p-3">
+          {sidebarOpen ? (
+            <div className="space-y-2">
+              <Link
+                to="/dashboard"
+                onClick={() => {
+                  clearActiveProject()
+                  setMobileSidebarOpen(false)
+                }}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/60 flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>All Projects</span>
+              </Link>
 
-      {/* Navigation Links */}
+              {/* Active Project Identification Card */}
+              <div className="border-border/70 bg-background/80 flex items-center gap-2.5 rounded-xl border p-2 px-2.5 shadow-2xs">
+                <div className="border-primary/30 bg-primary/10 text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border">
+                  <FolderKanban className="h-3.5 w-3.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className="text-foreground truncate text-xs leading-tight font-bold"
+                    title={activeProjectName || projectSlug}
+                  >
+                    {activeProjectName || projectSlug || "Project"}
+                  </p>
+                  <span className="text-muted-foreground font-mono text-[10px] uppercase">
+                    {activeProjectEnv || "Studio"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <Link
+                to="/dashboard"
+                onClick={() => clearActiveProject()}
+                title="Back to All Projects"
+                className="border-border/70 bg-background/60 text-muted-foreground hover:text-foreground hover:bg-muted flex h-10 w-10 items-center justify-center rounded-lg border shadow-xs transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Navigation Links Canvas */}
       <div className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        {navGroups.map((group) => (
-          <div key={group.title} className="space-y-1">
+        {/* ── Mode 1: Project Navigation ── */}
+        {isProjectContext ? (
+          <>
+            {/* Project Scoped Tools */}
+            <div className="space-y-1">
+              {sidebarOpen && (
+                <h3 className="text-muted-foreground/70 px-3 text-[11px] font-bold tracking-wider uppercase">
+                  Project Studio
+                </h3>
+              )}
+              <nav className="space-y-1 pt-1">
+                {projectNavItems.map((item) => {
+                  const Icon = item.icon
+                  const active = isItemActive(item)
+
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.path}
+                      onClick={() => setMobileSidebarOpen(false)}
+                      title={!sidebarOpen ? item.label : undefined}
+                      className={cn(
+                        "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
+                        active
+                          ? "bg-primary/10 text-primary font-semibold shadow-xs"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                        !sidebarOpen && "justify-center px-2"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-4 w-4 shrink-0 transition-transform group-hover:scale-105",
+                          active ? "text-primary" : "text-muted-foreground"
+                        )}
+                      />
+                      {sidebarOpen && (
+                        <span className="flex-1 truncate">{item.label}</span>
+                      )}
+                      {sidebarOpen && item.badge && (
+                        <span className="border-success/20 bg-success/10 text-success rounded border px-1.5 py-0.5 text-[10px] font-semibold">
+                          {item.badge}
+                        </span>
+                      )}
+                      {active && (
+                        <span
+                          className="bg-primary absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </NavLink>
+                  )
+                })}
+              </nav>
+            </div>
+
+            {/* Compact Organization Links */}
+            <div className="border-border/50 space-y-1 border-t pt-3">
+              {sidebarOpen && (
+                <h3 className="text-muted-foreground/60 px-3 text-[10px] font-bold tracking-wider uppercase">
+                  Organization
+                </h3>
+              )}
+              <nav className="space-y-1 pt-0.5">
+                {projectOrgItems.map((item) => {
+                  const Icon = item.icon
+                  const active = isItemActive(item)
+
+                  if (item.isExternal) {
+                    return (
+                      <a
+                        key={item.label}
+                        href={item.path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setMobileSidebarOpen(false)}
+                        title={!sidebarOpen ? item.label : undefined}
+                        className={cn(
+                          "group text-muted-foreground hover:bg-muted/50 hover:text-foreground relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all",
+                          !sidebarOpen && "justify-center px-2"
+                        )}
+                      >
+                        <Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-105" />
+                        {sidebarOpen && (
+                          <span className="flex-1 truncate">{item.label}</span>
+                        )}
+                      </a>
+                    )
+                  }
+
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.path}
+                      onClick={() => setMobileSidebarOpen(false)}
+                      title={!sidebarOpen ? item.label : undefined}
+                      className={cn(
+                        "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all",
+                        active
+                          ? "bg-primary/10 text-primary font-semibold shadow-xs"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                        !sidebarOpen && "justify-center px-2"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-105",
+                          active ? "text-primary" : "text-muted-foreground"
+                        )}
+                      />
+                      {sidebarOpen && (
+                        <span className="flex-1 truncate">{item.label}</span>
+                      )}
+                    </NavLink>
+                  )
+                })}
+              </nav>
+            </div>
+          </>
+        ) : (
+          /* ── Mode 2: Clean Organization Navigation ── */
+          <div className="space-y-1">
             {sidebarOpen && (
               <h3 className="text-muted-foreground/70 px-3 text-[11px] font-bold tracking-wider uppercase">
-                {group.title}
+                Organization
               </h3>
             )}
             <nav className="space-y-1 pt-1">
-              {group.items.map((item) => {
+              {orgNavItems.map((item) => {
                 const Icon = item.icon
+                const isDisabled = !!item.requiresOrg && !activeOrg
+                const active = isItemActive(item)
+
+                if (isDisabled) {
+                  return (
+                    <div
+                      key={item.path}
+                      title={
+                        sidebarOpen
+                          ? "Select or create a workspace to access this section"
+                          : `${item.label} (Workspace required)`
+                      }
+                      aria-disabled="true"
+                      className={cn(
+                        "text-muted-foreground/40 relative flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium opacity-40 transition-all select-none",
+                        !sidebarOpen && "justify-center px-2"
+                      )}
+                    >
+                      <Icon className="text-muted-foreground/40 h-4 w-4 shrink-0" />
+                      {sidebarOpen && (
+                        <span className="flex-1 truncate">{item.label}</span>
+                      )}
+                    </div>
+                  )
+                }
+
+                if (item.isExternal) {
+                  return (
+                    <a
+                      key={item.path}
+                      href={item.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMobileSidebarOpen(false)}
+                      title={!sidebarOpen ? item.label : undefined}
+                      className={cn(
+                        "group text-muted-foreground hover:bg-muted/50 hover:text-foreground relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
+                        !sidebarOpen && "justify-center px-2"
+                      )}
+                    >
+                      <Icon className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                      {sidebarOpen && (
+                        <span className="flex-1 truncate">{item.label}</span>
+                      )}
+                    </a>
+                  )
+                }
+
                 return (
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    onClick={() => setMobileSidebarOpen(false)}
+                    onClick={() => {
+                      if (item.path === "/dashboard") {
+                        clearActiveProject()
+                      }
+                      setMobileSidebarOpen(false)
+                    }}
                     title={!sidebarOpen ? item.label : undefined}
-                    className={({ isActive }) =>
-                      cn(
-                        "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
-                        isActive
-                          ? "bg-primary/10 text-primary font-semibold shadow-xs"
-                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        !sidebarOpen && "justify-center px-2"
-                      )
-                    }
+                    className={cn(
+                      "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
+                      active
+                        ? "bg-primary/10 text-primary font-semibold shadow-xs"
+                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                      !sidebarOpen && "justify-center px-2"
+                    )}
                   >
-                    {({ isActive }) => (
-                      <>
-                        <Icon
-                          className={cn(
-                            "h-4 w-4 shrink-0 transition-transform group-hover:scale-105",
-                            isActive ? "text-primary" : "text-muted-foreground"
-                          )}
-                        />
-                        {sidebarOpen && (
-                          <span className="flex-1 truncate">{item.label}</span>
-                        )}
-                        {sidebarOpen && item.badge && (
-                          <span
-                            className={cn(
-                              "rounded px-1.5 py-0.5 text-[10px] font-semibold",
-                              item.badge === "Live"
-                                ? "border-success/20 bg-success/10 text-success border"
-                                : "bg-muted text-muted-foreground"
-                            )}
-                          >
-                            {item.badge}
-                          </span>
-                        )}
-                        {isActive && (
-                          <span
-                            className="bg-primary absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </>
+                    <Icon
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-transform group-hover:scale-105",
+                        active ? "text-primary" : "text-muted-foreground"
+                      )}
+                    />
+                    {sidebarOpen && (
+                      <span className="flex-1 truncate">{item.label}</span>
+                    )}
+                    {active && (
+                      <span
+                        className="bg-primary absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full"
+                        aria-hidden="true"
+                      />
                     )}
                   </NavLink>
                 )
               })}
             </nav>
           </div>
-        ))}
+        )}
       </div>
 
       {/* Bottom User Card & Toggle */}
@@ -270,16 +529,15 @@ export function Sidebar() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={toggleSidebar}
-              aria-label="Expand sidebar"
-              className="text-muted-foreground hover:bg-muted/60 hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+            <NavLink
+              to="/profile"
+              className="hover:bg-muted/60 flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+              title="Account Settings"
             >
-              <PanelLeftOpen className="h-4 w-4" />
-            </Button>
+              <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
+              </div>
+            </NavLink>
             <Button
               type="button"
               variant="ghost"

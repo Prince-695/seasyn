@@ -191,7 +191,7 @@ export function SchemaDiffPage() {
               >
                 {connections.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name} ({c.db_type}) {c.is_source ? "[Source]" : ""}
+                    {c.name} {c.is_source ? "[Source]" : ""}
                   </option>
                 ))}
               </select>
@@ -222,7 +222,7 @@ export function SchemaDiffPage() {
                     value={c.id}
                     disabled={c.id === effectiveSourceConnId}
                   >
-                    {c.name} ({c.db_type}) {!c.is_source ? "[Target]" : ""}
+                    {c.name} {!c.is_source ? "[Target]" : ""}
                   </option>
                 ))}
               </select>

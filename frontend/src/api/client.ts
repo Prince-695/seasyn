@@ -20,20 +20,44 @@ const apiClient = axios.create({
 })
 
 // ─── Response Interceptor ──────────────────────────────────────────────────────
+// Singleton refresh promise to eliminate race conditions when multiple concurrent
+// requests fail with 401 at the same time.
+let refreshPromise: Promise<void> | null = null
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (!originalRequest) {
+      return Promise.reject(error)
+    }
+
+    const url = originalRequest.url || ""
+    const isAuthHandshake =
+      url.includes("/auth/login") ||
+      url.includes("/auth/signup") ||
+      url.includes("/auth/refresh") ||
+      url.includes("/auth/logout")
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthHandshake
+    ) {
       originalRequest._retry = true
 
       try {
-        await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        )
+        if (!refreshPromise) {
+          refreshPromise = axios
+            .post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true })
+            .then(() => {})
+            .finally(() => {
+              refreshPromise = null
+            })
+        }
+
+        await refreshPromise
         return apiClient(originalRequest)
       } catch (refreshError) {
         useAuthStore.getState().clearAuth()

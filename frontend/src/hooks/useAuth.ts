@@ -1,7 +1,19 @@
 import { useEffect } from "react"
 import { useAuthStore } from "@/store/authStore"
-import { authApi, userApi } from "@/api/auth"
+import { userApi } from "@/api/auth"
 import { useQuery } from "@tanstack/react-query"
+
+export const isPublicRoute = (pathname: string): boolean => {
+  return (
+    pathname === "/" ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/verify-email") ||
+    pathname.startsWith("/auth/")
+  )
+}
 
 export function useAuth() {
   const {
@@ -13,51 +25,29 @@ export function useAuth() {
     setInitialized,
   } = useAuthStore()
 
-  // localStorage["user"] is the only JS-visible auth signal.
+  // localStorage["user"] is the primary JS-visible auth signal.
   // HttpOnly cookies (access_token, refresh_token) are invisible to document.cookie —
   // the browser attaches them automatically on every request without JS touching them.
   const hasLocalUser = !!localStorage.getItem("user")
   const hasPendingOAuth = !!sessionStorage.getItem("oauth_pending")
   const pathname = window.location.pathname
-  const isPublic =
-    pathname === "/" ||
-    pathname.startsWith("/sign-in") ||
-    pathname.startsWith("/sign-up") ||
-    pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/verify-email") ||
-    pathname.startsWith("/auth/")
+  const isPublic = isPublicRoute(pathname)
   const isProtected = !isPublic
 
   const { data, isSuccess, isError, isLoading } = useQuery({
     queryKey: ["userProfile"],
     queryFn: async () => {
-      const authRes = await authApi.me()
-      const authData = authRes.data as { is_verified?: boolean } | undefined
-
       try {
         const profileRes = await userApi.getMyProfile()
-        const profile = profileRes.data
-        if (profile) {
-          return {
-            ...profile,
-            id: (profile as unknown as { id?: string }).id ?? profile.email,
-            is_verified: profile.is_verified ?? authData?.is_verified ?? true,
-          }
+        if (!profileRes.data) return null
+
+        return {
+          ...profileRes.data,
+          is_verified: profileRes.data.is_verified ?? false, // fail closed
         }
       } catch {
-        // If /users/me fails but /auth/me succeeded
+        return null
       }
-
-      return authData
-        ? {
-            id: "authenticated-user",
-            email: "",
-            first_name: "",
-            last_name: "",
-            is_verified: authData.is_verified ?? true,
-          }
-        : null
     },
 
     // Fire when localStorage has a user, or returning from OAuth, or landing on any protected route
@@ -76,15 +66,7 @@ export function useAuth() {
     const currentHasLocal = !!localStorage.getItem("user")
     const currentHasOAuth = !!sessionStorage.getItem("oauth_pending")
     const currentPathname = window.location.pathname
-    const onProtected = !(
-      currentPathname === "/" ||
-      currentPathname.startsWith("/sign-in") ||
-      currentPathname.startsWith("/sign-up") ||
-      currentPathname.startsWith("/forgot-password") ||
-      currentPathname.startsWith("/reset-password") ||
-      currentPathname.startsWith("/verify-email") ||
-      currentPathname.startsWith("/auth/")
-    )
+    const onProtected = !isPublicRoute(currentPathname)
 
     if (
       isSuccess &&
@@ -93,8 +75,8 @@ export function useAuth() {
     ) {
       setAuth(data)
       setInitialized(true)
-    } else if (isError) {
-      // /auth/me failed AND the Axios interceptor's refresh attempt also failed.
+    } else if (isError || (isSuccess && !data && onProtected)) {
+      // /users/me failed AND refresh attempt failed, or empty profile on protected route.
       // Clear everything so the user is redirected to /sign-in.
       clearAuth()
       setInitialized(true)

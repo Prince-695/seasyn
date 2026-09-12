@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { SeasonTypeBadge } from "./SeasonTypeBadge"
 import type { TableSchema } from "@/types/schema"
 import { Plus, Key, Loader2, AlertCircle } from "lucide-react"
+import { getErrorMessage } from "@/lib/errors"
 
 interface InsertRowModalProps {
   open: boolean
@@ -53,7 +54,7 @@ export function InsertRowModal({
           const val = formData[col.name]
           if (val === undefined || val === null || val === "") {
             throw new Error(
-              `Column '${col.name}' is required and cannot be NULL.`
+              `Field '${col.name}' is required. Please provide a value before inserting.`
             )
           }
         }
@@ -74,7 +75,9 @@ export function InsertRowModal({
             payload[colName] =
               typeof rawVal === "string" ? JSON.parse(rawVal) : rawVal
           } catch {
-            throw new Error(`Invalid JSON format in column '${colName}'.`)
+            throw new Error(
+              `Invalid JSON format in '${colName}'. Please ensure valid syntax with quotes and brackets.`
+            )
           }
         } else if (
           colDef.season_type === "int" ||
@@ -91,7 +94,12 @@ export function InsertRowModal({
       setFormData({})
       onOpenChange(false)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to insert new row.")
+      setError(
+        getErrorMessage(
+          err,
+          "Unable to insert record. Please verify that field values comply with column data types and database constraints."
+        )
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -174,7 +182,7 @@ export function InsertRowModal({
                       onChange={(e) =>
                         handleFieldChange(col.name, e.target.value)
                       }
-                      className="border-code-border bg-code-bg text-code-foreground font-mono text-xs"
+                      className="border-code-border bg-code-bg text-code-foreground focus-visible:border-primary/60 focus-visible:ring-primary/20 p-2.5 font-mono text-xs leading-relaxed"
                     />
                   ) : (
                     <Input

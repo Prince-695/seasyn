@@ -18,10 +18,12 @@ import { migrationsApi } from "@/api/migrations"
 import { migrationKeys } from "@/lib/queryKeys"
 import type { PublicDatabaseConnection } from "@/types"
 import type { StartMigrationPayload } from "@/types/migration"
+import { getErrorMessage } from "@/lib/errors"
 
 interface MigrationWizardProps {
   orgId: string
   projectId: string
+  projectSlug?: string
   connections: PublicDatabaseConnection[]
   initialSourceConnId?: string
   initialSourceTable?: string
@@ -30,6 +32,7 @@ interface MigrationWizardProps {
 export function MigrationWizard({
   orgId,
   projectId,
+  projectSlug,
   connections,
   initialSourceConnId = "",
   initialSourceTable = "",
@@ -61,6 +64,8 @@ export function MigrationWizard({
     }
   }
 
+  const projectSlugOrId = projectSlug || projectId
+
   // Mutation to start migration
   const startMutation = useMutation({
     mutationFn: async (payload: StartMigrationPayload) => {
@@ -73,17 +78,24 @@ export function MigrationWizard({
         queryKey: migrationKeys.list(orgId, projectId),
       })
       if (job?.id) {
-        navigate(`/migration/${job.id}`)
+        navigate(
+          `/migration/${job.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`
+        )
       } else {
-        navigate("/migration")
+        navigate(
+          projectSlugOrId
+            ? `/migration?project=${projectSlugOrId}`
+            : "/migration"
+        )
       }
     },
     onError: (err: unknown) => {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        "Failed to start migration pipeline. Please check connection health."
-      setErrorMessage(msg)
+      setErrorMessage(
+        getErrorMessage(
+          err,
+          "Unable to start the migration pipeline. Please verify that both source and target databases are online and reachable."
+        )
+      )
     },
   })
 
@@ -150,7 +162,7 @@ export function MigrationWizard({
             </div>
           </div>
 
-          <div className="bg-border mx-2 h-px max-w-[80px] flex-1"></div>
+          <div className="bg-border mx-2 h-px max-w-20 flex-1"></div>
 
           {/* Step 2 Indicator */}
           <div className="flex items-center gap-3">
@@ -175,7 +187,7 @@ export function MigrationWizard({
             </div>
           </div>
 
-          <div className="bg-border mx-2 h-px max-w-[80px] flex-1"></div>
+          <div className="bg-border mx-2 h-px max-w-20 flex-1"></div>
 
           {/* Step 3 Indicator */}
           <div className="flex items-center gap-3">

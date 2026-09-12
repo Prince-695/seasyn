@@ -1,23 +1,19 @@
-import { useState, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft,
   Database,
   Server,
-  Settings,
   Plus,
-  Calendar,
   Loader2,
   FolderKanban,
   AlertTriangle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ConnectionCard } from "@/components/connections/ConnectionCard"
 import { ConnectionWizardModal } from "@/components/connections/ConnectionWizardModal"
-import { ProjectSettingsTab } from "@/components/projects/ProjectSettingsTab"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
 import { projectKeys, connectionKeys } from "@/lib/queryKeys"
 import { projectsApi } from "@/api/projects"
@@ -44,15 +40,16 @@ const envBadgeStyles: Record<
 }
 
 export function ProjectDetailsPage() {
-  const { projectId: projectSlugOrId } = useParams<{ projectId: string }>()
+  const params = useParams<{ projectSlug?: string; projectId?: string }>()
+  const projectSlugOrId = params.projectSlug || params.projectId || ""
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { activeOrg, setActiveProjectId } = useWorkspaceStore()
-  const [activeTab, setActiveTab] = useState("connections")
+  const { activeOrg, setActiveProjectId, setActiveProject } =
+    useWorkspaceStore()
 
   // 1. Fetch organization projects to resolve slug to ID
   const { data: orgProjects = [], isLoading: isOrgProjectsLoading } = useQuery({
-    queryKey: projectKeys.lists(activeOrg?.id || "none"),
+    queryKey: projectKeys.list(activeOrg?.id || "none"),
     queryFn: async () => {
       if (!activeOrg?.id) return []
       const res = await projectsApi.list(activeOrg.id)
@@ -104,6 +101,18 @@ export function ProjectDetailsPage() {
     (isOrgProjectsLoading && !project) || (isProjectDetailLoading && !project)
   const isProjectError = isProjectDetailError && !project
 
+  // Sync full project metadata into workspace store
+  useEffect(() => {
+    if (project) {
+      setActiveProject({
+        id: project.id,
+        slug: project.slug,
+        name: project.name,
+        environment: project.environment,
+      })
+    }
+  }, [project, setActiveProject])
+
   // Fetch Database Connections for this Project
   const { data: connections = [], isLoading: isConnectionsLoading } = useQuery({
     queryKey: connectionKeys.list(activeOrg?.id || "", actualProjectId),
@@ -121,8 +130,11 @@ export function ProjectDetailsPage() {
   // Delete Connection Mutation
   const deleteConnectionMutation = useMutation({
     mutationFn: async (connId: string) => {
-      if (!activeOrg?.id || !actualProjectId)
-        throw new Error("Missing parameters")
+      if (!activeOrg?.id || !actualProjectId) {
+        throw new Error(
+          "Unable to delete connection: missing organization or project context. Please refresh and try again."
+        )
+      }
       await projectsApi.deleteConnection(activeOrg.id, actualProjectId, connId)
     },
     onSuccess: () => {
@@ -189,328 +201,269 @@ export function ProjectDetailsPage() {
     className: "border-muted bg-muted text-muted-foreground",
   }
 
-  const formattedDate = new Date(project.created_at).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }
-  )
-
   return (
     <div className="space-y-6">
-      {/* Back Link & Breadcrumb Header */}
-      <div className="flex items-center justify-between">
-        <Link
-          to="/projects"
-          className="group text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-xs font-medium transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          <span>Back to Projects Studio</span>
-        </Link>
+      {/* ── Main Studio Header Strip (Plain on background, matching Image 1) ── */}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+            <FolderKanban className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-foreground text-2xl font-bold tracking-tight">
+                {project.name}
+              </h1>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "px-2 py-0.5 font-mono text-xs",
+                  envConfig.className
+                )}
+              >
+                {envConfig.label}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground mt-0.5 text-sm">
+              {project.description ||
+                "Database studio, schemas, and live connection workbench."}
+            </p>
+          </div>
+        </div>
 
+        {/* Quick Action Buttons */}
         <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className={cn(
-              "px-2.5 py-0.5 font-mono text-xs",
-              envConfig.className
-            )}
-          >
-            {envConfig.label} Environment
-          </Badge>
+          <PermissionGuard allowedRoles={["owner", "admin"]}>
+            <ConnectionWizardModal
+              projectId={project.id}
+              defaultIsSource={true}
+              trigger={
+                <Button size="sm" className="gap-2 font-semibold shadow-xs">
+                  <Plus className="h-4 w-4" />
+                  <span>Add Database</span>
+                </Button>
+              }
+            />
+          </PermissionGuard>
         </div>
       </div>
 
-      {/* Main Studio Header Banner */}
-      <div className="border-border/80 bg-card relative overflow-hidden rounded-2xl border p-6 shadow-xs">
-        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="border-primary/20 bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-xl border">
-                <FolderKanban className="h-5 w-5" />
+      {/* ── Project Quick Metrics Strip ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="border-border/70 bg-card rounded-lg border p-3.5 shadow-xs">
+          <span className="text-muted-foreground text-xs font-medium">
+            Total Databases
+          </span>
+          <p className="text-foreground mt-1 font-mono text-lg font-bold">
+            {connections.length}
+          </p>
+        </div>
+
+        <div className="border-border/70 bg-card rounded-lg border p-3.5 shadow-xs">
+          <span className="text-info text-xs font-medium">
+            Source DBs (Inbound)
+          </span>
+          <p className="text-info mt-1 font-mono text-lg font-bold">
+            {sourceConnections.length}
+          </p>
+        </div>
+
+        <div className="border-border/70 bg-card rounded-lg border p-3.5 shadow-xs">
+          <span className="text-success text-xs font-medium">
+            Target DBs (Outbound)
+          </span>
+          <p className="text-success mt-1 font-mono text-lg font-bold">
+            {targetConnections.length}
+          </p>
+        </div>
+
+        <div className="border-border/70 bg-card rounded-lg border p-3.5 shadow-xs">
+          <span className="text-muted-foreground text-xs font-medium">
+            Project Status
+          </span>
+          <div className="text-success mt-1 flex items-center gap-1.5 font-mono text-xs font-semibold">
+            <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
+            <span>Active Studio</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Database Connections Studio Canvas */}
+      <div className="space-y-8 pt-2">
+        {/* Section A: Source Databases */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="border-info/30 bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg border">
+                <Database className="h-4 w-4" />
               </div>
               <div>
-                <h1 className="text-foreground text-2xl font-bold tracking-tight">
-                  {project.name}
-                </h1>
-                <div className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-xs">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>Created {formattedDate}</span>
-                </div>
+                <h3 className="text-foreground text-sm font-semibold">
+                  Source Databases ({sourceConnections.length})
+                </h3>
+                <p className="text-muted-foreground text-[11px]">
+                  Databases read by SEASYN for schema extraction and data
+                  introspection.
+                </p>
               </div>
             </div>
 
-            {project.description && (
-              <p className="text-muted-foreground max-w-2xl text-xs">
-                {project.description}
-              </p>
-            )}
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
             <PermissionGuard allowedRoles={["owner", "admin"]}>
               <ConnectionWizardModal
                 projectId={project.id}
                 defaultIsSource={true}
                 trigger={
-                  <Button size="sm" className="gap-2 font-semibold shadow-xs">
-                    <Plus className="h-4 w-4" />
-                    <span>Add Database</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs font-medium"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Source DB</span>
                   </Button>
                 }
               />
             </PermissionGuard>
           </div>
+
+          {isConnectionsLoading ? (
+            <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
+              <Loader2 className="text-primary h-6 w-6 animate-spin" />
+            </div>
+          ) : sourceConnections.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {sourceConnections.map((conn) => (
+                <ConnectionCard
+                  key={conn.id}
+                  connection={conn}
+                  onDelete={handleDeleteConnection}
+                  onInspectSchema={(c) =>
+                    navigate(
+                      `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
+                    )
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
+              <Database className="text-muted-foreground/60 h-8 w-8" />
+              <h4 className="text-foreground mt-2 text-xs font-semibold">
+                No Source Databases Configured
+              </h4>
+              <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
+                Add a PostgreSQL, MySQL, MongoDB, or SQLite database to begin
+                inspecting schemas and running migrations.
+              </p>
+              <PermissionGuard allowedRoles={["owner", "admin"]}>
+                <div className="mt-3">
+                  <ConnectionWizardModal
+                    projectId={project.id}
+                    defaultIsSource={true}
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5 text-xs"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Configure First Source</span>
+                      </Button>
+                    }
+                  />
+                </div>
+              </PermissionGuard>
+            </div>
+          )}
         </div>
 
-        {/* Quick Metrics Strip */}
-        <div className="border-border/60 mt-6 grid grid-cols-2 gap-3 border-t pt-4 sm:grid-cols-4">
-          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
-            <span className="text-muted-foreground text-[11px] font-medium">
-              Total Databases
-            </span>
-            <p className="text-foreground mt-1 font-mono text-lg font-bold">
-              {connections.length}
-            </p>
-          </div>
-
-          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
-            <span className="text-info text-[11px] font-medium">
-              Source DBs (Inbound)
-            </span>
-            <p className="text-info mt-1 font-mono text-lg font-bold">
-              {sourceConnections.length}
-            </p>
-          </div>
-
-          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
-            <span className="text-success text-[11px] font-medium">
-              Target DBs (Outbound)
-            </span>
-            <p className="text-success mt-1 font-mono text-lg font-bold">
-              {targetConnections.length}
-            </p>
-          </div>
-
-          <div className="border-border/60 bg-muted/20 rounded-xl border p-3">
-            <span className="text-muted-foreground text-[11px] font-medium">
-              Project Status
-            </span>
-            <div className="text-success mt-1 flex items-center gap-1.5 font-mono text-xs font-semibold">
-              <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-              <span>Active Studio</span>
+        {/* Section B: Target Databases */}
+        <div className="border-border/60 space-y-4 border-t pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="border-success/30 bg-success/10 text-success flex h-7 w-7 items-center justify-center rounded-lg border">
+                <Server className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-foreground text-sm font-semibold">
+                  Target Databases ({targetConnections.length})
+                </h3>
+                <p className="text-muted-foreground text-[11px]">
+                  Destination databases to receive converted schemas and
+                  synchronized records.
+                </p>
+              </div>
             </div>
+
+            <PermissionGuard allowedRoles={["owner", "admin"]}>
+              <ConnectionWizardModal
+                projectId={project.id}
+                defaultIsSource={false}
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs font-medium"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Target DB</span>
+                  </Button>
+                }
+              />
+            </PermissionGuard>
           </div>
+
+          {isConnectionsLoading ? (
+            <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
+              <Loader2 className="text-primary h-6 w-6 animate-spin" />
+            </div>
+          ) : targetConnections.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {targetConnections.map((conn) => (
+                <ConnectionCard
+                  key={conn.id}
+                  connection={conn}
+                  onDelete={handleDeleteConnection}
+                  onInspectSchema={(c) =>
+                    navigate(
+                      `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
+                    )
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
+              <Server className="text-muted-foreground/60 h-8 w-8" />
+              <h4 className="text-foreground mt-2 text-xs font-semibold">
+                No Target Databases Configured
+              </h4>
+              <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
+                Add target database connections to receive converted schema
+                definitions and migrated data.
+              </p>
+              <PermissionGuard allowedRoles={["owner", "admin"]}>
+                <div className="mt-3">
+                  <ConnectionWizardModal
+                    projectId={project.id}
+                    defaultIsSource={false}
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5 text-xs"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Configure First Target</span>
+                      </Button>
+                    }
+                  />
+                </div>
+              </PermissionGuard>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Tab Navigation */}
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="space-y-6"
-      >
-        <div className="border-border/60 flex items-center justify-between border-b pb-3">
-          <TabsList className="grid w-full grid-cols-2 sm:w-auto">
-            <TabsTrigger value="connections" className="gap-2">
-              <Database className="h-4 w-4" />
-              <span>Database Connections ({connections.length})</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              <span>Project Settings</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        {/* Tab 1: Database Connections Studio */}
-        <TabsContent value="connections" className="space-y-8 pt-2">
-          {/* Section A: Source Databases */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="border-info/30 bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg border">
-                  <Database className="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 className="text-foreground text-sm font-semibold">
-                    Source Databases ({sourceConnections.length})
-                  </h3>
-                  <p className="text-muted-foreground text-[11px]">
-                    Databases read by SEASYN for schema extraction and data
-                    introspection.
-                  </p>
-                </div>
-              </div>
-
-              <PermissionGuard allowedRoles={["owner", "admin"]}>
-                <ConnectionWizardModal
-                  projectId={project.id}
-                  defaultIsSource={true}
-                  trigger={
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1.5 text-xs font-medium"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      <span>Add Source DB</span>
-                    </Button>
-                  }
-                />
-              </PermissionGuard>
-            </div>
-
-            {isConnectionsLoading ? (
-              <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
-                <Loader2 className="text-primary h-6 w-6 animate-spin" />
-              </div>
-            ) : sourceConnections.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {sourceConnections.map((conn) => (
-                  <ConnectionCard
-                    key={conn.id}
-                    connection={conn}
-                    onDelete={handleDeleteConnection}
-                    onInspectSchema={(c) =>
-                      navigate(
-                        `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-                <Database className="text-muted-foreground/60 h-8 w-8" />
-                <h4 className="text-foreground mt-2 text-xs font-semibold">
-                  No Source Databases Configured
-                </h4>
-                <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
-                  Add a PostgreSQL, MySQL, MongoDB, or SQLite database to begin
-                  inspecting schemas and running migrations.
-                </p>
-                <PermissionGuard allowedRoles={["owner", "admin"]}>
-                  <div className="mt-3">
-                    <ConnectionWizardModal
-                      projectId={project.id}
-                      defaultIsSource={true}
-                      trigger={
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1.5 text-xs"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                          <span>Configure First Source</span>
-                        </Button>
-                      }
-                    />
-                  </div>
-                </PermissionGuard>
-              </div>
-            )}
-          </div>
-
-          {/* Section B: Target Databases */}
-          <div className="border-border/60 space-y-4 border-t pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="border-success/30 bg-success/10 text-success flex h-7 w-7 items-center justify-center rounded-lg border">
-                  <Server className="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 className="text-foreground text-sm font-semibold">
-                    Target Databases ({targetConnections.length})
-                  </h3>
-                  <p className="text-muted-foreground text-[11px]">
-                    Destination databases to receive converted schemas and
-                    synchronized records.
-                  </p>
-                </div>
-              </div>
-
-              <PermissionGuard allowedRoles={["owner", "admin"]}>
-                <ConnectionWizardModal
-                  projectId={project.id}
-                  defaultIsSource={false}
-                  trigger={
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1.5 text-xs font-medium"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      <span>Add Target DB</span>
-                    </Button>
-                  }
-                />
-              </PermissionGuard>
-            </div>
-
-            {isConnectionsLoading ? (
-              <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
-                <Loader2 className="text-primary h-6 w-6 animate-spin" />
-              </div>
-            ) : targetConnections.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {targetConnections.map((conn) => (
-                  <ConnectionCard
-                    key={conn.id}
-                    connection={conn}
-                    onDelete={handleDeleteConnection}
-                    onInspectSchema={(c) =>
-                      navigate(
-                        `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-                <Server className="text-muted-foreground/60 h-8 w-8" />
-                <h4 className="text-foreground mt-2 text-xs font-semibold">
-                  No Target Databases Configured
-                </h4>
-                <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
-                  Add target database connections to receive converted schema
-                  definitions and migrated data.
-                </p>
-                <PermissionGuard allowedRoles={["owner", "admin"]}>
-                  <div className="mt-3">
-                    <ConnectionWizardModal
-                      projectId={project.id}
-                      defaultIsSource={false}
-                      trigger={
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1.5 text-xs"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                          <span>Configure First Target</span>
-                        </Button>
-                      }
-                    />
-                  </div>
-                </PermissionGuard>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* Tab 2: Project Settings */}
-        <TabsContent value="settings">
-          <ProjectSettingsTab
-            project={project}
-            connectionsCount={connections.length}
-          />
-        </TabsContent>
-      </Tabs>
     </div>
   )
 }

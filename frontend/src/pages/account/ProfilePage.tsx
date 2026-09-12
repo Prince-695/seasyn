@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { User } from "@/types"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 // ─── Sub-Component: Personal Information Card ─────────────────────────────────
 // Keyed by profile id/email so state resets naturally without setState-in-effect
@@ -62,15 +62,12 @@ function PersonalInformationCard({
       setTimeout(() => setProfileSuccessMsg(null), 4000)
     },
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setProfileErrorMsg(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Failed to update profile."
+      setProfileErrorMsg(
+        getErrorMessage(
+          err,
+          "Unable to save your profile changes. Please verify your connection and try again."
         )
-      } else {
-        setProfileErrorMsg("An unexpected error occurred.")
-      }
+      )
     },
   })
 
@@ -262,15 +259,12 @@ export function ProfilePage() {
       }
     },
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setUsernameErrorMsg(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Failed to claim username."
+      setUsernameErrorMsg(
+        getErrorMessage(
+          err,
+          "This username handle is unavailable or already in use. Please choose another username."
         )
-      } else {
-        setUsernameErrorMsg("An unexpected error occurred.")
-      }
+      )
     },
   })
 

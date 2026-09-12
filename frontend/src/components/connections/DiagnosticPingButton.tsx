@@ -1,5 +1,4 @@
 import { useState } from "react"
-import axios from "axios"
 import {
   Activity,
   CheckCircle2,
@@ -12,6 +11,7 @@ import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
 import type { TestConnectionPayload, ConnectionTestResult } from "@/types"
+import { getErrorMessage } from "@/lib/errors"
 
 interface DiagnosticPingButtonProps {
   // Option A: Test unsaved payload (inside ConnectionWizardModal)
@@ -46,25 +46,15 @@ export function DiagnosticPingButton({
     e.stopPropagation()
 
     if (!activeOrg?.id) {
-      console.warn("[SEASYN Ping] Diagnostic aborted: No active organization.")
       return
     }
     setTesting(true)
     setResult(null)
 
-    console.group(
-      `[SEASYN Ping] Connection Diagnostic Test (${new Date().toLocaleTimeString()})`
-    )
-
     try {
       let testRes: ConnectionTestResult
 
       if (savedConnId && projectId) {
-        console.log("Mode: Testing Saved Connection", {
-          orgId: activeOrg.id,
-          projectId,
-          savedConnId,
-        })
         const res = await projectsApi.testSavedConnection(
           activeOrg.id,
           projectId,
@@ -73,7 +63,8 @@ export function DiagnosticPingButton({
         testRes = res.data || {
           success: false,
           latency_ms: 0,
-          error_message: "No data returned",
+          error_message:
+            "No diagnostic response was returned by the database service.",
         }
       } else if (getPayload) {
         const payload = getPayload()
@@ -86,11 +77,6 @@ export function DiagnosticPingButton({
           return
         }
         const effectiveProjectId = projectId || "draft"
-        console.log("Mode: Direct Connection Payload", {
-          orgId: activeOrg.id,
-          projectId: effectiveProjectId,
-          payload,
-        })
         const res = await projectsApi.testDirectConnection(
           activeOrg.id,
           effectiveProjectId,
@@ -99,27 +85,22 @@ export function DiagnosticPingButton({
         testRes = res.data || {
           success: false,
           latency_ms: 0,
-          error_message: "No data returned",
+          error_message:
+            "No diagnostic response was returned by the database service.",
         }
       } else {
-        throw new Error("Invalid diagnostic configuration")
+        throw new Error(
+          "Unable to test connection: missing connection credentials or identifier."
+        )
       }
-
-      console.log("[SEASYN Ping Result]", testRes)
-      console.groupEnd()
 
       setResult(testRes)
       onResult?.(testRes)
     } catch (err: unknown) {
-      console.error("[SEASYN Ping Error]", err)
-      if (axios.isAxiosError(err)) {
-        console.error("HTTP Status:", err.response?.status)
-        console.error("Backend Response Data:", err.response?.data)
-      }
-      console.groupEnd()
-
-      const errorMsg =
-        err instanceof Error ? err.message : "Connection diagnostic failed."
+      const errorMsg = getErrorMessage(
+        err,
+        "Database server unreachable. Please verify host, port, credentials, and network firewall rules."
+      )
       const failResult: ConnectionTestResult = {
         success: false,
         latency_ms: 0,

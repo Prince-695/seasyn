@@ -6,14 +6,17 @@ import { Card } from "@/components/ui/card"
 import { MigrationWizard } from "@/components/migrations/MigrationWizard"
 import { projectsApi } from "@/api/projects"
 import { connectionKeys } from "@/lib/queryKeys"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { useActiveProject } from "@/hooks/useActiveProject"
 
 export function NewMigrationPage() {
   const [searchParams] = useSearchParams()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
 
-  const orgId = activeOrg?.id || ""
-  const projectId = activeProjectId || ""
+  const projectParam =
+    searchParams.get("project") || searchParams.get("projectId") || ""
+
+  // Resolves active project from URL param, store, or first-project fallback
+  const { projectId, projectSlugOrId, orgId, resolvedProject } =
+    useActiveProject(projectParam)
 
   const initialSourceConn = searchParams.get("sourceConn") || ""
   const initialSourceTable = searchParams.get("sourceTable") || ""
@@ -33,7 +36,9 @@ export function NewMigrationPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Top Header & Navigation Back */}
       <div className="flex items-center gap-3">
-        <Link to="/migration">
+        <Link
+          to={`/migration${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
+        >
           <Button
             variant="outline"
             size="sm"
@@ -87,6 +92,7 @@ export function NewMigrationPage() {
         <MigrationWizard
           orgId={orgId}
           projectId={projectId}
+          projectSlug={resolvedProject?.slug}
           connections={connections}
           initialSourceConnId={initialSourceConn}
           initialSourceTable={initialSourceTable}

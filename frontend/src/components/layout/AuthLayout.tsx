@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
+import { PageTransition } from "./PageTransition"
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -10,45 +10,40 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title, description }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-screen">
-      <div className="bg-background flex min-h-screen items-center justify-center px-6 py-12 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.35,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          className="border-border/50 bg-card/40 w-full max-w-lg space-y-6 rounded-lg border p-8 shadow-lg backdrop-blur-sm"
-        >
+    <div className="bg-background relative flex h-screen max-h-screen w-full flex-col items-center justify-center overflow-hidden px-4 py-2 sm:px-6">
+      {/* Decorative ambient background glows */}
+      <div className="bg-primary/5 pointer-events-none absolute -top-20 left-1/4 -z-10 h-64 w-64 rounded-full blur-[100px]" />
+      <div className="bg-secondary/5 pointer-events-none absolute right-1/4 -bottom-20 -z-10 h-64 w-64 rounded-full blur-[100px]" />
+
+      <PageTransition className="w-full max-w-110">
+        <div className="border-border/70 bg-muted/40 dark:bg-muted/25 rounded-2xl border p-6 shadow-xs sm:p-7">
           {/* Logo */}
-          <div className="flex flex-col items-center">
+          <div className="mb-3 flex flex-col items-center">
             <Link
               to="/"
-              className="flex items-center gap-3 transition-opacity hover:opacity-90"
+              className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
             >
               <div className="relative flex h-8 w-8 items-center justify-start">
-                <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-[6px] border-4 bg-transparent" />
-                <div className="border-foreground absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-[6px] border-4 bg-transparent" />
+                <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-lg border-[3.5px] bg-transparent" />
+                <div className="border-secondary absolute h-7 w-7 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-lg border-[3.5px] bg-transparent" />
               </div>
-              <span className="text-foreground ml-1 text-xl font-bold tracking-tight">
+              <span className="text-foreground ml-1 font-serif text-xl font-bold tracking-tight">
                 Seasyn
               </span>
             </Link>
           </div>
 
-          <div className="space-y-2 text-center">
-            <h1 className="text-foreground text-3xl font-bold tracking-tight">
+          {/* Title & Description */}
+          <div className="mb-4 text-center">
+            <h1 className="text-foreground font-serif text-3xl font-bold tracking-tight sm:text-[32px]">
               {title}
             </h1>
-            <p className="text-muted-foreground text-sm font-medium">
-              {description}
-            </p>
+            <p className="text-muted-foreground mt-1 text-sm">{description}</p>
           </div>
 
           {children}
-        </motion.div>
-      </div>
+        </div>
+      </PageTransition>
     </div>
   )
 }

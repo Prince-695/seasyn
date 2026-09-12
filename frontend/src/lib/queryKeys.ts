@@ -10,7 +10,6 @@ import type { TableRowQueryParams } from "@/types/schema"
 export const projectKeys = {
   all: ["projects"] as const,
   byOrg: (orgId: string) => [...projectKeys.all, "org", orgId] as const,
-  lists: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
   list: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
   detail: (orgId: string, projectId: string) =>
     [...projectKeys.byOrg(orgId), "detail", projectId] as const,
@@ -18,6 +17,14 @@ export const projectKeys = {
 
 export const connectionKeys = {
   all: ["connections"] as const,
+  byOrg: (orgId: string, projectIds?: string[]) =>
+    [
+      ...connectionKeys.all,
+      "org",
+      orgId,
+      "allProjects",
+      ...(projectIds ? [projectIds.join(",")] : []),
+    ] as const,
   byProject: (orgId: string, projectId: string) =>
     [...connectionKeys.all, "org", orgId, "project", projectId] as const,
   list: (orgId: string, projectId: string) =>
@@ -31,8 +38,6 @@ export const migrationKeys = {
   byProject: (orgId: string, projectId: string) =>
     [...migrationKeys.all, "org", orgId, "project", projectId] as const,
   list: (orgId: string, projectId: string) =>
-    [...migrationKeys.byProject(orgId, projectId), "list"] as const,
-  lists: (orgId: string, projectId: string) =>
     [...migrationKeys.byProject(orgId, projectId), "list"] as const,
   detail: (orgId: string, projectId: string, migrationId: string) =>
     [
@@ -93,7 +98,7 @@ export const schemaKeys = {
 
 export const orgKeys = {
   all: ["organizations"] as const,
-  lists: () => [...orgKeys.all, "list"] as const,
+  list: () => [...orgKeys.all, "list"] as const,
   detail: (id: string) => [...orgKeys.all, "detail", id] as const,
   members: (orgId: string) => [...orgKeys.all, "members", orgId] as const,
 }
