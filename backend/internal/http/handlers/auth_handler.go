@@ -22,14 +22,25 @@ type AuthHandler struct {
 }
 
 func NewAuthHandler(authService ports.AuthService, isProduction bool, frontendURLs string) *AuthHandler {
-	// If multiple URLs are provided, take the first one as the primary redirect target
-	primaryURL := strings.Split(frontendURLs, ",")[0]
+	urls := strings.Split(frontendURLs, ",")
+	primaryURL := strings.TrimSpace(urls[0])
+
+	if isProduction {
+		// In production, prioritize the production HTTPS domain over localhost
+		for _, u := range urls {
+			u = strings.TrimSpace(u)
+			if u != "" && !strings.Contains(u, "localhost") && !strings.Contains(u, "127.0.0.1") {
+				primaryURL = u
+				break
+			}
+		}
+	}
 
 	return &AuthHandler{
 		authService:  authService,
 		validate:     validator.New(),
 		isProduction: isProduction,
-		frontendURL:  primaryURL,
+		frontendURL:  strings.TrimRight(primaryURL, "/"),
 	}
 }
 
@@ -363,12 +374,42 @@ func (h *AuthHandler) VerifyEmail(c *fiber.Ctx) error {
 // @Router /v1/auth/{provider}/login [get]
 func (h *AuthHandler) OAuthLogin(c *fiber.Ctx) error {
 	provider := c.Params("provider")
-	url, err := h.authService.GetOAuthURL(provider)
+	authURL, err := h.authService.GetOAuthURL(provider)
 	if err != nil {
 		return h.jsonResponse(c, fiber.StatusBadRequest, false, err.Error(), "", nil)
 	}
+
+	// Capture requesting origin or referer so callback can return to the exact frontend
+	origin := c.Query("origin")
+	if origin == "" {
+		origin = c.Get("Origin")
+	}
+	if origin == "" {
+		if ref := c.Get("Referer"); ref != "" {
+			if u, err := url.Parse(ref); err == nil && u.Host != "" {
+				origin = fmt.Sprintf("%s://%s", u.Scheme, u.Host)
+			}
+		}
+	}
+
+	if origin != "" {
+		sameSite := "Lax"
+		if h.isProduction {
+			sameSite = "None"
+		}
+		c.Cookie(&fiber.Cookie{
+			Name:     "oauth_origin",
+			Value:    origin,
+			Path:     "/",
+			Expires:  time.Now().Add(10 * time.Minute),
+			HTTPOnly: true,
+			Secure:   h.isProduction,
+			SameSite: sameSite,
+		})
+	}
+
 	return h.jsonResponse(c, fiber.StatusOK, true, "OAuth URL generated", "", fiber.Map{
-		"auth_url": url,
+		"auth_url": authURL,
 	})
 }
 
@@ -389,21 +430,28 @@ func (h *AuthHandler) OAuthCallback(c *fiber.Ctx) error {
 	// BUG-02 fix: read and forward the state so the service can verify it.
 	state := c.Query("state")
 
+	targetFrontend := h.frontendURL
+	if originCookie := c.Cookies("oauth_origin"); originCookie != "" {
+		// Only trust origin if not localhost in production
+		if !h.isProduction || (!strings.Contains(originCookie, "localhost") && !strings.Contains(originCookie, "127.0.0.1")) {
+			targetFrontend = strings.TrimRight(originCookie, "/")
+		}
+		c.ClearCookie("oauth_origin")
+	}
+
 	res, err := h.authService.HandleOAuthCallback(c.Context(), provider, code, state)
 	if err != nil {
 		errMsg := err.Error()
 		if appErr, ok := err.(*apperrors.AppError); ok {
 			errMsg = appErr.Message
 		}
-		errorRedirectURL := fmt.Sprintf("%s/sign-in?error=%s", h.frontendURL, url.QueryEscape(errMsg))
+		errorRedirectURL := fmt.Sprintf("%s/sign-in?error=%s", targetFrontend, url.QueryEscape(errMsg))
 		return c.Redirect(errorRedirectURL, fiber.StatusTemporaryRedirect)
 	}
 	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
 
-	// Instead of JSON or popups, we just redirect the user back to the frontend.
-	// Because we just set the HttpOnly cookies, the frontend will automatically
-	// be authenticated when it loads!
-	redirectURL := h.frontendURL + "/dashboard"
+	// Instead of JSON or popups, redirect the user back to the frontend.
+	redirectURL := targetFrontend + "/dashboard"
 	return c.Redirect(redirectURL, fiber.StatusTemporaryRedirect)
 }
 

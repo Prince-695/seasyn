@@ -32,6 +32,9 @@ type Config struct {
 
 func Load() *Config {
 	env := getEnv("ENV", "development")
+	if os.Getenv("RENDER") != "" && env == "development" {
+		env = "production"
+	}
 	jwtSecret := getEnv("JWT_SECRET", "default_secret")
 
 	// BUG-05 fix: a predictable default secret in production allows anyone to forge JWTs.
