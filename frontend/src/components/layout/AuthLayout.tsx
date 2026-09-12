@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
+import { PageTransition } from "./PageTransition"
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -15,41 +15,35 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
       <div className="bg-primary/5 pointer-events-none absolute -top-20 left-1/4 -z-10 h-64 w-64 rounded-full blur-[100px]" />
       <div className="bg-secondary/5 pointer-events-none absolute right-1/4 -bottom-20 -z-10 h-64 w-64 rounded-full blur-[100px]" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.3,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-        className="bg-muted/40 dark:bg-muted/25 w-full max-w-110 rounded-3xl p-6 sm:p-7"
-      >
-        {/* Logo */}
-        <div className="mb-3 flex flex-col items-center">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
-          >
-            <div className="relative flex h-8 w-8 items-center justify-start">
-              <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-[6px] border-[3.5px] bg-transparent" />
-              <div className="border-secondary absolute h-7 w-7 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-[6px] border-[3.5px] bg-transparent" />
-            </div>
-            <span className="text-foreground ml-1 font-serif text-xl font-bold tracking-tight">
-              Seasyn
-            </span>
-          </Link>
-        </div>
+      <PageTransition className="w-full max-w-110">
+        <div className="border-border/70 bg-muted/40 dark:bg-muted/25 rounded-2xl border p-6 shadow-xs sm:p-7">
+          {/* Logo */}
+          <div className="mb-3 flex flex-col items-center">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
+            >
+              <div className="relative flex h-8 w-8 items-center justify-start">
+                <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-lg border-[3.5px] bg-transparent" />
+                <div className="border-secondary absolute h-7 w-7 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-lg border-[3.5px] bg-transparent" />
+              </div>
+              <span className="text-foreground ml-1 font-serif text-xl font-bold tracking-tight">
+                Seasyn
+              </span>
+            </Link>
+          </div>
 
-        {/* Title & Description */}
-        <div className="mb-4 text-center">
-          <h1 className="text-foreground font-serif text-3xl font-bold tracking-tight sm:text-[32px]">
-            {title}
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
-        </div>
+          {/* Title & Description */}
+          <div className="mb-4 text-center">
+            <h1 className="text-foreground font-serif text-3xl font-bold tracking-tight sm:text-[32px]">
+              {title}
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+          </div>
 
-        {children}
-      </motion.div>
+          {children}
+        </div>
+      </PageTransition>
     </div>
   )
 }

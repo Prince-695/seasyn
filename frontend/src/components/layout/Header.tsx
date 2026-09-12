@@ -5,7 +5,6 @@ import {
   ChevronRight,
   User,
   LogOut,
-  Building2,
   CheckCircle2,
   AlertCircle,
   Loader2,
@@ -19,6 +18,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 import { useTheme } from "@/components/theme-provider"
 import { authApi } from "@/api/auth"
 import { checkSystemHealth } from "@/api/client"
+import { OrgSwitcher } from "./OrgSwitcher"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -38,16 +38,18 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 
-import { RoleBadge } from "@/components/orgs/RoleBadge"
+import { cn } from "@/lib/utils"
 
 const routeTitles: Record<string, { section: string; title: string }> = {
-  "/dashboard": { section: "Workspace", title: "Overview & Dashboard" },
-  "/projects": { section: "Workspace", title: "Projects Studio" },
+  "/dashboard": { section: "Organization", title: "Projects" },
+  "/projects": { section: "Organization", title: "Projects" },
   "/connections": { section: "Workspace", title: "Database Connections" },
-  "/org/members": { section: "Organization", title: "Team Members" },
-  "/org/settings": { section: "Organization", title: "Workspace Settings" },
+  "/org/members": { section: "Organization", title: "People" },
+  "/org/settings": { section: "Organization", title: "Settings" },
   "/migration": { section: "Studio", title: "Migration Studio" },
+  "/migration/new": { section: "Studio", title: "New Migration" },
   "/editor": { section: "Studio", title: "Live Schema Editor" },
+  "/schema-diff": { section: "Studio", title: "Schema Diff" },
   "/docs": { section: "Resources", title: "Documentation" },
   "/profile": { section: "Account", title: "User Profile" },
 }
@@ -57,15 +59,26 @@ export function Header() {
   const navigate = useNavigate()
   const { toggleMobileSidebar } = useUIStore()
   const { user, clearAuth } = useAuthStore()
-  const { activeOrg, currentRole } = useWorkspaceStore()
+  const { activeOrg, activeProjectName, activeProjectSlug } =
+    useWorkspaceStore()
   const { theme, setTheme } = useTheme()
 
-  const currentRouteMeta = location.pathname.startsWith("/projects/")
-    ? { section: "Projects", title: "Project Studio" }
-    : (routeTitles[location.pathname] ?? {
-        section: activeOrg?.name || "Workspace",
-        title: "Overview",
-      })
+  const isProjectRoute = location.pathname.startsWith("/projects/")
+  const isProjectSettings = location.pathname.endsWith("/settings")
+  const isToolRoute =
+    location.pathname.startsWith("/migration") ||
+    location.pathname.startsWith("/editor") ||
+    location.pathname.startsWith("/schema-diff") ||
+    location.pathname.startsWith("/connections")
+
+  const currentRouteMeta = isProjectSettings
+    ? { section: "Project Studio", title: "Settings" }
+    : isProjectRoute
+      ? { section: "Project Studio", title: activeProjectName || "Overview" }
+      : (routeTitles[location.pathname] ?? {
+          section: activeOrg?.name || "Organization",
+          title: "Overview",
+        })
 
   // Real Backend Health Check (polls every 30s)
   const { data: isHealthy, isLoading: isCheckingHealth } = useQuery({
@@ -88,7 +101,7 @@ export function Header() {
 
   return (
     <header className="border-border/70 bg-card/40 sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b px-4 backdrop-blur-md sm:px-6">
-      {/* Left: Mobile trigger & Breadcrumbs */}
+      {/* Left: Mobile trigger, Org Switcher & Breadcrumbs */}
       <div className="flex items-center gap-3">
         <Button
           type="button"
@@ -101,18 +114,46 @@ export function Header() {
           <Menu className="h-4 w-4" />
         </Button>
 
-        {/* Breadcrumb Navigation */}
+        {/* Organization Switcher at start of header */}
+        <div className="w-44 sm:w-52">
+          <OrgSwitcher />
+        </div>
+
+        {/* Multi-tiered Breadcrumb Navigation */}
         <nav
           aria-label="Breadcrumb"
           className="flex items-center gap-1.5 text-xs font-medium"
         >
-          <span className="text-muted-foreground">
-            {currentRouteMeta.section}
-          </span>
-          <ChevronRight className="text-muted-foreground/60 h-3.5 w-3.5" />
-          <span className="text-foreground text-sm font-semibold tracking-tight sm:text-base">
-            {currentRouteMeta.title}
-          </span>
+          {/* Project Segment (if in project context) */}
+          {(isProjectRoute || (isToolRoute && activeProjectName)) && (
+            <>
+              <ChevronRight className="text-muted-foreground/60 h-3.5 w-3.5" />
+              <button
+                type="button"
+                onClick={() => navigate(`/projects/${activeProjectSlug || ""}`)}
+                className={cn(
+                  "cursor-pointer transition-colors",
+                  isProjectRoute && !isProjectSettings
+                    ? "text-foreground text-sm font-semibold tracking-tight sm:text-base"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {activeProjectName || "Project"}
+              </button>
+            </>
+          )}
+
+          {/* Subpage Segment (if tool, project settings, or org subpage) */}
+          {((!isProjectRoute && location.pathname !== "/dashboard") ||
+            isToolRoute ||
+            isProjectSettings) && (
+            <>
+              <ChevronRight className="text-muted-foreground/60 h-3.5 w-3.5" />
+              <span className="text-foreground text-sm font-semibold tracking-tight sm:text-base">
+                {currentRouteMeta.title}
+              </span>
+            </>
+          )}
         </nav>
       </div>
 
@@ -173,19 +214,6 @@ export function Header() {
             </Tooltip>
           )}
         </TooltipProvider>
-
-        {/* Active Org Chip (shown on larger screens) */}
-        {activeOrg && (
-          <div className="border-border/70 bg-muted/30 hidden items-center gap-2 rounded-lg border px-2.5 py-1 text-xs sm:flex">
-            <Building2 className="text-primary h-3.5 w-3.5" />
-            <span className="text-foreground max-w-30 truncate font-medium">
-              {activeOrg.name}
-            </span>
-            {currentRole && (
-              <RoleBadge role={currentRole} className="scale-90" />
-            )}
-          </div>
-        )}
 
         {/* User Dropdown Menu */}
         <DropdownMenu>

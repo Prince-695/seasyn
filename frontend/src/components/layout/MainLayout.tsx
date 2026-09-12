@@ -1,10 +1,19 @@
-import { Outlet } from "react-router-dom"
+import { useEffect, useRef } from "react"
+import { Outlet, useLocation } from "react-router-dom"
 import { Sidebar } from "./Sidebar"
 import { Header } from "./Header"
+import { PageTransition } from "./PageTransition"
 import { useUIStore } from "@/store/uiStore"
 
 export function MainLayout() {
+  const location = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
   const { mobileSidebarOpen, setMobileSidebarOpen } = useUIStore()
+
+  // Reset scroll position on route change
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 })
+  }, [location.pathname])
 
   return (
     <div className="bg-background text-foreground flex h-screen w-screen overflow-hidden font-sans antialiased">
@@ -36,9 +45,14 @@ export function MainLayout() {
         <Header />
 
         {/* Scrollable Content Canvas */}
-        <main className="from-background via-background to-muted/15 flex-1 overflow-y-auto bg-linear-to-b px-4 py-6 sm:px-8 sm:py-8">
+        <main
+          ref={mainRef}
+          className="from-background via-background to-muted/15 flex-1 overflow-y-auto bg-linear-to-b px-4 py-6 sm:px-8 sm:py-8"
+        >
           <div className="mx-auto w-full max-w-7xl">
-            <Outlet />
+            <PageTransition key={location.pathname}>
+              <Outlet />
+            </PageTransition>
           </div>
         </main>
       </div>

@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus, Activity, RefreshCw, Zap } from "lucide-react"
@@ -13,7 +13,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 export function MigrationsPage() {
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
+  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
   const orgId = activeOrg?.id || ""
   const projectParam =
@@ -50,6 +50,18 @@ export function MigrationsPage() {
 
   const projectId = currentProject?.id || activeProjectId || ""
   const projectSlugOrId = currentProject?.slug || projectId
+
+  // Sync active project context into workspace store
+  useEffect(() => {
+    if (currentProject) {
+      setActiveProject({
+        id: currentProject.id,
+        slug: currentProject.slug,
+        name: currentProject.name,
+        environment: currentProject.environment,
+      })
+    }
+  }, [currentProject, setActiveProject])
 
   // Fetch all migration pipelines for this project
   const {

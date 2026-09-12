@@ -143,15 +143,15 @@ export function MembersPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
-              Team Members
+              People
             </h1>
             <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-semibold">
               {members.length} {members.length === 1 ? "member" : "members"}
             </span>
           </div>
           <p className="text-muted-foreground mt-1 text-sm">
-            Manage your organization members, invite new teammates, and assign
-            roles.
+            All team members and collaborators in {activeOrg.name}. Manage
+            access roles and invitations.
           </p>
         </div>
 

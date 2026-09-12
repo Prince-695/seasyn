@@ -107,7 +107,7 @@ export function ProjectSettingsTab({
   return (
     <div className="space-y-6 pt-2">
       {/* General Metadata Form */}
-      <div className="border-border/80 bg-card rounded-2xl border p-6 shadow-xs">
+      <div className="border-border/70 bg-card rounded-lg border p-6 shadow-xs">
         <h3 className="text-foreground text-base font-semibold">
           General Project Settings
         </h3>
@@ -273,7 +273,7 @@ export function ProjectSettingsTab({
 
       {/* Danger Zone */}
       <PermissionGuard allowedRoles={["owner", "admin"]}>
-        <div className="border-destructive/30 bg-destructive/5 rounded-2xl border p-6">
+        <div className="border-destructive/25 bg-destructive/5 rounded-lg border p-6 shadow-xs">
           <h3 className="text-destructive text-base font-semibold">
             Danger Zone
           </h3>

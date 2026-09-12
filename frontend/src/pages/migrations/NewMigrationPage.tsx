@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft, Plus, AlertCircle } from "lucide-react"
@@ -11,7 +11,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 
 export function NewMigrationPage() {
   const [searchParams] = useSearchParams()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
+  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
   const orgId = activeOrg?.id || ""
   const projectParam =
@@ -48,6 +48,18 @@ export function NewMigrationPage() {
 
   const projectId = matchedProject?.id || activeProjectId || ""
   const projectSlugOrId = matchedProject?.slug || projectId
+
+  // Sync active project context into workspace store
+  useEffect(() => {
+    if (matchedProject) {
+      setActiveProject({
+        id: matchedProject.id,
+        slug: matchedProject.slug,
+        name: matchedProject.name,
+        environment: matchedProject.environment,
+      })
+    }
+  }, [matchedProject, setActiveProject])
 
   const initialSourceConn = searchParams.get("sourceConn") || ""
   const initialSourceTable = searchParams.get("sourceTable") || ""

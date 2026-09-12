@@ -311,7 +311,7 @@ function EditDocumentDialog({
               if (error) setError(null)
             }}
             rows={14}
-            className="border-code-border bg-code-bg text-code-foreground w-full overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap ring-offset-0"
+            className="border-code-border bg-code-bg text-code-foreground focus-visible:border-primary/60 focus-visible:ring-primary/20 w-full overflow-x-auto p-3 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap ring-offset-0"
           />
 
           {error && (
@@ -413,7 +413,7 @@ function InsertDocumentDialog({
               if (error) setError(null)
             }}
             rows={12}
-            className="border-code-border bg-code-bg text-code-foreground w-full overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap ring-offset-0"
+            className="border-code-border bg-code-bg text-code-foreground focus-visible:border-primary/60 focus-visible:ring-primary/20 w-full overflow-x-auto p-3 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap ring-offset-0"
           />
 
           {error && (

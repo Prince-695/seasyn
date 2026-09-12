@@ -174,7 +174,7 @@ export function InsertRowModal({
                       onChange={(e) =>
                         handleFieldChange(col.name, e.target.value)
                       }
-                      className="border-code-border bg-code-bg text-code-foreground font-mono text-xs"
+                      className="border-code-border bg-code-bg text-code-foreground focus-visible:border-primary/60 focus-visible:ring-primary/20 p-2.5 font-mono text-xs leading-relaxed"
                     />
                   ) : (
                     <Input

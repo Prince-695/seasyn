@@ -11,8 +11,8 @@ import {
   MembersPage,
   OrgSettingsPage,
   ProfilePage,
-  ProjectsListPage,
   ProjectDetailsPage,
+  ProjectSettingsPage,
   ConnectionsPage,
   SchemaExplorerPage,
   SchemaDiffPage,
@@ -74,11 +74,15 @@ export const router = createBrowserRouter(
             },
             {
               path: "projects",
-              element: <ProjectsListPage />,
+              element: <Navigate to="/dashboard" replace />,
             },
             {
               path: "projects/:projectSlug",
               element: <ProjectDetailsPage />,
+            },
+            {
+              path: "projects/:projectSlug/settings",
+              element: <ProjectSettingsPage />,
             },
             {
               path: "connections",

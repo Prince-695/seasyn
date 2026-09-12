@@ -24,7 +24,7 @@ export function MigrationLivePage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { activeOrg, activeProjectId, setActiveProjectId } = useWorkspaceStore()
+  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
   const orgId = activeOrg?.id || ""
   const jobId = params.jobId || ""
@@ -71,10 +71,15 @@ export function MigrationLivePage() {
 
   // Sync resolved project back into workspace store
   useEffect(() => {
-    if (resolvedProject && resolvedProject.id !== activeProjectId) {
-      setActiveProjectId(resolvedProject.id)
+    if (resolvedProject) {
+      setActiveProject({
+        id: resolvedProject.id,
+        slug: resolvedProject.slug,
+        name: resolvedProject.name,
+        environment: resolvedProject.environment,
+      })
     }
-  }, [resolvedProject, activeProjectId, setActiveProjectId])
+  }, [resolvedProject, setActiveProject])
 
   // 2. Fetch initial migration job record from REST API
   const {

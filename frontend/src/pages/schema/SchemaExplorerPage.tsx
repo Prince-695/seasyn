@@ -9,6 +9,7 @@ import { useSchemaExplorer } from "@/hooks/useSchemaExplorer"
 export function SchemaExplorerPage() {
   const {
     projects,
+    matchedProject,
     effectiveProjectId,
     connections,
     activeConnection,
@@ -40,12 +41,13 @@ export function SchemaExplorerPage() {
   } = useSchemaExplorer()
 
   return (
-    <div className="-m-6 flex h-[calc(100vh-4rem)] flex-col overflow-hidden">
+    <div className="-mx-4 -my-6 flex h-[calc(100vh-4rem)] flex-col overflow-hidden sm:-mx-8 sm:-my-8">
       {/* ── Studio Top Toolbar ── */}
       <SchemaStudioHeader
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
         projects={projects}
+        currentProject={matchedProject}
         effectiveProjectId={effectiveProjectId}
         onSelectProject={selectProject}
         connections={connections}

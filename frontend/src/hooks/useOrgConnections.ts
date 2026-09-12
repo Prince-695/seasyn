@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { projectsApi } from "@/api/projects"
 import { projectKeys, connectionKeys } from "@/lib/queryKeys"
-import type { Environment, PublicDatabaseConnection } from "@/types"
+import type { Project, Environment, PublicDatabaseConnection } from "@/types"
 
 export interface OrgConnection extends PublicDatabaseConnection {
   projectName?: string
@@ -10,12 +10,7 @@ export interface OrgConnection extends PublicDatabaseConnection {
 }
 
 export interface UseOrgConnectionsResult {
-  projects: Array<{
-    id: string
-    name: string
-    slug: string
-    environment: Environment
-  }>
+  projects: Project[]
   connections: OrgConnection[]
   isLoading: boolean
   isProjectsLoading: boolean

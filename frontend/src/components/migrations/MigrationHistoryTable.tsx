@@ -1,6 +1,13 @@
 import { useState, useMemo } from "react"
-import { Link } from "react-router-dom"
-import { Activity, ArrowRight, Search, Ban, Info, Calendar } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import {
+  ArrowRight,
+  Search,
+  Ban,
+  Info,
+  Calendar,
+  ChevronRight,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -34,6 +41,7 @@ export function MigrationHistoryTable({
   isCancellingJob = false,
   className,
 }: MigrationHistoryTableProps) {
+  const navigate = useNavigate()
   const { activeOrg, activeProjectId } = useWorkspaceStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<FilterTab>("all")
@@ -199,7 +207,13 @@ export function MigrationHistoryTable({
                   return (
                     <tr
                       key={job.id}
-                      className="hover:bg-muted/20 transition-colors"
+                      onClick={() =>
+                        navigate(
+                          `/migration/${job.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`
+                        )
+                      }
+                      className="hover:bg-muted/30 group cursor-pointer transition-colors"
+                      title="Open live telemetry"
                     >
                       {/* 1. Source ➔ Target Engines */}
                       <td className="px-4 py-3.5">
@@ -293,26 +307,16 @@ export function MigrationHistoryTable({
                       {/* 6. Actions */}
                       <td className="px-4 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Live Telemetry View */}
-                          <Link
-                            to={`/migration/${job.id}${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
-                          >
-                            <Button
-                              variant="outline"
-                              size="xs"
-                              className="gap-1 text-[11px]"
-                            >
-                              <Activity className="text-info h-3 w-3" />
-                              <span>Live</span>
-                            </Button>
-                          </Link>
-
                           {/* Details Inspection */}
                           <Button
                             variant="ghost"
                             size="xs"
-                            onClick={() => setSelectedJobForDetails(job)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedJobForDetails(job)
+                            }}
                             className="text-muted-foreground hover:text-foreground h-7 w-7 p-0"
+                            title="View Pipeline Details"
                           >
                             <Info className="h-3.5 w-3.5" />
                           </Button>
@@ -322,13 +326,19 @@ export function MigrationHistoryTable({
                             <Button
                               variant="ghost"
                               size="xs"
-                              onClick={() => setJobToCancel(job)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setJobToCancel(job)
+                              }}
                               className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 w-7 p-0"
                               title="Cancel Migration"
                             >
                               <Ban className="h-3.5 w-3.5" />
                             </Button>
                           )}
+
+                          {/* Navigation Cue */}
+                          <ChevronRight className="text-muted-foreground/35 group-hover:text-foreground/70 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                         </div>
                       </td>
                     </tr>

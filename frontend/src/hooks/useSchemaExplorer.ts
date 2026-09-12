@@ -76,7 +76,7 @@ export interface UseSchemaExplorerResult {
  */
 export function useSchemaExplorer(): UseSchemaExplorerResult {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
+  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
   // Selected Connection & Table state from URL or fallback
   const projectParam =
@@ -127,6 +127,18 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
   }, [projects, selectedProjectIdentifier, projectParam])
 
   const effectiveProjectId = matchedProject?.id || ""
+
+  // Sync active project context into workspace store
+  useEffect(() => {
+    if (matchedProject) {
+      setActiveProject({
+        id: matchedProject.id,
+        slug: matchedProject.slug,
+        name: matchedProject.name,
+        environment: matchedProject.environment,
+      })
+    }
+  }, [matchedProject, setActiveProject])
 
   // 2. Fetch Connections for the selected project
   const { data: connections = [], isLoading: isConnectionsLoading } = useQuery({

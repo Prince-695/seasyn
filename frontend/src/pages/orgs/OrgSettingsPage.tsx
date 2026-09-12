@@ -188,7 +188,7 @@ export function OrgSettingsPage() {
       </div>
 
       {/* General Settings Card */}
-      <Card className="border-border/60 bg-card/40 shadow-sm backdrop-blur-xs">
+      <Card className="border-border/70 bg-card shadow-xs">
         <CardHeader>
           <CardTitle>General Information</CardTitle>
           <CardDescription>
@@ -197,7 +197,7 @@ export function OrgSettingsPage() {
         </CardHeader>
 
         <form onSubmit={handleSubmit(onSubmitGeneral)}>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-4">
             {generalSuccess && (
               <div
                 role="status"
@@ -218,8 +218,10 @@ export function OrgSettingsPage() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="org-name">Organization Name</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="org-name" className="text-xs font-medium">
+                Organization Name
+              </Label>
               <Input
                 id="org-name"
                 disabled={!canEditGeneral || updateOrgMutation.isPending}
@@ -233,8 +235,10 @@ export function OrgSettingsPage() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="org-description">Description</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="org-description" className="text-xs font-medium">
+                Description
+              </Label>
               <Textarea
                 id="org-description"
                 rows={3}
@@ -252,8 +256,12 @@ export function OrgSettingsPage() {
           </CardContent>
 
           {canEditGeneral && (
-            <CardFooter className="border-border/40 flex justify-end border-t px-6 py-4">
-              <Button type="submit" disabled={updateOrgMutation.isPending}>
+            <CardFooter className="border-border/60 bg-muted/20 flex justify-end border-t px-6 py-3.5">
+              <Button
+                type="submit"
+                disabled={updateOrgMutation.isPending}
+                size="sm"
+              >
                 {updateOrgMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -270,26 +278,28 @@ export function OrgSettingsPage() {
 
       {/* Danger Zone Card (Owner Only) */}
       <PermissionGuard allowedRoles={["owner"]}>
-        <Card className="border-destructive/30 bg-destructive/5 shadow-sm backdrop-blur-xs">
-          <CardHeader className="border-destructive/10 border-b pb-4">
+        <div className="border-destructive/25 bg-destructive/5 overflow-hidden rounded-lg border shadow-xs">
+          <div className="border-destructive/15 flex flex-col gap-1 border-b p-6">
             <div className="text-destructive flex items-center gap-2">
               <ShieldAlert className="h-5 w-5" />
-              <CardTitle className="text-destructive">Danger Zone</CardTitle>
+              <h3 className="text-destructive text-base leading-none font-semibold">
+                Danger Zone
+              </h3>
             </div>
-            <CardDescription className="text-destructive/80">
+            <p className="text-destructive/80 mt-1 text-xs leading-relaxed">
               Irreversible and destructive actions restricted exclusively to the
               Organization Owner.
-            </CardDescription>
-          </CardHeader>
+            </p>
+          </div>
 
-          <CardContent className="divide-destructive/10 divide-y p-0">
+          <div className="divide-destructive/15 divide-y">
             {/* Transfer Ownership */}
             <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-foreground text-sm font-semibold">
                   Transfer Ownership
                 </p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground mt-0.5 text-xs">
                   Transfer the owner role of this organization to another team
                   member.
                 </p>
@@ -298,10 +308,10 @@ export function OrgSettingsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setTransferModalOpen(true)}
-                className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0 gap-1.5"
               >
-                <ArrowRightLeft className="mr-2 h-4 w-4" />
-                Transfer Ownership
+                <ArrowRightLeft className="h-3.5 w-3.5" />
+                <span>Transfer Ownership</span>
               </Button>
             </div>
 
@@ -311,7 +321,7 @@ export function OrgSettingsPage() {
                 <p className="text-destructive text-sm font-semibold">
                   Delete Organization
                 </p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground mt-0.5 text-xs">
                   Permanently delete this organization, all attached projects,
                   migrations, and connections.
                 </p>
@@ -324,14 +334,14 @@ export function OrgSettingsPage() {
                   setDeleteError(null)
                   setDeleteModalOpen(true)
                 }}
-                className="shrink-0 shadow-xs"
+                className="shrink-0 gap-1.5 shadow-xs"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Organization
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Delete Organization</span>
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </PermissionGuard>
 
       {/* Delete Confirmation Modal */}

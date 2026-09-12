@@ -51,16 +51,16 @@
   --mac-close: #ff5f56;
   --mac-minimize: #ffbd2e;
   --mac-maximize: #27c93f;
-  --code-bg: #0d0e12;
-  --code-foreground: #34d399;
-  --code-border: #27272a;
+  --code-bg: #f5f4f2;
+  --code-foreground: #18181b;
+  --code-border: #e3e1de;
 
   /* Typography (Preserved Fonts) */
   --font-sans: "Figtree", sans-serif;
   --font-serif: "EB Garamond", serif;
   --font-mono: Menlo, monospace;
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
   --shadow-blur: 8px;
@@ -125,16 +125,16 @@
   --mac-close: #ff5f56;
   --mac-minimize: #ffbd2e;
   --mac-maximize: #27c93f;
-  --code-bg: #09090b;
-  --code-foreground: #34d399;
-  --code-border: #27272a;
+  --code-bg: #141311;
+  --code-foreground: #eceae5;
+  --code-border: #3a3631;
 
   /* Typography (Preserved Fonts) */
   --font-sans: "Figtree", sans-serif;
   --font-serif: "EB Garamond", serif;
   --font-mono: Menlo, monospace;
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 6px;
   --shadow-blur: 12px;
@@ -205,10 +205,13 @@
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-xs: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 6px);
+  --radius-3xl: calc(var(--radius) + 8px);
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -262,6 +265,61 @@
   100% {
     transform: translate(0, 0);
     opacity: 0;
+  }
+}
+
+/* Page Transition Animations (Zero-flash hardware accelerated) */
+@keyframes page-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes page-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes page-scale {
+  0% {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+.animate-page-fade {
+  animation: page-fade 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity;
+}
+
+.animate-page-scale {
+  animation: page-scale 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-enter,
+  .animate-page-fade,
+  .animate-page-scale {
+    animation: none !important;
   }
 }
 

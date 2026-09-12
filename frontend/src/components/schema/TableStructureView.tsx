@@ -76,7 +76,7 @@ export function TableStructureView({
       return def
     })
 
-    if (table.primary_keys && table.primary_keys.length > 0) {
+    if (Array.isArray(table.primary_keys) && table.primary_keys.length > 0) {
       colDefs.push(`  PRIMARY KEY ("${table.primary_keys.join('", "')}")`)
     }
 
@@ -310,16 +310,26 @@ export function TableStructureView({
                   </tr>
                 </thead>
                 <tbody className="divide-border/50 divide-y font-mono">
-                  {table.indexes.map((idx) => (
+                  {table.indexes.map((idx, i) => (
                     <tr
-                      key={idx.name}
+                      key={idx.name || `index-${i}`}
                       className="hover:bg-muted/20 transition-colors"
                     >
                       <td className="text-foreground px-3 py-2.5 font-semibold">
-                        {idx.name}
+                        {idx.name || (
+                          <span className="text-muted-foreground/60 italic">
+                            unnamed
+                          </span>
+                        )}
                       </td>
                       <td className="text-muted-foreground px-3 py-2.5">
-                        ({idx.columns.join(", ")})
+                        {idx.columns && idx.columns.length > 0 ? (
+                          `(${idx.columns.join(", ")})`
+                        ) : (
+                          <span className="text-muted-foreground/50 italic">
+                            -
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2.5 font-sans">
                         {idx.is_unique ? (
@@ -364,13 +374,17 @@ export function TableStructureView({
                   </tr>
                 </thead>
                 <tbody className="divide-border/50 divide-y font-mono">
-                  {table.constraints.map((c) => (
+                  {table.constraints.map((c, i) => (
                     <tr
-                      key={c.name}
+                      key={c.name || `constraint-${i}`}
                       className="hover:bg-muted/20 transition-colors"
                     >
                       <td className="text-foreground px-3 py-2.5 font-semibold">
-                        {c.name}
+                        {c.name || (
+                          <span className="text-muted-foreground/60 italic">
+                            unnamed
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2.5 font-sans">
                         <Badge variant="outline" className="text-[10px]">
@@ -378,12 +392,21 @@ export function TableStructureView({
                         </Badge>
                       </td>
                       <td className="text-muted-foreground px-3 py-2.5">
-                        {c.columns.join(", ")}
+                        {c.columns && c.columns.length > 0 ? (
+                          c.columns.join(", ")
+                        ) : (
+                          <span className="text-muted-foreground/50 italic">
+                            -
+                          </span>
+                        )}
                       </td>
                       <td className="text-info px-3 py-2.5 text-[11px]">
                         {c.foreign_table ? (
                           <span>
-                            ➔ {c.foreign_table}({c.foreign_columns?.join(", ")})
+                            ➔ {c.foreign_table}
+                            {c.foreign_columns && c.foreign_columns.length > 0
+                              ? `(${c.foreign_columns.join(", ")})`
+                              : ""}
                           </span>
                         ) : (
                           <span className="text-muted-foreground/50">-</span>
