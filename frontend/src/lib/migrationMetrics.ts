@@ -41,8 +41,9 @@ export function calculateMigrationResourceStats(
   rowsPerSecond: number,
   isConnected: boolean
 ): MigrationResourceStats {
-  // Estimate average row size based on standard relational/document footprint
-  const avgRowBytes = 284
+  // Estimated average row size (bytes) across typical relational/document schemas.
+  // Replace with job.avg_row_bytes once the backend exposes per-job row metrics.
+  const AVG_ROW_BYTES_ESTIMATE = 284
 
   const effectiveTotalRows = Math.max(totalRows, job.total_rows || 0)
   const effectiveMigratedRows = Math.min(
@@ -50,8 +51,8 @@ export function calculateMigrationResourceStats(
     Math.max(migratedRows, job.migrated_rows || 0)
   )
 
-  const totalEstimatedBytes = effectiveTotalRows * avgRowBytes
-  const migratedBytes = effectiveMigratedRows * avgRowBytes
+  const totalEstimatedBytes = effectiveTotalRows * AVG_ROW_BYTES_ESTIMATE
+  const migratedBytes = effectiveMigratedRows * AVG_ROW_BYTES_ESTIMATE
 
   const batchSize = Math.max(1, job.batch_size || 500)
   const totalBatches = Math.max(1, Math.ceil(effectiveTotalRows / batchSize))
@@ -61,13 +62,15 @@ export function calculateMigrationResourceStats(
       : Math.min(totalBatches, Math.floor(effectiveMigratedRows / batchSize))
 
   const batchPayloadBytes = Math.min(
-    batchSize * avgRowBytes,
-    totalEstimatedBytes > 0 ? totalEstimatedBytes : batchSize * avgRowBytes
+    batchSize * AVG_ROW_BYTES_ESTIMATE,
+    totalEstimatedBytes > 0
+      ? totalEstimatedBytes
+      : batchSize * AVG_ROW_BYTES_ESTIMATE
   )
 
   // In-flight buffer memory footprint in RAM
   const inFlightMemoryBytes =
-    job.status === "running" ? batchPayloadBytes : avgRowBytes * 16
+    job.status === "running" ? batchPayloadBytes : AVG_ROW_BYTES_ESTIMATE * 16
 
   // Simulated latency for SSE telemetry channel (12-24ms typical network loop)
   const latencyMs = isConnected ? 16 : job.status === "completed" ? 0 : 42
@@ -86,7 +89,7 @@ export function calculateMigrationResourceStats(
         : "Elevated"
 
   // Throughput transfer rate in KB/s or MB/s
-  const transferRateBytes = rowsPerSecond * avgRowBytes
+  const transferRateBytes = rowsPerSecond * AVG_ROW_BYTES_ESTIMATE
   const transferRateFormatted =
     rowsPerSecond > 0 ? `${formatBytes(transferRateBytes)}/s` : "0 B/s"
 
@@ -101,8 +104,8 @@ export function calculateMigrationResourceStats(
   const elapsedFormatted = formatDuration(elapsedMs)
 
   return {
-    avgRowBytes,
-    formattedAvgRowBytes: `~${formatBytes(avgRowBytes)}`,
+    avgRowBytes: AVG_ROW_BYTES_ESTIMATE,
+    formattedAvgRowBytes: `~${formatBytes(AVG_ROW_BYTES_ESTIMATE)}`,
     totalEstimatedBytes,
     formattedTotalBytes: formatBytes(totalEstimatedBytes),
     migratedBytes,

@@ -248,16 +248,6 @@ export function useConnectionWizard({
       }
     }
 
-    // Diagnostic console trace for debugging connection tests
-    console.groupCollapsed(
-      `[SEASYN Diagnostics] Prepared Test Payload (${selectedEngine})`
-    )
-    console.log("Selected Engine:", selectedEngine)
-    console.log("Mongo Mode:", mongoMode)
-    console.log("Raw Form Values:", values)
-    console.log("Final Sent Payload:", payload)
-    console.groupEnd()
-
     return payload
   }
 

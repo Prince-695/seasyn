@@ -56,9 +56,13 @@ export function MigrationTerminalLog({
     const text = allLogs
       .map((l) => `[${l.timestamp}] [${l.level}] ${l.message}`)
       .join("\n")
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard access denied — fail silently
+    }
   }
 
   return (
@@ -92,7 +96,16 @@ export function MigrationTerminalLog({
         <div className="flex items-center gap-2">
           {/* Level Filter Pills */}
           <div className="border-border/60 bg-muted/50 flex items-center gap-1 rounded-md border p-0.5 text-[10px]">
-            {(["ALL", "INFO", "BATCH", "ERROR"] as FilterLevel[]).map((lvl) => (
+            {(
+              [
+                "ALL",
+                "INFO",
+                "STREAM",
+                "BATCH",
+                "WARN",
+                "ERROR",
+              ] as FilterLevel[]
+            ).map((lvl) => (
               <button
                 key={lvl}
                 onClick={() => setActiveFilter(lvl)}

@@ -1,4 +1,3 @@
-import { useMemo, useEffect } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft, Plus, AlertCircle } from "lucide-react"
@@ -6,60 +5,18 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MigrationWizard } from "@/components/migrations/MigrationWizard"
 import { projectsApi } from "@/api/projects"
-import { connectionKeys, projectKeys } from "@/lib/queryKeys"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { connectionKeys } from "@/lib/queryKeys"
+import { useActiveProject } from "@/hooks/useActiveProject"
 
 export function NewMigrationPage() {
   const [searchParams] = useSearchParams()
-  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
-  const orgId = activeOrg?.id || ""
   const projectParam =
-    searchParams.get("project") ||
-    searchParams.get("projectId") ||
-    activeProjectId ||
-    ""
+    searchParams.get("project") || searchParams.get("projectId") || ""
 
-  // Fetch projects to resolve slug to ID
-  const { data: projects = [] } = useQuery({
-    queryKey: projectKeys.list(orgId),
-    queryFn: async () => {
-      if (!orgId) return []
-      const res = await projectsApi.list(orgId)
-      return res.data || []
-    },
-    enabled: !!orgId,
-  })
-
-  const matchedProject = useMemo(() => {
-    if (!projects.length) return null
-    if (projectParam) {
-      return (
-        projects.find(
-          (p) => p.slug === projectParam || p.id === projectParam
-        ) || null
-      )
-    }
-    if (activeProjectId) {
-      return projects.find((p) => p.id === activeProjectId) || null
-    }
-    return projects[0] ?? null
-  }, [projects, projectParam, activeProjectId])
-
-  const projectId = matchedProject?.id || activeProjectId || ""
-  const projectSlugOrId = matchedProject?.slug || projectId
-
-  // Sync active project context into workspace store
-  useEffect(() => {
-    if (matchedProject) {
-      setActiveProject({
-        id: matchedProject.id,
-        slug: matchedProject.slug,
-        name: matchedProject.name,
-        environment: matchedProject.environment,
-      })
-    }
-  }, [matchedProject, setActiveProject])
+  // Resolves active project from URL param, store, or first-project fallback
+  const { projectId, projectSlugOrId, orgId, resolvedProject } =
+    useActiveProject(projectParam)
 
   const initialSourceConn = searchParams.get("sourceConn") || ""
   const initialSourceTable = searchParams.get("sourceTable") || ""
@@ -135,7 +92,7 @@ export function NewMigrationPage() {
         <MigrationWizard
           orgId={orgId}
           projectId={projectId}
-          projectSlug={matchedProject?.slug}
+          projectSlug={resolvedProject?.slug}
           connections={connections}
           initialSourceConnId={initialSourceConn}
           initialSourceTable={initialSourceTable}

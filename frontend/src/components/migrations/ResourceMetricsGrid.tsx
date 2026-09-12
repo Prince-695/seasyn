@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils"
 
 interface ResourceMetricsGridProps {
   stats: MigrationResourceStats
+  isConnected?: boolean
   className?: string
 }
 
 export function ResourceMetricsGrid({
   stats,
+  isConnected = false,
   className,
 }: ResourceMetricsGridProps) {
   const pressureColor =
@@ -84,7 +86,7 @@ export function ResourceMetricsGrid({
               </span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              Payload payload: ~{stats.formattedBatchPayload}
+              Batch payload: ~{stats.formattedBatchPayload}
             </p>
           </div>
 
@@ -210,8 +212,13 @@ export function ResourceMetricsGrid({
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
               <span>Telemetry Channel</span>
-              <span className="text-success font-mono text-[9px] font-semibold">
-                SSE Active
+              <span
+                className={cn(
+                  "font-mono text-[9px] font-semibold",
+                  isConnected ? "text-success" : "text-muted-foreground"
+                )}
+              >
+                {isConnected ? "SSE Active" : "SSE Closed"}
               </span>
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">

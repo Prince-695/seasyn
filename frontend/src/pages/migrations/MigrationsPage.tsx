@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react"
+import { useMemo } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus, Activity, RefreshCw, Zap } from "lucide-react"
@@ -6,62 +6,18 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MigrationHistoryTable } from "@/components/migrations/MigrationHistoryTable"
 import { migrationsApi } from "@/api/migrations"
-import { projectsApi } from "@/api/projects"
-import { migrationKeys, projectKeys } from "@/lib/queryKeys"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { migrationKeys } from "@/lib/queryKeys"
+import { useActiveProject } from "@/hooks/useActiveProject"
 
 export function MigrationsPage() {
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
-  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
-  const orgId = activeOrg?.id || ""
   const projectParam =
-    searchParams.get("project") ||
-    searchParams.get("projectId") ||
-    activeProjectId ||
-    ""
+    searchParams.get("project") || searchParams.get("projectId") || ""
 
-  // Fetch projects to resolve slug to ID
-  const { data: projects = [] } = useQuery({
-    queryKey: projectKeys.list(orgId),
-    queryFn: async () => {
-      if (!orgId) return []
-      const res = await projectsApi.list(orgId)
-      return res.data || []
-    },
-    enabled: !!orgId,
-  })
-
-  const currentProject = useMemo(() => {
-    if (!projects.length) return null
-    if (projectParam) {
-      return (
-        projects.find(
-          (p) => p.slug === projectParam || p.id === projectParam
-        ) || null
-      )
-    }
-    if (activeProjectId) {
-      return projects.find((p) => p.id === activeProjectId) || null
-    }
-    return projects[0] ?? null
-  }, [projects, projectParam, activeProjectId])
-
-  const projectId = currentProject?.id || activeProjectId || ""
-  const projectSlugOrId = currentProject?.slug || projectId
-
-  // Sync active project context into workspace store
-  useEffect(() => {
-    if (currentProject) {
-      setActiveProject({
-        id: currentProject.id,
-        slug: currentProject.slug,
-        name: currentProject.name,
-        environment: currentProject.environment,
-      })
-    }
-  }, [currentProject, setActiveProject])
+  // Resolves active project from URL param, store, or first-project fallback
+  const { projectId, projectSlugOrId, orgId } = useActiveProject(projectParam)
 
   // Fetch all migration pipelines for this project
   const {
@@ -76,7 +32,14 @@ export function MigrationsPage() {
       return res.data || []
     },
     enabled: !!orgId && !!projectId,
-    refetchInterval: 10000, // Background poll every 10s for updates
+    // Only poll while at least one job is actively running
+    refetchInterval: (query) => {
+      const data = query.state.data
+      if (Array.isArray(data) && data.some((j) => j.status === "running")) {
+        return 10_000
+      }
+      return false
+    },
   })
 
   // Cancel running job mutation
@@ -107,7 +70,7 @@ export function MigrationsPage() {
   const activeRunningJob = jobs.find((j) => j.status === "running")
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* Studio Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -241,7 +204,7 @@ export function MigrationsPage() {
         <MigrationHistoryTable
           jobs={jobs}
           isLoading={isLoading}
-          projectSlug={currentProject?.slug}
+          projectSlugOrId={projectSlugOrId}
           onCancelJob={async (jobId) => {
             await cancelMutation.mutateAsync(jobId)
           }}

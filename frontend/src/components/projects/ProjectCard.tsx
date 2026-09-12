@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
+import { formatDateOnly } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 import type { Project, Environment } from "@/types"
 
@@ -65,14 +66,7 @@ export function ProjectCard({
     navigate(`/projects/${project.slug || project.id}`)
   }
 
-  const formattedDate = new Date(project.created_at).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }
-  )
+  const formattedDate = formatDateOnly(project.created_at)
 
   return (
     <div

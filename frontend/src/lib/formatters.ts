@@ -16,16 +16,35 @@ export function formatDuration(ms: number): string {
  * Formats a timestamp into a standard display date.
  * Example: "Oct 25, 2024, 10:30 AM"
  */
-export function formatDate(timestamp: string | Date | number): string {
+export function formatDate(
+  timestamp: string | Date | number,
+  options?: Intl.DateTimeFormatOptions
+): string {
   if (!timestamp) return "-"
   const date = new Date(timestamp)
-  return new Intl.DateTimeFormat("en-US", {
+  if (isNaN(date.getTime())) return "-"
+  const defaultOptions: Intl.DateTimeFormatOptions = {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "numeric",
-  }).format(date)
+  }
+  return new Intl.DateTimeFormat("en-US", options ?? defaultOptions).format(
+    date
+  )
+}
+
+/**
+ * Formats a timestamp into a date-only display string.
+ * Example: "Oct 25, 2024"
+ */
+export function formatDateOnly(timestamp: string | Date | number): string {
+  return formatDate(timestamp, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
 }
 
 /**

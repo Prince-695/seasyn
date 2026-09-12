@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { ArrowLeft, Ban, CheckCircle2, RefreshCw } from "lucide-react"
@@ -10,11 +10,11 @@ import { ResourceMetricsGrid } from "@/components/migrations/ResourceMetricsGrid
 import { MigrationTerminalLog } from "@/components/migrations/MigrationTerminalLog"
 import { CancelMigrationDialog } from "@/components/migrations/CancelMigrationDialog"
 import { migrationsApi } from "@/api/migrations"
-import { projectsApi } from "@/api/projects"
-import { migrationKeys, projectKeys } from "@/lib/queryKeys"
+import { migrationKeys } from "@/lib/queryKeys"
 import { useMigrationStream } from "@/hooks/useMigrationStream"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { useActiveProject } from "@/hooks/useActiveProject"
 import { calculateMigrationResourceStats } from "@/lib/migrationMetrics"
+import { getMigrationStatusFlags } from "@/lib/migrationStatus"
 
 export function MigrationLivePage() {
   const params = useParams<{
@@ -25,9 +25,7 @@ export function MigrationLivePage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
-  const orgId = activeOrg?.id || ""
   const jobId = params.jobId || ""
   const projectParam =
     params.projectSlug ||
@@ -38,49 +36,13 @@ export function MigrationLivePage() {
 
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
 
-  // 1. Fetch organization projects to resolve active project
-  const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
-    queryKey: projectKeys.list(orgId),
-    queryFn: async () => {
-      if (!orgId) return []
-      const res = await projectsApi.list(orgId)
-      return res.data || []
-    },
-    enabled: !!orgId,
-  })
-
-  // Resolve project from route param, query param, or store fallback
-  const resolvedProject = useMemo(() => {
-    if (!projects.length) return null
-    if (projectParam) {
-      const matched = projects.find(
-        (p) => p.slug === projectParam || p.id === projectParam
-      )
-      if (matched) return matched
-    }
-    if (activeProjectId) {
-      const matched = projects.find((p) => p.id === activeProjectId)
-      if (matched) return matched
-    }
-    return projects[0] ?? null
-  }, [projects, projectParam, activeProjectId])
-
-  const projectId =
-    resolvedProject?.id ||
-    activeProjectId ||
-    (projectParam && !projects.length ? projectParam : "")
-
-  // Sync resolved project back into workspace store
-  useEffect(() => {
-    if (resolvedProject) {
-      setActiveProject({
-        id: resolvedProject.id,
-        slug: resolvedProject.slug,
-        name: resolvedProject.name,
-        environment: resolvedProject.environment,
-      })
-    }
-  }, [resolvedProject, setActiveProject])
+  // Resolves the active project from URL param, store, or first-project fallback
+  const {
+    projectId,
+    projectSlugOrId,
+    orgId,
+    isLoading: isProjectsLoading,
+  } = useActiveProject(projectParam)
 
   // 2. Fetch initial migration job record from REST API
   const {
@@ -184,13 +146,6 @@ export function MigrationLivePage() {
     )
   }
 
-  const projectSlugOrId =
-    resolvedProject?.slug ||
-    resolvedProject?.id ||
-    projectParam ||
-    activeProjectId ||
-    ""
-
   if (jobError || !job) {
     return (
       <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
@@ -215,8 +170,7 @@ export function MigrationLivePage() {
     )
   }
 
-  const isRunning = status === "running"
-  const isCompleted = status === "completed"
+  const { isRunning, isCompleted } = getMigrationStatusFlags(status)
 
   return (
     <div className="w-full space-y-5">
@@ -340,7 +294,7 @@ export function MigrationLivePage() {
       )}
 
       {/* 3. Detailed Storage, Compute & Buffer Diagnostics */}
-      {stats && <ResourceMetricsGrid stats={stats} />}
+      {stats && <ResourceMetricsGrid stats={stats} isConnected={isConnected} />}
 
       {/* 4. Real-Time Customized Execution Terminal & Audit Log */}
       <MigrationTerminalLog
@@ -358,7 +312,11 @@ export function MigrationLivePage() {
         jobName={`${job.source_table} ➔ ${job.target_table}`}
         isCancelling={cancelMutation.isPending}
         onConfirm={async () => {
-          await cancelMutation.mutateAsync()
+          try {
+            await cancelMutation.mutateAsync()
+          } catch {
+            // Error is reflected in cancelMutation.isError
+          }
         }}
       />
     </div>

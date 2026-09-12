@@ -3,9 +3,9 @@ import { useSearchParams } from "react-router-dom"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { schemaApi } from "@/api/schema"
 import { projectsApi } from "@/api/projects"
-import { schemaKeys, projectKeys, connectionKeys } from "@/lib/queryKeys"
+import { schemaKeys, connectionKeys } from "@/lib/queryKeys"
 import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { useActiveProject } from "@/hooks/useActiveProject"
 import type {
   ColumnSchema,
   DatabaseSchema,
@@ -76,14 +76,10 @@ export interface UseSchemaExplorerResult {
  */
 export function useSchemaExplorer(): UseSchemaExplorerResult {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { activeOrg, activeProjectId, setActiveProject } = useWorkspaceStore()
 
   // Selected Connection & Table state from URL or fallback
   const projectParam =
-    searchParams.get("project") ||
-    searchParams.get("projectId") ||
-    activeProjectId ||
-    ""
+    searchParams.get("project") || searchParams.get("projectId") || ""
   const connParam = searchParams.get("conn") || searchParams.get("connId") || ""
 
   const [selectedProjectIdentifier, setSelectedProjectIdentifier] =
@@ -102,56 +98,24 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     limit: 25,
   })
 
-  // 1. Fetch Projects for active organization
-  const { data: projects = [] } = useQuery({
-    queryKey: projectKeys.list(activeOrg?.id || ""),
-    queryFn: async () => {
-      if (!activeOrg?.id) return []
-      const res = await projectsApi.list(activeOrg.id)
-      return res.data || []
-    },
-    enabled: !!activeOrg?.id,
-  })
-
-  const matchedProject = useMemo(() => {
-    if (!projects.length) return null
-    return (
-      projects.find(
-        (p) =>
-          p.slug === selectedProjectIdentifier ||
-          p.id === selectedProjectIdentifier
-      ) ||
-      projects.find((p) => p.slug === projectParam || p.id === projectParam) ||
-      projects[0]
-    )
-  }, [projects, selectedProjectIdentifier, projectParam])
-
-  const effectiveProjectId = matchedProject?.id || ""
-
-  // Sync active project context into workspace store
-  useEffect(() => {
-    if (matchedProject) {
-      setActiveProject({
-        id: matchedProject.id,
-        slug: matchedProject.slug,
-        name: matchedProject.name,
-        environment: matchedProject.environment,
-      })
-    }
-  }, [matchedProject, setActiveProject])
+  // Resolves active project from URL param or first-project fallback
+  // Uses the combined selectedProjectIdentifier so switching projects in-UI is reflected
+  const {
+    projectId: effectiveProjectId,
+    orgId,
+    resolvedProject: matchedProject,
+    projects,
+  } = useActiveProject(selectedProjectIdentifier || projectParam)
 
   // 2. Fetch Connections for the selected project
   const { data: connections = [], isLoading: isConnectionsLoading } = useQuery({
-    queryKey: connectionKeys.list(activeOrg?.id || "", effectiveProjectId),
+    queryKey: connectionKeys.list(orgId || "", effectiveProjectId),
     queryFn: async () => {
-      if (!activeOrg?.id || !effectiveProjectId) return []
-      const res = await projectsApi.listConnections(
-        activeOrg.id,
-        effectiveProjectId
-      )
+      if (!orgId || !effectiveProjectId) return []
+      const res = await projectsApi.listConnections(orgId, effectiveProjectId)
       return res.data || []
     },
-    enabled: !!activeOrg?.id && !!effectiveProjectId,
+    enabled: !!orgId && !!effectiveProjectId,
   })
 
   const activeConnection = useMemo(() => {
@@ -202,20 +166,20 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     refetch: refetchSchema,
   } = useQuery({
     queryKey: schemaKeys.database(
-      activeOrg?.id || "",
+      orgId || "",
       effectiveProjectId,
       effectiveConnId
     ),
     queryFn: async () => {
-      if (!activeOrg?.id || !effectiveProjectId || !effectiveConnId) return null
+      if (!orgId || !effectiveProjectId || !effectiveConnId) return null
       const res = await schemaApi.getSchema(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId
       )
       return res.data || null
     },
-    enabled: !!activeOrg?.id && !!effectiveProjectId && !!effectiveConnId,
+    enabled: !!orgId && !!effectiveProjectId && !!effectiveConnId,
   })
 
   const tables = useMemo(() => databaseSchema?.tables || [], [databaseSchema])
@@ -236,7 +200,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     refetch: refetchRows,
   } = useQuery({
     queryKey: schemaKeys.rows(
-      activeOrg?.id || "",
+      orgId || "",
       effectiveProjectId,
       effectiveConnId,
       effectiveTableName || "",
@@ -244,14 +208,14 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     ),
     queryFn: async () => {
       if (
-        !activeOrg?.id ||
+        !orgId ||
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
       )
         return null
       const res = await schemaApi.getTableRows(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId,
         effectiveTableName,
@@ -261,7 +225,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     },
     enabled:
       activeTab === "data" &&
-      !!activeOrg?.id &&
+      !!orgId &&
       !!effectiveProjectId &&
       !!effectiveConnId &&
       !!effectiveTableName,
@@ -274,21 +238,21 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
 
   const { data: schemaDiff, isLoading: isDiffLoading } = useQuery({
     queryKey: schemaKeys.diff(
-      activeOrg?.id || "",
+      orgId || "",
       effectiveProjectId,
       effectiveConnId,
       targetConnection?.id || ""
     ),
     queryFn: async () => {
       if (
-        !activeOrg?.id ||
+        !orgId ||
         !effectiveProjectId ||
         !effectiveConnId ||
         !targetConnection?.id
       )
         return null
       const res = await schemaApi.generateDiff(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId,
         targetConnection.id
@@ -311,7 +275,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
       newVal: unknown
     }) => {
       if (
-        !activeOrg?.id ||
+        !orgId ||
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
@@ -325,7 +289,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         (terminology.paradigm === "document" ? "_id" : "id")
       const pkRecord = { [pkField]: row[pkField] }
       await schemaApi.updateRow(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId,
         effectiveTableName,
@@ -347,7 +311,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
       updatedRow: Record<string, unknown>
     }) => {
       if (
-        !activeOrg?.id ||
+        !orgId ||
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
@@ -361,7 +325,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         (terminology.paradigm === "document" ? "_id" : "id")
       const pkRecord = { [pkField]: row[pkField] }
       await schemaApi.updateRow(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId,
         effectiveTableName,
@@ -377,7 +341,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
   const deleteRowMutation = useMutation({
     mutationFn: async (pkValues: Record<string, unknown>) => {
       if (
-        !activeOrg?.id ||
+        !orgId ||
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
@@ -387,7 +351,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         )
       }
       await schemaApi.deleteRow(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId,
         effectiveTableName,
@@ -403,7 +367,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
   const insertRowMutation = useMutation({
     mutationFn: async (rowData: Record<string, unknown>) => {
       if (
-        !activeOrg?.id ||
+        !orgId ||
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
@@ -413,7 +377,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         )
       }
       await schemaApi.insertRow(
-        activeOrg.id,
+        orgId,
         effectiveProjectId,
         effectiveConnId,
         effectiveTableName,

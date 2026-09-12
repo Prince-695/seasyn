@@ -1,5 +1,4 @@
 import { useState } from "react"
-import axios from "axios"
 import {
   Activity,
   CheckCircle2,
@@ -47,25 +46,15 @@ export function DiagnosticPingButton({
     e.stopPropagation()
 
     if (!activeOrg?.id) {
-      console.warn("[SEASYN Ping] Diagnostic aborted: No active organization.")
       return
     }
     setTesting(true)
     setResult(null)
 
-    console.group(
-      `[SEASYN Ping] Connection Diagnostic Test (${new Date().toLocaleTimeString()})`
-    )
-
     try {
       let testRes: ConnectionTestResult
 
       if (savedConnId && projectId) {
-        console.log("Mode: Testing Saved Connection", {
-          orgId: activeOrg.id,
-          projectId,
-          savedConnId,
-        })
         const res = await projectsApi.testSavedConnection(
           activeOrg.id,
           projectId,
@@ -88,11 +77,6 @@ export function DiagnosticPingButton({
           return
         }
         const effectiveProjectId = projectId || "draft"
-        console.log("Mode: Direct Connection Payload", {
-          orgId: activeOrg.id,
-          projectId: effectiveProjectId,
-          payload,
-        })
         const res = await projectsApi.testDirectConnection(
           activeOrg.id,
           effectiveProjectId,
@@ -110,19 +94,9 @@ export function DiagnosticPingButton({
         )
       }
 
-      console.log("[SEASYN Ping Result]", testRes)
-      console.groupEnd()
-
       setResult(testRes)
       onResult?.(testRes)
     } catch (err: unknown) {
-      console.error("[SEASYN Ping Error]", err)
-      if (axios.isAxiosError(err)) {
-        console.error("HTTP Status:", err.response?.status)
-        console.error("Backend Response Data:", err.response?.data)
-      }
-      console.groupEnd()
-
       const errorMsg = getErrorMessage(
         err,
         "Database server unreachable. Please verify host, port, credentials, and network firewall rules."

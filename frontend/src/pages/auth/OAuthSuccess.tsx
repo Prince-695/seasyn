@@ -42,7 +42,6 @@ export function OAuthSuccess() {
           navigate(getSafeRedirectTarget(), { replace: true })
         }
       } catch (err) {
-        console.error("OAuth callback failed:", err)
         setError(
           getErrorMessage(
             err,
@@ -99,8 +98,7 @@ async function fetchAuthenticatedUser(): Promise<User | null> {
       ...profileRes.data,
       is_verified: profileRes.data.is_verified ?? false, // fail closed
     }
-  } catch (err) {
-    console.error("Failed to fetch user profile:", err)
+  } catch {
     return null
   }
 }

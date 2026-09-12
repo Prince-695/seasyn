@@ -9,6 +9,10 @@ import {
 import { MigrationStatusBadge } from "./MigrationStatusBadge"
 import type { MigrationJob } from "@/types/migration"
 import type { MigrationResourceStats } from "@/lib/migrationMetrics"
+import {
+  getMigrationStatusFlags,
+  getMigrationProgressBarClass,
+} from "@/lib/migrationStatus"
 import { cn } from "@/lib/utils"
 
 interface LiveProgressCardProps {
@@ -36,9 +40,7 @@ export function LiveProgressCard({
   errorMessage,
   className,
 }: LiveProgressCardProps) {
-  const isRunning = status === "running"
-  const isCompleted = status === "completed"
-  const isFailed = status === "failed"
+  const { isRunning, isCompleted, isFailed } = getMigrationStatusFlags(status)
 
   return (
     <div
@@ -102,11 +104,7 @@ export function LiveProgressCard({
           <div
             className={cn(
               "h-full transition-all duration-300 ease-out",
-              isFailed
-                ? "bg-destructive"
-                : isCompleted
-                  ? "bg-success"
-                  : "bg-primary",
+              getMigrationProgressBarClass(status),
               isRunning && "animate-pulse"
             )}
             style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}

@@ -2,6 +2,7 @@ import { ArrowRight, ShieldCheck, Zap, CheckCircle2 } from "lucide-react"
 import { EngineIcon } from "@/components/connections/EngineIcon"
 import { Badge } from "@/components/ui/badge"
 import type { MigrationJob, MigrationStatus } from "@/types/migration"
+import { getMigrationStatusFlags } from "@/lib/migrationStatus"
 import { cn } from "@/lib/utils"
 
 interface PipelineFlowRibbonProps {
@@ -21,9 +22,7 @@ export function PipelineFlowRibbon({
   latencyMs,
   className,
 }: PipelineFlowRibbonProps) {
-  const isRunning = status === "running"
-  const isCompleted = status === "completed"
-  const isFailed = status === "failed"
+  const { isRunning, isCompleted, isFailed } = getMigrationStatusFlags(status)
 
   return (
     <div

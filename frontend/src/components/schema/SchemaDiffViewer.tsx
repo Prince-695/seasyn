@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SeasonTypeBadge } from "./SeasonTypeBadge"
 import type { SchemaDiff, TableDiff } from "@/types/schema"
+import { formatDate } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 
 interface SchemaDiffViewerProps {
@@ -48,9 +49,7 @@ export function SchemaDiffViewer({
   const handleCopyMigrationDdl = async () => {
     const srcType = diff?.source_db_type || "Source"
     const tgtType = diff?.target_db_type || "Target"
-    const genAt = diff?.generated_at
-      ? new Date(diff.generated_at).toLocaleString()
-      : new Date().toLocaleString()
+    const genAt = formatDate(diff?.generated_at || new Date())
 
     let sql = `-- SEASYN Automated Migration Script\n-- Source (${srcType}) ➔ Target (${tgtType})\n-- Generated at: ${genAt}\n\n`
 

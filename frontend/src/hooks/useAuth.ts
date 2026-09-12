@@ -45,8 +45,7 @@ export function useAuth() {
           ...profileRes.data,
           is_verified: profileRes.data.is_verified ?? false, // fail closed
         }
-      } catch (err) {
-        console.error("Failed to fetch user profile in useAuth:", err)
+      } catch {
         return null
       }
     },

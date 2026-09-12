@@ -16,16 +16,15 @@ import { EngineIcon } from "@/components/connections/EngineIcon"
 import { CancelMigrationDialog } from "./CancelMigrationDialog"
 import { MigrationDetailsModal } from "./MigrationDetailsModal"
 import type { MigrationJob, MigrationStatus } from "@/types/migration"
-import { projectsApi } from "@/api/projects"
-import { projectKeys } from "@/lib/queryKeys"
-import { useQuery } from "@tanstack/react-query"
-import { useWorkspaceStore } from "@/store/workspaceStore"
+import { getMigrationProgressBarClass } from "@/lib/migrationStatus"
+import { formatDate } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 
 interface MigrationHistoryTableProps {
   jobs: MigrationJob[]
   isLoading?: boolean
-  projectSlug?: string
+  /** Fully resolved project slug or ID from the parent page */
+  projectSlugOrId?: string
   onCancelJob?: (jobId: string) => Promise<void>
   isCancellingJob?: boolean
   className?: string
@@ -36,35 +35,14 @@ type FilterTab = "all" | MigrationStatus
 export function MigrationHistoryTable({
   jobs,
   isLoading = false,
-  projectSlug,
+  projectSlugOrId = "",
   onCancelJob,
   isCancellingJob = false,
   className,
 }: MigrationHistoryTableProps) {
   const navigate = useNavigate()
-  const { activeOrg, activeProjectId } = useWorkspaceStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<FilterTab>("all")
-
-  // Auto-resolve project slug if not explicitly passed
-  const { data: projects = [] } = useQuery({
-    queryKey: projectKeys.list(activeOrg?.id || ""),
-    queryFn: async () => {
-      if (!activeOrg?.id) return []
-      const res = await projectsApi.list(activeOrg.id)
-      return res.data || []
-    },
-    enabled: !!activeOrg?.id && !projectSlug,
-  })
-
-  const matchedProject = useMemo(() => {
-    if (projectSlug) return null
-    return projects.find((p) => p.id === activeProjectId) || null
-  }, [projects, projectSlug, activeProjectId])
-
-  const projectSlugOrId =
-    projectSlug || matchedProject?.slug || activeProjectId || ""
-
   // Modals state
   const [jobToCancel, setJobToCancel] = useState<MigrationJob | null>(null)
   const [selectedJobForDetails, setSelectedJobForDetails] =
@@ -280,11 +258,7 @@ export function MigrationHistoryTable({
                             <div
                               className={cn(
                                 "h-full transition-all",
-                                job.status === "failed"
-                                  ? "bg-destructive"
-                                  : job.status === "completed"
-                                    ? "bg-success"
-                                    : "bg-info"
+                                getMigrationProgressBarClass(job.status)
                               )}
                               style={{
                                 width: `${Math.min(100, Math.max(0, job.percentage))}%`,
@@ -298,9 +272,7 @@ export function MigrationHistoryTable({
                       <td className="text-muted-foreground px-4 py-3.5 font-mono text-[11px]">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          <span>
-                            {new Date(job.created_at).toLocaleDateString()}
-                          </span>
+                          <span>{formatDate(job.created_at)}</span>
                         </div>
                       </td>
 

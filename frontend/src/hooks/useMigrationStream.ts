@@ -95,19 +95,14 @@ export function useMigrationStream({
           setErrorMessage(failMsg)
           onError?.(failMsg)
         }
-      } catch (err) {
-        console.error(
-          "[useMigrationStream] Failed to parse SSE event data:",
-          err
-        )
+      } catch {
+        // Malformed SSE event — ignore and continue streaming
       }
     }
 
     es.onerror = () => {
       setIsConnected(false)
-      if (es.readyState === EventSource.CLOSED) {
-        console.log("[useMigrationStream] EventSource connection closed.")
-      } else {
+      if (es.readyState !== EventSource.CLOSED) {
         setErrorMessage(
           "Live telemetry stream disconnected. Attempting to reconnect..."
         )

@@ -8,6 +8,7 @@ import {
 import { MigrationStatusBadge } from "./MigrationStatusBadge"
 import { EngineIcon } from "@/components/connections/EngineIcon"
 import type { MigrationJob } from "@/types/migration"
+import { formatDate } from "@/lib/formatters"
 
 interface MigrationDetailsModalProps {
   job: MigrationJob | null
@@ -105,14 +106,14 @@ export function MigrationDetailsModal({
             <div className="flex justify-between">
               <span className="text-muted-foreground">Created:</span>
               <span className="text-foreground">
-                {new Date(job.created_at).toLocaleString()}
+                {formatDate(job.created_at)}
               </span>
             </div>
             {job.started_at && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Started:</span>
                 <span className="text-foreground">
-                  {new Date(job.started_at).toLocaleString()}
+                  {formatDate(job.started_at)}
                 </span>
               </div>
             )}
@@ -120,7 +121,7 @@ export function MigrationDetailsModal({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Completed:</span>
                 <span className="text-foreground">
-                  {new Date(job.completed_at).toLocaleString()}
+                  {formatDate(job.completed_at)}
                 </span>
               </div>
             )}
