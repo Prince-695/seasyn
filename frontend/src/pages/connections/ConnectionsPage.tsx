@@ -50,7 +50,11 @@ export function ConnectionsPage() {
       projectId: string
       connId: string
     }) => {
-      if (!activeOrg?.id) throw new Error("Missing organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization to manage database connections."
+        )
+      }
       await projectsApi.deleteConnection(activeOrg.id, projectId, connId)
     },
     onSuccess: (_, variables) => {

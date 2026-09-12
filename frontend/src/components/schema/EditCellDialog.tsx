@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { SeasonTypeBadge } from "./SeasonTypeBadge"
 import type { ColumnSchema } from "@/types/schema"
 import { Code2, AlertCircle } from "lucide-react"
+import { getErrorMessage } from "@/lib/errors"
 
 interface EditCellDialogProps {
   open: boolean
@@ -63,7 +64,9 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
         try {
           finalVal = JSON.parse(value)
         } catch {
-          setJsonError("Invalid JSON syntax. Please check brackets and quotes.")
+          setJsonError(
+            "Invalid JSON format. Please ensure valid JSON structure with matching brackets and double-quoted keys."
+          )
           setSaving(false)
           return
         }
@@ -83,7 +86,10 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
       onClose()
     } catch (err: unknown) {
       setJsonError(
-        err instanceof Error ? err.message : "Failed to update cell value."
+        getErrorMessage(
+          err,
+          "Unable to update cell. Please ensure the value conforms to the column data type and constraints."
+        )
       )
     } finally {
       setSaving(false)

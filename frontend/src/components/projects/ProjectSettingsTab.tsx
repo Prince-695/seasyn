@@ -27,6 +27,7 @@ import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
 import type { Environment, ProjectDetail, UpdateProjectPayload } from "@/types"
+import { getErrorMessage } from "@/lib/errors"
 
 interface ProjectSettingsTabProps {
   project: ProjectDetail
@@ -63,7 +64,11 @@ export function ProjectSettingsTab({
   // Update Project Mutation
   const updateMutation = useMutation({
     mutationFn: async (payload: UpdateProjectPayload) => {
-      if (!activeOrg?.id || !project.id) throw new Error("Missing parameters")
+      if (!activeOrg?.id || !project.id) {
+        throw new Error(
+          "Unable to identify the active project or organization. Please refresh the page and try again."
+        )
+      }
       const res = await projectsApi.update(activeOrg.id, project.id, payload)
       return res.data
     },
@@ -90,7 +95,11 @@ export function ProjectSettingsTab({
   // Delete Project Mutation
   const deleteProjectMutation = useMutation({
     mutationFn: async () => {
-      if (!activeOrg?.id || !project.id) throw new Error("Missing parameters")
+      if (!activeOrg?.id || !project.id) {
+        throw new Error(
+          "Unable to identify the active project or organization. Please refresh the page and try again."
+        )
+      }
       await projectsApi.delete(activeOrg.id, project.id)
     },
     onSuccess: () => {
@@ -245,9 +254,10 @@ export function ProjectSettingsTab({
 
           {updateMutation.isError && (
             <div className="border-destructive/20 bg-destructive/10 text-destructive rounded-lg border p-2.5 text-xs">
-              {updateMutation.error instanceof Error
-                ? updateMutation.error.message
-                : "Failed to update project settings."}
+              {getErrorMessage(
+                updateMutation.error,
+                "Unable to update project settings. Please check your changes and try again."
+              )}
             </div>
           )}
 

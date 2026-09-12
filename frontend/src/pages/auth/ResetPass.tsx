@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 import {
   Dialog,
   DialogContent,
@@ -61,15 +61,12 @@ export function ResetPass() {
       await authApi.resetPassword(data)
       setIsSuccessOpen(true)
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Something went wrong"
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to reset your password. The verification code may have expired or is incorrect. Please verify the code and try again."
         )
-      } else {
-        setServerError("Failed to reset password. Please verify your OTP code.")
-      }
+      )
     }
   }
 

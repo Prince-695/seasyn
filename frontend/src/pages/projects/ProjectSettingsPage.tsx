@@ -140,8 +140,17 @@ export function ProjectSettingsPage() {
           Project Not Found
         </h3>
         <p className="text-muted-foreground mt-1 max-w-md text-xs">
-          Unable to locate this project's configuration settings.
+          This project could not be found. It may have been renamed, deleted, or
+          you may lack access permissions.
         </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/projects")}
+          className="mt-4 text-xs font-semibold"
+        >
+          Return to Projects
+        </Button>
       </div>
     )
   }

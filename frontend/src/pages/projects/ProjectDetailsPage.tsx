@@ -130,8 +130,11 @@ export function ProjectDetailsPage() {
   // Delete Connection Mutation
   const deleteConnectionMutation = useMutation({
     mutationFn: async (connId: string) => {
-      if (!activeOrg?.id || !actualProjectId)
-        throw new Error("Missing parameters")
+      if (!activeOrg?.id || !actualProjectId) {
+        throw new Error(
+          "Unable to delete connection: missing organization or project context. Please refresh and try again."
+        )
+      }
       await projectsApi.deleteConnection(activeOrg.id, actualProjectId, connId)
     },
     onSuccess: () => {

@@ -10,6 +10,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { AlertTriangle, Key, Loader2 } from "lucide-react"
+import { getErrorMessage } from "@/lib/errors"
 
 interface DeleteRowDialogProps {
   open: boolean
@@ -47,7 +48,12 @@ export function DeleteRowDialog({
       await onConfirmDelete(pkRecord)
       onOpenChange(false)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to delete record.")
+      setError(
+        getErrorMessage(
+          err,
+          "Unable to delete this record. It may be referenced by foreign key constraints or restricted by database permissions."
+        )
+      )
     } finally {
       setIsDeleting(false)
     }

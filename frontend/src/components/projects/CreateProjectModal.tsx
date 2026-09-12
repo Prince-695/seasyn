@@ -22,6 +22,7 @@ import { projectKeys } from "@/lib/queryKeys"
 import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import type { CreateProjectPayload, Environment, Project } from "@/types"
+import { getErrorMessage } from "@/lib/errors"
 
 interface CreateProjectModalProps {
   onProjectCreated?: (project: Project) => void
@@ -70,7 +71,9 @@ export function CreateProjectModal({
   const createMutation = useMutation({
     mutationFn: async (data: CreateProjectPayload) => {
       if (!activeOrg?.id) {
-        throw new Error("No active organization selected.")
+        throw new Error(
+          "Please select an active organization before creating a project."
+        )
       }
       const slug = generateSlug(data.name)
       const payload: CreateProjectPayload = {
@@ -246,9 +249,10 @@ export function CreateProjectModal({
           {/* Server Error Display */}
           {createMutation.isError && (
             <div className="border-destructive/20 bg-destructive/10 text-destructive rounded-lg border p-3 text-xs">
-              {createMutation.error instanceof Error
-                ? createMutation.error.message
-                : "Failed to create project workspace."}
+              {getErrorMessage(
+                createMutation.error,
+                "Unable to create project workspace. Please ensure the project name or slug is unique in this organization."
+              )}
             </div>
           )}
 

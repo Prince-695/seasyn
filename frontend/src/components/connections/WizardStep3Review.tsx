@@ -126,7 +126,8 @@ export function WizardStep3Review({
       {/* Server Error Alert */}
       {isError && (
         <div className="border-destructive/20 bg-destructive/10 text-destructive rounded-lg border p-2.5 text-xs">
-          {errorMessage || "Failed to save database connection."}
+          {errorMessage ||
+            "Unable to save database connection. Please check that credentials are correct and test the connection diagnostic above."}
         </div>
       )}
     </div>

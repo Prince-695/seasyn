@@ -49,7 +49,7 @@ export function MainLayout() {
           ref={mainRef}
           className="from-background via-background to-muted/15 flex-1 overflow-y-auto bg-linear-to-b px-4 py-6 sm:px-8 sm:py-8"
         >
-          <div className="mx-auto w-full max-w-7xl">
+          <div className="w-full">
             <PageTransition key={location.pathname}>
               <Outlet />
             </PageTransition>

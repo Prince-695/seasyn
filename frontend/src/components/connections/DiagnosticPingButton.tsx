@@ -12,6 +12,7 @@ import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
 import type { TestConnectionPayload, ConnectionTestResult } from "@/types"
+import { getErrorMessage } from "@/lib/errors"
 
 interface DiagnosticPingButtonProps {
   // Option A: Test unsaved payload (inside ConnectionWizardModal)
@@ -73,7 +74,8 @@ export function DiagnosticPingButton({
         testRes = res.data || {
           success: false,
           latency_ms: 0,
-          error_message: "No data returned",
+          error_message:
+            "No diagnostic response was returned by the database service.",
         }
       } else if (getPayload) {
         const payload = getPayload()
@@ -99,10 +101,13 @@ export function DiagnosticPingButton({
         testRes = res.data || {
           success: false,
           latency_ms: 0,
-          error_message: "No data returned",
+          error_message:
+            "No diagnostic response was returned by the database service.",
         }
       } else {
-        throw new Error("Invalid diagnostic configuration")
+        throw new Error(
+          "Unable to test connection: missing connection credentials or identifier."
+        )
       }
 
       console.log("[SEASYN Ping Result]", testRes)
@@ -118,8 +123,10 @@ export function DiagnosticPingButton({
       }
       console.groupEnd()
 
-      const errorMsg =
-        err instanceof Error ? err.message : "Connection diagnostic failed."
+      const errorMsg = getErrorMessage(
+        err,
+        "Database server unreachable. Please verify host, port, credentials, and network firewall rules."
+      )
       const failResult: ConnectionTestResult = {
         success: false,
         latency_ms: 0,

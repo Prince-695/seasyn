@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import type { User } from "@/types"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface LoginFormProps {
   setServerError: (error: string | null) => void
@@ -66,19 +66,12 @@ export function LoginForm({ setServerError }: LoginFormProps) {
 
       navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Invalid credentials"
+      setServerError(
+        getErrorMessage(
+          err,
+          "Invalid email or password. Please double-check your credentials and try again."
         )
-      } else {
-        setServerError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong. Please check your credentials."
-        )
-      }
+      )
     }
   }
 

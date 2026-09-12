@@ -118,7 +118,11 @@ export function Dashboard() {
   // Delete project mutation
   const deleteMutation = useMutation({
     mutationFn: async (projectId: string) => {
-      if (!activeOrg?.id) throw new Error("No active organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization to delete this project."
+        )
+      }
       await projectsApi.delete(activeOrg.id, projectId)
     },
     onSuccess: () => {

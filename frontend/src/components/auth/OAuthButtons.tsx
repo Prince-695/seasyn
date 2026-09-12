@@ -17,7 +17,9 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
     try {
       const urlRes = await authApi.getOAuthUrl(provider)
       if (!urlRes.success || !urlRes.data?.auth_url) {
-        onError("Failed to get authorization URL.")
+        onError(
+          "Unable to initialize social sign-in. Please try again or sign in with your email and password."
+        )
         return
       }
 
@@ -35,7 +37,9 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
       // Redirect the current window to the provider's login page
       window.location.href = urlRes.data.auth_url
     } catch {
-      onError("An error occurred during OAuth initialization.")
+      onError(
+        "Unable to connect to the authentication provider. Please verify your connection or sign in with email."
+      )
     }
   }
 

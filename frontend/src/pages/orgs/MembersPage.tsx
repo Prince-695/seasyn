@@ -40,7 +40,7 @@ import { useHasPermission } from "@/hooks/useHasPermission"
 import { formatDate } from "@/lib/formatters"
 
 import type { OrgMemberDetail } from "@/types/org"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 export function MembersPage() {
   const queryClient = useQueryClient()
@@ -92,7 +92,11 @@ export function MembersPage() {
   // Remove member mutation
   const removeMutation = useMutation({
     mutationFn: async (member: OrgMemberDetail) => {
-      if (!activeOrg?.id) throw new Error("No active organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization and try again."
+        )
+      }
       return orgsApi.removeMember(activeOrg.id, member.user_id)
     },
     onSuccess: () => {
@@ -105,15 +109,12 @@ export function MembersPage() {
       setRemoveError(null)
     },
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setRemoveError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Failed to remove member. You may not have sufficient permissions."
+      setRemoveError(
+        getErrorMessage(
+          err,
+          "Unable to remove this member. You must be an organization Administrator or Owner to manage members."
         )
-      } else {
-        setRemoveError("An unexpected error occurred. Please try again.")
-      }
+      )
     },
   })
 
@@ -204,9 +205,12 @@ export function MembersPage() {
         ) : error ? (
           <div className="text-destructive flex min-h-50 flex-col items-center justify-center gap-2 p-8 text-center">
             <AlertCircle className="h-8 w-8" />
-            <p className="text-sm font-semibold">Failed to load members</p>
-            <p className="text-muted-foreground text-xs">
-              Please check your connection or organization permissions.
+            <p className="text-sm font-semibold">Unable to load team members</p>
+            <p className="text-muted-foreground max-w-sm text-xs">
+              {getErrorMessage(
+                error,
+                "Please verify your internet connection or confirm you have permission to view organization members."
+              )}
             </p>
           </div>
         ) : filteredMembers.length === 0 ? (

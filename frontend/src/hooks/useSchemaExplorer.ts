@@ -315,8 +315,11 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
-      )
-        throw new Error("Missing parameters")
+      ) {
+        throw new Error(
+          "Unable to update cell: missing required workspace, database, or collection context. Please select a table and try again."
+        )
+      }
       const pkField =
         activeTable?.primary_keys[0] ||
         (terminology.paradigm === "document" ? "_id" : "id")
@@ -348,8 +351,11 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
-      )
-        throw new Error("Missing parameters")
+      ) {
+        throw new Error(
+          "Unable to update record: missing database or collection context. Please select a record and try again."
+        )
+      }
       const pkField =
         activeTable?.primary_keys[0] ||
         (terminology.paradigm === "document" ? "_id" : "id")
@@ -375,8 +381,11 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
-      )
-        throw new Error("Missing parameters")
+      ) {
+        throw new Error(
+          "Unable to delete record: missing database or table context. Please try again."
+        )
+      }
       await schemaApi.deleteRow(
         activeOrg.id,
         effectiveProjectId,
@@ -398,8 +407,11 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
         !effectiveProjectId ||
         !effectiveConnId ||
         !effectiveTableName
-      )
-        throw new Error("Missing parameters")
+      ) {
+        throw new Error(
+          "Unable to insert record: missing database or collection context. Please select a table and try again."
+        )
+      }
       await schemaApi.insertRow(
         activeOrg.id,
         effectiveProjectId,

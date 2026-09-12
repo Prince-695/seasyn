@@ -11,7 +11,7 @@ import type { SignupPayload, User } from "@/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface SignUpFormProps {
   setServerError: (error: string | null) => void
@@ -54,7 +54,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
             is_verified: false,
           }
         } else {
-          throw new Error("No profile data")
+          throw new Error("Unable to retrieve user profile after registration.")
         }
       } catch {
         registeredUser = {
@@ -81,15 +81,12 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
         state: { email: data.email },
       })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Registration failed. Please try again."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to create your account. Please check that your email is not already registered and try again."
         )
-      } else {
-        setServerError("Something went wrong during registration.")
-      }
+      )
     }
   }
 

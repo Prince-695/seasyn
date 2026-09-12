@@ -14,7 +14,7 @@ import { AuthLayout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 
 import { OtpInput } from "@/components/auth/OtpInput"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 const RESEND_COOLDOWN = 60 // seconds
 
@@ -84,15 +84,12 @@ export function VerifyEmail() {
 
         navigate(getSafeRedirectTarget(location.state?.from), { replace: true })
       } catch (err) {
-        if (axios.isAxiosError(err)) {
-          setServerError(
-            err.response?.data?.message ??
-              err.response?.data?.error ??
-              "Invalid or expired code. Please try again."
+        setServerError(
+          getErrorMessage(
+            err,
+            "The 6-digit verification code is invalid or has expired. Please check your email or request a new code below."
           )
-        } else {
-          setServerError("Something went wrong. Please try again.")
-        }
+        )
       } finally {
         setIsSubmitting(false)
       }
@@ -109,14 +106,12 @@ export function VerifyEmail() {
       setResendTimer(RESEND_COOLDOWN)
       setOtp("")
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            "Failed to resend code. Please try again."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to send a new verification code right now. Please wait a moment before requesting another code."
         )
-      } else {
-        setServerError("Failed to resend code. Please try again.")
-      }
+      )
     } finally {
       setResendLoading(false)
     }

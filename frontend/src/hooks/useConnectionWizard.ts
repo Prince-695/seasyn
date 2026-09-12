@@ -17,6 +17,7 @@ import type {
   PublicDatabaseConnection,
   TestConnectionPayload,
 } from "@/types"
+import { getErrorMessage } from "@/lib/errors"
 
 export type WizardStep = 1 | 2 | 3
 export type MongoMode = "uri" | "params"
@@ -110,7 +111,11 @@ export function useConnectionWizard({
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateConnectionPayload) => {
-      if (!activeOrg?.id) throw new Error("No active organization selected")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization and try again."
+        )
+      }
       const res = await projectsApi.createConnection(
         activeOrg.id,
         projectId,
@@ -328,9 +333,10 @@ export function useConnectionWizard({
   const isPending = createMutation.isPending
   const isError = createMutation.isError
   const errorMessage = createMutation.isError
-    ? createMutation.error instanceof Error
-      ? createMutation.error.message
-      : "Failed to save database connection."
+    ? getErrorMessage(
+        createMutation.error,
+        "Unable to save database connection. Please check that credentials are correct and test the connection diagnostic."
+      )
     : null
 
   return {

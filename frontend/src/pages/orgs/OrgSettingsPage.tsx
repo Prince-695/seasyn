@@ -38,11 +38,10 @@ import { updateOrgSchema, type UpdateOrgInput } from "@/lib/validators"
 import { orgsApi } from "@/api/orgs"
 import { orgKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
+import { getErrorMessage } from "@/lib/errors"
 import { PermissionGuard } from "@/components/auth"
 import { useHasPermission } from "@/hooks/useHasPermission"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
-
-import axios from "axios"
 
 export function OrgSettingsPage() {
   const navigate = useNavigate()
@@ -85,7 +84,11 @@ export function OrgSettingsPage() {
   // Update org mutation
   const updateOrgMutation = useMutation({
     mutationFn: async (data: UpdateOrgInput) => {
-      if (!activeOrg?.id) throw new Error("No active organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization and try again."
+        )
+      }
       return orgsApi.updateOrg(activeOrg.id, data)
     },
     onSuccess: (res) => {
@@ -99,22 +102,23 @@ export function OrgSettingsPage() {
     },
     onError: (err: unknown) => {
       setGeneralSuccess(null)
-      if (axios.isAxiosError(err)) {
-        setGeneralError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Failed to update organization details."
+      setGeneralError(
+        getErrorMessage(
+          err,
+          "Unable to update organization details. Please check the name and try again."
         )
-      } else {
-        setGeneralError("An unexpected error occurred. Please try again.")
-      }
+      )
     },
   })
 
   // Delete org mutation
   const deleteOrgMutation = useMutation({
     mutationFn: async () => {
-      if (!activeOrg?.id) throw new Error("No active organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization first."
+        )
+      }
       return orgsApi.deleteOrg(activeOrg.id)
     },
     onSuccess: () => {
@@ -124,15 +128,12 @@ export function OrgSettingsPage() {
       navigate("/dashboard", { replace: true })
     },
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setDeleteError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Failed to delete organization. Please check permissions."
+      setDeleteError(
+        getErrorMessage(
+          err,
+          "Unable to delete this organization. Only organization owners have administrative permissions to delete an organization."
         )
-      } else {
-        setDeleteError("An unexpected error occurred. Please try again.")
-      }
+      )
     },
   })
 

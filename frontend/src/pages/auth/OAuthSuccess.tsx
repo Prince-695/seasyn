@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/authStore"
 import { userApi } from "@/api/auth"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getErrorMessage } from "@/lib/errors"
 import type { User } from "@/types"
 
 export function OAuthSuccess() {
@@ -15,7 +16,9 @@ export function OAuthSuccess() {
   useEffect(() => {
     const handleAuth = async () => {
       if (!provider) {
-        setError("Missing OAuth provider in callback URL.")
+        setError(
+          "Authentication failed: social login provider was not specified in the redirect callback."
+        )
         return
       }
 
@@ -24,7 +27,7 @@ export function OAuthSuccess() {
 
         if (!user) {
           throw new Error(
-            `Failed to retrieve authenticated profile for provider "${provider}"`
+            `Unable to retrieve your authenticated profile from ${provider}. Please try logging in again.`
           )
         }
 
@@ -41,9 +44,10 @@ export function OAuthSuccess() {
       } catch (err) {
         console.error("OAuth callback failed:", err)
         setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to complete sign-in. Please try again."
+          getErrorMessage(
+            err,
+            "Unable to complete social sign-in. Please try logging in again."
+          )
         )
       }
     }

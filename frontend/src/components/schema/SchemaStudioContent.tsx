@@ -116,8 +116,9 @@ export function SchemaStudioContent({
             />
           ) : (
             <div className="text-muted-foreground p-8 text-center text-xs">
-              Select a {terminology.entitySingular.toLowerCase()} from the tree
-              on the left.
+              Select a {terminology.entitySingular.toLowerCase()} from the
+              schema tree on the left to inspect its fields, constraints, and
+              indexes.
             </div>
           )}
         </motion.div>
@@ -162,8 +163,9 @@ export function SchemaStudioContent({
             />
           ) : (
             <div className="text-muted-foreground p-8 text-center text-xs">
-              Select a {terminology.entitySingular.toLowerCase()} from the tree
-              on the left to inspect {terminology.recordPlural.toLowerCase()}.
+              Select a {terminology.entitySingular.toLowerCase()} from the
+              schema tree on the left to browse and edit live{" "}
+              {terminology.recordPlural.toLowerCase()}.
             </div>
           )}
         </motion.div>

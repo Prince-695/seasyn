@@ -87,10 +87,13 @@ export function useMigrationStream({
         } else if (data.state === "failed" || data.state === "cancelled") {
           setIsConnected(false)
           es.close()
-          if (data.message) {
-            setErrorMessage(data.message)
-            onError?.(data.message)
-          }
+          const failMsg =
+            data.message ||
+            (data.state === "cancelled"
+              ? "Migration job was cancelled."
+              : "Migration failed. Please inspect database logs and connection status.")
+          setErrorMessage(failMsg)
+          onError?.(failMsg)
         }
       } catch (err) {
         console.error(
@@ -104,6 +107,10 @@ export function useMigrationStream({
       setIsConnected(false)
       if (es.readyState === EventSource.CLOSED) {
         console.log("[useMigrationStream] EventSource connection closed.")
+      } else {
+        setErrorMessage(
+          "Live telemetry stream disconnected. Attempting to reconnect..."
+        )
       }
     }
 

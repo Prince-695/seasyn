@@ -3,17 +3,18 @@ import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { ArrowLeft, Ban, CheckCircle2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LiveProgressCard } from "@/components/migrations/LiveProgressCard"
-import { ThroughputGauge } from "@/components/migrations/ThroughputGauge"
+import { PipelineFlowRibbon } from "@/components/migrations/PipelineFlowRibbon"
+import { ResourceMetricsGrid } from "@/components/migrations/ResourceMetricsGrid"
+import { MigrationTerminalLog } from "@/components/migrations/MigrationTerminalLog"
 import { CancelMigrationDialog } from "@/components/migrations/CancelMigrationDialog"
-import { EngineIcon } from "@/components/connections/EngineIcon"
 import { migrationsApi } from "@/api/migrations"
 import { projectsApi } from "@/api/projects"
 import { migrationKeys, projectKeys } from "@/lib/queryKeys"
 import { useMigrationStream } from "@/hooks/useMigrationStream"
 import { useWorkspaceStore } from "@/store/workspaceStore"
+import { calculateMigrationResourceStats } from "@/lib/migrationMetrics"
 
 export function MigrationLivePage() {
   const params = useParams<{
@@ -37,7 +38,7 @@ export function MigrationLivePage() {
 
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
 
-  // 1. Fetch organization projects to resolve project slug / ID
+  // 1. Fetch organization projects to resolve active project
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: projectKeys.list(orgId),
     queryFn: async () => {
@@ -141,11 +142,23 @@ export function MigrationLivePage() {
     },
   })
 
+  // 5. Calculate storage, memory, and telemetry metrics
+  const stats = useMemo(() => {
+    if (!job) return null
+    return calculateMigrationResourceStats(
+      job,
+      totalRows,
+      migratedRows,
+      rowsPerSecond,
+      isConnected
+    )
+  }, [job, totalRows, migratedRows, rowsPerSecond, isConnected])
+
   if (!orgId) {
     return (
       <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
         <h2 className="text-foreground text-lg font-bold">
-          No Workspace Selected
+          No Organization Selected
         </h2>
         <p className="text-muted-foreground text-xs">
           Please select or create an organization from the workspace switcher to
@@ -162,13 +175,11 @@ export function MigrationLivePage() {
 
   if ((isProjectsLoading && !projectId) || isJobLoading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6">
-        <Card className="border-border/70 bg-card/60 text-muted-foreground p-12 text-center text-xs">
-          <div className="flex flex-col items-center justify-center gap-2">
-            <RefreshCw className="text-primary h-5 w-5 animate-spin" />
-            <span>Loading pipeline telemetry stream...</span>
-          </div>
-        </Card>
+      <div className="w-full space-y-6">
+        <div className="border-border/70 bg-card/60 text-muted-foreground flex min-h-75 flex-col items-center justify-center gap-3 rounded-xl border p-12 text-center text-xs">
+          <RefreshCw className="text-primary h-6 w-6 animate-spin" />
+          <span>Connecting to live pipeline telemetry stream...</span>
+        </div>
       </div>
     )
   }
@@ -208,8 +219,8 @@ export function MigrationLivePage() {
   const isCompleted = status === "completed"
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {/* Top Header Bar */}
+    <div className="w-full space-y-5">
+      {/* Top Header & Mission Control Action Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
@@ -223,6 +234,7 @@ export function MigrationLivePage() {
               variant="outline"
               size="sm"
               className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+              title="Return to Migration Studio"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -243,7 +255,7 @@ export function MigrationLivePage() {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -285,114 +297,59 @@ export function MigrationLivePage() {
         </div>
       </div>
 
-      {/* Completion Celebration Callout Banner */}
+      {/* Completion Celebration Notification Banner */}
       {isCompleted && (
-        <Card className="border-success/40 bg-success/10 p-4 shadow-xs backdrop-blur-xs">
-          <div className="flex items-center gap-3">
-            <div className="border-success/30 bg-success/20 text-success flex h-9 w-9 items-center justify-center rounded-xl border">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-foreground text-xs font-bold">
-                Pipeline Successfully Completed!
-              </p>
-              <p className="text-success font-mono text-[11px]">
-                All {migratedRows.toLocaleString()} rows were streamed and
-                verified from {job.source_table} to {job.target_table}.
-              </p>
-            </div>
+        <div className="border-success/40 bg-success/10 flex items-center gap-3 rounded-xl border p-3.5 shadow-2xs backdrop-blur-xs">
+          <div className="border-success/30 bg-success/20 text-success flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border">
+            <CheckCircle2 className="h-4 w-4" />
           </div>
-        </Card>
+          <div>
+            <p className="text-foreground text-xs font-bold">
+              Pipeline Successfully Completed!
+            </p>
+            <p className="text-success font-mono text-[11px]">
+              All {migratedRows.toLocaleString()} rows were streamed and
+              verified from {job.source_table} to {job.target_table}.
+            </p>
+          </div>
+        </div>
       )}
 
-      {/* Primary Animated Live Progress Card */}
-      <LiveProgressCard
+      {/* 1. Visual Pipeline Flow Conduit Ribbon */}
+      <PipelineFlowRibbon
         job={job}
-        percentage={percentage}
-        migratedRows={migratedRows}
-        totalRows={totalRows}
         status={status}
+        totalRows={totalRows}
+        batchSize={job.batch_size || 500}
+        latencyMs={stats?.latencyMs ?? 16}
+      />
+
+      {/* 2. Hero Progress & Velocity Cockpit */}
+      {stats && (
+        <LiveProgressCard
+          job={job}
+          percentage={percentage}
+          migratedRows={migratedRows}
+          totalRows={totalRows}
+          status={status}
+          rowsPerSecond={rowsPerSecond}
+          etaFormatted={etaFormatted}
+          stats={stats}
+          errorMessage={errorMessage}
+        />
+      )}
+
+      {/* 3. Detailed Storage, Compute & Buffer Diagnostics */}
+      {stats && <ResourceMetricsGrid stats={stats} />}
+
+      {/* 4. Real-Time Customized Execution Terminal & Audit Log */}
+      <MigrationTerminalLog
+        job={job}
+        status={status}
+        totalRows={totalRows}
+        migratedRows={migratedRows}
         errorMessage={errorMessage}
       />
-
-      {/* Live Telemetry Speedometer & Network Throughput Gauge */}
-      <ThroughputGauge
-        rowsPerSecond={rowsPerSecond}
-        status={status}
-        etaFormatted={etaFormatted}
-        isConnected={isConnected}
-      />
-
-      {/* Detailed Endpoints Configuration Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {/* Source Endpoint Card */}
-        <Card className="border-border/70 bg-card/60 p-4 shadow-xs backdrop-blur-xs">
-          <div className="flex items-center gap-2.5">
-            {job.source_db_type && (
-              <div className="border-border/60 bg-muted/30 flex h-8 w-8 items-center justify-center rounded-lg border">
-                <EngineIcon engine={job.source_db_type} className="h-4 w-4" />
-              </div>
-            )}
-            <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
-                Source Connection
-              </p>
-              <p className="text-foreground text-xs font-semibold">
-                {job.source_connection_name || "Source Database"}
-              </p>
-            </div>
-          </div>
-
-          <div className="border-border/50 bg-muted/20 mt-3 space-y-1 rounded-lg border p-2.5 font-mono text-[11px]">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Table:</span>
-              <span className="text-foreground font-semibold">
-                {job.source_table}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Engine:</span>
-              <span className="text-foreground uppercase">
-                {job.source_db_type || "Relational"}
-              </span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Target Endpoint Card */}
-        <Card className="border-border/70 bg-card/60 p-4 shadow-xs backdrop-blur-xs">
-          <div className="flex items-center gap-2.5">
-            {job.target_db_type && (
-              <div className="border-border/60 bg-muted/30 flex h-8 w-8 items-center justify-center rounded-lg border">
-                <EngineIcon engine={job.target_db_type} className="h-4 w-4" />
-              </div>
-            )}
-            <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
-                Target Connection
-              </p>
-              <p className="text-foreground text-xs font-semibold">
-                {job.target_connection_name || "Target Database"}
-              </p>
-            </div>
-          </div>
-
-          <div className="border-border/50 bg-muted/20 mt-3 space-y-1 rounded-lg border p-2.5 font-mono text-[11px]">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Table:</span>
-              <span className="text-foreground font-semibold">
-                {job.target_table}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Engine:</span>
-              <span className="text-foreground uppercase">
-                {job.target_db_type || "Relational"}
-              </span>
-            </div>
-          </div>
-        </Card>
-      </div>
 
       {/* Cancel Confirmation Modal */}
       <CancelMigrationDialog

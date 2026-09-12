@@ -19,7 +19,7 @@ import { createOrgSchema, type CreateOrgInput } from "@/lib/validators"
 import { orgsApi } from "@/api/orgs"
 import { orgKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
-import axios from "axios"
+import { getErrorMessage } from "@/lib/errors"
 
 interface CreateOrgModalProps {
   open: boolean
@@ -85,15 +85,12 @@ export function CreateOrgModal({ open, onOpenChange }: CreateOrgModalProps) {
       handleOpenChange(false)
     },
     onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        setServerError(
-          err.response?.data?.message ??
-            err.response?.data?.error ??
-            "Failed to create organization. Please try again."
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to create organization. The organization name or slug may already be taken. Please try a different name."
         )
-      } else {
-        setServerError("An unexpected error occurred. Please try again.")
-      }
+      )
     },
   })
 

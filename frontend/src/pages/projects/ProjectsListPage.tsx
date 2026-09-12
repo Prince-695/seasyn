@@ -21,6 +21,7 @@ import { projectsApi } from "@/api/projects"
 import { projectKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import type { Project, Environment } from "@/types"
+import { getErrorMessage } from "@/lib/errors"
 
 type EnvFilter = "all" | Environment
 
@@ -50,7 +51,11 @@ export function ProjectsListPage() {
   // Delete project mutation
   const deleteMutation = useMutation({
     mutationFn: async (projectId: string) => {
-      if (!activeOrg?.id) throw new Error("No active organization")
+      if (!activeOrg?.id) {
+        throw new Error(
+          "No organization is currently active. Please select an organization to delete this project."
+        )
+      }
       await projectsApi.delete(activeOrg.id, projectId)
     },
     onSuccess: () => {
@@ -193,10 +198,13 @@ export function ProjectsListPage() {
       ) : isError ? (
         <div className="border-destructive/30 bg-destructive/5 rounded-xl border p-6 text-center">
           <p className="text-destructive text-sm font-semibold">
-            Failed to load projects
+            Unable to load projects
           </p>
           <p className="text-muted-foreground mt-1 text-xs">
-            {error instanceof Error ? error.message : "An error occurred"}
+            {getErrorMessage(
+              error,
+              "Unable to retrieve the list of projects. Please check your network connection and try again."
+            )}
           </p>
         </div>
       ) : filteredProjects.length === 0 ? (

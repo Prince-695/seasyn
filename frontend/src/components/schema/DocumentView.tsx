@@ -29,6 +29,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { getErrorMessage } from "@/lib/errors"
 
 interface DocumentViewProps {
   documents: Record<string, unknown>[]
@@ -268,13 +269,20 @@ function EditDocumentDialog({
         parsed === null ||
         Array.isArray(parsed)
       ) {
-        throw new Error("Document must be a valid JSON object.")
+        throw new Error(
+          "Document must be a valid JSON object enclosed in curly braces {}."
+        )
       }
       const stripped = stripRedactedValues(parsed) as Record<string, unknown>
       await onSave(stripped)
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid JSON format.")
+      setError(
+        getErrorMessage(
+          err,
+          "Invalid JSON syntax. Please verify quotes, brackets, and commas before saving."
+        )
+      )
     } finally {
       setSaving(false)
     }
@@ -378,12 +386,19 @@ function InsertDocumentDialog({
         parsed === null ||
         Array.isArray(parsed)
       ) {
-        throw new Error("Document must be a valid JSON object.")
+        throw new Error(
+          "Document must be a valid JSON object enclosed in curly braces {}."
+        )
       }
       await onInsert(parsed)
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid JSON syntax.")
+      setError(
+        getErrorMessage(
+          err,
+          "Invalid JSON syntax. Please verify key-value quotes and structure before inserting."
+        )
+      )
     } finally {
       setInserting(false)
     }

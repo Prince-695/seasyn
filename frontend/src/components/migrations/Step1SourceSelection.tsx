@@ -13,6 +13,7 @@ import { EngineIcon } from "@/components/connections/EngineIcon"
 import { schemaApi } from "@/api/schema"
 import { schemaKeys } from "@/lib/queryKeys"
 import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
+import { getErrorMessage } from "@/lib/errors"
 import type { PublicDatabaseConnection } from "@/types"
 
 interface Step1SourceSelectionProps {
@@ -142,10 +143,12 @@ export function Step1SourceSelection({
             </div>
           ) : schemaError ? (
             <div className="border-destructive/30 bg-destructive/10 text-destructive flex items-center gap-2 rounded-xl border p-4 text-xs">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4 shrink-0" />
               <span>
-                Failed to introspect tables for this connection. Please verify
-                connection credentials.
+                {getErrorMessage(
+                  schemaError,
+                  `Unable to introspect ${terminology.entityPlural.toLowerCase()} for this database. Please verify connection credentials and ensure the database server is online.`
+                )}
               </span>
             </div>
           ) : tables.length === 0 ? (
