@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  domain.ActivityHeatmapPoint:
+    properties:
+      date:
+        type: string
+      events_count:
+        type: integer
+    type: object
   domain.AuditAction:
     enum:
     - org.created
@@ -343,6 +350,15 @@ definitions:
     - DBTypeMySQL
     - DBTypeMongoDB
     - DBTypeSQLite
+  domain.DailyVelocityPoint:
+    properties:
+      date:
+        type: string
+      jobs_count:
+        type: integer
+      rows_migrated:
+        type: integer
+    type: object
   domain.DatabaseSchema:
     properties:
       database_name:
@@ -363,6 +379,32 @@ definitions:
         type: object
     required:
     - primary_key
+    type: object
+  domain.DurationBucket:
+    properties:
+      bucket:
+        description: '"< 1 min", "1 - 5 mins", "5 - 15 mins", "> 15 mins"'
+        type: string
+      count:
+        type: integer
+      percentage:
+        type: number
+    type: object
+  domain.EngineDistributionItem:
+    properties:
+      count:
+        type: integer
+      db_type:
+        $ref: '#/definitions/domain.DBType'
+      percentage:
+        type: number
+    type: object
+  domain.ErrorClassification:
+    properties:
+      count:
+        type: integer
+      error_type:
+        type: string
     type: object
   domain.ForgotPasswordRequest:
     properties:
@@ -422,6 +464,47 @@ definitions:
     - email
     - password
     type: object
+  domain.MigrationAnalytics:
+    properties:
+      duration_distribution:
+        items:
+          $ref: '#/definitions/domain.DurationBucket'
+        type: array
+      error_breakdown:
+        items:
+          $ref: '#/definitions/domain.ErrorClassification'
+        type: array
+      summary:
+        $ref: '#/definitions/domain.MigrationIntelligenceSummary'
+    type: object
+  domain.MigrationHealthSummary:
+    properties:
+      cancelled:
+        type: integer
+      completed:
+        type: integer
+      failed:
+        type: integer
+      running:
+        type: integer
+      success_rate:
+        type: number
+      total_jobs:
+        type: integer
+      total_rows_migrated:
+        type: integer
+    type: object
+  domain.MigrationIntelligenceSummary:
+    properties:
+      avg_duration_seconds:
+        type: number
+      avg_throughput_rps:
+        type: number
+      total_pipelines:
+        type: integer
+      total_rows_synced:
+        type: integer
+    type: object
   domain.MigrationJobResponse:
     properties:
       batch_size:
@@ -471,6 +554,21 @@ definitions:
     - MigrationStatusCompleted
     - MigrationStatusFailed
     - MigrationStatusCancelled
+  domain.OrgAnalyticsOverview:
+    properties:
+      engine_distribution:
+        items:
+          $ref: '#/definitions/domain.EngineDistributionItem'
+        type: array
+      migration_health:
+        $ref: '#/definitions/domain.MigrationHealthSummary'
+      quotas:
+        $ref: '#/definitions/domain.OrgQuotasSummary'
+      velocity_timeline:
+        items:
+          $ref: '#/definitions/domain.DailyVelocityPoint'
+        type: array
+    type: object
   domain.OrgMemberDetail:
     properties:
       email:
@@ -487,6 +585,15 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  domain.OrgQuotasSummary:
+    properties:
+      members:
+        $ref: '#/definitions/domain.QuotaUsage'
+      projects:
+        $ref: '#/definitions/domain.QuotaUsage'
+      user_orgs:
+        $ref: '#/definitions/domain.QuotaUsage'
     type: object
   domain.OrgRole:
     enum:
@@ -557,6 +664,38 @@ definitions:
         type: string
       updated_at:
         type: string
+    type: object
+  domain.ProjectAnalytics:
+    properties:
+      activity_heatmap:
+        items:
+          $ref: '#/definitions/domain.ActivityHeatmapPoint'
+        type: array
+      connection_quota:
+        $ref: '#/definitions/domain.ProjectConnectionQuota'
+      top_tables:
+        items:
+          $ref: '#/definitions/domain.TableSyncStat'
+        type: array
+      topology_edges:
+        items:
+          $ref: '#/definitions/domain.TopologyEdge'
+        type: array
+      topology_nodes:
+        items:
+          $ref: '#/definitions/domain.TopologyNode'
+        type: array
+    type: object
+  domain.ProjectConnectionQuota:
+    properties:
+      max:
+        type: integer
+      sources_count:
+        type: integer
+      targets_count:
+        type: integer
+      used:
+        type: integer
     type: object
   domain.ProjectDetail:
     properties:
@@ -650,6 +789,15 @@ definitions:
       total_pages:
         type: integer
       total_rows:
+        type: integer
+    type: object
+  domain.QuotaUsage:
+    properties:
+      max:
+        type: integer
+      percentage:
+        type: number
+      used:
         type: integer
     type: object
   domain.RefreshRequest:
@@ -860,6 +1008,15 @@ definitions:
       size_bytes:
         type: integer
     type: object
+  domain.TableSyncStat:
+    properties:
+      rows_migrated:
+        type: integer
+      sync_runs:
+        type: integer
+      table_name:
+        type: string
+    type: object
   domain.TestConnectionRequest:
     properties:
       database:
@@ -918,6 +1075,32 @@ definitions:
         type: integer
       success:
         type: boolean
+    type: object
+  domain.TopologyEdge:
+    properties:
+      active_pipelines:
+        type: integer
+      source_id:
+        type: string
+      target_id:
+        type: string
+      total_rows_transferred:
+        type: integer
+    type: object
+  domain.TopologyNode:
+    properties:
+      db_type:
+        $ref: '#/definitions/domain.DBType'
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        description: '"source" or "target"'
+        type: string
+      status:
+        description: '"online" or "active"'
+        type: string
     type: object
   domain.UpdateConnectionRequest:
     properties:
@@ -1667,6 +1850,41 @@ paths:
       summary: Update Organization
       tags:
       - organizations
+  /v1/organizations/{orgID}/analytics/overview:
+    get:
+      consumes:
+      - application/json
+      description: Returns quota usage, engine mix, 30-day velocity timeline, and
+        migration health for an organization.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.OrgAnalyticsOverview'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+      summary: Get Organization Analytics Overview
+      tags:
+      - analytics
   /v1/organizations/{orgID}/audit-logs:
     get:
       description: Returns paginated audit activity records for an organization. Restricted
@@ -2047,6 +2265,50 @@ paths:
       summary: Update Project
       tags:
       - projects
+  /v1/organizations/{orgID}/projects/{projectID}/analytics:
+    get:
+      consumes:
+      - application/json
+      description: Returns connection quotas, topology nodes/edges, top synced tables,
+        and 14-day activity heatmap.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.ProjectAnalytics'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      summary: Get Project Analytics & Topology Flow
+      tags:
+      - analytics
   /v1/organizations/{orgID}/projects/{projectID}/connections:
     get:
       description: List all database connections for a project
@@ -2918,6 +3180,50 @@ paths:
       summary: Stream real-time migration progress (SSE)
       tags:
       - Migration
+  /v1/organizations/{orgID}/projects/{projectID}/migrations/analytics:
+    get:
+      consumes:
+      - application/json
+      description: Returns historical migration summary, duration distribution buckets,
+        and error breakdowns.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: orgID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.MigrationAnalytics'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/domain.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Response'
+      summary: Get Migration Studio Analytics
+      tags:
+      - analytics
   /v1/organizations/{orgID}/projects/{projectID}/schema/diff:
     post:
       consumes:
