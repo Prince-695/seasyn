@@ -100,6 +100,9 @@ export function MigrationLivePage() {
     etaFormatted,
     errorMessage,
     isConnected,
+    bandwidthFormatted,
+    bytesTransferredFormatted,
+    batchLatencyMs,
   } = useMigrationStream({
     orgId,
     projectId,
@@ -134,17 +137,36 @@ export function MigrationLivePage() {
     },
   })
 
-  // 5. Calculate storage, memory, and telemetry metrics
+  // 5. Calculate storage, memory, and telemetry metrics (using backend telemetry where available)
   const stats = useMemo(() => {
     if (!job) return null
-    return calculateMigrationResourceStats(
+    const baseStats = calculateMigrationResourceStats(
       job,
       totalRows,
       migratedRows,
       rowsPerSecond,
       isConnected
     )
-  }, [job, totalRows, migratedRows, rowsPerSecond, isConnected])
+    if (bytesTransferredFormatted) {
+      baseStats.formattedMigratedBytes = bytesTransferredFormatted
+    }
+    if (bandwidthFormatted) {
+      baseStats.transferRateFormatted = bandwidthFormatted
+    }
+    if (batchLatencyMs !== undefined && batchLatencyMs > 0) {
+      baseStats.latencyMs = batchLatencyMs
+    }
+    return baseStats
+  }, [
+    job,
+    totalRows,
+    migratedRows,
+    rowsPerSecond,
+    isConnected,
+    bytesTransferredFormatted,
+    bandwidthFormatted,
+    batchLatencyMs,
+  ])
 
   if (!orgId) {
     return (
@@ -232,17 +254,6 @@ export function MigrationLivePage() {
                 {job.id.slice(0, 8)}
               </Badge>
             </div>
-            <p className="text-muted-foreground text-xs">
-              <span className="text-foreground font-semibold">
-                {sourceName}
-              </span>
-              <span className="font-mono"> ({job.source_table})</span>
-              <span className="text-muted-foreground mx-1.5">➔</span>
-              <span className="text-foreground font-semibold">
-                {targetName}
-              </span>
-              <span className="font-mono"> ({job.target_table})</span>
-            </p>
           </div>
         </div>
 

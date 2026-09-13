@@ -69,14 +69,18 @@ export function useMigrationStream({
         setProgress(data)
         setStreamStatus(data.state)
 
-        // Calculate real-time throughput (Rows Per Second)
-        const now = Date.now()
-        const elapsedSec = (now - lastUpdateRef.current.time) / 1000
-        if (elapsedSec >= 1 && lastUpdateRef.current.time > 0) {
-          const deltaRows = data.migrated_rows - lastUpdateRef.current.rows
-          const rps = Math.max(0, Math.round(deltaRows / elapsedSec))
-          setRowsPerSecond(rps)
-          lastUpdateRef.current = { time: now, rows: data.migrated_rows }
+        // Use backend calculated throughput (RPS) directly if present, otherwise fallback
+        if (data.current_rps !== undefined && data.current_rps >= 0) {
+          setRowsPerSecond(Math.round(data.current_rps))
+        } else {
+          const now = Date.now()
+          const elapsedSec = (now - lastUpdateRef.current.time) / 1000
+          if (elapsedSec >= 1 && lastUpdateRef.current.time > 0) {
+            const deltaRows = data.migrated_rows - lastUpdateRef.current.rows
+            const rps = Math.max(0, Math.round(deltaRows / elapsedSec))
+            setRowsPerSecond(rps)
+            lastUpdateRef.current = { time: now, rows: data.migrated_rows }
+          }
         }
 
         // Terminal state handling
@@ -162,5 +166,10 @@ export function useMigrationStream({
     etaFormatted,
     errorMessage,
     isConnected,
+    bandwidthFormatted: progress?.bandwidth_formatted,
+    bytesTransferredFormatted: progress?.bytes_transferred_formatted,
+    bytesTransferred: progress?.bytes_transferred,
+    batchLatencyMs: progress?.batch_latency_ms,
+    batchIndex: progress?.batch_index,
   }
 }

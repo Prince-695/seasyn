@@ -39,6 +39,13 @@ export interface MigrationProgress {
   percentage: number
   message?: string
   timestamp: string
+  current_rps?: number
+  bandwidth_bytes_per_sec?: number
+  bandwidth_formatted?: string
+  bytes_transferred?: number
+  bytes_transferred_formatted?: string
+  batch_index?: number
+  batch_latency_ms?: number
 }
 
 export interface StartMigrationPayload {

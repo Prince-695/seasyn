@@ -38,7 +38,7 @@ export function ResourceMetricsGrid({
               <HardDrive className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-foreground text-xs font-bold">
+              <h3 className="text-foreground text-sm font-bold">
                 Data & Transfer Details
               </h3>
               <p className="text-muted-foreground text-[10px]">
@@ -135,7 +135,7 @@ export function ResourceMetricsGrid({
               <Cpu className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-foreground text-xs font-bold">
+              <h3 className="text-foreground text-sm font-bold">
                 System Performance
               </h3>
               <p className="text-muted-foreground text-[10px]">
