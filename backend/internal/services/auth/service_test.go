@@ -80,7 +80,6 @@ func (m *mockMailService) SendEmailVerificationOTP(to, otp string) error { retur
 func (m *mockMailService) SendPasswordResetOTP(to, otp string) error     { return nil }
 func (m *mockMailService) SendWelcome(to, name string) error             { return nil }
 
-
 func TestRefreshToken_SuccessAndSlidingExpiration(t *testing.T) {
 	jwtSecret := "super-secure-test-jwt-secret-key-32chars"
 	repo := newMockUserRepo()
