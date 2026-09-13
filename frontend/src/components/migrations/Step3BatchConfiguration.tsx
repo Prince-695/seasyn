@@ -17,7 +17,7 @@ interface Step3BatchConfigurationProps {
   totalRows?: number
 }
 
-const BATCH_PRESETS = [100, 500, 1000, 2500, 5000]
+import { BATCH_SIZE_PRESETS } from "@/lib/constants/migrations"
 
 export function Step3BatchConfiguration({
   sourceConn,
@@ -54,7 +54,7 @@ export function Step3BatchConfiguration({
 
         {/* Preset Buttons */}
         <div className="flex flex-wrap gap-2">
-          {BATCH_PRESETS.map((preset) => (
+          {BATCH_SIZE_PRESETS.map((preset) => (
             <Button
               key={preset}
               type="button"

@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { useSearchParams } from "react-router-dom"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { schemaApi } from "@/api/schema"
 import { projectsApi } from "@/api/projects"
 import { schemaKeys, connectionKeys } from "@/lib/queryKeys"
 import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import { useActiveProject } from "@/hooks/useActiveProject"
+import { useTableMutations } from "@/hooks/useTableMutations"
 import type {
   ColumnSchema,
   DatabaseSchema,
@@ -86,9 +87,7 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     useState<string>(projectParam)
   const [selectedConnIdentifier, setSelectedConnIdentifier] =
     useState<string>(connParam)
-  const [selectedTableName, setSelectedTableName] = useState<string | null>(
-    null
-  )
+  const [selectedTableName, setSelectedTableName] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<StudioTab>("structure")
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
@@ -99,7 +98,6 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
   })
 
   // Resolves active project from URL param or first-project fallback
-  // Uses the combined selectedProjectIdentifier so switching projects in-UI is reflected
   const {
     projectId: effectiveProjectId,
     orgId,
@@ -263,131 +261,16 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
       activeTab === "diff" && !!effectiveConnId && !!targetConnection?.id,
   })
 
-  // CRUD Mutations
-  const updateCellMutation = useMutation({
-    mutationFn: async ({
-      row,
-      col,
-      newVal,
-    }: {
-      row: Record<string, unknown>
-      col: ColumnSchema
-      newVal: unknown
-    }) => {
-      if (
-        !orgId ||
-        !effectiveProjectId ||
-        !effectiveConnId ||
-        !effectiveTableName
-      ) {
-        throw new Error(
-          "Unable to update cell: missing required workspace, database, or collection context. Please select a table and try again."
-        )
-      }
-      const pkField =
-        activeTable?.primary_keys[0] ||
-        (terminology.paradigm === "document" ? "_id" : "id")
-      const pkRecord = { [pkField]: row[pkField] }
-      await schemaApi.updateRow(
-        orgId,
-        effectiveProjectId,
-        effectiveConnId,
-        effectiveTableName,
-        { [col.name]: newVal },
-        pkRecord
-      )
-    },
-    onSuccess: () => {
-      refetchRows()
-    },
-  })
-
-  const updateRowMutation = useMutation({
-    mutationFn: async ({
-      row,
-      updatedRow,
-    }: {
-      row: Record<string, unknown>
-      updatedRow: Record<string, unknown>
-    }) => {
-      if (
-        !orgId ||
-        !effectiveProjectId ||
-        !effectiveConnId ||
-        !effectiveTableName
-      ) {
-        throw new Error(
-          "Unable to update record: missing database or collection context. Please select a record and try again."
-        )
-      }
-      const pkField =
-        activeTable?.primary_keys[0] ||
-        (terminology.paradigm === "document" ? "_id" : "id")
-      const pkRecord = { [pkField]: row[pkField] }
-      await schemaApi.updateRow(
-        orgId,
-        effectiveProjectId,
-        effectiveConnId,
-        effectiveTableName,
-        updatedRow,
-        pkRecord
-      )
-    },
-    onSuccess: () => {
-      refetchRows()
-    },
-  })
-
-  const deleteRowMutation = useMutation({
-    mutationFn: async (pkValues: Record<string, unknown>) => {
-      if (
-        !orgId ||
-        !effectiveProjectId ||
-        !effectiveConnId ||
-        !effectiveTableName
-      ) {
-        throw new Error(
-          "Unable to delete record: missing database or table context. Please try again."
-        )
-      }
-      await schemaApi.deleteRow(
-        orgId,
-        effectiveProjectId,
-        effectiveConnId,
-        effectiveTableName,
-        pkValues
-      )
-    },
-    onSuccess: () => {
-      refetchRows()
-      refetchSchema()
-    },
-  })
-
-  const insertRowMutation = useMutation({
-    mutationFn: async (rowData: Record<string, unknown>) => {
-      if (
-        !orgId ||
-        !effectiveProjectId ||
-        !effectiveConnId ||
-        !effectiveTableName
-      ) {
-        throw new Error(
-          "Unable to insert record: missing database or collection context. Please select a table and try again."
-        )
-      }
-      await schemaApi.insertRow(
-        orgId,
-        effectiveProjectId,
-        effectiveConnId,
-        effectiveTableName,
-        rowData
-      )
-    },
-    onSuccess: () => {
-      refetchRows()
-      refetchSchema()
-    },
+  // Hook-managed CRUD table mutations
+  const { updateCell, updateRow, deleteRow, insertRow } = useTableMutations({
+    orgId,
+    effectiveProjectId,
+    effectiveConnId,
+    effectiveTableName,
+    activeTable,
+    terminology,
+    refetchRows,
+    refetchSchema,
   })
 
   const refreshAll = useCallback(() => {
@@ -410,41 +293,6 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     setSelectedConnIdentifier(connId)
     setSelectedTableName(null)
   }, [])
-
-  const updateCell = useCallback(
-    async (
-      row: Record<string, unknown>,
-      col: ColumnSchema,
-      newVal: unknown
-    ) => {
-      await updateCellMutation.mutateAsync({ row, col, newVal })
-    },
-    [updateCellMutation]
-  )
-
-  const updateRow = useCallback(
-    async (
-      row: Record<string, unknown>,
-      updatedRow: Record<string, unknown>
-    ) => {
-      await updateRowMutation.mutateAsync({ row, updatedRow })
-    },
-    [updateRowMutation]
-  )
-
-  const deleteRow = useCallback(
-    async (pkValues: Record<string, unknown>) => {
-      await deleteRowMutation.mutateAsync(pkValues)
-    },
-    [deleteRowMutation]
-  )
-
-  const insertRow = useCallback(
-    async (rowData: Record<string, unknown>) => {
-      await insertRowMutation.mutateAsync(rowData)
-    },
-    [insertRowMutation]
-  )
 
   return {
     projects,

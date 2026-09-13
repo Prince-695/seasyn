@@ -3,8 +3,10 @@ import { Terminal, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { MigrationJob, MigrationStatus } from "@/types/migration"
+import type { MigrationStreamLog } from "@/hooks/useMigrationStream"
 import { generateMigrationLogs } from "@/lib/migrationMetrics"
 import { cn } from "@/lib/utils"
+import { TERMINAL_FILTER_LEVELS, type TerminalFilterLevel } from "@/lib/constants/migrations"
 
 interface MigrationTerminalLogProps {
   job: MigrationJob
@@ -14,10 +16,11 @@ interface MigrationTerminalLogProps {
   sourceName?: string
   targetName?: string
   errorMessage?: string | null
+  liveLogs?: MigrationStreamLog[]
   className?: string
 }
 
-type FilterLevel = "ALL" | "INFO" | "BATCH" | "SUCCESS" | "ERROR"
+type FilterLevel = TerminalFilterLevel
 
 export function MigrationTerminalLog({
   job,
@@ -27,15 +30,16 @@ export function MigrationTerminalLog({
   sourceName,
   targetName,
   errorMessage,
+  liveLogs,
   className,
 }: MigrationTerminalLogProps) {
   const [copied, setCopied] = useState(false)
   const [activeFilter, setActiveFilter] = useState<FilterLevel>("ALL")
   const logContainerRef = useRef<HTMLDivElement>(null)
 
-  // Dynamically generate customized logs for this specific migration
+  // Dynamically generate customized logs or merge live SSE logs
   const allLogs = useMemo(() => {
-    return generateMigrationLogs(
+    const baselineLogs = generateMigrationLogs(
       job,
       totalRows,
       migratedRows,
@@ -44,6 +48,12 @@ export function MigrationTerminalLog({
       sourceName,
       targetName
     )
+    if (!liveLogs || liveLogs.length === 0) {
+      return baselineLogs
+    }
+    // Prepend foundational setup logs (init, handshakes, schema inspect)
+    const setupLogs = baselineLogs.slice(0, 4)
+    return [...setupLogs, ...liveLogs]
   }, [
     job,
     totalRows,
@@ -52,6 +62,7 @@ export function MigrationTerminalLog({
     errorMessage,
     sourceName,
     targetName,
+    liveLogs,
   ])
 
   const filteredLogs = useMemo(() => {
@@ -104,22 +115,32 @@ export function MigrationTerminalLog({
           >
             {job.source_table} ➔ {job.target_table}
           </Badge>
+          {status === "running" ? (
+            <Badge
+              variant="outline"
+              className="flex items-center gap-1.5 border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500"
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </span>
+              <span>Live Streaming</span>
+            </Badge>
+          ) : status === "completed" ? (
+            <Badge
+              variant="outline"
+              className="border-success/40 bg-success/10 text-success text-[10px] font-medium"
+            >
+              Stream Finished
+            </Badge>
+          ) : null}
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
           {/* Level Filter Pills */}
           <div className="border-border/60 bg-muted/50 flex items-center gap-1 rounded-md border p-0.5 text-[10px]">
-            {(
-              [
-                "ALL",
-                "INFO",
-                "STREAM",
-                "BATCH",
-                "WARN",
-                "ERROR",
-              ] as FilterLevel[]
-            ).map((lvl) => (
+            {TERMINAL_FILTER_LEVELS.map((lvl) => (
               <Button
                 key={lvl}
                 type="button"

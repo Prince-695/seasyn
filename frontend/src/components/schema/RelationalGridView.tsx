@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { EditCellDialog } from "./EditCellDialog"
 import { DeleteRowDialog } from "./DeleteRowDialog"
 import { InsertRowModal } from "./InsertRowModal"
+import { DataViewPagination } from "./DataViewPagination"
 import type { TableSchema, ColumnSchema, QueryResult } from "@/types/schema"
 import { cn } from "@/lib/utils"
 
@@ -389,52 +390,16 @@ export function RelationalGridView({
         </div>
 
         {/* Server-Side Pagination Controls */}
-        <div className="border-border/60 bg-muted/20 text-muted-foreground flex flex-wrap items-center justify-between gap-3 border-t px-4 py-2.5 text-xs">
-          <div className="flex items-center gap-2">
-            <span>
-              Showing {(currentPage - 1) * pageSize + 1}–
-              {Math.min(currentPage * pageSize, totalRows)} of{" "}
-              {totalRows.toLocaleString()} rows
-            </span>
-            <span>·</span>
-            <div className="flex items-center gap-1">
-              <span>Page size:</span>
-              <select
-                value={pageSize}
-                onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-                className="border-input bg-background text-foreground h-6 rounded border px-1.5 text-xs shadow-xs"
-              >
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1 || isLoading}
-              onClick={() => onPageChange?.(currentPage - 1)}
-              className="h-7 px-2.5 text-xs"
-            >
-              Previous
-            </Button>
-            <span className="text-foreground px-2 font-mono text-xs font-medium">
-              {currentPage} / {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage >= totalPages || isLoading}
-              onClick={() => onPageChange?.(currentPage + 1)}
-              className="h-7 px-2.5 text-xs"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+        <DataViewPagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={totalRows}
+          totalPages={totalPages}
+          itemLabel="rows"
+          isLoading={isLoading}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />
       </div>
 
       {/* Edit Cell Dialog */}

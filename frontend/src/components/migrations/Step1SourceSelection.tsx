@@ -9,7 +9,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { EngineIcon } from "@/components/connections/EngineIcon"
+import { ConnectionSelectCard } from "./ConnectionSelectCard"
 import { schemaApi } from "@/api/schema"
 import { schemaKeys } from "@/lib/queryKeys"
 import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
@@ -80,44 +80,17 @@ export function Step1SourceSelection({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {connections.map((conn) => {
-              const isSelected = conn.id === selectedConnId
-              return (
-                <Button
-                  key={conn.id}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    onSelectConnection(conn.id)
-                    onSelectTable("")
-                  }}
-                  className={`flex h-auto w-full cursor-pointer items-center justify-between rounded-xl border p-3.5 text-left transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary/10 shadow-xs"
-                      : "border-border/70 bg-card hover:border-border hover:bg-muted/30"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <EngineIcon engine={conn.db_type} className="h-5 w-5" />
-                    <div>
-                      <p className="text-foreground text-xs font-semibold">
-                        {conn.name}
-                      </p>
-                      <p className="text-muted-foreground font-mono text-[11px]">
-                        {conn.database || conn.host || conn.db_type}
-                      </p>
-                    </div>
-                  </div>
-
-                  <Badge
-                    variant="outline"
-                    className="font-mono text-[10px] uppercase"
-                  >
-                    {conn.db_type}
-                  </Badge>
-                </Button>
-              )
-            })}
+            {connections.map((conn) => (
+              <ConnectionSelectCard
+                key={conn.id}
+                connection={conn}
+                isSelected={conn.id === selectedConnId}
+                onSelect={() => {
+                  onSelectConnection(conn.id)
+                  onSelectTable("")
+                }}
+              />
+            ))}
           </div>
         )}
       </div>

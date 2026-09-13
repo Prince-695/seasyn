@@ -16,9 +16,10 @@ import { EngineIcon } from "@/components/connections/EngineIcon"
 import { CancelMigrationDialog } from "./CancelMigrationDialog"
 import { MigrationDetailsModal } from "./MigrationDetailsModal"
 import type { MigrationJob, MigrationStatus } from "@/types/migration"
-import { getMigrationProgressBarClass } from "@/lib/migrationStatus"
 import { formatDate } from "@/lib/formatters"
+import { getMigrationProgressBarClass } from "@/lib/migrationStatus"
 import { cn } from "@/lib/utils"
+import { MIGRATION_STATUS_FILTERS } from "@/lib/constants/migrations"
 
 interface MigrationHistoryTableProps {
   jobs: MigrationJob[]
@@ -81,9 +82,10 @@ export function MigrationHistoryTable({
     })
   }, [jobs, selectedStatus, searchTerm])
 
-  const statusCounts = useMemo(() => {
+  const statusCounts: Record<FilterTab, number> = useMemo(() => {
     return {
       all: jobs.length,
+      pending: jobs.filter((j) => j.status === "pending").length,
       running: jobs.filter((j) => j.status === "running").length,
       completed: jobs.filter((j) => j.status === "completed").length,
       failed: jobs.filter((j) => j.status === "failed").length,
@@ -97,9 +99,8 @@ export function MigrationHistoryTable({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Status Filter Tabs */}
         <div className="border-border/60 bg-muted/20 flex flex-wrap items-center gap-1 rounded-xl border p-1">
-          {(
-            ["all", "running", "completed", "failed", "cancelled"] as const
-          ).map((tab) => {
+          {MIGRATION_STATUS_FILTERS.map((tabItem) => {
+            const tab = tabItem.value
             const count = statusCounts[tab] || 0
             const isSelected = selectedStatus === tab
             return (
