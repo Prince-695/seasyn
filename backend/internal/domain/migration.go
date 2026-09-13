@@ -49,6 +49,15 @@ type MigrationProgress struct {
 	Percentage   float64         `json:"percentage"`
 	Message      string          `json:"message,omitempty"`
 	Timestamp    time.Time       `json:"timestamp"`
+
+	// Live Moving Graph & Bandwidth Telemetry
+	CurrentRPS                float64 `json:"current_rps"`
+	BandwidthBytesPerSec      float64 `json:"bandwidth_bytes_per_sec"`
+	BandwidthFormatted        string  `json:"bandwidth_formatted,omitempty"`
+	BytesTransferred          int64   `json:"bytes_transferred"`
+	BytesTransferredFormatted string  `json:"bytes_transferred_formatted,omitempty"`
+	BatchIndex                int     `json:"batch_index"`
+	BatchLatencyMs            int64   `json:"batch_latency_ms"`
 }
 
 // --- Row Batch (channel streaming) ---

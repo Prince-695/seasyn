@@ -127,6 +127,7 @@ func (s *Streamer) Stream(ctx context.Context, job domain.MigrationJob) error {
 	rowCh, errCh := srcConn.StreamRows(ctx, job.SourceTable, batchSize)
 
 	var migrated int64
+	var cumulativeBytes int64
 
 	for {
 		select {
@@ -137,23 +138,40 @@ func (s *Streamer) Stream(ctx context.Context, job domain.MigrationJob) error {
 			if !ok {
 				// Channel closed — all rows streamed
 				s.hub.Broadcast(job.ID, domain.MigrationProgress{
-					JobID:        job.ID,
-					State:        domain.MigrationStatusCompleted,
-					MigratedRows: migrated,
-					TotalRows:    job.TotalRows,
-					Percentage:   100,
-					Message:      "Migration completed successfully",
-					Timestamp:    time.Now(),
+					JobID:                     job.ID,
+					State:                     domain.MigrationStatusCompleted,
+					MigratedRows:              migrated,
+					TotalRows:                 job.TotalRows,
+					Percentage:                100,
+					Message:                   "Migration completed successfully",
+					Timestamp:                 time.Now(),
+					BytesTransferred:          cumulativeBytes,
+					BytesTransferredFormatted: formatBytes(cumulativeBytes),
 				})
 				return nil
 			}
+
+			batchBytes := estimateBatchBytes(batch.Rows)
+			batchStartTime := time.Now()
 
 			// Write batch to destination
 			if err := dstConn.BulkInsert(ctx, job.TargetTable, batch.Rows); err != nil {
 				return fmt.Errorf("batch %d: %w", batch.Index, err)
 			}
 
+			batchLatency := time.Since(batchStartTime)
+			batchLatencyMs := batchLatency.Milliseconds()
+
 			migrated += int64(len(batch.Rows))
+			cumulativeBytes += batchBytes
+
+			// Calculate instantaneous RPS and Bandwidth
+			seconds := batchLatency.Seconds()
+			if seconds < 0.001 {
+				seconds = 0.001
+			}
+			currentRPS := float64(len(batch.Rows)) / seconds
+			bandwidthBytesPerSec := float64(batchBytes) / seconds
 
 			// Calculate percentage
 			var pct float64
@@ -166,13 +184,20 @@ func (s *Streamer) Stream(ctx context.Context, job domain.MigrationJob) error {
 
 			// Broadcast progress
 			s.hub.Broadcast(job.ID, domain.MigrationProgress{
-				JobID:        job.ID,
-				State:        domain.MigrationStatusRunning,
-				MigratedRows: migrated,
-				TotalRows:    job.TotalRows,
-				Percentage:   pct,
-				Message:      fmt.Sprintf("Batch %d processed (%d rows)", batch.Index+1, len(batch.Rows)),
-				Timestamp:    time.Now(),
+				JobID:                     job.ID,
+				State:                     domain.MigrationStatusRunning,
+				MigratedRows:              migrated,
+				TotalRows:                 job.TotalRows,
+				Percentage:                pct,
+				Message:                   fmt.Sprintf("Batch %d processed (%d rows)", batch.Index+1, len(batch.Rows)),
+				Timestamp:                 time.Now(),
+				CurrentRPS:                currentRPS,
+				BandwidthBytesPerSec:      bandwidthBytesPerSec,
+				BandwidthFormatted:        fmt.Sprintf("%s/s", formatBytes(int64(bandwidthBytesPerSec))),
+				BytesTransferred:          cumulativeBytes,
+				BytesTransferredFormatted: formatBytes(cumulativeBytes),
+				BatchIndex:                batch.Index,
+				BatchLatencyMs:            batchLatencyMs,
 			})
 
 		case streamErr, ok := <-errCh:
@@ -181,6 +206,59 @@ func (s *Streamer) Stream(ctx context.Context, job domain.MigrationJob) error {
 			}
 		}
 	}
+}
+
+// estimateBatchBytes estimates the approximate payload size of a batch in bytes.
+func estimateBatchBytes(rows []map[string]interface{}) int64 {
+	if len(rows) == 0 {
+		return 0
+	}
+	sampleCount := len(rows)
+	if sampleCount > 10 {
+		sampleCount = 10
+	}
+	var sampleBytes int64
+	for i := 0; i < sampleCount; i++ {
+		row := rows[i]
+		var rowBytes int64
+		for k, v := range row {
+			rowBytes += int64(len(k))
+			switch val := v.(type) {
+			case string:
+				rowBytes += int64(len(val))
+			case []byte:
+				rowBytes += int64(len(val))
+			case int, int32, int64, uint, uint32, uint64, float32, float64:
+				rowBytes += 8
+			case bool:
+				rowBytes += 1
+			case time.Time:
+				rowBytes += 24
+			default:
+				rowBytes += 16
+			}
+		}
+		if rowBytes < 32 {
+			rowBytes = 64
+		}
+		sampleBytes += rowBytes
+	}
+	avgRowBytes := sampleBytes / int64(sampleCount)
+	return avgRowBytes * int64(len(rows))
+}
+
+// formatBytes formats byte count into human-readable representation.
+func formatBytes(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.2f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
 // CountSourceRows opens a temporary connection to the source DB and counts total rows in the table.
