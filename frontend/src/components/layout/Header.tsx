@@ -128,18 +128,20 @@ export function Header() {
           {(isProjectRoute || (isToolRoute && activeProjectName)) && (
             <>
               <ChevronRight className="text-muted-foreground/60 h-3.5 w-3.5" />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => navigate(`/projects/${activeProjectSlug || ""}`)}
                 className={cn(
-                  "cursor-pointer transition-colors",
+                  "h-auto p-0 transition-colors hover:bg-transparent",
                   isProjectRoute && !isProjectSettings
-                    ? "text-foreground text-sm font-semibold tracking-tight sm:text-base"
+                    ? "text-foreground hover:text-foreground text-sm font-semibold tracking-tight sm:text-base"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {activeProjectName || "Project"}
-              </button>
+              </Button>
             </>
           )}
 

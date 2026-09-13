@@ -26,6 +26,11 @@ interface DiagnosticPingButtonProps {
   size?: "default" | "sm"
   variant?: "default" | "outline" | "secondary"
   className?: string
+  /**
+   * When true, the button itself displays test results without rendering
+   * an expanding banner underneath, keeping cards at a constant, uniform size.
+   */
+  compact?: boolean
 }
 
 export function DiagnosticPingButton({
@@ -36,6 +41,7 @@ export function DiagnosticPingButton({
   size = "default",
   variant = "outline",
   className,
+  compact = false,
 }: DiagnosticPingButtonProps) {
   const { activeOrg } = useWorkspaceStore()
   const [testing, setTesting] = useState(false)
@@ -111,6 +117,61 @@ export function DiagnosticPingButton({
     } finally {
       setTesting(false)
     }
+  }
+
+  // Compact mode: button itself indicates result and doesn't add height to parent cards
+  if (compact) {
+    const isSuccess = result?.success
+    const isFailed = result !== null && !result.success
+
+    return (
+      <Button
+        type="button"
+        variant={isSuccess ? "outline" : isFailed ? "destructive" : variant}
+        size={size}
+        onClick={handleTest}
+        disabled={testing}
+        title={
+          testing
+            ? "Pinging database server..."
+            : result?.success
+              ? `Connected successfully (${result.latency_ms}ms latency). Click to test again.`
+              : result?.error_message
+                ? `${result.error_message}. Click to retry.`
+                : "Run live connectivity test"
+        }
+        className={cn(
+          "h-8 w-full justify-center gap-1.5 text-xs font-medium transition-all",
+          isSuccess &&
+            "border-success/40 bg-success/10 text-success hover:bg-success/20 font-semibold",
+          isFailed &&
+            "border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 font-semibold",
+          className
+        )}
+      >
+        {testing ? (
+          <>
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <span>Testing Connection...</span>
+          </>
+        ) : isSuccess ? (
+          <>
+            <CheckCircle2 className="text-success h-3.5 w-3.5" />
+            <span>Verified · {result.latency_ms}ms</span>
+          </>
+        ) : isFailed ? (
+          <>
+            <XCircle className="text-destructive h-3.5 w-3.5" />
+            <span>Unreachable · Retry</span>
+          </>
+        ) : (
+          <>
+            <Activity className="text-primary h-3.5 w-3.5" />
+            <span>Test Connection</span>
+          </>
+        )}
+      </Button>
+    )
   }
 
   return (

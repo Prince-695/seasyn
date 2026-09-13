@@ -24,6 +24,8 @@ interface LiveProgressCardProps {
   rowsPerSecond: number
   etaFormatted: string | null
   stats: MigrationResourceStats
+  sourceName?: string
+  targetName?: string
   errorMessage?: string | null
   className?: string
 }
@@ -37,6 +39,8 @@ export function LiveProgressCard({
   rowsPerSecond,
   etaFormatted,
   stats,
+  sourceName,
+  targetName,
   errorMessage,
   className,
 }: LiveProgressCardProps) {
@@ -54,14 +58,16 @@ export function LiveProgressCard({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-foreground text-sm font-bold tracking-tight">
-              Pipeline Sync Progress
+              Migration Progress
             </span>
             <span className="text-muted-foreground font-mono text-xs">
               • Job {job.id.slice(0, 8)}
             </span>
           </div>
           <p className="text-muted-foreground text-xs">
-            Live record replication and checksum verification
+            {sourceName && targetName
+              ? `Moving records from ${sourceName} to ${targetName}`
+              : "Live record transfer between databases"}
           </p>
         </div>
 
@@ -75,7 +81,8 @@ export function LiveProgressCard({
             {migratedRows.toLocaleString()}
           </span>
           <span className="text-muted-foreground font-mono text-sm font-medium">
-            / {totalRows > 0 ? totalRows.toLocaleString() : "--"} rows synced
+            / {totalRows > 0 ? totalRows.toLocaleString() : "--"} rows
+            transferred
           </span>
         </div>
 
@@ -121,13 +128,13 @@ export function LiveProgressCard({
         </div>
       </div>
 
-      {/* Embedded 4-Column KPI Telemetry Strip */}
+      {/* 4-Column Key Metrics Strip */}
       <div className="border-border/50 bg-muted/20 mt-4 grid grid-cols-2 gap-3 rounded-lg border p-3 md:grid-cols-4">
         {/* 1. Velocity */}
         <div className="space-y-1">
           <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
             <Zap className="text-warning h-3 w-3" />
-            <span>Throughput Speed</span>
+            <span>Transfer Speed</span>
           </div>
           <p className="text-foreground font-mono text-sm font-bold">
             {isRunning ? rowsPerSecond.toLocaleString() : "0"}{" "}
@@ -141,7 +148,7 @@ export function LiveProgressCard({
         <div className="space-y-1">
           <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
             <HardDrive className="text-primary h-3 w-3" />
-            <span>Volume Streamed</span>
+            <span>Data Moved</span>
           </div>
           <p className="text-foreground font-mono text-sm font-bold">
             {stats.formattedMigratedBytes}{" "}
@@ -155,31 +162,31 @@ export function LiveProgressCard({
         <div className="space-y-1">
           <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
             <Clock className="text-info h-3 w-3" />
-            <span>Elapsed / ETA</span>
+            <span>Time Elapsed</span>
           </div>
           <p className="text-foreground font-mono text-sm font-bold">
             {stats.elapsedFormatted}{" "}
             <span className="text-muted-foreground text-[10px] font-normal">
               {isRunning && etaFormatted
-                ? `(ETA: ${etaFormatted})`
+                ? `(Left: ~${etaFormatted})`
                 : isCompleted
-                  ? "(Finished)"
+                  ? "(Done)"
                   : ""}
             </span>
           </p>
         </div>
 
-        {/* 4. Telemetry State */}
+        {/* 4. Connection State */}
         <div className="space-y-1">
           <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
             <Radio className="text-success h-3 w-3" />
-            <span>Channel Health</span>
+            <span>Connection</span>
           </div>
           <p className="text-foreground font-mono text-sm font-bold">
             {isCompleted
-              ? "Verified"
+              ? "Completed"
               : isRunning
-                ? "SSE Streaming"
+                ? "Active"
                 : isFailed
                   ? "Failed"
                   : "Idle"}
@@ -192,7 +199,7 @@ export function LiveProgressCard({
         <div className="border-destructive/30 bg-destructive/10 text-destructive mt-4 flex items-start gap-2.5 rounded-xl border p-3.5 text-xs">
           <AlertCircle className="text-destructive mt-0.5 h-4 w-4 shrink-0" />
           <div className="space-y-1">
-            <p className="font-semibold">Pipeline encountered an error</p>
+            <p className="font-semibold">Migration encountered an issue</p>
             <p className="text-destructive/90 font-mono text-[11px] leading-relaxed">
               {errorMessage || job.error_message}
             </p>

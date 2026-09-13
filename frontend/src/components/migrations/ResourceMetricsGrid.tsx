@@ -30,7 +30,7 @@ export function ResourceMetricsGrid({
 
   return (
     <div className={cn("grid grid-cols-1 gap-4 lg:grid-cols-2", className)}>
-      {/* 1. Storage & Data Payload Footprint */}
+      {/* 1. Data & Transfer Details */}
       <div className="border-border/60 bg-card/40 rounded-xl border p-4 shadow-2xs backdrop-blur-xs">
         <div className="border-border/40 flex items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2">
@@ -39,15 +39,15 @@ export function ResourceMetricsGrid({
             </div>
             <div>
               <h3 className="text-foreground text-xs font-bold">
-                Storage & Data Footprint
+                Data & Transfer Details
               </h3>
               <p className="text-muted-foreground text-[10px]">
-                Payload volume and table chunk serialization
+                Batch size and storage volume
               </p>
             </div>
           </div>
           <Badge variant="outline" className="font-mono text-[10px]">
-            {stats.formattedAvgRowBytes} / row avg
+            ~{stats.formattedAvgRowBytes} / row
           </Badge>
         </div>
 
@@ -55,7 +55,7 @@ export function ResourceMetricsGrid({
           {/* Transferred Bytes */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground block text-[10px] font-medium uppercase">
-              Transferred Volume
+              Data Moved
             </span>
             <div className="mt-1 flex items-baseline gap-1">
               <span className="text-foreground font-mono text-base font-bold">
@@ -67,33 +67,33 @@ export function ResourceMetricsGrid({
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
               {stats.transferRateFormatted !== "0 B/s"
-                ? `Syncing at ${stats.transferRateFormatted}`
-                : "Cumulative bytes committed"}
+                ? `Transferring at ${stats.transferRateFormatted}`
+                : "Total data committed"}
             </p>
           </div>
 
           {/* Batch Footprint */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground block text-[10px] font-medium uppercase">
-              Batch Chunk Size
+              Batch Size
             </span>
             <div className="mt-1 flex items-baseline gap-1">
               <span className="text-foreground font-mono text-base font-bold">
                 {stats.batchSize.toLocaleString()}
               </span>
               <span className="text-muted-foreground/70 text-[10px]">
-                rows/chunk
+                rows/batch
               </span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              Batch payload: ~{stats.formattedBatchPayload}
+              ~{stats.formattedBatchPayload} per batch
             </p>
           </div>
 
           {/* Batches Progress */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
-              <span>Batch Execution</span>
+              <span>Batches Done</span>
               <Layers className="text-muted-foreground/60 h-3 w-3" />
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
@@ -101,18 +101,18 @@ export function ResourceMetricsGrid({
                 {stats.completedBatches}
               </span>
               <span className="text-muted-foreground font-mono text-[10px]">
-                of {stats.totalBatches} completed
+                of {stats.totalBatches}
               </span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              Atomic transaction boundary
+              Processed in safe chunks
             </p>
           </div>
 
           {/* Estimated Table Footprint */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
-              <span>Total Table Footprint</span>
+              <span>Estimated Table Size</span>
               <Database className="text-muted-foreground/60 h-3 w-3" />
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
@@ -121,13 +121,13 @@ export function ResourceMetricsGrid({
               </span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              Calculated from schema types
+              Total expected size
             </p>
           </div>
         </div>
       </div>
 
-      {/* 2. Compute, Buffer & Stream Diagnostics */}
+      {/* 2. System Performance */}
       <div className="border-border/60 bg-card/40 rounded-xl border p-4 shadow-2xs backdrop-blur-xs">
         <div className="border-border/40 flex items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2">
@@ -136,10 +136,10 @@ export function ResourceMetricsGrid({
             </div>
             <div>
               <h3 className="text-foreground text-xs font-bold">
-                Compute & Buffer Diagnostics
+                System Performance
               </h3>
               <p className="text-muted-foreground text-[10px]">
-                In-memory worker concurrency and channel pressure
+                Memory usage and stream health
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@ export function ResourceMetricsGrid({
             variant="outline"
             className={cn("border font-mono text-[10px]", pressureColor)}
           >
-            Buffer: {stats.bufferPressure}
+            Status: {stats.bufferPressure}
           </Badge>
         </div>
 
@@ -155,7 +155,7 @@ export function ResourceMetricsGrid({
           {/* Stream Buffer Load */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <div className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
-              <span>Buffer Pressure</span>
+              <span>System Load</span>
               <span className="font-mono">{stats.bufferPressurePercent}%</span>
             </div>
             <div className="bg-muted/60 mt-2 h-1.5 w-full overflow-hidden rounded-full">
@@ -172,14 +172,14 @@ export function ResourceMetricsGrid({
               />
             </div>
             <p className="text-muted-foreground mt-1 text-[10px]">
-              Zero queue backpressure
+              Running smoothly
             </p>
           </div>
 
           {/* Active Memory Buffer */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
-              <span>In-Flight Buffer RAM</span>
+              <span>Memory Used</span>
               <Server className="text-muted-foreground/60 h-3 w-3" />
             </span>
             <div className="mt-1 flex items-baseline gap-1">
@@ -188,37 +188,37 @@ export function ResourceMetricsGrid({
               </span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              Worker chunk heap allocation
+              Temporary stream buffer
             </p>
           </div>
 
           {/* Concurrency Model */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
-              <span>Pipeline Concurrency</span>
+              <span>Transfer Mode</span>
               <Activity className="text-muted-foreground/60 h-3 w-3" />
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-foreground font-mono text-base font-bold">
-                1 Worker
+                Direct Sync
               </span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              Sequential atomic stream
+              Direct database to database
             </p>
           </div>
 
           {/* Channel Protocol & Latency */}
           <div className="border-border/40 bg-muted/20 rounded-lg border p-2.5">
             <span className="text-muted-foreground flex items-center justify-between text-[10px] font-medium uppercase">
-              <span>Telemetry Channel</span>
+              <span>Live Connection</span>
               <span
                 className={cn(
                   "font-mono text-[9px] font-semibold",
                   isConnected ? "text-success" : "text-muted-foreground"
                 )}
               >
-                {isConnected ? "SSE Active" : "SSE Closed"}
+                {isConnected ? "Connected" : "Disconnected"}
               </span>
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
@@ -228,7 +228,7 @@ export function ResourceMetricsGrid({
               <span className="text-muted-foreground text-[10px]">ping</span>
             </div>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
-              HTTP/2 Server-Sent Events
+              Real-time live updates
             </p>
           </div>
         </div>

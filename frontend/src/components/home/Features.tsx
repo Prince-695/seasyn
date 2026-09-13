@@ -21,6 +21,7 @@ import {
 import { motion, useScroll, useTransform } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { Button } from "@/components/ui/button"
 
 /* =========================================================================
    Mockup 1: Stateless & Agentless Architecture (Scroll-Linked Card Docking)
@@ -207,13 +208,15 @@ const IntegrationsMockup = () => {
     <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border p-3">
       <div className="bg-card border-border flex w-full max-w-xs flex-col gap-2 rounded-lg border p-2.5 shadow-sm">
         {/* Top "+ Add new integration" Button (Fixed at top) */}
-        <button
+        <Button
+          variant="outline"
+          size="xs"
           type="button"
-          className="border-border hover:border-primary/40 hover:text-primary bg-muted/20 text-muted-foreground z-10 flex w-full cursor-pointer items-center justify-center gap-1 rounded-md border border-dashed px-2 py-1 text-[11px] font-medium transition-colors"
+          className="border-border hover:border-primary/40 hover:text-primary bg-muted/20 text-muted-foreground z-10 w-full border-dashed text-[11px] font-medium transition-colors"
         >
           <span className="text-xs leading-none">+</span>
           <span>Add new integration</span>
-        </button>
+        </Button>
 
         {/* Continuous Infinite Vertical Scrolling Reel */}
         <div className="relative h-24.5 overflow-hidden">

@@ -261,35 +261,17 @@ export function ConnectionsPage() {
       ) : filteredConnections.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredConnections.map((conn) => (
-            <div key={conn.id} className="relative">
-              <ConnectionCard
-                connection={conn}
-                onDelete={handleDeleteConnection}
-                onInspectSchema={() =>
-                  navigate(
-                    `/editor?project=${conn.projectSlug || conn.project_id}&conn=${conn.name || conn.id}`
-                  )
-                }
-              />
-              {/* Parent Project Tag */}
-              {conn.projectName && (
-                <div className="text-muted-foreground mt-1 flex items-center justify-between px-1 text-[11px]">
-                  <span className="flex items-center gap-1">
-                    <FolderKanban className="h-3 w-3" />
-                    <span>Project:</span>
-                    <Link
-                      to={`/projects/${conn.projectSlug || conn.project_id}`}
-                      className="text-primary font-medium hover:underline"
-                    >
-                      {conn.projectName}
-                    </Link>
-                  </span>
-                  <span className="font-mono text-[10px] uppercase">
-                    {conn.projectEnvironment}
-                  </span>
-                </div>
-              )}
-            </div>
+            <ConnectionCard
+              key={conn.id}
+              connection={conn}
+              showProject={true}
+              onDelete={handleDeleteConnection}
+              onInspectSchema={() =>
+                navigate(
+                  `/editor?project=${conn.projectSlug || conn.project_id}&conn=${conn.name || conn.id}`
+                )
+              }
+            />
           ))}
         </div>
       ) : (

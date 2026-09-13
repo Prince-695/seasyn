@@ -35,21 +35,19 @@ export function CancelMigrationDialog({
             </div>
             <div>
               <AlertDialogTitle className="text-foreground text-base">
-                Cancel Migration Pipeline?
+                Cancel Migration?
               </AlertDialogTitle>
               <AlertDialogDescription className="text-muted-foreground text-xs">
-                {jobName
-                  ? `Job: ${jobName}`
-                  : "This will immediately halt the ongoing data stream."}
+                {jobName ? jobName : "This will stop the data transfer."}
               </AlertDialogDescription>
             </div>
           </div>
         </AlertDialogHeader>
 
-        <div className="bg-muted/30 border-border/60 text-muted-foreground rounded-lg border p-3 font-mono text-xs">
+        <div className="bg-muted/30 border-border/60 text-muted-foreground rounded-lg border p-3 text-xs">
           <p>
-            Already transferred rows will remain in the target database, but
-            remaining batches will not be streamed.
+            Already transferred rows will remain in the destination database,
+            but no further data will be moved.
           </p>
         </div>
 
@@ -69,10 +67,10 @@ export function CancelMigrationDialog({
             {isCancelling ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                <span>Aborting...</span>
+                <span>Cancelling...</span>
               </>
             ) : (
-              <span>Yes, Cancel Pipeline</span>
+              <span>Yes, Cancel Migration</span>
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

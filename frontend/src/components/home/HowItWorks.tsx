@@ -15,6 +15,7 @@ import {
 import { SiPostgresql, SiMongodb } from "react-icons/si"
 import { cn } from "@/lib/utils"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { Button } from "@/components/ui/button"
 
 const steps = [
   {
@@ -90,11 +91,13 @@ export const HowItWorks = () => {
           const isActive = idx === activeStepIndex
           const Icon = step.icon
           return (
-            <button
+            <Button
               key={step.id}
+              type="button"
+              variant={isActive ? "default" : "ghost"}
               onClick={() => setActiveStepIndex(idx)}
               className={cn(
-                "group relative flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 sm:text-sm",
+                "group relative flex h-auto flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 sm:text-sm",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -112,7 +115,7 @@ export const HowItWorks = () => {
               </span>
               <Icon className="h-3.5 w-3.5 shrink-0" />
               <span className="hidden sm:inline">{step.label}</span>
-            </button>
+            </Button>
           )
         })}
       </div>

@@ -11,6 +11,8 @@ interface MigrationTerminalLogProps {
   status: MigrationStatus
   totalRows: number
   migratedRows: number
+  sourceName?: string
+  targetName?: string
   errorMessage?: string | null
   className?: string
 }
@@ -22,6 +24,8 @@ export function MigrationTerminalLog({
   status,
   totalRows,
   migratedRows,
+  sourceName,
+  targetName,
   errorMessage,
   className,
 }: MigrationTerminalLogProps) {
@@ -36,9 +40,19 @@ export function MigrationTerminalLog({
       totalRows,
       migratedRows,
       status,
-      errorMessage
+      errorMessage,
+      sourceName,
+      targetName
     )
-  }, [job, totalRows, migratedRows, status, errorMessage])
+  }, [
+    job,
+    totalRows,
+    migratedRows,
+    status,
+    errorMessage,
+    sourceName,
+    targetName,
+  ])
 
   const filteredLogs = useMemo(() => {
     if (activeFilter === "ALL") return allLogs
@@ -82,7 +96,7 @@ export function MigrationTerminalLog({
           </div>
           <div className="text-foreground ml-2 flex items-center gap-1.5 text-xs font-semibold">
             <Terminal className="text-muted-foreground h-3.5 w-3.5" />
-            <span>Execution Terminal & Audit Trail</span>
+            <span>Activity Log</span>
           </div>
           <Badge
             variant="outline"
@@ -106,18 +120,21 @@ export function MigrationTerminalLog({
                 "ERROR",
               ] as FilterLevel[]
             ).map((lvl) => (
-              <button
+              <Button
                 key={lvl}
+                type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setActiveFilter(lvl)}
                 className={cn(
-                  "cursor-pointer rounded px-2 py-0.5 font-mono transition-colors",
+                  "h-5 rounded px-1.5 py-0 font-mono text-[10px] transition-colors",
                   activeFilter === lvl
-                    ? "bg-primary text-primary-foreground font-bold shadow-2xs"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-bold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {lvl}
-              </button>
+              </Button>
             ))}
           </div>
 

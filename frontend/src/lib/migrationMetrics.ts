@@ -135,7 +135,9 @@ export function generateMigrationLogs(
   totalRows: number,
   migratedRows: number,
   status: MigrationStatus,
-  errorMessage?: string | null
+  errorMessage?: string | null,
+  sourceName?: string,
+  targetName?: string
 ): MigrationLogEntry[] {
   const logs: MigrationLogEntry[] = []
   const baseTime = new Date(job.started_at || job.created_at)
@@ -145,27 +147,32 @@ export function generateMigrationLogs(
     return d.toTimeString().split(" ")[0]
   }
 
-  // 1. Pipeline initialization
+  const srcDisplay =
+    sourceName || job.source_connection_name || "Source Database"
+  const tgtDisplay =
+    targetName || job.target_connection_name || "Destination Database"
+
+  // 1. Job initialization
   logs.push({
     id: "log-init",
     timestamp: formatOffset(0),
     level: "INFO",
-    message: `Initialized migration pipeline worker (Job ID: ${job.id.slice(0, 8)}...).`,
+    message: `Started migration job ${job.id.slice(0, 8)}...`,
   })
 
-  // 2. Source database handshake & schema inspection
+  // 2. Source database connection
   logs.push({
     id: "log-src-handshake",
     timestamp: formatOffset(1),
     level: "INFO",
-    message: `Connected to source ${job.source_db_type?.toUpperCase() || "DATABASE"} [${job.source_connection_name || "Source Connection"}].`,
+    message: `Connected to ${srcDisplay}.`,
   })
 
   logs.push({
     id: "log-src-inspect",
     timestamp: formatOffset(1.4),
     level: "STREAM",
-    message: `Introspected table "${job.source_table}": discovered ${totalRows.toLocaleString()} record(s).`,
+    message: `Found ${totalRows.toLocaleString()} rows in table "${job.source_table}".`,
   })
 
   // 3. Target database preparation
@@ -173,17 +180,17 @@ export function generateMigrationLogs(
     id: "log-tgt-handshake",
     timestamp: formatOffset(1.8),
     level: "INFO",
-    message: `Validated target ${job.target_db_type?.toUpperCase() || "DATABASE"} [${job.target_connection_name || "Target Connection"}]. Schema ready for table "${job.target_table}".`,
+    message: `Connected to ${tgtDisplay}. Ready to copy into table "${job.target_table}".`,
   })
 
-  // 4. Transit Conduit & Batch allocation
+  // 4. Batch setup
   const batchSize = Math.max(1, job.batch_size || 500)
   const totalBatches = Math.max(1, Math.ceil(totalRows / batchSize))
   logs.push({
     id: "log-batch-plan",
     timestamp: formatOffset(2.2),
     level: "INFO",
-    message: `Stream buffer allocated. Batch size configured to ${batchSize.toLocaleString()} rows (${totalBatches} batch${totalBatches > 1 ? "es" : ""} planned).`,
+    message: `Configured batches of ${batchSize.toLocaleString()} rows (${totalBatches} batch${totalBatches > 1 ? "es" : ""}).`,
   })
 
   // 5. Batch Progress Logs
@@ -193,7 +200,7 @@ export function generateMigrationLogs(
         id: "log-batch-1",
         timestamp: formatOffset(2.8),
         level: "BATCH",
-        message: `Batch #1 (rows 1-${migratedRows.toLocaleString()}) streamed and committed to ${job.target_table}.`,
+        message: `Batch #1 (rows 1-${migratedRows.toLocaleString()}) copied to ${job.target_table}.`,
       })
     } else {
       const completedBatches = Math.min(
@@ -205,7 +212,7 @@ export function generateMigrationLogs(
         id: "log-batch-first",
         timestamp: formatOffset(2.8),
         level: "BATCH",
-        message: `Batch #1 (rows 1-${Math.min(batchSize, totalRows).toLocaleString()}) streamed and committed to ${job.target_table}.`,
+        message: `Batch #1 (rows 1-${Math.min(batchSize, totalRows).toLocaleString()}) copied to ${job.target_table}.`,
       })
 
       // Log milestone if multiple batches
@@ -214,7 +221,7 @@ export function generateMigrationLogs(
           id: "log-batch-mid",
           timestamp: formatOffset(4.5),
           level: "STREAM",
-          message: `Stream ongoing: ${completedBatches} of ${totalBatches} batches committed (${migratedRows.toLocaleString()} rows synced).`,
+          message: `In progress: ${completedBatches} of ${totalBatches} batches copied (${migratedRows.toLocaleString()} rows).`,
         })
       }
 
@@ -224,46 +231,46 @@ export function generateMigrationLogs(
           id: "log-batch-last",
           timestamp: formatOffset(6.1),
           level: "BATCH",
-          message: `Final batch #${totalBatches} committed to ${job.target_table}.`,
+          message: `Final batch #${totalBatches} copied to ${job.target_table}.`,
         })
       }
     }
   }
 
-  // 6. Terminal status logs
+  // 6. Final status logs
   if (status === "completed") {
     logs.push({
       id: "log-verify",
       timestamp: formatOffset(totalBatches > 1 ? 7.2 : 3.5),
       level: "SUCCESS",
-      message: `Integrity check passed: ${totalRows.toLocaleString()} source records verified in target "${job.target_table}".`,
+      message: `Verified: all ${totalRows.toLocaleString()} rows saved in "${job.target_table}".`,
     })
     logs.push({
       id: "log-complete",
       timestamp: formatOffset(totalBatches > 1 ? 7.5 : 3.8),
       level: "SUCCESS",
-      message: `Pipeline finished successfully. Telemetry channel closed cleanly.`,
+      message: `Migration completed successfully.`,
     })
   } else if (status === "cancelled") {
     logs.push({
       id: "log-cancel",
       timestamp: formatOffset(4.0),
       level: "WARN",
-      message: `Pipeline execution was aborted by operator. Partial data (${migratedRows.toLocaleString()} rows) retained in target.`,
+      message: `Migration cancelled. ${migratedRows.toLocaleString()} rows were copied before stopping.`,
     })
   } else if (status === "failed") {
     logs.push({
       id: "log-fail",
       timestamp: formatOffset(3.2),
       level: "ERROR",
-      message: `Pipeline halted with error: ${errorMessage || job.error_message || "Target database rejected write transaction."}`,
+      message: `Migration failed: ${errorMessage || job.error_message || "Could not write to destination database."}`,
     })
   } else {
     logs.push({
       id: "log-streaming",
       timestamp: formatOffset(3.0),
       level: "STREAM",
-      message: `Real-time conduit active: streaming records via Server-Sent Events...`,
+      message: `Moving records in real-time...`,
     })
   }
 

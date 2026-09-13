@@ -10,7 +10,8 @@ import { ResourceMetricsGrid } from "@/components/migrations/ResourceMetricsGrid
 import { MigrationTerminalLog } from "@/components/migrations/MigrationTerminalLog"
 import { CancelMigrationDialog } from "@/components/migrations/CancelMigrationDialog"
 import { migrationsApi } from "@/api/migrations"
-import { migrationKeys } from "@/lib/queryKeys"
+import { projectsApi } from "@/api/projects"
+import { connectionKeys, migrationKeys } from "@/lib/queryKeys"
 import { useMigrationStream } from "@/hooks/useMigrationStream"
 import { useActiveProject } from "@/hooks/useActiveProject"
 import { calculateMigrationResourceStats } from "@/lib/migrationMetrics"
@@ -59,6 +60,35 @@ export function MigrationLivePage() {
     },
     enabled: !!orgId && !!projectId && !!jobId,
   })
+
+  // Fetch connections to resolve user-friendly database and connection names
+  const { data: connections = [] } = useQuery({
+    queryKey: connectionKeys.list(orgId, projectId),
+    queryFn: async () => {
+      if (!orgId || !projectId) return []
+      const res = await projectsApi.listConnections(orgId, projectId)
+      return res.data || []
+    },
+    enabled: !!orgId && !!projectId,
+  })
+
+  const sourceConn = useMemo(
+    () => connections.find((c) => c.id === job?.source_connection_id),
+    [connections, job?.source_connection_id]
+  )
+  const targetConn = useMemo(
+    () => connections.find((c) => c.id === job?.target_connection_id),
+    [connections, job?.target_connection_id]
+  )
+
+  const sourceName =
+    sourceConn?.name || job?.source_connection_name || "Source Database"
+  const targetName =
+    targetConn?.name || job?.target_connection_name || "Destination Database"
+  const sourceDatabase = sourceConn?.database
+  const targetDatabase = targetConn?.database
+  const sourceDbType = sourceConn?.db_type || job?.source_db_type
+  const targetDbType = targetConn?.db_type || job?.target_db_type
 
   // 3. Connect to Server-Sent Events (SSE) Live Telemetry Stream
   const {
@@ -140,7 +170,7 @@ export function MigrationLivePage() {
       <div className="w-full space-y-6">
         <div className="border-border/70 bg-card/60 text-muted-foreground flex min-h-75 flex-col items-center justify-center gap-3 rounded-xl border p-12 text-center text-xs">
           <RefreshCw className="text-primary h-6 w-6 animate-spin" />
-          <span>Connecting to live pipeline telemetry stream...</span>
+          <span>Connecting to live migration progress...</span>
         </div>
       </div>
     )
@@ -150,10 +180,10 @@ export function MigrationLivePage() {
     return (
       <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
         <h2 className="text-foreground text-lg font-bold">
-          Migration Pipeline Not Found
+          Migration Not Found
         </h2>
         <p className="text-muted-foreground text-xs">
-          The requested migration pipeline does not exist or has been deleted.
+          The requested migration does not exist or has been deleted.
         </p>
         <Link
           to={
@@ -163,7 +193,7 @@ export function MigrationLivePage() {
           }
         >
           <Button size="sm" className="mt-2 text-xs">
-            Return to Migration Studio
+            Return to Migrations
           </Button>
         </Link>
       </div>
@@ -174,7 +204,7 @@ export function MigrationLivePage() {
 
   return (
     <div className="w-full space-y-5">
-      {/* Top Header & Mission Control Action Bar */}
+      {/* Top Header & Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
@@ -188,7 +218,7 @@ export function MigrationLivePage() {
               variant="outline"
               size="sm"
               className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
-              title="Return to Migration Studio"
+              title="Return to Migrations"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -196,14 +226,22 @@ export function MigrationLivePage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-foreground text-xl font-bold tracking-tight">
-                Live Migration Telemetry
+                Live Data Migration
               </h1>
               <Badge variant="outline" className="font-mono text-[10px]">
-                {job.id}
+                {job.id.slice(0, 8)}
               </Badge>
             </div>
-            <p className="text-muted-foreground font-mono text-xs">
-              {job.source_table} ➔ {job.target_table}
+            <p className="text-muted-foreground text-xs">
+              <span className="text-foreground font-semibold">
+                {sourceName}
+              </span>
+              <span className="font-mono"> ({job.source_table})</span>
+              <span className="text-muted-foreground mx-1.5">➔</span>
+              <span className="text-foreground font-semibold">
+                {targetName}
+              </span>
+              <span className="font-mono"> ({job.target_table})</span>
             </p>
           </div>
         </div>
@@ -228,7 +266,7 @@ export function MigrationLivePage() {
               className="gap-1.5 text-xs font-semibold shadow-xs"
             >
               <Ban className="h-3.5 w-3.5" />
-              <span>Cancel Pipeline</span>
+              <span>Cancel Migration</span>
             </Button>
           )}
 
@@ -245,13 +283,13 @@ export function MigrationLivePage() {
               className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-semibold shadow-xs"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>Finished (Return to Studio)</span>
+              <span>Done (Back to Migrations)</span>
             </Button>
           )}
         </div>
       </div>
 
-      {/* Completion Celebration Notification Banner */}
+      {/* Completion Notification Banner */}
       {isCompleted && (
         <div className="border-success/40 bg-success/10 flex items-center gap-3 rounded-xl border p-3.5 shadow-2xs backdrop-blur-xs">
           <div className="border-success/30 bg-success/20 text-success flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border">
@@ -259,26 +297,35 @@ export function MigrationLivePage() {
           </div>
           <div>
             <p className="text-foreground text-xs font-bold">
-              Pipeline Successfully Completed!
+              Migration Completed Successfully!
             </p>
-            <p className="text-success font-mono text-[11px]">
-              All {migratedRows.toLocaleString()} rows were streamed and
-              verified from {job.source_table} to {job.target_table}.
+            <p className="text-success text-xs">
+              All {migratedRows.toLocaleString()} rows copied from{" "}
+              <span className="font-semibold">{sourceName}</span> (
+              {job.source_table}) to{" "}
+              <span className="font-semibold">{targetName}</span> (
+              {job.target_table}).
             </p>
           </div>
         </div>
       )}
 
-      {/* 1. Visual Pipeline Flow Conduit Ribbon */}
+      {/* 1. Visual Flow Ribbon */}
       <PipelineFlowRibbon
         job={job}
         status={status}
         totalRows={totalRows}
         batchSize={job.batch_size || 500}
         latencyMs={stats?.latencyMs ?? 16}
+        sourceName={sourceName}
+        targetName={targetName}
+        sourceDatabase={sourceDatabase}
+        targetDatabase={targetDatabase}
+        sourceDbType={sourceDbType}
+        targetDbType={targetDbType}
       />
 
-      {/* 2. Hero Progress & Velocity Cockpit */}
+      {/* 2. Progress Card */}
       {stats && (
         <LiveProgressCard
           job={job}
@@ -289,19 +336,23 @@ export function MigrationLivePage() {
           rowsPerSecond={rowsPerSecond}
           etaFormatted={etaFormatted}
           stats={stats}
+          sourceName={sourceName}
+          targetName={targetName}
           errorMessage={errorMessage}
         />
       )}
 
-      {/* 3. Detailed Storage, Compute & Buffer Diagnostics */}
+      {/* 3. Performance & System Details */}
       {stats && <ResourceMetricsGrid stats={stats} isConnected={isConnected} />}
 
-      {/* 4. Real-Time Customized Execution Terminal & Audit Log */}
+      {/* 4. Activity Log */}
       <MigrationTerminalLog
         job={job}
         status={status}
         totalRows={totalRows}
         migratedRows={migratedRows}
+        sourceName={sourceName}
+        targetName={targetName}
         errorMessage={errorMessage}
       />
 
@@ -309,7 +360,7 @@ export function MigrationLivePage() {
       <CancelMigrationDialog
         open={cancelModalOpen}
         onOpenChange={setCancelModalOpen}
-        jobName={`${job.source_table} ➔ ${job.target_table}`}
+        jobName={`${sourceName} (${job.source_table}) ➔ ${targetName} (${job.target_table})`}
         isCancelling={cancelMutation.isPending}
         onConfirm={async () => {
           try {
