@@ -36,7 +36,7 @@ func (h *AnalyticsHandler) RegisterRoutes(router fiber.Router, authMiddleware, r
 // @Success 200 {object} domain.Response{data=domain.OrgAnalyticsOverview}
 // @Failure 401 {object} domain.Response
 // @Failure 403 {object} domain.Response
-// @Router /organizations/{orgID}/analytics/overview [get]
+// @Router /v1/organizations/{orgID}/analytics/overview [get]
 func (h *AnalyticsHandler) GetOrgOverview(c *fiber.Ctx) error {
 	userID, ok := c.Locals("userID").(string)
 	if !ok || userID == "" {
@@ -70,7 +70,7 @@ func (h *AnalyticsHandler) GetOrgOverview(c *fiber.Ctx) error {
 // @Failure 401 {object} domain.Response
 // @Failure 403 {object} domain.Response
 // @Failure 404 {object} domain.Response
-// @Router /organizations/{orgID}/projects/{projectID}/analytics [get]
+// @Router /v1/organizations/{orgID}/projects/{projectID}/analytics [get]
 func (h *AnalyticsHandler) GetProjectAnalytics(c *fiber.Ctx) error {
 	userID, ok := c.Locals("userID").(string)
 	if !ok || userID == "" {
@@ -106,7 +106,7 @@ func (h *AnalyticsHandler) GetProjectAnalytics(c *fiber.Ctx) error {
 // @Failure 401 {object} domain.Response
 // @Failure 403 {object} domain.Response
 // @Failure 404 {object} domain.Response
-// @Router /organizations/{orgID}/projects/{projectID}/migrations/analytics [get]
+// @Router /v1/organizations/{orgID}/projects/{projectID}/migrations/analytics [get]
 func (h *AnalyticsHandler) GetMigrationAnalytics(c *fiber.Ctx) error {
 	userID, ok := c.Locals("userID").(string)
 	if !ok || userID == "" {

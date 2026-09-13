@@ -840,6 +840,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/organizations/{orgID}/analytics/overview": {
+            "get": {
+                "description": "Returns quota usage, engine mix, 30-day velocity timeline, and migration health for an organization.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get Organization Analytics Overview",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.OrgAnalyticsOverview"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/organizations/{orgID}/audit-logs": {
             "get": {
                 "security": [
@@ -1446,6 +1502,75 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organizations/{orgID}/projects/{projectID}/analytics": {
+            "get": {
+                "description": "Returns connection quotas, topology nodes/edges, top synced tables, and 14-day activity heatmap.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get Project Analytics \u0026 Topology Flow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.ProjectAnalytics"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/domain.Response"
                         }
@@ -2661,6 +2786,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/organizations/{orgID}/projects/{projectID}/migrations/analytics": {
+            "get": {
+                "description": "Returns historical migration summary, duration distribution buckets, and error breakdowns.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get Migration Studio Analytics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Organization ID",
+                        "name": "orgID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.MigrationAnalytics"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/organizations/{orgID}/projects/{projectID}/migrations/{migrationID}": {
             "get": {
                 "security": [
@@ -3543,6 +3737,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.ActivityHeatmapPoint": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "events_count": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.AuditAction": {
             "type": "string",
             "enum": [
@@ -4011,6 +4216,20 @@ const docTemplate = `{
                 "DBTypeSQLite"
             ]
         },
+        "domain.DailyVelocityPoint": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "jobs_count": {
+                    "type": "integer"
+                },
+                "rows_migrated": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.DatabaseSchema": {
             "type": "object",
             "properties": {
@@ -4040,6 +4259,46 @@ const docTemplate = `{
                 "primary_key": {
                     "type": "object",
                     "additionalProperties": true
+                }
+            }
+        },
+        "domain.DurationBucket": {
+            "type": "object",
+            "properties": {
+                "bucket": {
+                    "description": "\"\u003c 1 min\", \"1 - 5 mins\", \"5 - 15 mins\", \"\u003e 15 mins\"",
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "percentage": {
+                    "type": "number"
+                }
+            }
+        },
+        "domain.EngineDistributionItem": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "db_type": {
+                    "$ref": "#/definitions/domain.DBType"
+                },
+                "percentage": {
+                    "type": "number"
+                }
+            }
+        },
+        "domain.ErrorClassification": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "error_type": {
+                    "type": "string"
                 }
             }
         },
@@ -4131,6 +4390,69 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.MigrationAnalytics": {
+            "type": "object",
+            "properties": {
+                "duration_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DurationBucket"
+                    }
+                },
+                "error_breakdown": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ErrorClassification"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/domain.MigrationIntelligenceSummary"
+                }
+            }
+        },
+        "domain.MigrationHealthSummary": {
+            "type": "object",
+            "properties": {
+                "cancelled": {
+                    "type": "integer"
+                },
+                "completed": {
+                    "type": "integer"
+                },
+                "failed": {
+                    "type": "integer"
+                },
+                "running": {
+                    "type": "integer"
+                },
+                "success_rate": {
+                    "type": "number"
+                },
+                "total_jobs": {
+                    "type": "integer"
+                },
+                "total_rows_migrated": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.MigrationIntelligenceSummary": {
+            "type": "object",
+            "properties": {
+                "avg_duration_seconds": {
+                    "type": "number"
+                },
+                "avg_throughput_rps": {
+                    "type": "number"
+                },
+                "total_pipelines": {
+                    "type": "integer"
+                },
+                "total_rows_synced": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.MigrationJobResponse": {
             "type": "object",
             "properties": {
@@ -4201,6 +4523,29 @@ const docTemplate = `{
                 "MigrationStatusCancelled"
             ]
         },
+        "domain.OrgAnalyticsOverview": {
+            "type": "object",
+            "properties": {
+                "engine_distribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.EngineDistributionItem"
+                    }
+                },
+                "migration_health": {
+                    "$ref": "#/definitions/domain.MigrationHealthSummary"
+                },
+                "quotas": {
+                    "$ref": "#/definitions/domain.OrgQuotasSummary"
+                },
+                "velocity_timeline": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DailyVelocityPoint"
+                    }
+                }
+            }
+        },
         "domain.OrgMemberDetail": {
             "type": "object",
             "properties": {
@@ -4224,6 +4569,20 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.OrgQuotasSummary": {
+            "type": "object",
+            "properties": {
+                "members": {
+                    "$ref": "#/definitions/domain.QuotaUsage"
+                },
+                "projects": {
+                    "$ref": "#/definitions/domain.QuotaUsage"
+                },
+                "user_orgs": {
+                    "$ref": "#/definitions/domain.QuotaUsage"
                 }
             }
         },
@@ -4327,6 +4686,55 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.ProjectAnalytics": {
+            "type": "object",
+            "properties": {
+                "activity_heatmap": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.ActivityHeatmapPoint"
+                    }
+                },
+                "connection_quota": {
+                    "$ref": "#/definitions/domain.ProjectConnectionQuota"
+                },
+                "top_tables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TableSyncStat"
+                    }
+                },
+                "topology_edges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TopologyEdge"
+                    }
+                },
+                "topology_nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TopologyNode"
+                    }
+                }
+            }
+        },
+        "domain.ProjectConnectionQuota": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "type": "integer"
+                },
+                "sources_count": {
+                    "type": "integer"
+                },
+                "targets_count": {
+                    "type": "integer"
+                },
+                "used": {
+                    "type": "integer"
                 }
             }
         },
@@ -4468,6 +4876,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "total_rows": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.QuotaUsage": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "type": "integer"
+                },
+                "percentage": {
+                    "type": "number"
+                },
+                "used": {
                     "type": "integer"
                 }
             }
@@ -4760,6 +5182,20 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.TableSyncStat": {
+            "type": "object",
+            "properties": {
+                "rows_migrated": {
+                    "type": "integer"
+                },
+                "sync_runs": {
+                    "type": "integer"
+                },
+                "table_name": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.TestConnectionRequest": {
             "type": "object",
             "required": [
@@ -4840,6 +5276,45 @@ const docTemplate = `{
                 },
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "domain.TopologyEdge": {
+            "type": "object",
+            "properties": {
+                "active_pipelines": {
+                    "type": "integer"
+                },
+                "source_id": {
+                    "type": "string"
+                },
+                "target_id": {
+                    "type": "string"
+                },
+                "total_rows_transferred": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.TopologyNode": {
+            "type": "object",
+            "properties": {
+                "db_type": {
+                    "$ref": "#/definitions/domain.DBType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "description": "\"source\" or \"target\"",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "\"online\" or \"active\"",
+                    "type": "string"
                 }
             }
         },
