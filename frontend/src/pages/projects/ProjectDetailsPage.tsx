@@ -9,17 +9,23 @@ import {
   Loader2,
   FolderKanban,
   AlertTriangle,
+  ArrowRight,
+  Activity,
+  Layers,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ConnectionCard } from "@/components/connections/ConnectionCard"
 import { ConnectionWizardModal } from "@/components/connections/ConnectionWizardModal"
+import { EngineIcon } from "@/components/connections/EngineIcon"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
-import { projectKeys, connectionKeys } from "@/lib/queryKeys"
+import { projectKeys, connectionKeys, analyticsKeys } from "@/lib/queryKeys"
 import { projectsApi } from "@/api/projects"
+import { analyticsApi } from "@/api/analytics"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
 import type { Environment, PublicDatabaseConnection } from "@/types"
+import type { TopologyNode } from "@/types/analytics"
 
 const envBadgeStyles: Record<
   Environment,
@@ -127,6 +133,20 @@ export function ProjectDetailsPage() {
     enabled: !!activeOrg?.id && !!actualProjectId,
   })
 
+  // Fetch Project Analytics & Topology Flow from Backend
+  const { data: projectAnalytics } = useQuery({
+    queryKey: analyticsKeys.project(activeOrg?.id || "", actualProjectId),
+    queryFn: async () => {
+      if (!activeOrg?.id || !actualProjectId) return null
+      const res = await analyticsApi.getProjectAnalytics(
+        activeOrg.id,
+        actualProjectId
+      )
+      return res.data || null
+    },
+    enabled: !!activeOrg?.id && !!actualProjectId,
+  })
+
   // Delete Connection Mutation
   const deleteConnectionMutation = useMutation({
     mutationFn: async (connId: string) => {
@@ -152,6 +172,12 @@ export function ProjectDetailsPage() {
 
   const sourceConnections = connections.filter((c) => c.is_source)
   const targetConnections = connections.filter((c) => !c.is_source)
+
+  const nodeMap = useMemo(() => {
+    const map = new Map<string, TopologyNode>()
+    projectAnalytics?.topology_nodes?.forEach((n) => map.set(n.id, n))
+    return map
+  }, [projectAnalytics?.topology_nodes])
 
   if (isProjectLoading) {
     return (
@@ -248,14 +274,16 @@ export function ProjectDetailsPage() {
         </div>
       </div>
 
-      {/* ── Project Quick Metrics Strip ── */}
+      {/* ── Project Quick Metrics Strip (Real backend quota & intelligence) ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="border-border/70 bg-card rounded-lg border p-3.5 shadow-xs">
           <span className="text-muted-foreground text-xs font-medium">
             Total Databases
           </span>
           <p className="text-foreground mt-1 font-mono text-lg font-bold">
-            {connections.length}
+            {projectAnalytics?.connection_quota
+              ? `${projectAnalytics.connection_quota.used} / ${projectAnalytics.connection_quota.max}`
+              : connections.length}
           </p>
         </div>
 
@@ -264,7 +292,8 @@ export function ProjectDetailsPage() {
             Source DBs (Inbound)
           </span>
           <p className="text-info mt-1 font-mono text-lg font-bold">
-            {sourceConnections.length}
+            {projectAnalytics?.connection_quota?.sources_count ??
+              sourceConnections.length}
           </p>
         </div>
 
@@ -273,20 +302,159 @@ export function ProjectDetailsPage() {
             Target DBs (Outbound)
           </span>
           <p className="text-success mt-1 font-mono text-lg font-bold">
-            {targetConnections.length}
+            {projectAnalytics?.connection_quota?.targets_count ??
+              targetConnections.length}
           </p>
         </div>
 
         <div className="border-border/70 bg-card rounded-lg border p-3.5 shadow-xs">
           <span className="text-muted-foreground text-xs font-medium">
-            Project Status
+            Data Flow Routes
           </span>
-          <div className="text-success mt-1 flex items-center gap-1.5 font-mono text-xs font-semibold">
-            <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-            <span>Active Studio</span>
+          <div className="text-foreground mt-1 flex items-center gap-1.5 font-mono text-lg font-bold">
+            <span>{projectAnalytics?.topology_edges?.length ?? 0}</span>
+            <span className="text-muted-foreground text-xs font-normal">
+              active routes
+            </span>
           </div>
         </div>
       </div>
+
+      {/* ── Data Flow & Sync Intelligence ── */}
+      {projectAnalytics?.topology_edges?.length ||
+      projectAnalytics?.top_tables?.length ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* Data Flow Routes */}
+          <div className="border-border/70 bg-card rounded-xl border p-4 shadow-xs">
+            <div className="flex items-center justify-between pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg">
+                  <Activity className="h-4 w-4" />
+                </div>
+                <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+                  Data Flow Routes
+                </h3>
+              </div>
+              <span className="text-muted-foreground text-xs">
+                {projectAnalytics?.topology_edges?.length || 0} active routes
+              </span>
+            </div>
+
+            {projectAnalytics?.topology_edges &&
+            projectAnalytics.topology_edges.length > 0 ? (
+              <div className="space-y-2.5">
+                {projectAnalytics.topology_edges.map((edge) => {
+                  const srcNode = nodeMap.get(edge.source_id)
+                  const tgtNode = nodeMap.get(edge.target_id)
+                  return (
+                    <div
+                      key={`${edge.source_id}-${edge.target_id}`}
+                      className="border-border/60 bg-muted/20 flex items-center justify-between rounded-lg border p-2.5 text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        {srcNode && (
+                          <EngineIcon
+                            engine={srcNode.db_type}
+                            className="h-4 w-4"
+                          />
+                        )}
+                        <span className="text-foreground font-medium">
+                          {srcNode?.name || "Source DB"}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col items-center px-2 text-[10px]">
+                        <span className="text-muted-foreground font-mono">
+                          {edge.total_rows_transferred.toLocaleString()} rows
+                        </span>
+                        <div className="text-muted-foreground flex items-center gap-1">
+                          <span className="bg-border h-0.5 w-8" />
+                          <ArrowRight className="h-3 w-3" />
+                        </div>
+                        {edge.active_pipelines > 0 && (
+                          <span className="text-info animate-pulse font-medium">
+                            Syncing live
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {tgtNode && (
+                          <EngineIcon
+                            engine={tgtNode.db_type}
+                            className="h-4 w-4"
+                          />
+                        )}
+                        <span className="text-foreground font-medium">
+                          {tgtNode?.name || "Target DB"}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-muted-foreground py-6 text-center text-xs">
+                No migrations executed between databases in this project yet.
+              </p>
+            )}
+          </div>
+
+          {/* Top Synchronized Tables */}
+          <div className="border-border/70 bg-card rounded-xl border p-4 shadow-xs">
+            <div className="flex items-center justify-between pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg">
+                  <Layers className="h-4 w-4" />
+                </div>
+                <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+                  Most Active Tables
+                </h3>
+              </div>
+              <span className="text-muted-foreground text-xs">
+                Top transferred
+              </span>
+            </div>
+
+            {projectAnalytics?.top_tables &&
+            projectAnalytics.top_tables.length > 0 ? (
+              <div className="space-y-2">
+                {projectAnalytics.top_tables.map((table, idx) => (
+                  <div
+                    key={table.table_name || idx}
+                    className="border-border/50 bg-muted/20 flex items-center justify-between rounded-lg border px-3 py-2 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground font-mono text-[11px]">
+                        #{idx + 1}
+                      </span>
+                      <span className="text-foreground font-mono font-medium">
+                        {table.table_name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-muted-foreground font-mono text-[11px]">
+                        {table.sync_runs}{" "}
+                        {table.sync_runs === 1 ? "run" : "runs"}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="font-mono text-[10px]"
+                      >
+                        {table.rows_migrated.toLocaleString()} rows
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground py-6 text-center text-xs">
+                No table sync statistics available yet.
+              </p>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       {/* Database Connections Studio Canvas */}
       <div className="space-y-8 pt-2">

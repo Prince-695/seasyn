@@ -102,3 +102,20 @@ export const orgKeys = {
   detail: (id: string) => [...orgKeys.all, "detail", id] as const,
   members: (orgId: string) => [...orgKeys.all, "members", orgId] as const,
 }
+
+export const analyticsKeys = {
+  all: ["analytics"] as const,
+  orgOverview: (orgId: string) =>
+    [...analyticsKeys.all, "org", orgId, "overview"] as const,
+  project: (orgId: string, projectId: string) =>
+    [...analyticsKeys.all, "org", orgId, "project", projectId] as const,
+  migration: (orgId: string, projectId: string) =>
+    [
+      ...analyticsKeys.all,
+      "org",
+      orgId,
+      "project",
+      projectId,
+      "migrations",
+    ] as const,
+}
