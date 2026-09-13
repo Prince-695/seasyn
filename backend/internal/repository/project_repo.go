@@ -218,3 +218,21 @@ func (r *projectRepo) UpdateConnection(ctx context.Context, conn domain.Database
 func (r *projectRepo) DeleteConnection(ctx context.Context, id string) error {
 	return r.db.WithContext(ctx).Unscoped().Where("id = ?", id).Delete(&DatabaseConnectionModel{}).Error
 }
+
+func (r *projectRepo) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&ProjectModel{}).
+		Where("organization_id = ?", orgID).
+		Count(&count).Error
+	return count, err
+}
+
+func (r *projectRepo) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&DatabaseConnectionModel{}).
+		Where("project_id = ?", projectID).
+		Count(&count).Error
+	return count, err
+}

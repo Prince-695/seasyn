@@ -135,6 +135,12 @@ func (m *mockProjectRepoForSchemaHandler) UpdateConnection(ctx context.Context, 
 func (m *mockProjectRepoForSchemaHandler) DeleteConnection(ctx context.Context, id string) error {
 	return nil
 }
+func (m *mockProjectRepoForSchemaHandler) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockProjectRepoForSchemaHandler) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	return 0, nil
+}
 
 type mockOrgRepoForSchemaHandler struct{}
 
@@ -177,6 +183,12 @@ func (m *mockOrgRepoForSchemaHandler) ListUserOrgs(ctx context.Context, userID s
 	return nil, nil
 }
 func (m *mockOrgRepoForSchemaHandler) CountOwnerOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForSchemaHandler) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForSchemaHandler) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
 	return 0, nil
 }
 

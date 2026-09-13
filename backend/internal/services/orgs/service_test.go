@@ -152,6 +152,23 @@ func (m *mockOrgRepo) CountOwnerOrgs(ctx context.Context, userID string) (int64,
 	return count, nil
 }
 
+func (m *mockOrgRepo) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	var count int64
+	for _, orgMembers := range m.members {
+		if _, ok := orgMembers[userID]; ok {
+			count++
+		}
+	}
+	return count, nil
+}
+
+func (m *mockOrgRepo) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
+	if orgMembers, ok := m.members[orgID]; ok {
+		return int64(len(orgMembers)), nil
+	}
+	return 0, nil
+}
+
 // MockUserRepo implements ports.UserRepository
 type mockUserRepo struct {
 	users map[string]*domain.User
@@ -164,6 +181,9 @@ func newMockUserRepo() *mockUserRepo {
 }
 
 func (m *mockUserRepo) Create(ctx context.Context, u domain.User) (*domain.User, error) {
+	if u.ID == "" {
+		u.ID = "user-" + u.Email
+	}
 	m.users[u.ID] = &u
 	return &u, nil
 }
@@ -327,5 +347,79 @@ func TestOrgRBACAndMembership(t *testing.T) {
 	err = service.DeleteOrg(ctx, "user-owner", org.ID)
 	if err != nil {
 		t.Fatalf("owner failed to delete org: %v", err)
+	}
+}
+
+func TestOrgQuotas(t *testing.T) {
+	orgRepo := newMockOrgRepo()
+	userRepo := newMockUserRepo()
+	service := orgs.NewOrgService(orgRepo, userRepo)
+	ctx := context.Background()
+
+	// 1. User creates 3 organizations (the maximum quota)
+	for i := 1; i <= 3; i++ {
+		_, err := service.CreateOrg(ctx, "user-owner", domain.CreateOrgRequest{
+			Name: "Org " + string(rune('A'+i-1)),
+		})
+		if err != nil {
+			t.Fatalf("failed to create org %d: %v", i, err)
+		}
+	}
+
+	// 2. User tries to create a 4th organization -> should fail
+	_, err := service.CreateOrg(ctx, "user-owner", domain.CreateOrgRequest{
+		Name: "Org D",
+	})
+	if err == nil {
+		t.Fatal("expected 4th org creation to fail with quota error, but succeeded")
+	}
+
+	// 3. Test organization member quota (max 5 members)
+	org, err := service.CreateOrg(ctx, "other-owner", domain.CreateOrgRequest{Name: "Team Org"})
+	if err != nil {
+		t.Fatalf("failed to create test org: %v", err)
+	}
+	// "other-owner" is member 1. Add members 2, 3, 4, 5
+	for i := 2; i <= 5; i++ {
+		email := "member" + string(rune('0'+i)) + "@example.com"
+		userRepo.Create(ctx, domain.User{Email: email})
+		err = service.InviteMember(ctx, "other-owner", org.ID, domain.InviteMemberRequest{
+			Email: email,
+			Role:  domain.OrgRoleMember,
+		})
+		if err != nil {
+			t.Fatalf("failed to invite member %d: %v", i, err)
+		}
+	}
+
+	// Trying to invite a 6th member -> should fail
+	userRepo.Create(ctx, domain.User{Email: "member6@example.com"})
+	err = service.InviteMember(ctx, "other-owner", org.ID, domain.InviteMemberRequest{
+		Email: "member6@example.com",
+		Role:  domain.OrgRoleMember,
+	})
+	if err == nil {
+		t.Fatal("expected 6th member invite to fail with quota error, but succeeded")
+	}
+
+	// 4. Test inviting a user who is already in 3 organizations -> should fail
+	userRepo.Create(ctx, domain.User{Email: "busy@example.com"})
+	busyUser, _ := userRepo.GetByEmail(ctx, "busy@example.com")
+	// Put busyUser in 3 orgs
+	for i := 1; i <= 3; i++ {
+		o, _ := service.CreateOrg(ctx, "creator-"+string(rune('0'+i)), domain.CreateOrgRequest{Name: "Busy Org " + string(rune('0'+i))})
+		_ = service.InviteMember(ctx, "creator-"+string(rune('0'+i)), o.ID, domain.InviteMemberRequest{
+			Email: "busy@example.com",
+			Role:  domain.OrgRoleMember,
+		})
+	}
+	// Now try to invite busyUser to an org with space
+	openOrg, _ := service.CreateOrg(ctx, "open-owner", domain.CreateOrgRequest{Name: "Open Org"})
+	err = service.InviteMember(ctx, "open-owner", openOrg.ID, domain.InviteMemberRequest{
+		Email: busyUser.Email,
+		Role:  domain.OrgRoleMember,
+	})
+	if err == nil {
+		t.Fatal("expected inviting user who is in 3 orgs to fail, but succeeded")
 	}
 }

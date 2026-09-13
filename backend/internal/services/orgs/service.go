@@ -10,6 +10,11 @@ import (
 	"github.com/Prince-695/seasyn/backend/pkg/errors"
 )
 
+const (
+	MaxOrgsPerUser   = 3
+	MaxMembersPerOrg = 5
+)
+
 type orgService struct {
 	repo     ports.OrgRepository
 	userRepo ports.UserRepository
@@ -33,6 +38,15 @@ func isValidSlug(s string) bool {
 }
 
 func (s *orgService) CreateOrg(ctx context.Context, userID string, req domain.CreateOrgRequest) (*domain.Organization, error) {
+	// Check user organization quota (max 3 orgs across all roles)
+	count, err := s.repo.CountUserOrgs(ctx, userID)
+	if err != nil {
+		return nil, errors.Internal("Failed to check organization quota")
+	}
+	if count >= MaxOrgsPerUser {
+		return nil, errors.BadRequest("You have reached the maximum limit of 3 organizations")
+	}
+
 	// Use provided slug or auto-generate from name
 	slug := req.Slug
 	if slug == "" {
@@ -112,6 +126,15 @@ func (s *orgService) InviteMember(ctx context.Context, userID, orgID string, req
 		return err
 	}
 
+	// 1. Check organization member quota (max 5 members per org)
+	memberCount, err := s.repo.CountOrgMembers(ctx, orgID)
+	if err != nil {
+		return errors.Internal("Failed to check organization member quota")
+	}
+	if memberCount >= MaxMembersPerOrg {
+		return errors.BadRequest("This organization has reached the maximum limit of 5 members")
+	}
+
 	// Verify target user exists
 	targetUser, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
@@ -121,6 +144,15 @@ func (s *orgService) InviteMember(ctx context.Context, userID, orgID string, req
 	// Check not already a member
 	if _, err := s.repo.GetMember(ctx, orgID, targetUser.ID); err == nil {
 		return errors.BadRequest("User is already a member of this organization")
+	}
+
+	// 2. Check target user's organization quota (max 3 orgs per user)
+	targetUserOrgCount, err := s.repo.CountUserOrgs(ctx, targetUser.ID)
+	if err != nil {
+		return errors.Internal("Failed to check user organization quota")
+	}
+	if targetUserOrgCount >= MaxOrgsPerUser {
+		return errors.BadRequest("This user is already a member of the maximum allowed organizations (3)")
 	}
 
 	return s.repo.AddMember(ctx, orgID, targetUser.ID, userID, req.Role)

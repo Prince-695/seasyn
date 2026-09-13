@@ -23,6 +23,10 @@ type ProjectRepository interface {
 	ListConnectionsByProject(ctx context.Context, projectID string) ([]*domain.DatabaseConnection, error)
 	UpdateConnection(ctx context.Context, conn domain.DatabaseConnection) (*domain.DatabaseConnection, error)
 	DeleteConnection(ctx context.Context, id string) error
+
+	// Quota counts
+	CountProjectsByOrg(ctx context.Context, orgID string) (int64, error)
+	CountConnectionsByProject(ctx context.Context, projectID string) (int64, error)
 }
 
 // ProjectService defines business logic for project & connection management.

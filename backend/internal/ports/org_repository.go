@@ -24,4 +24,6 @@ type OrgRepository interface {
 	ListMembers(ctx context.Context, orgID string) ([]*domain.OrgMemberDetail, error)
 	ListUserOrgs(ctx context.Context, userID string) ([]*domain.OrgWithRole, error)
 	CountOwnerOrgs(ctx context.Context, userID string) (int64, error)
+	CountUserOrgs(ctx context.Context, userID string) (int64, error)
+	CountOrgMembers(ctx context.Context, orgID string) (int64, error)
 }

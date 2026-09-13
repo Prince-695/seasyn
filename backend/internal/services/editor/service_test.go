@@ -140,6 +140,12 @@ func (m *mockProjectRepoForEditor) UpdateConnection(ctx context.Context, conn do
 	return &conn, nil
 }
 func (m *mockProjectRepoForEditor) DeleteConnection(ctx context.Context, id string) error { return nil }
+func (m *mockProjectRepoForEditor) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockProjectRepoForEditor) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	return 0, nil
+}
 
 // Mock OrgRepo
 type mockOrgRepoForEditor struct{}
@@ -183,6 +189,12 @@ func (m *mockOrgRepoForEditor) ListUserOrgs(ctx context.Context, userID string) 
 	return nil, nil
 }
 func (m *mockOrgRepoForEditor) CountOwnerOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForEditor) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForEditor) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
 	return 0, nil
 }
 

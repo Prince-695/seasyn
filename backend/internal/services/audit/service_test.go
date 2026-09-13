@@ -79,6 +79,12 @@ func (m *mockOrgRepoForAudit) ListUserOrgs(ctx context.Context, userID string) (
 func (m *mockOrgRepoForAudit) CountOwnerOrgs(ctx context.Context, userID string) (int64, error) {
 	return 0, nil
 }
+func (m *mockOrgRepoForAudit) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForAudit) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
+	return 0, nil
+}
 
 func TestAuditService_LogAndList(t *testing.T) {
 	auditRepo := &mockAuditRepo{}

@@ -100,6 +100,14 @@ func (m *mockProjectRepoForHandler) DeleteConnection(ctx context.Context, id str
 	return nil
 }
 
+func (m *mockProjectRepoForHandler) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	return int64(len(m.projects)), nil
+}
+
+func (m *mockProjectRepoForHandler) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	return int64(len(m.connections)), nil
+}
+
 type mockOrgRepoForProjectHandler struct{}
 
 func (m *mockOrgRepoForProjectHandler) Create(ctx context.Context, org domain.Organization) (*domain.Organization, error) {
@@ -141,6 +149,12 @@ func (m *mockOrgRepoForProjectHandler) ListUserOrgs(ctx context.Context, userID 
 	return nil, nil
 }
 func (m *mockOrgRepoForProjectHandler) CountOwnerOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForProjectHandler) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForProjectHandler) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
 	return 0, nil
 }
 

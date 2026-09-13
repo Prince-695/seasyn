@@ -269,3 +269,21 @@ func (r *orgRepo) CountOwnerOrgs(ctx context.Context, userID string) (int64, err
 		Count(&count).Error
 	return count, err
 }
+
+func (r *orgRepo) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&OrgMemberModel{}).
+		Where("user_id = ?", userID).
+		Count(&count).Error
+	return count, err
+}
+
+func (r *orgRepo) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&OrgMemberModel{}).
+		Where("organization_id = ?", orgID).
+		Count(&count).Error
+	return count, err
+}

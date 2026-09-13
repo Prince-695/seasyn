@@ -115,6 +115,12 @@ func (m *mockProjectRepoForMigration) UpdateConnection(ctx context.Context, conn
 func (m *mockProjectRepoForMigration) DeleteConnection(ctx context.Context, id string) error {
 	return nil
 }
+func (m *mockProjectRepoForMigration) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockProjectRepoForMigration) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	return 0, nil
+}
 
 // Mock OrgRepository
 type mockOrgRepoForMigration struct{}
@@ -123,7 +129,7 @@ func (m *mockOrgRepoForMigration) Create(ctx context.Context, org domain.Organiz
 	return &org, nil
 }
 func (m *mockOrgRepoForMigration) GetByID(ctx context.Context, id string) (*domain.Organization, error) {
-	return nil, nil
+	return &domain.Organization{ID: id, Name: "Test Org"}, nil
 }
 func (m *mockOrgRepoForMigration) GetBySlug(ctx context.Context, slug string) (*domain.Organization, error) {
 	return nil, nil
@@ -131,7 +137,9 @@ func (m *mockOrgRepoForMigration) GetBySlug(ctx context.Context, slug string) (*
 func (m *mockOrgRepoForMigration) Update(ctx context.Context, org domain.Organization) (*domain.Organization, error) {
 	return &org, nil
 }
-func (m *mockOrgRepoForMigration) Delete(ctx context.Context, id string) error { return nil }
+func (m *mockOrgRepoForMigration) Delete(ctx context.Context, id string) error {
+	return nil
+}
 func (m *mockOrgRepoForMigration) SlugExists(ctx context.Context, slug string) (bool, error) {
 	return false, nil
 }
@@ -158,6 +166,12 @@ func (m *mockOrgRepoForMigration) ListUserOrgs(ctx context.Context, userID strin
 	return nil, nil
 }
 func (m *mockOrgRepoForMigration) CountOwnerOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForMigration) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForMigration) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
 	return 0, nil
 }
 
