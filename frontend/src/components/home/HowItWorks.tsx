@@ -53,12 +53,7 @@ const steps = [
   },
 ]
 
-const mappingRows = [
-  { source: "UUID", target: "ObjectId", note: "Auto-coerced" },
-  { source: "JSONB", target: "Object", note: "Preserved" },
-  { source: "TIMESTAMP", target: "ISODate", note: "Normalized" },
-  { source: "VARCHAR(255)", target: "String", note: "Mapped" },
-]
+import { CANONICAL_SCHEMA_MAPPINGS } from "@/lib/constants/schemaMappings"
 
 export const HowItWorks = () => {
   const [activeStepIndex, setActiveStepIndex] = useState(0)
@@ -261,7 +256,7 @@ export const HowItWorks = () => {
                   </div>
 
                   <div className="space-y-2">
-                    {mappingRows.map((row) => (
+                    {CANONICAL_SCHEMA_MAPPINGS.slice(0, 4).map((row) => (
                       <div
                         key={row.source}
                         className="border-border bg-card flex items-center justify-between rounded-lg border px-3 py-2 text-xs shadow-2xs"

@@ -18,11 +18,11 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
       <ScrollRevealText
         as="h2"
         lines={[
-          "Move your data.",
+          "Your data in motion.",
           <>
-            Keep your{" "}
+            Always{" "}
             <span className="bg-highlight text-highlight-foreground inline-block rounded-xl px-2.5 py-0.5 font-semibold shadow-2xs sm:rounded-2xl sm:px-3.5">
-              peace of mind.
+              in sync.
             </span>
           </>,
         ]}

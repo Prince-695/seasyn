@@ -8,12 +8,15 @@ interface OAuthButtonsProps {
   onError: (error: string | null) => void
 }
 
+const OAUTH_PROVIDERS = [
+  { id: "google" as const, name: "Google", icon: FcGoogle },
+  { id: "github" as const, name: "GitHub", icon: FaGithub },
+]
+
 export function OAuthButtons({ onError }: OAuthButtonsProps) {
   const location = useLocation()
-
   const handleOAuthLogin = async (provider: "google" | "github") => {
     onError(null)
-
     try {
       const urlRes = await authApi.getOAuthUrl(provider)
       if (!urlRes.success || !urlRes.data?.auth_url) {
@@ -22,7 +25,6 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
         )
         return
       }
-
       // Set a flag so the frontend knows to fetch the user profile upon return
       sessionStorage.setItem("oauth_pending", "true")
 
@@ -42,28 +44,23 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
       )
     }
   }
-
   return (
     <div className="flex gap-2.5">
-      <Button
-        variant="outline"
-        type="button"
-        className="border-border/80 bg-background/60 hover:bg-muted h-10 flex-1 cursor-pointer text-xs font-medium sm:text-sm"
-        onClick={() => handleOAuthLogin("google")}
-      >
-        <FcGoogle className="mr-2 h-4 w-4" />
-        Google
-      </Button>
-
-      <Button
-        variant="outline"
-        type="button"
-        className="border-border/80 bg-background/60 hover:bg-muted h-10 flex-1 cursor-pointer text-xs font-medium sm:text-sm"
-        onClick={() => handleOAuthLogin("github")}
-      >
-        <FaGithub className="mr-2 h-4 w-4" />
-        GitHub
-      </Button>
+      {OAUTH_PROVIDERS.map((provider) => {
+        const Icon = provider.icon
+        return (
+          <Button
+            key={provider.id}
+            variant="outline"
+            type="button"
+            className="border-border/80 bg-background/60 hover:bg-muted h-10 flex-1 cursor-pointer text-xs font-medium sm:text-sm"
+            onClick={() => handleOAuthLogin(provider.id)}
+          >
+            <Icon className="mr-2 h-4 w-4" />
+            {provider.name}
+          </Button>
+        )
+      })}
     </div>
   )
 }

@@ -19,6 +19,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 import { authApi } from "@/api/auth"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
 import { Button } from "@/components/ui/button"
+import { SidebarNavItem, type NavItemConfig } from "./SidebarNavItem"
 import { cn } from "@/lib/utils"
 
 export function Sidebar() {
@@ -64,8 +65,8 @@ export function Sidebar() {
     activeProjectId ||
     ""
 
-  // 1. Organization Level Navigation (Clean & Minimal)
-  const orgNavItems = [
+  // 1. Organization Level Navigation
+  const orgNavItems: (NavItemConfig & { aliases?: string[]; exact?: boolean; requiresOrg?: boolean })[] = [
     {
       label: "Projects",
       path: "/dashboard",
@@ -96,7 +97,7 @@ export function Sidebar() {
   ]
 
   // 2. Project Level Navigation
-  const projectNavItems = [
+  const projectNavItems: (NavItemConfig & { basePath?: string; exact?: boolean })[] = [
     {
       label: "Databases & Overview",
       path: `/projects/${projectSlug}`,
@@ -126,7 +127,7 @@ export function Sidebar() {
     },
   ]
 
-  const projectOrgItems = [
+  const projectOrgItems: (NavItemConfig & { requiresOrg?: boolean })[] = [
     {
       label: "Workspace Settings",
       path: "/org/settings",
@@ -270,7 +271,6 @@ export function Sidebar() {
 
       {/* Navigation Links Canvas */}
       <div className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        {/* ── Mode 1: Project Navigation ── */}
         {isProjectContext ? (
           <>
             {/* Project Scoped Tools */}
@@ -281,47 +281,15 @@ export function Sidebar() {
                 </h3>
               )}
               <nav className="space-y-1 pt-1">
-                {projectNavItems.map((item) => {
-                  const Icon = item.icon
-                  const active = isItemActive(item)
-
-                  return (
-                    <NavLink
-                      key={item.label}
-                      to={item.path}
-                      onClick={() => setMobileSidebarOpen(false)}
-                      title={!sidebarOpen ? item.label : undefined}
-                      className={cn(
-                        "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
-                        active
-                          ? "bg-primary/10 text-primary font-semibold shadow-xs"
-                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        !sidebarOpen && "justify-center px-2"
-                      )}
-                    >
-                      <Icon
-                        className={cn(
-                          "h-4 w-4 shrink-0 transition-transform group-hover:scale-105",
-                          active ? "text-primary" : "text-muted-foreground"
-                        )}
-                      />
-                      {sidebarOpen && (
-                        <span className="flex-1 truncate">{item.label}</span>
-                      )}
-                      {sidebarOpen && item.badge && (
-                        <span className="border-success/20 bg-success/10 text-success rounded border px-1.5 py-0.5 text-[10px] font-semibold">
-                          {item.badge}
-                        </span>
-                      )}
-                      {active && (
-                        <span
-                          className="bg-primary absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </NavLink>
-                  )
-                })}
+                {projectNavItems.map((item) => (
+                  <SidebarNavItem
+                    key={item.label}
+                    item={item}
+                    active={isItemActive(item)}
+                    sidebarOpen={sidebarOpen}
+                    onNavigate={() => setMobileSidebarOpen(false)}
+                  />
+                ))}
               </nav>
             </div>
 
@@ -333,63 +301,23 @@ export function Sidebar() {
                 </h3>
               )}
               <nav className="space-y-1 pt-0.5">
-                {projectOrgItems.map((item) => {
-                  const Icon = item.icon
-                  const active = isItemActive(item)
-
-                  if (item.isExternal) {
-                    return (
-                      <a
-                        key={item.label}
-                        href={item.path}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setMobileSidebarOpen(false)}
-                        title={!sidebarOpen ? item.label : undefined}
-                        className={cn(
-                          "group text-muted-foreground hover:bg-muted/50 hover:text-foreground relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all",
-                          !sidebarOpen && "justify-center px-2"
-                        )}
-                      >
-                        <Icon className="text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-105" />
-                        {sidebarOpen && (
-                          <span className="flex-1 truncate">{item.label}</span>
-                        )}
-                      </a>
-                    )
-                  }
-
-                  return (
-                    <NavLink
-                      key={item.label}
-                      to={item.path}
-                      onClick={() => setMobileSidebarOpen(false)}
-                      title={!sidebarOpen ? item.label : undefined}
-                      className={cn(
-                        "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all",
-                        active
-                          ? "bg-primary/10 text-primary font-semibold shadow-xs"
-                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        !sidebarOpen && "justify-center px-2"
-                      )}
-                    >
-                      <Icon
-                        className={cn(
-                          "h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-105",
-                          active ? "text-primary" : "text-muted-foreground"
-                        )}
-                      />
-                      {sidebarOpen && (
-                        <span className="flex-1 truncate">{item.label}</span>
-                      )}
-                    </NavLink>
-                  )
-                })}
+                {projectOrgItems.map((item) => (
+                  <SidebarNavItem
+                    key={item.label}
+                    item={{
+                      ...item,
+                      isDisabled: !!item.requiresOrg && !activeOrg,
+                    }}
+                    active={isItemActive(item)}
+                    sidebarOpen={sidebarOpen}
+                    onNavigate={() => setMobileSidebarOpen(false)}
+                  />
+                ))}
               </nav>
             </div>
           </>
         ) : (
-          /* ── Mode 2: Clean Organization Navigation ── */
+          /* Mode 2: Clean Organization Navigation */
           <div className="space-y-1">
             {sidebarOpen && (
               <h3 className="text-muted-foreground/70 px-3 text-[11px] font-bold tracking-wider uppercase">
@@ -397,93 +325,23 @@ export function Sidebar() {
               </h3>
             )}
             <nav className="space-y-1 pt-1">
-              {orgNavItems.map((item) => {
-                const Icon = item.icon
-                const isDisabled = !!item.requiresOrg && !activeOrg
-                const active = isItemActive(item)
-
-                if (isDisabled) {
-                  return (
-                    <div
-                      key={item.path}
-                      title={
-                        sidebarOpen
-                          ? "Select or create a workspace to access this section"
-                          : `${item.label} (Workspace required)`
-                      }
-                      aria-disabled="true"
-                      className={cn(
-                        "text-muted-foreground/40 relative flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium opacity-40 transition-all select-none",
-                        !sidebarOpen && "justify-center px-2"
-                      )}
-                    >
-                      <Icon className="text-muted-foreground/40 h-4 w-4 shrink-0" />
-                      {sidebarOpen && (
-                        <span className="flex-1 truncate">{item.label}</span>
-                      )}
-                    </div>
-                  )
-                }
-
-                if (item.isExternal) {
-                  return (
-                    <a
-                      key={item.path}
-                      href={item.path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setMobileSidebarOpen(false)}
-                      title={!sidebarOpen ? item.label : undefined}
-                      className={cn(
-                        "group text-muted-foreground hover:bg-muted/50 hover:text-foreground relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
-                        !sidebarOpen && "justify-center px-2"
-                      )}
-                    >
-                      <Icon className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                      {sidebarOpen && (
-                        <span className="flex-1 truncate">{item.label}</span>
-                      )}
-                    </a>
-                  )
-                }
-
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => {
-                      if (item.path === "/dashboard") {
-                        clearActiveProject()
-                      }
-                      setMobileSidebarOpen(false)
-                    }}
-                    title={!sidebarOpen ? item.label : undefined}
-                    className={cn(
-                      "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
-                      active
-                        ? "bg-primary/10 text-primary font-semibold shadow-xs"
-                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                      !sidebarOpen && "justify-center px-2"
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-4 w-4 shrink-0 transition-transform group-hover:scale-105",
-                        active ? "text-primary" : "text-muted-foreground"
-                      )}
-                    />
-                    {sidebarOpen && (
-                      <span className="flex-1 truncate">{item.label}</span>
-                    )}
-                    {active && (
-                      <span
-                        className="bg-primary absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </NavLink>
-                )
-              })}
+              {orgNavItems.map((item) => (
+                <SidebarNavItem
+                  key={item.path}
+                  item={{
+                    ...item,
+                    isDisabled: !!item.requiresOrg && !activeOrg,
+                  }}
+                  active={isItemActive(item)}
+                  sidebarOpen={sidebarOpen}
+                  onNavigate={() => {
+                    if (item.path === "/dashboard") {
+                      clearActiveProject()
+                    }
+                    setMobileSidebarOpen(false)
+                  }}
+                />
+              ))}
             </nav>
           </div>
         )}
