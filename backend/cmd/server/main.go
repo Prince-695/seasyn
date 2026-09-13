@@ -109,7 +109,8 @@ func main() {
 	// CORS Configuration
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.AllowedOrigins,
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-Refresh-Token",
+		ExposeHeaders:    "X-Access-Token, X-Refresh-Token",
 		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
 		AllowCredentials: true,
 	}))
@@ -163,7 +164,7 @@ func main() {
 	)
 
 	authHandler := handlers.NewAuthHandler(authService, cfg.Env != "development", cfg.FrontendURL)
-	authMiddleware := middleware.Auth(authService)
+	authMiddleware := middleware.Auth(authService, cfg.Env != "development")
 	requireVerified := middleware.RequireVerified(authService)
 
 	usersService := users.NewUsersService(userRepo)

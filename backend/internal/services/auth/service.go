@@ -48,16 +48,16 @@ type authService struct {
 	// sync.Map is safe for concurrent use; states expire after 10 minutes.
 	pendingStates sync.Map
 
-	// In-memory denylist for invalidated (logged out) tokens
+	// In-memory denylist for invalidated (logged out or rotated) tokens
 	denylist sync.Map
 
-	// In-memory store for opaque refresh tokens
-	refreshTokens sync.Map
+	// In-memory grace cache for concurrent refresh requests during rotation
+	recentRotations sync.Map
 }
 
-type refreshTokenData struct {
-	userID string
-	expiry time.Time
+type rotationCacheEntry struct {
+	response *domain.AuthResponse
+	cachedAt time.Time
 }
 
 func NewAuthService(
@@ -129,14 +129,13 @@ func (s *authService) cleanupRoutine() {
 			return true
 		})
 
-		// Cleanup expired refresh tokens
-		s.refreshTokens.Range(func(key, value any) bool {
-			if now.After(value.(refreshTokenData).expiry) {
-				s.refreshTokens.Delete(key)
+		// Cleanup rotation grace cache entries older than 1 minute
+		s.recentRotations.Range(func(key, value any) bool {
+			if now.Sub(value.(rotationCacheEntry).cachedAt) > time.Minute {
+				s.recentRotations.Delete(key)
 			}
 			return true
 		})
-
 	}
 }
 
@@ -382,26 +381,42 @@ func (s *authService) Login(ctx context.Context, req domain.LoginRequest) (*doma
 }
 
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*domain.AuthResponse, error) {
-	data, ok := s.refreshTokens.Load(refreshToken)
-	if !ok {
+	// 1. Check recent rotation cache (grace period for concurrent requests)
+	if cached, ok := s.recentRotations.Load(refreshToken); ok {
+		entry := cached.(rotationCacheEntry)
+		if time.Since(entry.cachedAt) < 30*time.Second {
+			return entry.response, nil
+		}
+	}
+
+	// 2. Validate signed JWT refresh token
+	userID, err := s.validateTypedToken(refreshToken, tokenTypeRefresh)
+	if err != nil {
 		return nil, errors.Unauthorized("Invalid or expired session")
 	}
 
-	tokenData := data.(refreshTokenData)
-	if time.Now().After(tokenData.expiry) {
-		s.refreshTokens.Delete(refreshToken)
-		return nil, errors.Unauthorized("Invalid or expired session")
-	}
-
-	// Single-use refresh token (rotate upon use)
-	s.refreshTokens.Delete(refreshToken)
-
-	user, err := s.repo.GetByID(ctx, tokenData.userID)
+	// 3. Ensure user account still exists
+	user, err := s.repo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, errors.NotFound("User account no longer exists")
 	}
 
-	return s.generateAuthResponse(user)
+	// 4. Generate new token pair (sliding expiration: 30m access, 7d refresh)
+	authRes, err := s.generateAuthResponse(user)
+	if err != nil {
+		return nil, err
+	}
+
+	// 5. Store in recentRotations grace cache for 30 seconds to handle concurrent in-flight requests
+	s.recentRotations.Store(refreshToken, rotationCacheEntry{
+		response: authRes,
+		cachedAt: time.Now(),
+	})
+
+	// 6. Invalidate old refresh token so it cannot be reused after the grace window
+	s.invalidateToken(refreshToken)
+
+	return authRes, nil
 }
 
 func (s *authService) ForgotPassword(ctx context.Context, req domain.ForgotPasswordRequest) error {
@@ -543,7 +558,8 @@ func (s *authService) Logout(ctx context.Context, accessToken, refreshToken stri
 		s.invalidateToken(accessToken)
 	}
 	if refreshToken != "" {
-		s.refreshTokens.Delete(refreshToken)
+		s.invalidateToken(refreshToken)
+		s.recentRotations.Delete(refreshToken)
 	}
 	return nil
 }
@@ -568,15 +584,10 @@ func (s *authService) generateAuthResponse(user *domain.User) (*domain.AuthRespo
 		return nil, errors.Internal("Failed to generate access token")
 	}
 
-	refreshToken, err := generateRandomString(64)
+	refreshToken, _, err := s.createToken(user.ID, tokenTypeRefresh, s.refreshTokenExpiry)
 	if err != nil {
 		return nil, errors.Internal("Failed to generate secure refresh token")
 	}
-
-	s.refreshTokens.Store(refreshToken, refreshTokenData{
-		userID: user.ID,
-		expiry: time.Now().Add(s.refreshTokenExpiry),
-	})
 
 	return &domain.AuthResponse{
 		AccessToken:  accessToken,
@@ -609,14 +620,19 @@ func (s *authService) GetMe(ctx context.Context, userID string) (*domain.PublicU
 	}, nil
 }
 
-// createToken mints a signed JWT with an explicit token_type claim.
+// createToken mints a signed JWT with an explicit token_type claim and unique jti.
 func (s *authService) createToken(userID, tokenType string, expiry time.Duration) (string, time.Time, error) {
 	expirationTime := time.Now().Add(expiry)
+	jti, err := generateRandomString(16)
+	if err != nil {
+		return "", time.Time{}, err
+	}
 	claims := jwt.MapClaims{
 		"sub":        userID,
 		"exp":        expirationTime.Unix(),
 		"iat":        time.Now().Unix(),
 		"token_type": tokenType, // BUG-01 fix
+		"jti":        jti,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

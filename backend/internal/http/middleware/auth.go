@@ -14,9 +14,13 @@ import (
 // access_token HttpOnly cookie. The cookie is the primary transport; the header is
 // the fallback for API clients (e.g. Swagger, curl).
 //
-// BUG-13 fix: all error responses now use domain.Response so the client always
-// receives the same JSON shape, regardless of which middleware triggered the error.
-func Auth(authService ports.AuthService) fiber.Handler {
+// If the access token is missing or expired, it automatically attempts an internal
+// sliding refresh using the refresh token from the HttpOnly cookie or X-Refresh-Token header.
+// If refresh succeeds, it updates the cookies with root scope (Path: "/"), sets response
+// headers (X-Access-Token, X-Refresh-Token), and proceeds with the request.
+func Auth(authService ports.AuthService, isProduction ...bool) fiber.Handler {
+	prod := len(isProduction) > 0 && isProduction[0]
+
 	return func(c *fiber.Ctx) error {
 		tokenString := extractToken(c)
 
@@ -30,35 +34,50 @@ func Auth(authService ports.AuthService) fiber.Handler {
 		}
 
 		if err != nil {
-			// Try automatic refresh via HttpOnly cookie
+			// Try automatic refresh via HttpOnly cookie or X-Refresh-Token header
 			refreshToken := c.Cookies("refresh_token")
+			if refreshToken == "" {
+				refreshToken = c.Get("X-Refresh-Token")
+			}
+
 			if refreshToken != "" {
 				authRes, refreshErr := authService.RefreshToken(c.Context(), refreshToken)
 				if refreshErr == nil {
 					// Securely parse duration
-					expiresAt, _ := time.Parse(time.RFC3339, authRes.ExpiresAt)
-					isSecure := c.Protocol() == "https"
+					expiresAt, parseErr := time.Parse(time.RFC3339, authRes.ExpiresAt)
+					if parseErr != nil {
+						expiresAt = time.Now().Add(30 * time.Minute)
+					}
+
+					// Proxy-aware HTTPS detection (Render terminates TLS at edge)
+					isSecure := prod || c.Get("X-Forwarded-Proto") == "https" || c.Protocol() == "https"
 
 					sameSite := "Lax"
 					if isSecure {
 						sameSite = "None"
 					}
 
-					// Set the new access token
+					// Set response headers for Swagger UI, mobile, or CLI clients
+					c.Set("X-Access-Token", authRes.AccessToken)
+					c.Set("X-Refresh-Token", authRes.RefreshToken)
+
+					// Set the new access token cookie with root Path
 					c.Cookie(&fiber.Cookie{
 						Name:     "access_token",
 						Value:    authRes.AccessToken,
+						Path:     "/",
 						Expires:  expiresAt,
 						HTTPOnly: true,
 						Secure:   isSecure,
 						SameSite: sameSite,
 					})
 
-					// Set the new refresh token
+					// Set the new refresh token cookie with root Path (sliding 7 days)
 					c.Cookie(&fiber.Cookie{
 						Name:     "refresh_token",
 						Value:    authRes.RefreshToken,
-						Expires:  time.Now().Add(7 * 24 * time.Hour), // 7 days
+						Path:     "/",
+						Expires:  time.Now().Add(7 * 24 * time.Hour),
 						HTTPOnly: true,
 						Secure:   isSecure,
 						SameSite: sameSite,
