@@ -842,6 +842,11 @@ const docTemplate = `{
         },
         "/v1/organizations/{orgID}/analytics/overview": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns quota usage, engine mix, 30-day velocity timeline, and migration health for an organization.",
                 "consumes": [
                     "application/json"
@@ -1511,6 +1516,11 @@ const docTemplate = `{
         },
         "/v1/organizations/{orgID}/projects/{projectID}/analytics": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns connection quotas, topology nodes/edges, top synced tables, and 14-day activity heatmap.",
                 "consumes": [
                     "application/json"
@@ -2788,6 +2798,11 @@ const docTemplate = `{
         },
         "/v1/organizations/{orgID}/projects/{projectID}/migrations/analytics": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns historical migration summary, duration distribution buckets, and error breakdowns.",
                 "consumes": [
                     "application/json"

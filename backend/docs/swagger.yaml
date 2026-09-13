@@ -1882,6 +1882,8 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
       summary: Get Organization Analytics Overview
       tags:
       - analytics
@@ -2306,6 +2308,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
       summary: Get Project Analytics & Topology Flow
       tags:
       - analytics
@@ -3221,6 +3225,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/domain.Response'
+      security:
+      - BearerAuth: []
       summary: Get Migration Studio Analytics
       tags:
       - analytics

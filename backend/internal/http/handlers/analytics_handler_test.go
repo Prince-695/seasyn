@@ -98,3 +98,40 @@ func TestAnalyticsHandler(t *testing.T) {
 		t.Errorf("expected 200 OK, got %d", resp.StatusCode)
 	}
 }
+
+func TestAnalyticsHandler_Unauthorized(t *testing.T) {
+	svc := &mockAnalyticsServiceForHandler{}
+	h := handlers.NewAnalyticsHandler(svc)
+
+	app := fiber.New()
+	v1 := app.Group("/v1")
+
+	mockAuthReject := func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusUnauthorized).JSON(domain.Response{
+			Success: false,
+			Error:   "UNAUTHORIZED",
+		})
+	}
+	mockVerified := func(c *fiber.Ctx) error {
+		return c.Next()
+	}
+
+	h.RegisterRoutes(v1, mockAuthReject, mockVerified)
+
+	endpoints := []string{
+		"/v1/organizations/org-1/analytics/overview",
+		"/v1/organizations/org-1/projects/proj-1/analytics",
+		"/v1/organizations/org-1/projects/proj-1/migrations/analytics",
+	}
+
+	for _, ep := range endpoints {
+		req := httptest.NewRequest(http.MethodGet, ep, nil)
+		resp, err := app.Test(req)
+		if err != nil {
+			t.Fatalf("request to %s failed: %v", ep, err)
+		}
+		if resp.StatusCode != http.StatusUnauthorized {
+			t.Errorf("expected 401 Unauthorized on %s, got %d", ep, resp.StatusCode)
+		}
+	}
+}

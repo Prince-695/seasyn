@@ -19,7 +19,8 @@ func NewAnalyticsHandler(service ports.AnalyticsService) *AnalyticsHandler {
 
 // RegisterRoutes registers the analytics routes under the given router.
 func (h *AnalyticsHandler) RegisterRoutes(router fiber.Router, authMiddleware, requireVerified fiber.Handler) {
-	group := router.Group("/organizations/:orgID", authMiddleware, requireVerified)
+	group := router.Group("/organizations/:orgID")
+	group.Use(authMiddleware, requireVerified)
 
 	group.Get("/analytics/overview", h.GetOrgOverview)
 	group.Get("/projects/:projectID/analytics", h.GetProjectAnalytics)
@@ -32,6 +33,7 @@ func (h *AnalyticsHandler) RegisterRoutes(router fiber.Router, authMiddleware, r
 // @Tags analytics
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param orgID path string true "Organization ID"
 // @Success 200 {object} domain.Response{data=domain.OrgAnalyticsOverview}
 // @Failure 401 {object} domain.Response
@@ -64,6 +66,7 @@ func (h *AnalyticsHandler) GetOrgOverview(c *fiber.Ctx) error {
 // @Tags analytics
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param orgID path string true "Organization ID"
 // @Param projectID path string true "Project ID"
 // @Success 200 {object} domain.Response{data=domain.ProjectAnalytics}
@@ -100,6 +103,7 @@ func (h *AnalyticsHandler) GetProjectAnalytics(c *fiber.Ctx) error {
 // @Tags analytics
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param orgID path string true "Organization ID"
 // @Param projectID path string true "Project ID"
 // @Success 200 {object} domain.Response{data=domain.MigrationAnalytics}
