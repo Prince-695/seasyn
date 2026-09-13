@@ -20,10 +20,10 @@ import { PermissionGuard } from "@/components/auth/PermissionGuard"
 import { projectsApi } from "@/api/projects"
 import { projectKeys } from "@/lib/queryKeys"
 import { useWorkspaceStore } from "@/store/workspaceStore"
-import type { Project, Environment } from "@/types"
+import type { Project } from "@/types"
+import { type EnvFilter } from "@/lib/constants/environments"
+import { cn } from "@/lib/utils"
 import { getErrorMessage } from "@/lib/errors"
-
-type EnvFilter = "all" | Environment
 
 export function ProjectsListPage() {
   const queryClient = useQueryClient()
@@ -91,6 +91,16 @@ export function ProjectsListPage() {
     return { total: projects.length, dev, staging, prod }
   }, [projects])
 
+  const filterTabs = useMemo(
+    () => [
+      { value: "all" as EnvFilter, label: "All", count: stats.total },
+      { value: "development" as EnvFilter, label: "Dev", count: stats.dev, activeTextClass: "text-info" },
+      { value: "staging" as EnvFilter, label: "Staging", count: stats.staging, activeTextClass: "text-warning" },
+      { value: "production" as EnvFilter, label: "Prod", count: stats.prod, activeTextClass: "text-success" },
+    ],
+    [stats]
+  )
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -132,58 +142,26 @@ export function ProjectsListPage() {
 
         {/* Environment Filter Tabs */}
         <div className="border-border/80 bg-muted/30 flex flex-wrap items-center gap-1.5 rounded-lg border p-1 text-xs">
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            onClick={() => setEnvFilter("all")}
-            className={`rounded-md px-3 py-1.5 font-medium transition-all ${
-              envFilter === "all"
-                ? "bg-card text-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            All ({stats.total})
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            onClick={() => setEnvFilter("development")}
-            className={`rounded-md px-3 py-1.5 font-medium transition-all ${
-              envFilter === "development"
-                ? "bg-card text-info shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Dev ({stats.dev})
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            onClick={() => setEnvFilter("staging")}
-            className={`rounded-md px-3 py-1.5 font-medium transition-all ${
-              envFilter === "staging"
-                ? "bg-card text-warning shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Staging ({stats.staging})
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            onClick={() => setEnvFilter("production")}
-            className={`rounded-md px-3 py-1.5 font-medium transition-all ${
-              envFilter === "production"
-                ? "bg-card text-success shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Prod ({stats.prod})
-          </Button>
+          {filterTabs.map((tab) => {
+            const isSelected = envFilter === tab.value
+            return (
+              <Button
+                key={tab.value}
+                type="button"
+                variant="ghost"
+                size="xs"
+                onClick={() => setEnvFilter(tab.value)}
+                className={cn(
+                  "rounded-md px-3 py-1.5 font-medium transition-all",
+                  isSelected
+                    ? cn("bg-card shadow-xs", tab.activeTextClass || "text-foreground font-semibold")
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {tab.label} ({tab.count})
+              </Button>
+            )
+          })}
         </div>
       </div>
 

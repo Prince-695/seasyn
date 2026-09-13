@@ -24,28 +24,7 @@ interface ChangeRoleDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-const editableRoles: Array<{
-  role: "admin" | "member" | "viewer"
-  label: string
-  description: string
-}> = [
-  {
-    role: "admin",
-    label: "Admin",
-    description:
-      "Can manage team members, database connections, and workspace settings.",
-  },
-  {
-    role: "member",
-    label: "Member",
-    description: "Can inspect schemas, edit tables, and execute migrations.",
-  },
-  {
-    role: "viewer",
-    label: "Viewer",
-    description: "Read-only access. Cannot execute migrations or alter tables.",
-  },
-]
+import { EDITABLE_ROLES, type EditableOrgRole } from "@/lib/constants/roles"
 
 interface ChangeRoleContentProps {
   orgId: string
@@ -55,17 +34,15 @@ interface ChangeRoleContentProps {
 
 function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
   const queryClient = useQueryClient()
-  const [selectedRole, setSelectedRole] = useState<
-    "admin" | "member" | "viewer"
-  >(
+  const [selectedRole, setSelectedRole] = useState<EditableOrgRole>(
     member.role !== "owner"
-      ? (member.role as "admin" | "member" | "viewer")
+      ? (member.role as EditableOrgRole)
       : "member"
   )
   const [serverError, setServerError] = useState<string | null>(null)
 
   const updateRoleMutation = useMutation({
-    mutationFn: (role: "admin" | "member" | "viewer") =>
+    mutationFn: (role: EditableOrgRole) =>
       orgsApi.updateMemberRole(orgId, member.user_id, { role }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orgKeys.members(orgId) })
@@ -127,7 +104,7 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
             }
             className="space-y-2"
           >
-            {editableRoles.map((opt) => {
+            {EDITABLE_ROLES.map((opt) => {
               const isChecked = selectedRole === opt.role
               return (
                 <label

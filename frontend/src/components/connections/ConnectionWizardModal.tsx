@@ -70,7 +70,7 @@ export function ConnectionWizardModal({
           )
         }
       />
-      <DialogContent className="flex h-150 max-h-150 w-[95vw] max-w-[95vw] flex-col gap-0 overflow-hidden p-6 sm:h-[700px] sm:max-w-[880px] sm:p-7">
+      <DialogContent className="flex h-150 max-h-150 w-[95vw] max-w-[95vw] flex-col gap-0 overflow-hidden p-6 sm:h-175 sm:max-w-220 sm:p-7">
         <WizardProgressTracker
           step={step}
           selectedEngineMeta={selectedEngineMeta}

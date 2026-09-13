@@ -24,6 +24,20 @@ import type { DBType, PublicDatabaseConnection } from "@/types"
 type EngineFilter = "all" | DBType
 type RoleFilter = "all" | "source" | "target"
 
+const ENGINE_FILTER_OPTIONS: Array<{ label: string; value: EngineFilter }> = [
+  { label: "All Engines", value: "all" },
+  { label: "Postgres", value: "postgres" },
+  { label: "MySQL", value: "mysql" },
+  { label: "MongoDB", value: "mongodb" },
+  { label: "SQLite", value: "sqlite" },
+]
+
+const ROLE_FILTER_OPTIONS: Array<{ label: string; value: RoleFilter }> = [
+  { label: "All Roles", value: "all" },
+  { label: "Sources", value: "source" },
+  { label: "Targets", value: "target" },
+]
+
 export function ConnectionsPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -218,15 +232,7 @@ export function ConnectionsPage() {
 
           {/* Engine Filter */}
           <div className="border-border/80 bg-muted/30 flex rounded-lg border p-0.5 text-xs">
-            {(
-              [
-                { label: "All Engines", value: "all" },
-                { label: "Postgres", value: "postgres" },
-                { label: "MySQL", value: "mysql" },
-                { label: "MongoDB", value: "mongodb" },
-                { label: "SQLite", value: "sqlite" },
-              ] as const
-            ).map((opt) => (
+            {ENGINE_FILTER_OPTIONS.map((opt) => (
               <Button
                 key={opt.value}
                 type="button"
@@ -247,13 +253,7 @@ export function ConnectionsPage() {
 
           {/* Role Filter */}
           <div className="border-border/80 bg-muted/30 flex rounded-lg border p-0.5 text-xs">
-            {(
-              [
-                { label: "All Roles", value: "all" },
-                { label: "Sources", value: "source" },
-                { label: "Targets", value: "target" },
-              ] as const
-            ).map((opt) => (
+            {ROLE_FILTER_OPTIONS.map((opt) => (
               <Button
                 key={opt.value}
                 type="button"

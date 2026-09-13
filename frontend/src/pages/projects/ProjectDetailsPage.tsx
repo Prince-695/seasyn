@@ -15,7 +15,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ConnectionCard } from "@/components/connections/ConnectionCard"
+import { ProjectConnectionSection } from "@/components/projects/ProjectConnectionSection"
 import { ConnectionWizardModal } from "@/components/connections/ConnectionWizardModal"
 import { EngineIcon } from "@/components/connections/EngineIcon"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
@@ -24,26 +24,9 @@ import { projectsApi } from "@/api/projects"
 import { analyticsApi } from "@/api/analytics"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
-import type { Environment, PublicDatabaseConnection } from "@/types"
+import type { PublicDatabaseConnection } from "@/types"
 import type { TopologyNode } from "@/types/analytics"
-
-const envBadgeStyles: Record<
-  Environment,
-  { label: string; className: string }
-> = {
-  development: {
-    label: "Dev",
-    className: "border-info/30 bg-info/10 text-info font-mono",
-  },
-  staging: {
-    label: "Staging",
-    className: "border-warning/30 bg-warning/10 text-warning font-mono",
-  },
-  production: {
-    label: "Prod",
-    className: "border-success/30 bg-success/10 text-success font-mono",
-  },
-}
+import { ENVIRONMENT_CONFIG } from "@/lib/constants/environments"
 
 export function ProjectDetailsPage() {
   const params = useParams<{ projectSlug?: string; projectId?: string }>()
@@ -222,7 +205,7 @@ export function ProjectDetailsPage() {
   }
 
   const envConfig = (project?.environment &&
-    envBadgeStyles[project.environment as Environment]) || {
+    ENVIRONMENT_CONFIG[project.environment]) || {
     label: project?.environment || "Dev",
     className: "border-muted bg-muted text-muted-foreground",
   }
@@ -459,178 +442,49 @@ export function ProjectDetailsPage() {
       {/* Database Connections Studio Canvas */}
       <div className="space-y-8 pt-2">
         {/* Section A: Source Databases */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="border-info/30 bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg border">
-                <Database className="h-4 w-4" />
-              </div>
-              <div>
-                <h3 className="text-foreground text-sm font-semibold">
-                  Source Databases ({sourceConnections.length})
-                </h3>
-                <p className="text-muted-foreground text-[11px]">
-                  Databases read by SEASYN for schema extraction and data
-                  introspection.
-                </p>
-              </div>
-            </div>
-
-            <PermissionGuard allowedRoles={["owner", "admin"]}>
-              <ConnectionWizardModal
-                projectId={project.id}
-                defaultIsSource={true}
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-xs font-medium"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    <span>Add Source DB</span>
-                  </Button>
-                }
-              />
-            </PermissionGuard>
-          </div>
-
-          {isConnectionsLoading ? (
-            <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
-              <Loader2 className="text-primary h-6 w-6 animate-spin" />
-            </div>
-          ) : sourceConnections.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {sourceConnections.map((conn) => (
-                <ConnectionCard
-                  key={conn.id}
-                  connection={conn}
-                  onDelete={handleDeleteConnection}
-                  onInspectSchema={(c) =>
-                    navigate(
-                      `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
-                    )
-                  }
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <Database className="text-muted-foreground/60 h-8 w-8" />
-              <h4 className="text-foreground mt-2 text-xs font-semibold">
-                No Source Databases Configured
-              </h4>
-              <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
-                Add a PostgreSQL, MySQL, MongoDB, or SQLite database to begin
-                inspecting schemas and running migrations.
-              </p>
-              <PermissionGuard allowedRoles={["owner", "admin"]}>
-                <div className="mt-3">
-                  <ConnectionWizardModal
-                    projectId={project.id}
-                    defaultIsSource={true}
-                    trigger={
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        <span>Configure First Source</span>
-                      </Button>
-                    }
-                  />
-                </div>
-              </PermissionGuard>
-            </div>
-          )}
-        </div>
+        <ProjectConnectionSection
+          title="Source Databases"
+          description="Databases read by SEASYN for schema extraction and data introspection."
+          icon={Database}
+          iconBadgeClass="border-info/30 bg-info/10 text-info"
+          connections={sourceConnections}
+          isLoading={isConnectionsLoading}
+          isSource={true}
+          projectId={project.id}
+          addBtnText="Add Source DB"
+          emptyTitle="No Source Databases Configured"
+          emptyDesc="Add a PostgreSQL, MySQL, MongoDB, or SQLite database to begin inspecting schemas and running migrations."
+          emptyBtnText="Configure First Source"
+          onDelete={handleDeleteConnection}
+          onInspectSchema={(c) =>
+            navigate(
+              `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
+            )
+          }
+        />
 
         {/* Section B: Target Databases */}
-        <div className="border-border/60 space-y-4 border-t pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="border-success/30 bg-success/10 text-success flex h-7 w-7 items-center justify-center rounded-lg border">
-                <Server className="h-4 w-4" />
-              </div>
-              <div>
-                <h3 className="text-foreground text-sm font-semibold">
-                  Target Databases ({targetConnections.length})
-                </h3>
-                <p className="text-muted-foreground text-[11px]">
-                  Destination databases to receive converted schemas and
-                  synchronized records.
-                </p>
-              </div>
-            </div>
-
-            <PermissionGuard allowedRoles={["owner", "admin"]}>
-              <ConnectionWizardModal
-                projectId={project.id}
-                defaultIsSource={false}
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-xs font-medium"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    <span>Add Target DB</span>
-                  </Button>
-                }
-              />
-            </PermissionGuard>
-          </div>
-
-          {isConnectionsLoading ? (
-            <div className="border-border/60 bg-muted/10 flex h-32 items-center justify-center rounded-xl border">
-              <Loader2 className="text-primary h-6 w-6 animate-spin" />
-            </div>
-          ) : targetConnections.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {targetConnections.map((conn) => (
-                <ConnectionCard
-                  key={conn.id}
-                  connection={conn}
-                  onDelete={handleDeleteConnection}
-                  onInspectSchema={(c) =>
-                    navigate(
-                      `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
-                    )
-                  }
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <Server className="text-muted-foreground/60 h-8 w-8" />
-              <h4 className="text-foreground mt-2 text-xs font-semibold">
-                No Target Databases Configured
-              </h4>
-              <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">
-                Add target database connections to receive converted schema
-                definitions and migrated data.
-              </p>
-              <PermissionGuard allowedRoles={["owner", "admin"]}>
-                <div className="mt-3">
-                  <ConnectionWizardModal
-                    projectId={project.id}
-                    defaultIsSource={false}
-                    trigger={
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 text-xs"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        <span>Configure First Target</span>
-                      </Button>
-                    }
-                  />
-                </div>
-              </PermissionGuard>
-            </div>
-          )}
-        </div>
+        <ProjectConnectionSection
+          title="Target Databases"
+          description="Destination databases to receive converted schemas and synchronized records."
+          icon={Server}
+          iconBadgeClass="border-success/30 bg-success/10 text-success"
+          connections={targetConnections}
+          isLoading={isConnectionsLoading}
+          isSource={false}
+          projectId={project.id}
+          addBtnText="Add Target DB"
+          emptyTitle="No Target Databases Configured"
+          emptyDesc="Add target database connections to receive converted schema definitions and migrated data."
+          emptyBtnText="Configure First Target"
+          onDelete={handleDeleteConnection}
+          onInspectSchema={(c) =>
+            navigate(
+              `/editor?project=${project.slug || project.id}&conn=${c.name || c.id}`
+            )
+          }
+          className="border-border/60 border-t pt-4"
+        />
       </div>
     </div>
   )

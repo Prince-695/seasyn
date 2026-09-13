@@ -15,25 +15,7 @@ import { projectKeys, connectionKeys } from "@/lib/queryKeys"
 import { projectsApi } from "@/api/projects"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { cn } from "@/lib/utils"
-import type { Environment } from "@/types"
-
-const envBadgeStyles: Record<
-  Environment,
-  { label: string; className: string }
-> = {
-  development: {
-    label: "Dev",
-    className: "border-info/30 bg-info/10 text-info font-mono",
-  },
-  staging: {
-    label: "Staging",
-    className: "border-warning/30 bg-warning/10 text-warning font-mono",
-  },
-  production: {
-    label: "Prod",
-    className: "border-success/30 bg-success/10 text-success font-mono",
-  },
-}
+import { ENVIRONMENT_CONFIG } from "@/lib/constants/environments"
 
 export function ProjectSettingsPage() {
   const navigate = useNavigate()
@@ -156,7 +138,7 @@ export function ProjectSettingsPage() {
   }
 
   const envConfig = (project?.environment &&
-    envBadgeStyles[project.environment as Environment]) || {
+    ENVIRONMENT_CONFIG[project.environment]) || {
     label: project?.environment || "Dev",
     className: "border-muted bg-muted text-muted-foreground",
   }

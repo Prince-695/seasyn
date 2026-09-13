@@ -6,9 +6,6 @@ import {
   UserPlus,
   Loader2,
   AlertCircle,
-  Shield,
-  Users,
-  Eye,
 } from "lucide-react"
 import {
   Dialog,
@@ -34,33 +31,7 @@ interface InviteMemberModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-const roleOptions: Array<{
-  role: "admin" | "member" | "viewer"
-  label: string
-  description: string
-  icon: typeof Shield
-}> = [
-  {
-    role: "admin",
-    label: "Admin",
-    description:
-      "Can invite members, manage connections, and configure settings.",
-    icon: Shield,
-  },
-  {
-    role: "member",
-    label: "Member",
-    description: "Can view schemas, execute table edits, and run migrations.",
-    icon: Users,
-  },
-  {
-    role: "viewer",
-    label: "Viewer",
-    description:
-      "Read-only access. Can view schemas and query data without editing.",
-    icon: Eye,
-  },
-]
+import { EDITABLE_ROLES } from "@/lib/constants/roles"
 
 export function InviteMemberModal({
   orgId,
@@ -180,7 +151,7 @@ export function InviteMemberModal({
               onValueChange={handleRoleChange}
               className="space-y-2"
             >
-              {roleOptions.map((opt) => {
+              {EDITABLE_ROLES.map((opt) => {
                 const Icon = opt.icon
                 const isChecked = selectedRole === opt.role
                 return (
