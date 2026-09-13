@@ -382,7 +382,9 @@ func TestOrgQuotas(t *testing.T) {
 	// "other-owner" is member 1. Add members 2, 3, 4, 5
 	for i := 2; i <= 5; i++ {
 		email := "member" + string(rune('0'+i)) + "@example.com"
-		userRepo.Create(ctx, domain.User{Email: email})
+		if _, err := userRepo.Create(ctx, domain.User{Email: email}); err != nil {
+			t.Fatalf("failed to create user: %v", err)
+		}
 		err = service.InviteMember(ctx, "other-owner", org.ID, domain.InviteMemberRequest{
 			Email: email,
 			Role:  domain.OrgRoleMember,
@@ -393,7 +395,9 @@ func TestOrgQuotas(t *testing.T) {
 	}
 
 	// Trying to invite a 6th member -> should fail
-	userRepo.Create(ctx, domain.User{Email: "member6@example.com"})
+	if _, err := userRepo.Create(ctx, domain.User{Email: "member6@example.com"}); err != nil {
+		t.Fatalf("failed to create user: %v", err)
+	}
 	err = service.InviteMember(ctx, "other-owner", org.ID, domain.InviteMemberRequest{
 		Email: "member6@example.com",
 		Role:  domain.OrgRoleMember,
@@ -403,7 +407,9 @@ func TestOrgQuotas(t *testing.T) {
 	}
 
 	// 4. Test inviting a user who is already in 3 organizations -> should fail
-	userRepo.Create(ctx, domain.User{Email: "busy@example.com"})
+	if _, err := userRepo.Create(ctx, domain.User{Email: "busy@example.com"}); err != nil {
+		t.Fatalf("failed to create user: %v", err)
+	}
 	busyUser, _ := userRepo.GetByEmail(ctx, "busy@example.com")
 	// Put busyUser in 3 orgs
 	for i := 1; i <= 3; i++ {
