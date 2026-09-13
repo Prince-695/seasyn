@@ -18,6 +18,7 @@ import (
 	"github.com/Prince-695/seasyn/backend/internal/http/handlers"
 	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/repository"
+	"github.com/Prince-695/seasyn/backend/internal/services/analytics"
 	"github.com/Prince-695/seasyn/backend/internal/services/audit"
 	"github.com/Prince-695/seasyn/backend/internal/services/auth"
 	"github.com/Prince-695/seasyn/backend/internal/services/editor"
@@ -204,6 +205,9 @@ func main() {
 	streamer := migration.NewStreamer(projectRepo, adapterRegistry, encryptor, progressHub)
 	migrationService := migration.NewService(migrationRepo, orgRepo, projectRepo, streamer, progressHub, auditService, webhookService)
 	migrationHandler := handlers.NewMigrationHandler(migrationService, progressHub)
+	analyticsRepo := repository.NewAnalyticsRepository(db)
+	analyticsService := analytics.NewAnalyticsService(analyticsRepo, orgRepo, projectRepo)
+	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
 
 	// Register Routes under /v1
 	authHandler.RegisterRoutes(apiV1, authMiddleware)
@@ -214,6 +218,7 @@ func main() {
 	migrationHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 	auditHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 	webhookHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
+	analyticsHandler.RegisterRoutes(apiV1, authMiddleware, requireVerified)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }
