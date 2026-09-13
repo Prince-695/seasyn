@@ -13,6 +13,11 @@ import (
 	"github.com/Prince-695/seasyn/backend/pkg/errors"
 )
 
+const (
+	MaxProjectsPerOrg        = 5
+	MaxConnectionsPerProject = 6
+)
+
 type projectService struct {
 	repo      ports.ProjectRepository
 	orgRepo   ports.OrgRepository
@@ -70,6 +75,15 @@ func (s *projectService) requireRole(ctx context.Context, orgID, userID string, 
 func (s *projectService) CreateProject(ctx context.Context, userID, orgID string, req domain.CreateProjectRequest) (*domain.Project, error) {
 	if err := s.requireRole(ctx, orgID, userID, domain.OrgRoleMember); err != nil {
 		return nil, err
+	}
+
+	// Check project quota (max 5 projects per organization)
+	projCount, err := s.repo.CountProjectsByOrg(ctx, orgID)
+	if err != nil {
+		return nil, errors.Internal("Failed to check project quota")
+	}
+	if projCount >= MaxProjectsPerOrg {
+		return nil, errors.BadRequest("This organization has reached the maximum limit of 5 projects")
 	}
 
 	slug := req.Slug
@@ -199,6 +213,15 @@ func (s *projectService) CreateConnection(ctx context.Context, userID, orgID, pr
 	}
 	if p.OrganizationID != orgID {
 		return nil, errors.Forbidden("Project does not belong to this organization")
+	}
+
+	// Check connection quota (max 6 connections per project)
+	connCount, err := s.repo.CountConnectionsByProject(ctx, projectID)
+	if err != nil {
+		return nil, errors.Internal("Failed to check database connection quota")
+	}
+	if connCount >= MaxConnectionsPerProject {
+		return nil, errors.BadRequest("This project has reached the maximum limit of 6 database connections")
 	}
 
 	// Encrypt sensitive credentials

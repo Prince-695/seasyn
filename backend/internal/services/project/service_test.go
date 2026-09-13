@@ -2,6 +2,7 @@ package project_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -79,7 +80,7 @@ func (m *mockProjectRepo) ProjectSlugExists(ctx context.Context, orgID, slug str
 }
 
 func (m *mockProjectRepo) CreateConnection(ctx context.Context, conn domain.DatabaseConnection) (*domain.DatabaseConnection, error) {
-	conn.ID = "conn-1"
+	conn.ID = fmt.Sprintf("conn-%d", len(m.connections)+1)
 	conn.CreatedAt = time.Now()
 	conn.UpdatedAt = time.Now()
 	m.connections[conn.ID] = &conn
@@ -111,6 +112,26 @@ func (m *mockProjectRepo) UpdateConnection(ctx context.Context, conn domain.Data
 func (m *mockProjectRepo) DeleteConnection(ctx context.Context, id string) error {
 	delete(m.connections, id)
 	return nil
+}
+
+func (m *mockProjectRepo) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	var count int64
+	for _, p := range m.projects {
+		if p.OrganizationID == orgID {
+			count++
+		}
+	}
+	return count, nil
+}
+
+func (m *mockProjectRepo) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	var count int64
+	for _, c := range m.connections {
+		if c.ProjectID == projectID {
+			count++
+		}
+	}
+	return count, nil
 }
 
 // MockOrgRepo for project tests
@@ -158,6 +179,12 @@ func (m *mockOrgRepoForProject) ListUserOrgs(ctx context.Context, userID string)
 	return nil, nil
 }
 func (m *mockOrgRepoForProject) CountOwnerOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForProject) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return 0, nil
+}
+func (m *mockOrgRepoForProject) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
 	return 0, nil
 }
 
@@ -261,5 +288,74 @@ func TestProjectLifecycleAndRBAC(t *testing.T) {
 	err = svc.DeleteProject(ctx, "user-admin", "org-1", p.ID)
 	if err != nil {
 		t.Fatalf("admin failed to delete project: %v", err)
+	}
+}
+
+func TestProjectAndConnectionQuotas(t *testing.T) {
+	projRepo := newMockProjectRepo()
+	orgRepo := &mockOrgRepoForProject{
+		members: map[string]map[string]*domain.OrganizationMember{
+			"org-1": {
+				"user-member": {OrganizationID: "org-1", UserID: "user-member", Role: domain.OrgRoleMember},
+			},
+		},
+	}
+	enc := crypto.NewEncryptor("test-jwt-secret-key-123456789012")
+	conn := adapters.NewConnector()
+	svc := project.NewProjectService(projRepo, orgRepo, enc, conn)
+	ctx := context.Background()
+
+	// 1. Create 5 projects (the maximum quota)
+	var firstProj *domain.Project
+	for i := 1; i <= 5; i++ {
+		p, err := svc.CreateProject(ctx, "user-member", "org-1", domain.CreateProjectRequest{
+			Name: fmt.Sprintf("Project %d", i),
+		})
+		if err != nil {
+			t.Fatalf("failed to create project %d: %v", i, err)
+		}
+		if i == 1 {
+			firstProj = p
+		}
+	}
+
+	// 2. Attempt to create 6th project -> should fail with quota error
+	_, err := svc.CreateProject(ctx, "user-member", "org-1", domain.CreateProjectRequest{
+		Name: "Project 6",
+	})
+	if err == nil {
+		t.Fatal("expected 6th project creation to fail with quota error, but succeeded")
+	}
+
+	// 3. Create 6 connections in first project (the maximum quota)
+	for i := 1; i <= 6; i++ {
+		_, err := svc.CreateConnection(ctx, "user-member", "org-1", firstProj.ID, domain.CreateConnectionRequest{
+			Name:     fmt.Sprintf("Connection %d", i),
+			DBType:   "postgres",
+			Host:     "localhost",
+			Port:     5432,
+			Database: "testdb",
+			Username: "user",
+			Password: "password",
+			IsSource: true,
+		})
+		if err != nil {
+			t.Fatalf("failed to create connection %d: %v", i, err)
+		}
+	}
+
+	// 4. Attempt to create 7th connection in first project -> should fail with quota error
+	_, err = svc.CreateConnection(ctx, "user-member", "org-1", firstProj.ID, domain.CreateConnectionRequest{
+		Name:     "Connection 7",
+		DBType:   "postgres",
+		Host:     "localhost",
+		Port:     5432,
+		Database: "testdb",
+		Username: "user",
+		Password: "password",
+		IsSource: false,
+	})
+	if err == nil {
+		t.Fatal("expected 7th connection creation to fail with quota error, but succeeded")
 	}
 }

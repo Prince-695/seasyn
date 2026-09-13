@@ -95,7 +95,36 @@ func (r *projectRepo) UpdateProject(ctx context.Context, p domain.Project) (*dom
 }
 
 func (r *projectRepo) DeleteProject(ctx context.Context, id string) error {
-	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&ProjectModel{}).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. Delete database connections for this project
+		if err := tx.Unscoped().Where("project_id = ?", id).Delete(&DatabaseConnectionModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete connections: %w", err)
+		}
+
+		// 2. Delete migration jobs for this project
+		if err := tx.Unscoped().Where("project_id = ?", id).Delete(&MigrationJobModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete migrations: %w", err)
+		}
+
+		// 3. Delete webhooks scoped to this project
+		var webhookIDs []string
+		_ = tx.Model(&WebhookModel{}).Unscoped().Where("project_id = ?", id).Pluck("id", &webhookIDs).Error
+		if len(webhookIDs) > 0 {
+			if err := tx.Unscoped().Where("webhook_id IN ?", webhookIDs).Delete(&WebhookDeliveryModel{}).Error; err != nil {
+				return fmt.Errorf("failed to delete webhook deliveries: %w", err)
+			}
+		}
+		if err := tx.Unscoped().Where("project_id = ?", id).Delete(&WebhookModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete webhooks: %w", err)
+		}
+
+		// 4. Hard-delete the project itself
+		if err := tx.Unscoped().Where("id = ?", id).Delete(&ProjectModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete project: %w", err)
+		}
+
+		return nil
+	})
 }
 
 func (r *projectRepo) ProjectSlugExists(ctx context.Context, orgID, slug string) (bool, error) {
@@ -187,5 +216,23 @@ func (r *projectRepo) UpdateConnection(ctx context.Context, conn domain.Database
 }
 
 func (r *projectRepo) DeleteConnection(ctx context.Context, id string) error {
-	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&DatabaseConnectionModel{}).Error
+	return r.db.WithContext(ctx).Unscoped().Where("id = ?", id).Delete(&DatabaseConnectionModel{}).Error
+}
+
+func (r *projectRepo) CountProjectsByOrg(ctx context.Context, orgID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&ProjectModel{}).
+		Where("organization_id = ?", orgID).
+		Count(&count).Error
+	return count, err
+}
+
+func (r *projectRepo) CountConnectionsByProject(ctx context.Context, projectID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&DatabaseConnectionModel{}).
+		Where("project_id = ?", projectID).
+		Count(&count).Error
+	return count, err
 }

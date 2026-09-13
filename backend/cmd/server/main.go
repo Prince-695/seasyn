@@ -141,6 +141,7 @@ func main() {
 
 	// API v1 Group
 	apiV1 := app.Group("/v1")
+	apiV1.Use(middleware.RateLimitGeneral())
 
 	// Dependency Injection
 	userRepo := repository.NewUserRepository(db)

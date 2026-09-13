@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/Prince-695/seasyn/backend/internal/domain"
+	"github.com/Prince-695/seasyn/backend/internal/http/middleware"
 	"github.com/Prince-695/seasyn/backend/internal/ports"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -51,9 +52,10 @@ func (h *ProjectHandler) RegisterRoutes(router fiber.Router, authMiddleware fibe
 	projectGroup.Put("/:projectID/connections/:connID", h.UpdateConnection)
 	projectGroup.Delete("/:projectID/connections/:connID", h.DeleteConnection)
 
-	// Diagnostics / Ping Tests
-	projectGroup.Post("/:projectID/connections/test", h.TestDirectConnection)
-	projectGroup.Post("/:projectID/connections/:connID/test", h.TestSavedConnection)
+	// Diagnostics / Ping Tests (protected by heavy rate limiting)
+	heavyLimiter := middleware.RateLimitHeavy()
+	projectGroup.Post("/:projectID/connections/test", heavyLimiter, h.TestDirectConnection)
+	projectGroup.Post("/:projectID/connections/:connID/test", heavyLimiter, h.TestSavedConnection)
 }
 
 // CreateProject godoc

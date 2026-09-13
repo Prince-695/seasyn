@@ -121,6 +121,17 @@ func (m *mockOrgRepoForHandler) CountOwnerOrgs(ctx context.Context, userID strin
 	return int64(len(m.orgs)), nil
 }
 
+func (m *mockOrgRepoForHandler) CountUserOrgs(ctx context.Context, userID string) (int64, error) {
+	return int64(len(m.orgs)), nil
+}
+
+func (m *mockOrgRepoForHandler) CountOrgMembers(ctx context.Context, orgID string) (int64, error) {
+	if mems, ok := m.members[orgID]; ok {
+		return int64(len(mems)), nil
+	}
+	return 0, nil
+}
+
 type mockUserRepoForHandler struct{}
 
 func (m *mockUserRepoForHandler) Create(ctx context.Context, u domain.User) (*domain.User, error) {
