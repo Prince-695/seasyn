@@ -1,12 +1,11 @@
-import { Sparkles } from "lucide-react"
+import { Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import type { DBType } from "@/types"
 
 interface UriQuickPasteBarProps {
   selectedEngine: DBType
-  quickPasteOpen: boolean
-  setQuickPasteOpen: (open: boolean) => void
   quickPasteUri: string
   setQuickPasteUri: (uri: string) => void
   onApply: (uri: string) => void
@@ -15,8 +14,6 @@ interface UriQuickPasteBarProps {
 
 export function UriQuickPasteBar({
   selectedEngine,
-  quickPasteOpen,
-  setQuickPasteOpen,
   quickPasteUri,
   setQuickPasteUri,
   onApply,
@@ -24,45 +21,46 @@ export function UriQuickPasteBar({
 }: UriQuickPasteBarProps) {
   if (selectedEngine === "sqlite") return null
 
+  const placeholderUri =
+    selectedEngine === "postgres"
+      ? "postgres://username:password@ep-example.neon.tech:5432/neondb?sslmode=require"
+      : "mysql://username:password@host:3306/production_db"
+
   return (
-    <div className="space-y-2">
+    <div className="border-primary/20 bg-primary/5 space-y-2 rounded-xl border p-3">
       <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs font-medium">
-          Credential Parameters
-        </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={disabled}
-          className="text-primary hover:text-primary h-7 gap-1.5 text-xs font-medium"
-          onClick={() => setQuickPasteOpen(!quickPasteOpen)}
+        <Label
+          htmlFor="quickPasteUri"
+          className="text-foreground flex items-center gap-1.5 text-xs font-medium"
         >
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>{quickPasteOpen ? "Hide URI Paste" : "Paste URI"}</span>
-        </Button>
+          <Zap className="text-primary h-3.5 w-3.5" />
+          <span>Connection String / URI (e.g. DATABASE_URL)</span>
+        </Label>
+        <span className="text-muted-foreground text-[11px]">
+          Auto-fills fields below
+        </span>
       </div>
 
-      {quickPasteOpen && (
-        <div className="border-primary/30 bg-primary/5 flex items-center gap-2 rounded-lg border p-2">
-          <Input
-            placeholder={`${selectedEngine}://user:pass@host:port/dbname?sslmode=require`}
-            value={quickPasteUri}
-            onChange={(e) => setQuickPasteUri(e.target.value)}
-            disabled={disabled}
-            className="bg-background h-8 font-mono text-xs"
-          />
-          <Button
-            type="button"
-            size="sm"
-            disabled={disabled || !quickPasteUri.trim()}
-            className="h-8 shrink-0 text-xs"
-            onClick={() => onApply(quickPasteUri)}
-          >
-            Apply
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center gap-2">
+        <Input
+          id="quickPasteUri"
+          placeholder={placeholderUri}
+          value={quickPasteUri}
+          onChange={(e) => setQuickPasteUri(e.target.value)}
+          disabled={disabled}
+          className="bg-background h-9 font-mono text-xs shadow-xs"
+        />
+        <Button
+          type="button"
+          size="sm"
+          disabled={disabled || !quickPasteUri.trim()}
+          className="h-9 shrink-0 cursor-pointer gap-1.5 px-3 text-xs font-semibold shadow-xs"
+          onClick={() => onApply(quickPasteUri)}
+        >
+          <Zap className="h-3.5 w-3.5" />
+          <span>Auto-Fill</span>
+        </Button>
+      </div>
     </div>
   )
 }

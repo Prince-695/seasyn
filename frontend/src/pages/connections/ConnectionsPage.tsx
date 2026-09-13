@@ -140,22 +140,46 @@ export function ConnectionsPage() {
           </div>
         </div>
 
-        {/* Modal Button (if project exists) */}
+        {/* Modal Buttons (if project exists) */}
         {projects.length > 0 && (
           <PermissionGuard allowedRoles={["owner", "admin"]}>
-            <ConnectionWizardModal
-              projectId={
-                selectedProjectId !== "all"
-                  ? selectedProjectId
-                  : projects[0]?.id || ""
-              }
-              trigger={
-                <Button className="gap-2 font-semibold shadow-xs">
-                  <Plus className="h-4 w-4" />
-                  <span>Add Connection</span>
-                </Button>
-              }
-            />
+            <div className="flex items-center gap-2">
+              <ConnectionWizardModal
+                projectId={
+                  selectedProjectId !== "all"
+                    ? selectedProjectId
+                    : projects[0]?.id || ""
+                }
+                defaultIsSource={true}
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs font-semibold shadow-xs"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Source DB</span>
+                  </Button>
+                }
+              />
+              <ConnectionWizardModal
+                projectId={
+                  selectedProjectId !== "all"
+                    ? selectedProjectId
+                    : projects[0]?.id || ""
+                }
+                defaultIsSource={false}
+                trigger={
+                  <Button
+                    size="sm"
+                    className="gap-1.5 text-xs font-semibold shadow-xs"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Target DB</span>
+                  </Button>
+                }
+              />
+            </div>
           </PermissionGuard>
         )}
       </div>

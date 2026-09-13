@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useForm, type UseFormReturn } from "react-hook-form"
+import { useForm, useWatch, type UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
@@ -74,7 +74,6 @@ export function useConnectionWizard({
   const { activeOrg } = useWorkspaceStore()
   const [selectedEngine, setSelectedEngine] = useState<DBType>("postgres")
   const [mongoMode, setMongoMode] = useState<MongoMode>("uri")
-  const [isSourceVal, setIsSourceVal] = useState(defaultIsSource)
   const [quickPasteOpen, setQuickPasteOpen] = useState(false)
   const [quickPasteUri, setQuickPasteUri] = useState("")
   const [showMongoUri, setShowMongoUri] = useState(false)
@@ -96,7 +95,24 @@ export function useConnectionWizard({
     },
   })
 
-  const { setValue, getValues, reset, trigger: triggerValidation } = form
+  const {
+    setValue,
+    getValues,
+    reset,
+    trigger: triggerValidation,
+    control,
+  } = form
+  const watchedIsSource = useWatch({
+    control,
+    name: "is_source",
+    defaultValue: defaultIsSource,
+  })
+  const isSourceVal =
+    watchedIsSource !== undefined ? watchedIsSource : defaultIsSource
+
+  const setIsSourceVal = (val: boolean) => {
+    setValue("is_source", val)
+  }
 
   // Synchronize db_type and apply engine-specific presets from centralized constants
   useEffect(() => {
@@ -136,10 +152,12 @@ export function useConnectionWizard({
     },
   })
 
-  // Reset wizard state on dialog close
+  // Reset wizard state on dialog close and ensure role is synced on open
   const handleDialogChange = (isOpen: boolean) => {
     setOpen(isOpen)
-    if (!isOpen) {
+    if (isOpen) {
+      setValue("is_source", defaultIsSource)
+    } else {
       setStep(1)
       setDirection(1)
       setQuickPasteOpen(false)
@@ -161,16 +179,24 @@ export function useConnectionWizard({
       else if (protocol.includes("mysql")) setSelectedEngine("mysql")
       else if (protocol.includes("mongo")) {
         setSelectedEngine("mongodb")
-        setMongoMode("uri")
         setValue("db_type", "mongodb")
         setValue("uri", trimmed)
-        setValue("host", "")
-        setValue("port", undefined as unknown as number)
         const isSrv = trimmed.startsWith("mongodb+srv://")
         const hasTls =
           parsed.searchParams.get("tls") === "true" ||
           parsed.searchParams.get("ssl") === "true"
-        setValue("ssl_mode", isSrv || hasTls ? "require" : "disable")
+        setValue(
+          "ssl_mode",
+          (isSrv || hasTls ? "require" : "disable") as SSLMode
+        )
+        if (parsed.hostname) {
+          setValue("host", parsed.hostname)
+        }
+        if (parsed.port) {
+          setValue("port", parseInt(parsed.port, 10))
+        } else if (!isSrv) {
+          setValue("port", 27017)
+        }
         if (parsed.pathname) {
           const dbName = parsed.pathname.replace(/^\//, "")
           if (dbName) setValue("database", dbName)
@@ -223,16 +249,28 @@ export function useConnectionWizard({
         db_type: "sqlite",
         file_path: values.file_path,
       }
-    } else if (selectedEngine === "mongodb" && mongoMode === "uri") {
-      const isSrv = values.uri?.startsWith("mongodb+srv://")
-      const parsedSsl = isSrv
-        ? "require"
-        : (values.ssl_mode as SSLMode | undefined)
-      payload = {
-        db_type: "mongodb",
-        uri: values.uri,
-        ssl_mode: parsedSsl,
-        database: values.database,
+    } else if (selectedEngine === "mongodb") {
+      if (values.uri && values.uri.trim().length > 0) {
+        const isSrv = values.uri.startsWith("mongodb+srv://")
+        const parsedSsl = isSrv
+          ? "require"
+          : (values.ssl_mode as SSLMode | undefined)
+        payload = {
+          db_type: "mongodb",
+          uri: values.uri,
+          ssl_mode: parsedSsl,
+          database: values.database,
+        }
+      } else {
+        payload = {
+          db_type: "mongodb",
+          host: values.host,
+          port: values.port,
+          database: values.database,
+          username: values.username,
+          password: values.password,
+          ssl_mode: values.ssl_mode as SSLMode | undefined,
+        }
       }
     } else {
       payload = {
@@ -244,7 +282,6 @@ export function useConnectionWizard({
         password: values.password,
         ssl_mode: values.ssl_mode as SSLMode | undefined,
         file_path: values.file_path,
-        uri: selectedEngine === "mongodb" ? values.uri : undefined,
       }
     }
 
@@ -255,7 +292,7 @@ export function useConnectionWizard({
     const payload: CreateConnectionPayload = {
       ...data,
       db_type: selectedEngine,
-      is_source: Boolean(data.is_source),
+      is_source: isSourceVal,
     }
 
     if (selectedEngine === "sqlite") {
@@ -266,13 +303,17 @@ export function useConnectionWizard({
       delete payload.password
       delete payload.ssl_mode
       delete payload.uri
-    } else if (selectedEngine === "mongodb" && mongoMode === "uri") {
-      delete payload.host
-      delete payload.port
-      delete payload.username
-      delete payload.password
-      if (payload.uri?.startsWith("mongodb+srv://")) {
-        payload.ssl_mode = "require"
+    } else if (selectedEngine === "mongodb") {
+      if (payload.uri && payload.uri.trim().length > 0) {
+        delete payload.host
+        delete payload.port
+        delete payload.username
+        delete payload.password
+        if (payload.uri.startsWith("mongodb+srv://")) {
+          payload.ssl_mode = "require"
+        }
+      } else {
+        delete payload.uri
       }
     }
 
@@ -294,10 +335,12 @@ export function useConnectionWizard({
     if (selectedEngine === "sqlite") {
       isValid = await triggerValidation(["file_path"])
     } else if (selectedEngine === "mongodb") {
-      isValid =
-        mongoMode === "uri"
-          ? await triggerValidation(["uri"])
-          : await triggerValidation(["host", "database"])
+      const vals = getValues()
+      if (vals.uri && vals.uri.trim().length > 0) {
+        isValid = await triggerValidation(["uri"])
+      } else {
+        isValid = await triggerValidation(["host", "database"])
+      }
     } else {
       isValid = await triggerValidation([
         "host",

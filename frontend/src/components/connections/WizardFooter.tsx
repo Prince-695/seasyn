@@ -20,7 +20,7 @@ export function WizardFooter({
   onNextFromStep2,
 }: WizardFooterProps) {
   return (
-    <div className="border-border/60 flex items-center justify-between border-t pt-4">
+    <div className="flex items-center justify-between pt-4">
       <div>
         {step > 1 ? (
           <Button
