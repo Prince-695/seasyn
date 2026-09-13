@@ -71,7 +71,63 @@ func (r *orgRepo) Update(ctx context.Context, org domain.Organization) (*domain.
 }
 
 func (r *orgRepo) Delete(ctx context.Context, id string) error {
-	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&OrgModel{}).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. Find all projects in this organization
+		var projectIDs []string
+		if err := tx.Model(&ProjectModel{}).Unscoped().Where("organization_id = ?", id).Pluck("id", &projectIDs).Error; err != nil {
+			return fmt.Errorf("failed to fetch project ids: %w", err)
+		}
+
+		if len(projectIDs) > 0 {
+			// Hard-delete database connections belonging to these projects
+			if err := tx.Unscoped().Where("project_id IN ?", projectIDs).Delete(&DatabaseConnectionModel{}).Error; err != nil {
+				return fmt.Errorf("failed to delete connections: %w", err)
+			}
+			// Hard-delete migration jobs belonging to these projects
+			if err := tx.Unscoped().Where("project_id IN ?", projectIDs).Delete(&MigrationJobModel{}).Error; err != nil {
+				return fmt.Errorf("failed to delete project migrations: %w", err)
+			}
+		}
+
+		// 2. Delete any migrations scoped directly to org_id
+		if err := tx.Unscoped().Where("organization_id = ?", id).Delete(&MigrationJobModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete org migrations: %w", err)
+		}
+
+		// 3. Delete webhook deliveries & webhooks in this org
+		var webhookIDs []string
+		_ = tx.Model(&WebhookModel{}).Unscoped().Where("org_id = ?", id).Pluck("id", &webhookIDs).Error
+		if len(webhookIDs) > 0 {
+			if err := tx.Unscoped().Where("webhook_id IN ?", webhookIDs).Delete(&WebhookDeliveryModel{}).Error; err != nil {
+				return fmt.Errorf("failed to delete webhook deliveries: %w", err)
+			}
+		}
+		if err := tx.Unscoped().Where("org_id = ?", id).Delete(&WebhookModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete webhooks: %w", err)
+		}
+
+		// 4. Delete audit logs for this org
+		if err := tx.Unscoped().Where("org_id = ?", id).Delete(&AuditLogModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete audit logs: %w", err)
+		}
+
+		// 5. Hard-delete projects in this org
+		if err := tx.Unscoped().Where("organization_id = ?", id).Delete(&ProjectModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete projects: %w", err)
+		}
+
+		// 6. Hard-delete organization members
+		if err := tx.Unscoped().Where("organization_id = ?", id).Delete(&OrgMemberModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete org members: %w", err)
+		}
+
+		// 7. Finally, hard-delete the organization itself
+		if err := tx.Unscoped().Where("id = ?", id).Delete(&OrgModel{}).Error; err != nil {
+			return fmt.Errorf("failed to delete organization: %w", err)
+		}
+
+		return nil
+	})
 }
 
 func (r *orgRepo) SlugExists(ctx context.Context, slug string) (bool, error) {
