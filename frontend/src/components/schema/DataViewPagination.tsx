@@ -38,7 +38,8 @@ export function DataViewPagination({
     >
       <div className="flex items-center gap-2">
         <span>
-          Showing {startItem}–{endItem} of {totalItems.toLocaleString()} {itemLabel}
+          Showing {startItem}–{endItem} of {totalItems.toLocaleString()}{" "}
+          {itemLabel}
         </span>
         {onPageSizeChange && (
           <>

@@ -64,7 +64,9 @@ export function DocumentView({
   const [copiedAll, setCopiedAll] = useState(false)
 
   // Document Dialog State
-  const [docToEdit, setDocToEdit] = useState<Record<string, unknown> | null>(null)
+  const [docToEdit, setDocToEdit] = useState<Record<string, unknown> | null>(
+    null
+  )
   const [insertModalOpen, setInsertModalOpen] = useState(false)
 
   // Filter documents by search string
@@ -108,8 +110,18 @@ export function DocumentView({
             {/* View Mode Toggle: Tree vs Raw JSON */}
             <div className="border-border/70 bg-muted/30 flex items-center gap-1 rounded-lg border p-1">
               {[
-                { style: "tree" as const, label: "Document Cards", icon: Braces, iconColor: "text-success" },
-                { style: "raw" as const, label: "Raw JSON", icon: Code2, iconColor: "text-primary" },
+                {
+                  style: "tree" as const,
+                  label: "Document Cards",
+                  icon: Braces,
+                  iconColor: "text-success",
+                },
+                {
+                  style: "raw" as const,
+                  label: "Raw JSON",
+                  icon: Code2,
+                  iconColor: "text-primary",
+                },
               ].map((tab) => {
                 const Icon = tab.icon
                 const isActive = viewStyle === tab.style

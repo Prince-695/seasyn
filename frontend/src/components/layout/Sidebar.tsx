@@ -66,7 +66,11 @@ export function Sidebar() {
     ""
 
   // 1. Organization Level Navigation
-  const orgNavItems: (NavItemConfig & { aliases?: string[]; exact?: boolean; requiresOrg?: boolean })[] = [
+  const orgNavItems: (NavItemConfig & {
+    aliases?: string[]
+    exact?: boolean
+    requiresOrg?: boolean
+  })[] = [
     {
       label: "Projects",
       path: "/dashboard",
@@ -97,7 +101,10 @@ export function Sidebar() {
   ]
 
   // 2. Project Level Navigation
-  const projectNavItems: (NavItemConfig & { basePath?: string; exact?: boolean })[] = [
+  const projectNavItems: (NavItemConfig & {
+    basePath?: string
+    exact?: boolean
+  })[] = [
     {
       label: "Databases & Overview",
       path: `/projects/${projectSlug}`,

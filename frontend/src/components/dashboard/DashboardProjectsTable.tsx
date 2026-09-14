@@ -27,7 +27,10 @@ import { cn } from "@/lib/utils"
 import type { Project, Environment } from "@/types"
 import type { OrgConnection } from "@/hooks/useOrgConnections"
 
-import { ENVIRONMENT_CONFIG, type EnvFilter } from "@/lib/constants/environments"
+import {
+  ENVIRONMENT_CONFIG,
+  type EnvFilter,
+} from "@/lib/constants/environments"
 export type { EnvFilter }
 
 interface EnvStats {

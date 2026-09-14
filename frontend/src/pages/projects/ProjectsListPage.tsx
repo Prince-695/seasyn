@@ -94,9 +94,24 @@ export function ProjectsListPage() {
   const filterTabs = useMemo(
     () => [
       { value: "all" as EnvFilter, label: "All", count: stats.total },
-      { value: "development" as EnvFilter, label: "Dev", count: stats.dev, activeTextClass: "text-info" },
-      { value: "staging" as EnvFilter, label: "Staging", count: stats.staging, activeTextClass: "text-warning" },
-      { value: "production" as EnvFilter, label: "Prod", count: stats.prod, activeTextClass: "text-success" },
+      {
+        value: "development" as EnvFilter,
+        label: "Dev",
+        count: stats.dev,
+        activeTextClass: "text-info",
+      },
+      {
+        value: "staging" as EnvFilter,
+        label: "Staging",
+        count: stats.staging,
+        activeTextClass: "text-warning",
+      },
+      {
+        value: "production" as EnvFilter,
+        label: "Prod",
+        count: stats.prod,
+        activeTextClass: "text-success",
+      },
     ],
     [stats]
   )
@@ -154,7 +169,10 @@ export function ProjectsListPage() {
                 className={cn(
                   "rounded-md px-3 py-1.5 font-medium transition-all",
                   isSelected
-                    ? cn("bg-card shadow-xs", tab.activeTextClass || "text-foreground font-semibold")
+                    ? cn(
+                        "bg-card shadow-xs",
+                        tab.activeTextClass || "text-foreground font-semibold"
+                      )
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >

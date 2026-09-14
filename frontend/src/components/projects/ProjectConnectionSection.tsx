@@ -110,7 +110,11 @@ export function ProjectConnectionSection({
                 projectId={projectId}
                 defaultIsSource={isSource}
                 trigger={
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                  >
                     <Plus className="h-3.5 w-3.5" />
                     <span>{emptyBtnText}</span>
                   </Button>

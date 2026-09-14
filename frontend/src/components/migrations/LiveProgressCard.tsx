@@ -132,7 +132,8 @@ export function LiveProgressCard({
             {migratedRows.toLocaleString()}
           </span>
           <span className="text-muted-foreground font-mono text-sm font-medium">
-            / {totalRows > 0 ? totalRows.toLocaleString() : "--"} rows transferred
+            / {totalRows > 0 ? totalRows.toLocaleString() : "--"} rows
+            transferred
           </span>
         </div>
 

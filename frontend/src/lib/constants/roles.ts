@@ -16,7 +16,8 @@ export const ROLE_CONFIG: Record<OrgRole, RoleConfig> = {
   owner: {
     role: "owner",
     label: "Owner",
-    description: "Full control over organization billing, members, and deletion.",
+    description:
+      "Full control over organization billing, members, and deletion.",
     className: "bg-primary/10 text-primary border-primary/25",
     icon: Crown,
     isEditable: false,
@@ -24,7 +25,8 @@ export const ROLE_CONFIG: Record<OrgRole, RoleConfig> = {
   admin: {
     role: "admin",
     label: "Admin",
-    description: "Can invite members, manage connections, and configure settings.",
+    description:
+      "Can invite members, manage connections, and configure settings.",
     className: "bg-info/10 text-info border-info/25",
     icon: Shield,
     isEditable: true,
@@ -40,7 +42,8 @@ export const ROLE_CONFIG: Record<OrgRole, RoleConfig> = {
   viewer: {
     role: "viewer",
     label: "Viewer",
-    description: "Read-only access. Can view schemas and query data without editing.",
+    description:
+      "Read-only access. Can view schemas and query data without editing.",
     className: "bg-muted/50 text-muted-foreground border-border",
     icon: Eye,
     isEditable: true,

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 // Helper to determine accurate BSON / JSON type name
-export function getFieldType(val: unknown): string {
+function getFieldType(val: unknown): string {
   if (val === null) return "null"
   if (val === undefined) return "undefined"
   if (Array.isArray(val)) return "array"

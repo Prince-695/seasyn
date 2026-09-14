@@ -41,7 +41,9 @@ export function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [envFilter, setEnvFilter] = useState<EnvFilter>("all")
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
-  const [activeModalProjectId, setActiveModalProjectId] = useState<string | null>(null)
+  const [activeModalProjectId, setActiveModalProjectId] = useState<
+    string | null
+  >(null)
 
   // Fetch real user profile from /users/me
   const { data: profileData } = useQuery({
@@ -156,7 +158,8 @@ export function Dashboard() {
             {activeOrg?.name ? `${activeOrg.name}'s projects` : orgDisplayName}
           </h1>
           <p className="text-muted-foreground mt-1 text-xs">
-            Manage your database projects, environments, and data synchronization pipelines.
+            Manage your database projects, environments, and data
+            synchronization pipelines.
           </p>
         </div>
 
@@ -170,7 +173,9 @@ export function Dashboard() {
                     <span>New project</span>
                   </Button>
                 }
-                onProjectCreated={(newProject) => handleSelectProject(newProject)}
+                onProjectCreated={(newProject) =>
+                  handleSelectProject(newProject)
+                }
               />
             </PermissionGuard>
           </div>

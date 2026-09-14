@@ -6,7 +6,10 @@ import type { MigrationJob, MigrationStatus } from "@/types/migration"
 import type { MigrationStreamLog } from "@/hooks/useMigrationStream"
 import { generateMigrationLogs } from "@/lib/migrationMetrics"
 import { cn } from "@/lib/utils"
-import { TERMINAL_FILTER_LEVELS, type TerminalFilterLevel } from "@/lib/constants/migrations"
+import {
+  TERMINAL_FILTER_LEVELS,
+  type TerminalFilterLevel,
+} from "@/lib/constants/migrations"
 
 interface MigrationTerminalLogProps {
   job: MigrationJob

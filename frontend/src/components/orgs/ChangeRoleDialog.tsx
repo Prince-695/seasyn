@@ -35,9 +35,7 @@ interface ChangeRoleContentProps {
 function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
   const queryClient = useQueryClient()
   const [selectedRole, setSelectedRole] = useState<EditableOrgRole>(
-    member.role !== "owner"
-      ? (member.role as EditableOrgRole)
-      : "member"
+    member.role !== "owner" ? (member.role as EditableOrgRole) : "member"
   )
   const [serverError, setServerError] = useState<string | null>(null)
 

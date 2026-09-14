@@ -80,9 +80,9 @@ export const Navbar = () => {
         >
           <div className="relative flex h-8 w-8 items-center justify-start">
             {/* First Ring: Database Source */}
-            <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-[6px] border-4 bg-transparent" />
+            <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-lg border-4 bg-transparent" />
             {/* Second Ring: Database Target */}
-            <div className="border-secondary absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-[6px] border-4 bg-transparent" />
+            <div className="border-secondary absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-lg border-4 bg-transparent" />
           </div>
           <span className="text-foreground ml-1 text-xl font-bold tracking-tight">
             Seasyn

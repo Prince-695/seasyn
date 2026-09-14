@@ -16,9 +16,7 @@ import { getErrorMessage } from "@/lib/errors"
 const SENSITIVE_KEYS_REGEX = /^(password|hash|secret|token|api_key)$/i
 
 // Recursively redact sensitive keys with "[REDACTED]"
-export function redactDocument(
-  doc: Record<string, unknown>
-): Record<string, unknown> {
+function redactDocument(doc: Record<string, unknown>): Record<string, unknown> {
   const redact = (val: unknown, keyName?: string): unknown => {
     if (keyName && SENSITIVE_KEYS_REGEX.test(keyName)) {
       return "[REDACTED]"
@@ -41,7 +39,7 @@ export function redactDocument(
 }
 
 // Strip [REDACTED] values and sensitive keys before sending payload
-export function stripRedactedValues(val: unknown, keyName?: string): unknown {
+function stripRedactedValues(val: unknown, keyName?: string): unknown {
   if (keyName && SENSITIVE_KEYS_REGEX.test(keyName)) {
     return undefined
   }
@@ -144,7 +142,9 @@ export function JsonDocumentDialog({
               ) : (
                 <>
                   Insert Document into{" "}
-                  <span className="text-primary font-mono">{collectionName}</span>
+                  <span className="text-primary font-mono">
+                    {collectionName}
+                  </span>
                 </>
               )}
             </DialogTitle>

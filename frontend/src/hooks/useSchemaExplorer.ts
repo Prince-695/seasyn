@@ -87,7 +87,9 @@ export function useSchemaExplorer(): UseSchemaExplorerResult {
     useState<string>(projectParam)
   const [selectedConnIdentifier, setSelectedConnIdentifier] =
     useState<string>(connParam)
-  const [selectedTableName, setSelectedTableName] = useState<string | null>(null)
+  const [selectedTableName, setSelectedTableName] = useState<string | null>(
+    null
+  )
   const [activeTab, setActiveTab] = useState<StudioTab>("structure")
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 

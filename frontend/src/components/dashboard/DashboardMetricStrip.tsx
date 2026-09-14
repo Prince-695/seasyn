@@ -24,7 +24,9 @@ function MetricCard({
         <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           {title}
         </span>
-        <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
+        <div
+          className={`flex h-7 w-7 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}
+        >
           <Icon className="h-3.5 w-3.5" />
         </div>
       </div>

@@ -145,7 +145,9 @@ export function ResourceMetricsGrid({
   const performanceCells: StatCellProps[] = [
     {
       label: "System Load",
-      rightHeader: <span className="font-mono">{stats.bufferPressurePercent}%</span>,
+      rightHeader: (
+        <span className="font-mono">{stats.bufferPressurePercent}%</span>
+      ),
       value: "",
       caption: "Running smoothly",
       customContent: (
