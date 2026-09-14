@@ -294,53 +294,59 @@ export function OrgSettingsPage() {
           </div>
 
           <div className="divide-destructive/15 divide-y">
-            {/* Transfer Ownership */}
-            <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-foreground text-sm font-semibold">
-                  Transfer Ownership
-                </p>
-                <p className="text-muted-foreground mt-0.5 text-xs">
-                  Transfer the owner role of this organization to another team
-                  member.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTransferModalOpen(true)}
-                className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0 gap-1.5"
-              >
-                <ArrowRightLeft className="h-3.5 w-3.5" />
-                <span>Transfer Ownership</span>
-              </Button>
-            </div>
-
-            {/* Delete Organization */}
-            <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-destructive text-sm font-semibold">
-                  Delete Organization
-                </p>
-                <p className="text-muted-foreground mt-0.5 text-xs">
-                  Permanently delete this organization, all attached projects,
-                  migrations, and connections.
-                </p>
-              </div>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => {
+            {[
+              {
+                title: "Transfer Ownership",
+                titleClass: "text-foreground",
+                desc: "Transfer the owner role of this organization to another team member.",
+                btnVariant: "outline" as const,
+                btnClass:
+                  "border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0 gap-1.5",
+                icon: ArrowRightLeft,
+                label: "Transfer Ownership",
+                onClick: () => setTransferModalOpen(true),
+              },
+              {
+                title: "Delete Organization",
+                titleClass: "text-destructive",
+                desc: "Permanently delete this organization, all attached projects, migrations, and connections.",
+                btnVariant: "destructive" as const,
+                btnClass: "shrink-0 gap-1.5 shadow-xs",
+                icon: Trash2,
+                label: "Delete Organization",
+                onClick: () => {
                   setDeleteConfirmText("")
                   setDeleteError(null)
                   setDeleteModalOpen(true)
-                }}
-                className="shrink-0 gap-1.5 shadow-xs"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                <span>Delete Organization</span>
-              </Button>
-            </div>
+                },
+              },
+            ].map((action) => {
+              const Icon = action.icon
+              return (
+                <div
+                  key={action.title}
+                  className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className={`text-sm font-semibold ${action.titleClass}`}>
+                      {action.title}
+                    </p>
+                    <p className="text-muted-foreground mt-0.5 text-xs">
+                      {action.desc}
+                    </p>
+                  </div>
+                  <Button
+                    variant={action.btnVariant}
+                    size="sm"
+                    onClick={action.onClick}
+                    className={action.btnClass}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span>{action.label}</span>
+                  </Button>
+                </div>
+              )
+            })}
           </div>
         </div>
       </PermissionGuard>

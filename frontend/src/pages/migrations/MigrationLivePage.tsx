@@ -1,20 +1,20 @@
 import { useState, useMemo } from "react"
-import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom"
+import { useParams, useSearchParams, Link } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { ArrowLeft, Ban, CheckCircle2, RefreshCw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { LiveProgressCard } from "@/components/migrations/LiveProgressCard"
 import { PipelineFlowRibbon } from "@/components/migrations/PipelineFlowRibbon"
 import { ResourceMetricsGrid } from "@/components/migrations/ResourceMetricsGrid"
 import { MigrationTerminalLog } from "@/components/migrations/MigrationTerminalLog"
 import { CancelMigrationDialog } from "@/components/migrations/CancelMigrationDialog"
+import { MigrationPageHeader } from "@/components/migrations/MigrationPageHeader"
 import { migrationsApi } from "@/api/migrations"
-import { migrationKeys } from "@/lib/queryKeys"
+import { projectsApi } from "@/api/projects"
+import { connectionKeys, migrationKeys } from "@/lib/queryKeys"
 import { useMigrationStream } from "@/hooks/useMigrationStream"
 import { useActiveProject } from "@/hooks/useActiveProject"
 import { calculateMigrationResourceStats } from "@/lib/migrationMetrics"
-import { getMigrationStatusFlags } from "@/lib/migrationStatus"
 
 export function MigrationLivePage() {
   const params = useParams<{
@@ -23,7 +23,6 @@ export function MigrationLivePage() {
     projectId?: string
   }>()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const jobId = params.jobId || ""
@@ -44,7 +43,7 @@ export function MigrationLivePage() {
     isLoading: isProjectsLoading,
   } = useActiveProject(projectParam)
 
-  // 2. Fetch initial migration job record from REST API
+  // 2. Fetch initial migration job record from REST API with active polling fallback
   const {
     data: job,
     isLoading: isJobLoading,
@@ -58,7 +57,43 @@ export function MigrationLivePage() {
       return res.data || null
     },
     enabled: !!orgId && !!projectId && !!jobId,
+    refetchInterval: (query) => {
+      const data = query.state.data
+      if (!data || data.status === "pending" || data.status === "running") {
+        return 1500
+      }
+      return false
+    },
   })
+
+  // Fetch connections to resolve user-friendly database and connection names
+  const { data: connections = [] } = useQuery({
+    queryKey: connectionKeys.list(orgId, projectId),
+    queryFn: async () => {
+      if (!orgId || !projectId) return []
+      const res = await projectsApi.listConnections(orgId, projectId)
+      return res.data || []
+    },
+    enabled: !!orgId && !!projectId,
+  })
+
+  const sourceConn = useMemo(
+    () => connections.find((c) => c.id === job?.source_connection_id),
+    [connections, job?.source_connection_id]
+  )
+  const targetConn = useMemo(
+    () => connections.find((c) => c.id === job?.target_connection_id),
+    [connections, job?.target_connection_id]
+  )
+
+  const sourceName =
+    sourceConn?.name || job?.source_connection_name || "Source Database"
+  const targetName =
+    targetConn?.name || job?.target_connection_name || "Destination Database"
+  const sourceDatabase = sourceConn?.database
+  const targetDatabase = targetConn?.database
+  const sourceDbType = sourceConn?.db_type || job?.source_db_type
+  const targetDbType = targetConn?.db_type || job?.target_db_type
 
   // 3. Connect to Server-Sent Events (SSE) Live Telemetry Stream
   const {
@@ -70,6 +105,10 @@ export function MigrationLivePage() {
     etaFormatted,
     errorMessage,
     isConnected,
+    bandwidthFormatted,
+    bytesTransferredFormatted,
+    batchLatencyMs,
+    liveLogs,
   } = useMigrationStream({
     orgId,
     projectId,
@@ -107,14 +146,33 @@ export function MigrationLivePage() {
   // 5. Calculate storage, memory, and telemetry metrics
   const stats = useMemo(() => {
     if (!job) return null
-    return calculateMigrationResourceStats(
+    const baseStats = calculateMigrationResourceStats(
       job,
       totalRows,
       migratedRows,
       rowsPerSecond,
       isConnected
     )
-  }, [job, totalRows, migratedRows, rowsPerSecond, isConnected])
+    if (bytesTransferredFormatted) {
+      baseStats.formattedMigratedBytes = bytesTransferredFormatted
+    }
+    if (bandwidthFormatted) {
+      baseStats.transferRateFormatted = bandwidthFormatted
+    }
+    if (batchLatencyMs !== undefined && batchLatencyMs > 0) {
+      baseStats.latencyMs = batchLatencyMs
+    }
+    return baseStats
+  }, [
+    job,
+    totalRows,
+    migratedRows,
+    rowsPerSecond,
+    isConnected,
+    bytesTransferredFormatted,
+    bandwidthFormatted,
+    batchLatencyMs,
+  ])
 
   if (!orgId) {
     return (
@@ -140,7 +198,7 @@ export function MigrationLivePage() {
       <div className="w-full space-y-6">
         <div className="border-border/70 bg-card/60 text-muted-foreground flex min-h-75 flex-col items-center justify-center gap-3 rounded-xl border p-12 text-center text-xs">
           <RefreshCw className="text-primary h-6 w-6 animate-spin" />
-          <span>Connecting to live pipeline telemetry stream...</span>
+          <span>Connecting to live migration progress...</span>
         </div>
       </div>
     )
@@ -150,10 +208,10 @@ export function MigrationLivePage() {
     return (
       <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
         <h2 className="text-foreground text-lg font-bold">
-          Migration Pipeline Not Found
+          Migration Not Found
         </h2>
         <p className="text-muted-foreground text-xs">
-          The requested migration pipeline does not exist or has been deleted.
+          The requested migration does not exist or has been deleted.
         </p>
         <Link
           to={
@@ -163,122 +221,45 @@ export function MigrationLivePage() {
           }
         >
           <Button size="sm" className="mt-2 text-xs">
-            Return to Migration Studio
+            Return to Migrations
           </Button>
         </Link>
       </div>
     )
   }
 
-  const { isRunning, isCompleted } = getMigrationStatusFlags(status)
-
   return (
     <div className="w-full space-y-5">
-      {/* Top Header & Mission Control Action Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            to={
-              projectSlugOrId
-                ? `/migration?project=${projectSlugOrId}`
-                : "/migration"
-            }
-          >
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
-              title="Return to Migration Studio"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-xl font-bold tracking-tight">
-                Live Migration Telemetry
-              </h1>
-              <Badge variant="outline" className="font-mono text-[10px]">
-                {job.id}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground font-mono text-xs">
-              {job.source_table} ➔ {job.target_table}
-            </p>
-          </div>
-        </div>
+      {/* Top Header & Completion Notification Banner */}
+      <MigrationPageHeader
+        jobId={job.id}
+        projectSlugOrId={projectSlugOrId}
+        status={status}
+        sourceName={sourceName}
+        targetName={targetName}
+        sourceTable={job.source_table}
+        targetTable={job.target_table}
+        migratedRows={migratedRows}
+        onRefresh={() => refetch()}
+        onCancelClick={() => setCancelModalOpen(true)}
+      />
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="gap-1.5 text-xs"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span>Refresh</span>
-          </Button>
-
-          {isRunning && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setCancelModalOpen(true)}
-              className="gap-1.5 text-xs font-semibold shadow-xs"
-            >
-              <Ban className="h-3.5 w-3.5" />
-              <span>Cancel Pipeline</span>
-            </Button>
-          )}
-
-          {isCompleted && (
-            <Button
-              size="sm"
-              onClick={() =>
-                navigate(
-                  projectSlugOrId
-                    ? `/migration?project=${projectSlugOrId}`
-                    : "/migration"
-                )
-              }
-              className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-semibold shadow-xs"
-            >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>Finished (Return to Studio)</span>
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Completion Celebration Notification Banner */}
-      {isCompleted && (
-        <div className="border-success/40 bg-success/10 flex items-center gap-3 rounded-xl border p-3.5 shadow-2xs backdrop-blur-xs">
-          <div className="border-success/30 bg-success/20 text-success flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border">
-            <CheckCircle2 className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-foreground text-xs font-bold">
-              Pipeline Successfully Completed!
-            </p>
-            <p className="text-success font-mono text-[11px]">
-              All {migratedRows.toLocaleString()} rows were streamed and
-              verified from {job.source_table} to {job.target_table}.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* 1. Visual Pipeline Flow Conduit Ribbon */}
+      {/* 1. Visual Flow Ribbon */}
       <PipelineFlowRibbon
         job={job}
         status={status}
         totalRows={totalRows}
         batchSize={job.batch_size || 500}
         latencyMs={stats?.latencyMs ?? 16}
+        sourceName={sourceName}
+        targetName={targetName}
+        sourceDatabase={sourceDatabase}
+        targetDatabase={targetDatabase}
+        sourceDbType={sourceDbType}
+        targetDbType={targetDbType}
       />
 
-      {/* 2. Hero Progress & Velocity Cockpit */}
+      {/* 2. Progress Card */}
       {stats && (
         <LiveProgressCard
           job={job}
@@ -289,27 +270,41 @@ export function MigrationLivePage() {
           rowsPerSecond={rowsPerSecond}
           etaFormatted={etaFormatted}
           stats={stats}
+          sourceName={sourceName}
+          targetName={targetName}
           errorMessage={errorMessage}
         />
       )}
 
-      {/* 3. Detailed Storage, Compute & Buffer Diagnostics */}
-      {stats && <ResourceMetricsGrid stats={stats} isConnected={isConnected} />}
-
-      {/* 4. Real-Time Customized Execution Terminal & Audit Log */}
+      {/* 3. Live Streaming Activity Log */}
       <MigrationTerminalLog
         job={job}
         status={status}
         totalRows={totalRows}
         migratedRows={migratedRows}
+        sourceName={sourceName}
+        targetName={targetName}
         errorMessage={errorMessage}
+        liveLogs={liveLogs}
       />
+
+      {/* 4. Telemetry Diagnostics & Resource Details */}
+      {stats && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+              Diagnostic & Telemetry Details
+            </span>
+          </div>
+          <ResourceMetricsGrid stats={stats} isConnected={isConnected} />
+        </div>
+      )}
 
       {/* Cancel Confirmation Modal */}
       <CancelMigrationDialog
         open={cancelModalOpen}
         onOpenChange={setCancelModalOpen}
-        jobName={`${job.source_table} ➔ ${job.target_table}`}
+        jobName={`${sourceName} (${job.source_table}) ➔ ${targetName} (${job.target_table})`}
         isCancelling={cancelMutation.isPending}
         onConfirm={async () => {
           try {
@@ -322,3 +317,5 @@ export function MigrationLivePage() {
     </div>
   )
 }
+
+export default MigrationLivePage

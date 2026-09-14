@@ -24,6 +24,20 @@ import type { DBType, PublicDatabaseConnection } from "@/types"
 type EngineFilter = "all" | DBType
 type RoleFilter = "all" | "source" | "target"
 
+const ENGINE_FILTER_OPTIONS: Array<{ label: string; value: EngineFilter }> = [
+  { label: "All Engines", value: "all" },
+  { label: "Postgres", value: "postgres" },
+  { label: "MySQL", value: "mysql" },
+  { label: "MongoDB", value: "mongodb" },
+  { label: "SQLite", value: "sqlite" },
+]
+
+const ROLE_FILTER_OPTIONS: Array<{ label: string; value: RoleFilter }> = [
+  { label: "All Roles", value: "all" },
+  { label: "Sources", value: "source" },
+  { label: "Targets", value: "target" },
+]
+
 export function ConnectionsPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -140,22 +154,46 @@ export function ConnectionsPage() {
           </div>
         </div>
 
-        {/* Modal Button (if project exists) */}
+        {/* Modal Buttons (if project exists) */}
         {projects.length > 0 && (
           <PermissionGuard allowedRoles={["owner", "admin"]}>
-            <ConnectionWizardModal
-              projectId={
-                selectedProjectId !== "all"
-                  ? selectedProjectId
-                  : projects[0]?.id || ""
-              }
-              trigger={
-                <Button className="gap-2 font-semibold shadow-xs">
-                  <Plus className="h-4 w-4" />
-                  <span>Add Connection</span>
-                </Button>
-              }
-            />
+            <div className="flex items-center gap-2">
+              <ConnectionWizardModal
+                projectId={
+                  selectedProjectId !== "all"
+                    ? selectedProjectId
+                    : projects[0]?.id || ""
+                }
+                defaultIsSource={true}
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs font-semibold shadow-xs"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Source DB</span>
+                  </Button>
+                }
+              />
+              <ConnectionWizardModal
+                projectId={
+                  selectedProjectId !== "all"
+                    ? selectedProjectId
+                    : projects[0]?.id || ""
+                }
+                defaultIsSource={false}
+                trigger={
+                  <Button
+                    size="sm"
+                    className="gap-1.5 text-xs font-semibold shadow-xs"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Target DB</span>
+                  </Button>
+                }
+              />
+            </div>
           </PermissionGuard>
         )}
       </div>
@@ -194,15 +232,7 @@ export function ConnectionsPage() {
 
           {/* Engine Filter */}
           <div className="border-border/80 bg-muted/30 flex rounded-lg border p-0.5 text-xs">
-            {(
-              [
-                { label: "All Engines", value: "all" },
-                { label: "Postgres", value: "postgres" },
-                { label: "MySQL", value: "mysql" },
-                { label: "MongoDB", value: "mongodb" },
-                { label: "SQLite", value: "sqlite" },
-              ] as const
-            ).map((opt) => (
+            {ENGINE_FILTER_OPTIONS.map((opt) => (
               <Button
                 key={opt.value}
                 type="button"
@@ -223,13 +253,7 @@ export function ConnectionsPage() {
 
           {/* Role Filter */}
           <div className="border-border/80 bg-muted/30 flex rounded-lg border p-0.5 text-xs">
-            {(
-              [
-                { label: "All Roles", value: "all" },
-                { label: "Sources", value: "source" },
-                { label: "Targets", value: "target" },
-              ] as const
-            ).map((opt) => (
+            {ROLE_FILTER_OPTIONS.map((opt) => (
               <Button
                 key={opt.value}
                 type="button"
@@ -261,35 +285,17 @@ export function ConnectionsPage() {
       ) : filteredConnections.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredConnections.map((conn) => (
-            <div key={conn.id} className="relative">
-              <ConnectionCard
-                connection={conn}
-                onDelete={handleDeleteConnection}
-                onInspectSchema={() =>
-                  navigate(
-                    `/editor?project=${conn.projectSlug || conn.project_id}&conn=${conn.name || conn.id}`
-                  )
-                }
-              />
-              {/* Parent Project Tag */}
-              {conn.projectName && (
-                <div className="text-muted-foreground mt-1 flex items-center justify-between px-1 text-[11px]">
-                  <span className="flex items-center gap-1">
-                    <FolderKanban className="h-3 w-3" />
-                    <span>Project:</span>
-                    <Link
-                      to={`/projects/${conn.projectSlug || conn.project_id}`}
-                      className="text-primary font-medium hover:underline"
-                    >
-                      {conn.projectName}
-                    </Link>
-                  </span>
-                  <span className="font-mono text-[10px] uppercase">
-                    {conn.projectEnvironment}
-                  </span>
-                </div>
-              )}
-            </div>
+            <ConnectionCard
+              key={conn.id}
+              connection={conn}
+              showProject={true}
+              onDelete={handleDeleteConnection}
+              onInspectSchema={() =>
+                navigate(
+                  `/editor?project=${conn.projectSlug || conn.project_id}&conn=${conn.name || conn.id}`
+                )
+              }
+            />
           ))}
         </div>
       ) : (

@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 import type { DatabaseConnectionInput } from "@/lib/validators"
 import type { DBType, TestConnectionPayload } from "@/types"
 import type { ENGINES } from "@/lib/constants/engines"
-import type { MongoMode } from "@/hooks/useConnectionWizard"
 
 interface WizardStep3ReviewProps {
   projectId: string
@@ -13,7 +12,6 @@ interface WizardStep3ReviewProps {
   selectedEngineMeta: (typeof ENGINES)[number] | undefined
   isSourceVal: boolean
   formValues: DatabaseConnectionInput
-  mongoMode: MongoMode
   getTestPayload: () => TestConnectionPayload
   isError: boolean
   errorMessage: string | null
@@ -25,7 +23,6 @@ export function WizardStep3Review({
   selectedEngineMeta,
   isSourceVal,
   formValues,
-  mongoMode,
   getTestPayload,
   isError,
   errorMessage,
@@ -68,9 +65,9 @@ export function WizardStep3Review({
             <span className="text-foreground max-w-[75%] text-right text-[11px] font-medium break-all">
               {selectedEngine === "sqlite"
                 ? formValues.file_path || "-"
-                : selectedEngine === "mongodb" && mongoMode === "uri"
+                : selectedEngine === "mongodb" && formValues.uri
                   ? formValues.uri || "-"
-                  : `${formValues.host || "localhost"}:${formValues.port || 5432}`}
+                  : `${formValues.host || "localhost"}:${formValues.port || (selectedEngine === "mongodb" ? 27017 : 5432)}`}
             </span>
           </div>
           <div className="flex items-center justify-between py-1.5">
@@ -95,7 +92,6 @@ export function WizardStep3Review({
             </span>
             <span className="text-foreground text-[11px] font-medium">
               {selectedEngine === "mongodb" &&
-              mongoMode === "uri" &&
               formValues.uri?.startsWith("mongodb+srv://")
                 ? "require (TLS SRV)"
                 : formValues.ssl_mode || "disable"}

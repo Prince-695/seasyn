@@ -7,27 +7,10 @@ interface RoleBadgeProps {
   className?: string
 }
 
-const roleStyles: Record<OrgRole, { label: string; className: string }> = {
-  owner: {
-    label: "Owner",
-    className: "bg-primary/10 text-primary border-primary/25",
-  },
-  admin: {
-    label: "Admin",
-    className: "bg-info/10 text-info border-info/25",
-  },
-  member: {
-    label: "Member",
-    className: "bg-success/10 text-success border-success/25",
-  },
-  viewer: {
-    label: "Viewer",
-    className: "bg-muted/50 text-muted-foreground border-border",
-  },
-}
+import { ROLE_CONFIG } from "@/lib/constants/roles"
 
 export function RoleBadge({ role, className }: RoleBadgeProps) {
-  const config = roleStyles[role] ?? roleStyles.viewer
+  const config = ROLE_CONFIG[role] ?? ROLE_CONFIG.viewer
 
   return (
     <Badge

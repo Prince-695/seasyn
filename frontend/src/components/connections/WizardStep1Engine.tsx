@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
 import { EngineSelector } from "./EngineSelector"
+import { cn } from "@/lib/utils"
 import type { UseFormReturn } from "react-hook-form"
 import type { DatabaseConnectionInput } from "@/lib/validators"
 import type { DBType } from "@/types"
@@ -51,11 +51,11 @@ export function WizardStep1Engine({
             htmlFor="connName"
             className="text-foreground text-xs font-semibold"
           >
-            Connection Identifier <span className="text-destructive">*</span>
+            Connection Name <span className="text-destructive">*</span>
           </Label>
           <Input
             id="connName"
-            placeholder="e.g. Primary Aurora Postgres"
+            placeholder="e.g. Production Aurora Postgres or Analytics DB"
             autoComplete="off"
             {...register("name")}
             disabled={disabled}
@@ -65,33 +65,68 @@ export function WizardStep1Engine({
             <p className="text-destructive text-xs">{errors.name.message}</p>
           ) : (
             <p className="text-muted-foreground text-[11px]">
-              A recognizable name for this database connection.
+              A friendly name to identify this database connection in your
+              project.
             </p>
           )}
         </div>
 
-        {/* Source vs Target Switcher */}
+        {/* Source vs Target Segmented Buttons */}
         <div className="space-y-1.5">
           <Label className="text-foreground text-xs font-semibold">
-            Synchronization Role
+            Database Role
           </Label>
-          <div className="border-border/70 bg-card/60 flex h-10 items-center justify-between rounded-xl border px-3.5 shadow-2xs">
-            <span className="text-foreground text-xs font-semibold">
-              {isSourceVal ? "Source Database" : "Target Database"}
-            </span>
-            <Switch
-              checked={isSourceVal}
-              onCheckedChange={(checked) => {
-                setIsSourceVal(checked)
-                setValue("is_source", checked)
-              }}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
               disabled={disabled}
-            />
+              onClick={() => {
+                setIsSourceVal(true)
+                setValue("is_source", true)
+              }}
+              className={cn(
+                "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all",
+                isSourceVal
+                  ? "border-primary/50 bg-primary/10 text-primary shadow-xs"
+                  : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              )}
+            >
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  isSourceVal ? "bg-primary" : "bg-muted-foreground/40"
+                )}
+              />
+              <span>Source (Read)</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => {
+                setIsSourceVal(false)
+                setValue("is_source", false)
+              }}
+              className={cn(
+                "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all",
+                !isSourceVal
+                  ? "border-success/50 bg-success/10 text-success shadow-xs"
+                  : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              )}
+            >
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  !isSourceVal ? "bg-success" : "bg-muted-foreground/40"
+                )}
+              />
+              <span>Target (Destination)</span>
+            </button>
           </div>
           <p className="text-muted-foreground text-[11px]">
             {isSourceVal
-              ? "Read for schema extraction & data introspection."
-              : "Destination for synced schemas & tables."}
+              ? "Read for schema extraction and data copying."
+              : "Destination for synced schemas and migrated tables."}
           </p>
         </div>
       </div>

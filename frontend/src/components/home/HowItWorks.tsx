@@ -15,6 +15,7 @@ import {
 import { SiPostgresql, SiMongodb } from "react-icons/si"
 import { cn } from "@/lib/utils"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { Button } from "@/components/ui/button"
 
 const steps = [
   {
@@ -52,12 +53,7 @@ const steps = [
   },
 ]
 
-const mappingRows = [
-  { source: "UUID", target: "ObjectId", note: "Auto-coerced" },
-  { source: "JSONB", target: "Object", note: "Preserved" },
-  { source: "TIMESTAMP", target: "ISODate", note: "Normalized" },
-  { source: "VARCHAR(255)", target: "String", note: "Mapped" },
-]
+import { CANONICAL_SCHEMA_MAPPINGS } from "@/lib/constants/schemaMappings"
 
 export const HowItWorks = () => {
   const [activeStepIndex, setActiveStepIndex] = useState(0)
@@ -90,11 +86,13 @@ export const HowItWorks = () => {
           const isActive = idx === activeStepIndex
           const Icon = step.icon
           return (
-            <button
+            <Button
               key={step.id}
+              type="button"
+              variant={isActive ? "default" : "ghost"}
               onClick={() => setActiveStepIndex(idx)}
               className={cn(
-                "group relative flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 sm:text-sm",
+                "group relative flex h-auto flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 sm:text-sm",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -112,7 +110,7 @@ export const HowItWorks = () => {
               </span>
               <Icon className="h-3.5 w-3.5 shrink-0" />
               <span className="hidden sm:inline">{step.label}</span>
-            </button>
+            </Button>
           )
         })}
       </div>
@@ -258,7 +256,7 @@ export const HowItWorks = () => {
                   </div>
 
                   <div className="space-y-2">
-                    {mappingRows.map((row) => (
+                    {CANONICAL_SCHEMA_MAPPINGS.slice(0, 4).map((row) => (
                       <div
                         key={row.source}
                         className="border-border bg-card flex items-center justify-between rounded-lg border px-3 py-2 text-xs shadow-2xs"

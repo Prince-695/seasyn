@@ -20,31 +20,14 @@ import {
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { PermissionGuard } from "@/components/auth/PermissionGuard"
 import { formatDateOnly } from "@/lib/formatters"
+import type { Project } from "@/types"
 import { cn } from "@/lib/utils"
-import type { Project, Environment } from "@/types"
+import { ENVIRONMENT_CONFIG } from "@/lib/constants/environments"
 
 interface ProjectCardProps {
   project: Project
   connectionCount?: number
   onDelete?: (project: Project) => void
-}
-
-const envBadgeStyles: Record<
-  Environment,
-  { label: string; className: string }
-> = {
-  development: {
-    label: "Dev",
-    className: "border-info/30 bg-info/10 text-info font-mono",
-  },
-  staging: {
-    label: "Staging",
-    className: "border-warning/30 bg-warning/10 text-warning font-mono",
-  },
-  production: {
-    label: "Prod",
-    className: "border-success/30 bg-success/10 text-success font-mono",
-  },
 }
 
 export function ProjectCard({
@@ -56,7 +39,7 @@ export function ProjectCard({
   const { activeProjectId, setActiveProjectId } = useWorkspaceStore()
   const isActive = activeProjectId === project.id
 
-  const envConfig = envBadgeStyles[project.environment] || {
+  const envConfig = ENVIRONMENT_CONFIG[project.environment] || {
     label: project.environment || "Dev",
     className: "border-muted bg-muted text-muted-foreground",
   }

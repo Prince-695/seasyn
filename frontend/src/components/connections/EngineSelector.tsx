@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { DBType } from "@/types"
 import { ENGINES } from "@/lib/constants/engines"
@@ -23,16 +24,17 @@ export function EngineSelector({
       {ENGINES.map((engine) => {
         const isSelected = value === engine.type
         return (
-          <button
+          <Button
             key={engine.type}
             type="button"
+            variant="outline"
             disabled={disabled}
             onClick={() => onChange(engine.type)}
             className={cn(
-              "group focus-visible:ring-primary relative flex h-full min-h-30 w-full cursor-pointer flex-col justify-between rounded-xl border p-3.5 text-left transition-all duration-200 outline-none focus-visible:ring-2",
+              "group focus-visible:ring-primary relative flex h-auto min-h-30 w-full cursor-pointer flex-col items-stretch justify-between rounded-xl p-3.5 text-left font-normal whitespace-normal transition-all duration-200 outline-none focus-visible:ring-2",
               isSelected
-                ? "border-primary bg-primary/5 ring-primary shadow-xs ring-1"
-                : "border-border/80 bg-card hover:border-border hover:bg-muted/30",
+                ? "border-primary bg-primary/5 ring-primary text-foreground hover:bg-primary/10 hover:border-primary shadow-xs ring-1"
+                : "border-border/80 bg-card text-foreground hover:border-border hover:bg-muted/30",
               disabled && "cursor-not-allowed opacity-50"
             )}
           >
@@ -67,7 +69,7 @@ export function EngineSelector({
             <p className="text-muted-foreground mt-2 line-clamp-2 text-xs leading-relaxed wrap-break-word whitespace-normal">
               {engine.description}
             </p>
-          </button>
+          </Button>
         )
       })}
     </div>

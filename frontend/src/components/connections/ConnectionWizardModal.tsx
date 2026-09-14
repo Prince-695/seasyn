@@ -34,8 +34,6 @@ export function ConnectionWizardModal({
     setMongoMode,
     isSourceVal,
     setIsSourceVal,
-    quickPasteOpen,
-    setQuickPasteOpen,
     quickPasteUri,
     setQuickPasteUri,
     showMongoUri,
@@ -72,7 +70,7 @@ export function ConnectionWizardModal({
           )
         }
       />
-      <DialogContent className="max-w-3xl overflow-hidden p-6 sm:max-w-3xl">
+      <DialogContent className="flex h-150 max-h-150 w-[95vw] max-w-[95vw] flex-col gap-0 overflow-hidden p-6 sm:h-175 sm:max-w-220 sm:p-7">
         <WizardProgressTracker
           step={step}
           selectedEngineMeta={selectedEngineMeta}
@@ -83,9 +81,9 @@ export function ConnectionWizardModal({
             e.preventDefault()
             handleFormSubmit()
           }}
-          className="mt-1"
+          className="mt-2 flex min-h-0 flex-1 flex-col justify-between overflow-hidden"
         >
-          <div className="relative min-h-62.5 overflow-hidden">
+          <div className="relative min-h-0 flex-1 overflow-y-auto px-1 py-1">
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               {/* ── STEP 1: Engine & Role ── */}
               {step === 1 && (
@@ -123,8 +121,6 @@ export function ConnectionWizardModal({
                     selectedEngine={selectedEngine}
                     mongoMode={mongoMode}
                     setMongoMode={setMongoMode}
-                    quickPasteOpen={quickPasteOpen}
-                    setQuickPasteOpen={setQuickPasteOpen}
                     quickPasteUri={quickPasteUri}
                     setQuickPasteUri={setQuickPasteUri}
                     showMongoUri={showMongoUri}
@@ -151,7 +147,6 @@ export function ConnectionWizardModal({
                     selectedEngineMeta={selectedEngineMeta}
                     isSourceVal={isSourceVal}
                     formValues={formValues}
-                    mongoMode={mongoMode}
                     getTestPayload={getTestPayload}
                     isError={isError}
                     errorMessage={errorMessage}

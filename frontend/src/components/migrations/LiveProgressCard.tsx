@@ -6,6 +6,7 @@ import {
   HardDrive,
   Radio,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { MigrationStatusBadge } from "./MigrationStatusBadge"
 import type { MigrationJob } from "@/types/migration"
 import type { MigrationResourceStats } from "@/lib/migrationMetrics"
@@ -14,6 +15,15 @@ import {
   getMigrationProgressBarClass,
 } from "@/lib/migrationStatus"
 import { cn } from "@/lib/utils"
+import { PROGRESS_MILESTONES } from "@/lib/constants/migrations"
+
+interface MetricColumn {
+  label: string
+  icon: LucideIcon
+  iconColor: string
+  mainValue: string
+  subValue?: string
+}
 
 interface LiveProgressCardProps {
   job: MigrationJob
@@ -24,6 +34,8 @@ interface LiveProgressCardProps {
   rowsPerSecond: number
   etaFormatted: string | null
   stats: MigrationResourceStats
+  sourceName?: string
+  targetName?: string
   errorMessage?: string | null
   className?: string
 }
@@ -37,10 +49,53 @@ export function LiveProgressCard({
   rowsPerSecond,
   etaFormatted,
   stats,
+  sourceName,
+  targetName,
   errorMessage,
   className,
 }: LiveProgressCardProps) {
   const { isRunning, isCompleted, isFailed } = getMigrationStatusFlags(status)
+
+  const metricColumns: MetricColumn[] = [
+    {
+      label: "Transfer Speed",
+      icon: Zap,
+      iconColor: "text-warning",
+      mainValue: isRunning ? rowsPerSecond.toLocaleString() : "0",
+      subValue: "rows/s",
+    },
+    {
+      label: "Data Moved",
+      icon: HardDrive,
+      iconColor: "text-primary",
+      mainValue: stats.formattedMigratedBytes,
+      subValue: `of ${stats.formattedTotalBytes}`,
+    },
+    {
+      label: "Time Elapsed",
+      icon: Clock,
+      iconColor: "text-info",
+      mainValue: stats.elapsedFormatted,
+      subValue:
+        isRunning && etaFormatted
+          ? `(Left: ~${etaFormatted})`
+          : isCompleted
+            ? "(Done)"
+            : "",
+    },
+    {
+      label: "Connection",
+      icon: Radio,
+      iconColor: "text-success",
+      mainValue: isCompleted
+        ? "Completed"
+        : isRunning
+          ? "Active"
+          : isFailed
+            ? "Failed"
+            : "Idle",
+    },
+  ]
 
   return (
     <div
@@ -54,14 +109,16 @@ export function LiveProgressCard({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-foreground text-sm font-bold tracking-tight">
-              Pipeline Sync Progress
+              Migration Progress
             </span>
             <span className="text-muted-foreground font-mono text-xs">
               • Job {job.id.slice(0, 8)}
             </span>
           </div>
           <p className="text-muted-foreground text-xs">
-            Live record replication and checksum verification
+            {sourceName && targetName
+              ? `Moving records from ${sourceName} to ${targetName}`
+              : "Live record transfer between databases"}
           </p>
         </div>
 
@@ -75,7 +132,8 @@ export function LiveProgressCard({
             {migratedRows.toLocaleString()}
           </span>
           <span className="text-muted-foreground font-mono text-sm font-medium">
-            / {totalRows > 0 ? totalRows.toLocaleString() : "--"} rows synced
+            / {totalRows > 0 ? totalRows.toLocaleString() : "--"} rows
+            transferred
           </span>
         </div>
 
@@ -103,7 +161,7 @@ export function LiveProgressCard({
         <div className="border-border/50 bg-muted/40 relative h-3.5 w-full overflow-hidden rounded-full border">
           <div
             className={cn(
-              "h-full transition-all duration-300 ease-out",
+              "h-full transition-all duration-500 ease-out",
               getMigrationProgressBarClass(status),
               isRunning && "animate-pulse"
             )}
@@ -113,78 +171,33 @@ export function LiveProgressCard({
 
         {/* Milestone Tick Marks */}
         <div className="text-muted-foreground/60 mt-1.5 flex justify-between font-mono text-[10px]">
-          <span>0%</span>
-          <span>25%</span>
-          <span>50%</span>
-          <span>75%</span>
-          <span>100%</span>
+          {PROGRESS_MILESTONES.map((tick) => (
+            <span key={tick}>{tick}</span>
+          ))}
         </div>
       </div>
 
-      {/* Embedded 4-Column KPI Telemetry Strip */}
+      {/* 4-Column Key Metrics Strip mapped from array */}
       <div className="border-border/50 bg-muted/20 mt-4 grid grid-cols-2 gap-3 rounded-lg border p-3 md:grid-cols-4">
-        {/* 1. Velocity */}
-        <div className="space-y-1">
-          <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
-            <Zap className="text-warning h-3 w-3" />
-            <span>Throughput Speed</span>
-          </div>
-          <p className="text-foreground font-mono text-sm font-bold">
-            {isRunning ? rowsPerSecond.toLocaleString() : "0"}{" "}
-            <span className="text-muted-foreground text-[10px] font-normal">
-              rows/s
-            </span>
-          </p>
-        </div>
-
-        {/* 2. Volume */}
-        <div className="space-y-1">
-          <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
-            <HardDrive className="text-primary h-3 w-3" />
-            <span>Volume Streamed</span>
-          </div>
-          <p className="text-foreground font-mono text-sm font-bold">
-            {stats.formattedMigratedBytes}{" "}
-            <span className="text-muted-foreground text-[10px] font-normal">
-              of {stats.formattedTotalBytes}
-            </span>
-          </p>
-        </div>
-
-        {/* 3. Duration & ETA */}
-        <div className="space-y-1">
-          <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
-            <Clock className="text-info h-3 w-3" />
-            <span>Elapsed / ETA</span>
-          </div>
-          <p className="text-foreground font-mono text-sm font-bold">
-            {stats.elapsedFormatted}{" "}
-            <span className="text-muted-foreground text-[10px] font-normal">
-              {isRunning && etaFormatted
-                ? `(ETA: ${etaFormatted})`
-                : isCompleted
-                  ? "(Finished)"
-                  : ""}
-            </span>
-          </p>
-        </div>
-
-        {/* 4. Telemetry State */}
-        <div className="space-y-1">
-          <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
-            <Radio className="text-success h-3 w-3" />
-            <span>Channel Health</span>
-          </div>
-          <p className="text-foreground font-mono text-sm font-bold">
-            {isCompleted
-              ? "Verified"
-              : isRunning
-                ? "SSE Streaming"
-                : isFailed
-                  ? "Failed"
-                  : "Idle"}
-          </p>
-        </div>
+        {metricColumns.map((col) => {
+          const Icon = col.icon
+          return (
+            <div key={col.label} className="space-y-1">
+              <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
+                <Icon className={cn("h-3 w-3", col.iconColor)} />
+                <span>{col.label}</span>
+              </div>
+              <p className="text-foreground font-mono text-sm font-bold">
+                {col.mainValue}{" "}
+                {col.subValue && (
+                  <span className="text-muted-foreground text-[10px] font-normal">
+                    {col.subValue}
+                  </span>
+                )}
+              </p>
+            </div>
+          )
+        })}
       </div>
 
       {/* Error Message Alert Banner */}
@@ -192,7 +205,7 @@ export function LiveProgressCard({
         <div className="border-destructive/30 bg-destructive/10 text-destructive mt-4 flex items-start gap-2.5 rounded-xl border p-3.5 text-xs">
           <AlertCircle className="text-destructive mt-0.5 h-4 w-4 shrink-0" />
           <div className="space-y-1">
-            <p className="font-semibold">Pipeline encountered an error</p>
+            <p className="font-semibold">Migration encountered an issue</p>
             <p className="text-destructive/90 font-mono text-[11px] leading-relaxed">
               {errorMessage || job.error_message}
             </p>

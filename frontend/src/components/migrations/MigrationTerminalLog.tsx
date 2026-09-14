@@ -3,42 +3,70 @@ import { Terminal, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { MigrationJob, MigrationStatus } from "@/types/migration"
+import type { MigrationStreamLog } from "@/hooks/useMigrationStream"
 import { generateMigrationLogs } from "@/lib/migrationMetrics"
 import { cn } from "@/lib/utils"
+import {
+  TERMINAL_FILTER_LEVELS,
+  type TerminalFilterLevel,
+} from "@/lib/constants/migrations"
 
 interface MigrationTerminalLogProps {
   job: MigrationJob
   status: MigrationStatus
   totalRows: number
   migratedRows: number
+  sourceName?: string
+  targetName?: string
   errorMessage?: string | null
+  liveLogs?: MigrationStreamLog[]
   className?: string
 }
 
-type FilterLevel = "ALL" | "INFO" | "BATCH" | "SUCCESS" | "ERROR"
+type FilterLevel = TerminalFilterLevel
 
 export function MigrationTerminalLog({
   job,
   status,
   totalRows,
   migratedRows,
+  sourceName,
+  targetName,
   errorMessage,
+  liveLogs,
   className,
 }: MigrationTerminalLogProps) {
   const [copied, setCopied] = useState(false)
   const [activeFilter, setActiveFilter] = useState<FilterLevel>("ALL")
   const logContainerRef = useRef<HTMLDivElement>(null)
 
-  // Dynamically generate customized logs for this specific migration
+  // Dynamically generate customized logs or merge live SSE logs
   const allLogs = useMemo(() => {
-    return generateMigrationLogs(
+    const baselineLogs = generateMigrationLogs(
       job,
       totalRows,
       migratedRows,
       status,
-      errorMessage
+      errorMessage,
+      sourceName,
+      targetName
     )
-  }, [job, totalRows, migratedRows, status, errorMessage])
+    if (!liveLogs || liveLogs.length === 0) {
+      return baselineLogs
+    }
+    // Prepend foundational setup logs (init, handshakes, schema inspect)
+    const setupLogs = baselineLogs.slice(0, 4)
+    return [...setupLogs, ...liveLogs]
+  }, [
+    job,
+    totalRows,
+    migratedRows,
+    status,
+    errorMessage,
+    sourceName,
+    targetName,
+    liveLogs,
+  ])
 
   const filteredLogs = useMemo(() => {
     if (activeFilter === "ALL") return allLogs
@@ -82,7 +110,7 @@ export function MigrationTerminalLog({
           </div>
           <div className="text-foreground ml-2 flex items-center gap-1.5 text-xs font-semibold">
             <Terminal className="text-muted-foreground h-3.5 w-3.5" />
-            <span>Execution Terminal & Audit Trail</span>
+            <span>Activity Log</span>
           </div>
           <Badge
             variant="outline"
@@ -90,34 +118,47 @@ export function MigrationTerminalLog({
           >
             {job.source_table} ➔ {job.target_table}
           </Badge>
+          {status === "running" ? (
+            <Badge
+              variant="outline"
+              className="flex items-center gap-1.5 border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500"
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </span>
+              <span>Live Streaming</span>
+            </Badge>
+          ) : status === "completed" ? (
+            <Badge
+              variant="outline"
+              className="border-success/40 bg-success/10 text-success text-[10px] font-medium"
+            >
+              Stream Finished
+            </Badge>
+          ) : null}
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
           {/* Level Filter Pills */}
           <div className="border-border/60 bg-muted/50 flex items-center gap-1 rounded-md border p-0.5 text-[10px]">
-            {(
-              [
-                "ALL",
-                "INFO",
-                "STREAM",
-                "BATCH",
-                "WARN",
-                "ERROR",
-              ] as FilterLevel[]
-            ).map((lvl) => (
-              <button
+            {TERMINAL_FILTER_LEVELS.map((lvl) => (
+              <Button
                 key={lvl}
+                type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setActiveFilter(lvl)}
                 className={cn(
-                  "cursor-pointer rounded px-2 py-0.5 font-mono transition-colors",
+                  "h-5 rounded px-1.5 py-0 font-mono text-[10px] transition-colors",
                   activeFilter === lvl
-                    ? "bg-primary text-primary-foreground font-bold shadow-2xs"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-bold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {lvl}
-              </button>
+              </Button>
             ))}
           </div>
 
