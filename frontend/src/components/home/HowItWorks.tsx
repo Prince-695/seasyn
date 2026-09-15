@@ -27,10 +27,10 @@ const WORKFLOW_CARDS: WorkflowCard[] = [
     bannerBg: "bg-secondary text-secondary-foreground",
     illustration: (
       <div className="flex items-center gap-1.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-foreground/10">
+        <div className="bg-secondary-foreground/10 flex h-9 w-9 items-center justify-center rounded-lg">
           <SiPostgresql className="h-4.5 w-4.5" />
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-foreground/10">
+        <div className="bg-secondary-foreground/10 flex h-9 w-9 items-center justify-center rounded-lg">
           <SiMysql className="h-4.5 w-4.5" />
         </div>
       </div>
@@ -44,9 +44,9 @@ const WORKFLOW_CARDS: WorkflowCard[] = [
     tagline: "Auto-Match Schema",
     icon: GitMerge,
     badges: ["SQL & NoSQL", "Auto-Verified"],
-    bannerBg: "bg-primary text-primary-foreground",
+    bannerBg: "bg-card border border-border text-foreground",
     illustration: (
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-foreground/15">
+      <div className="bg-muted/60 flex h-9 w-9 items-center justify-center rounded-lg">
         <Logo size={28} />
       </div>
     ),
@@ -59,14 +59,14 @@ const WORKFLOW_CARDS: WorkflowCard[] = [
     tagline: "Live Transfer",
     icon: Radio,
     badges: ["Low Memory", "Auto-Resume"],
-    bannerBg: "bg-card border border-border text-foreground",
+    bannerBg: "bg-primary text-primary-foreground",
     illustration: (
       <div className="flex items-center gap-1.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted/60">
-          <SiMongodb className="text-success h-4.5 w-4.5" />
+        <div className="bg-primary-foreground/15 flex h-9 w-9 items-center justify-center rounded-lg">
+          <SiMongodb className="h-4.5 w-4.5" />
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted/60">
-          <SiSqlite className="text-chart-4 h-4.5 w-4.5" />
+        <div className="bg-primary-foreground/15 flex h-9 w-9 items-center justify-center rounded-lg">
+          <SiSqlite className="h-4.5 w-4.5" />
         </div>
       </div>
     ),
@@ -75,7 +75,7 @@ const WORKFLOW_CARDS: WorkflowCard[] = [
 
 export const HowItWorks = () => {
   return (
-    <section className="relative z-10 mx-auto mt-36 w-full max-w-6xl px-6">
+    <section className="relative z-10 mx-auto mt-36 mb-16 w-full max-w-6xl px-6 sm:mt-48 sm:mb-24 md:mt-56">
       {/* Section Header */}
       <div className="mb-14 flex flex-col items-center text-center">
         <div className="border-border/80 bg-secondary text-foreground mb-3 inline-flex items-center justify-center rounded-full border px-3 py-1 font-mono text-xs font-semibold">
@@ -85,7 +85,7 @@ export const HowItWorks = () => {
         <ScrollRevealText
           as="h2"
           lines={["Simple to start.", "Built to scale."]}
-          className="text-foreground text-4xl leading-[1.05] font-semibold sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
+          className="text-foreground text-4xl leading-[1.05] sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
           lineClassName="leading-[1.05]"
         />
 
@@ -100,7 +100,7 @@ export const HowItWorks = () => {
           <div
             key={card.stepNumber}
             className={cn(
-              "border-border bg-card/60 flex flex-col justify-between rounded-2xl border p-5 shadow-xs transition-all duration-300 hover:border-primary/50 sm:p-6",
+              "border-border bg-card/60 hover:border-primary/50 flex flex-col justify-between rounded-2xl border p-5 shadow-xs transition-all duration-300 sm:p-6",
               index === 1 && "md:-translate-y-4 md:shadow-sm"
             )}
           >
@@ -135,7 +135,7 @@ export const HowItWorks = () => {
             {/* Bottom Styled Graphic Banner Block */}
             <div
               className={cn(
-                "mt-6 flex min-h-[160px] flex-col justify-between rounded-xl p-5 sm:min-h-[180px] sm:p-6",
+                "mt-6 flex min-h-40 flex-col justify-between rounded-xl p-5 sm:min-h-45 sm:p-6",
                 card.bannerBg
               )}
             >

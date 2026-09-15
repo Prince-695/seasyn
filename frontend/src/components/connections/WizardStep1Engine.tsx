@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { EngineSelector } from "./EngineSelector"
 import { cn } from "@/lib/utils"
 import type { UseFormReturn } from "react-hook-form"
@@ -77,8 +78,9 @@ export function WizardStep1Engine({
             Database Role
           </Label>
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               disabled={disabled}
               onClick={() => {
                 setIsSourceVal(true)
@@ -87,7 +89,7 @@ export function WizardStep1Engine({
               className={cn(
                 "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all",
                 isSourceVal
-                  ? "border-primary/50 bg-primary/10 text-primary shadow-xs"
+                  ? "border-primary/50 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-xs"
                   : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/40"
               )}
             >
@@ -98,10 +100,11 @@ export function WizardStep1Engine({
                 )}
               />
               <span>Source (Read)</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="outline"
               disabled={disabled}
               onClick={() => {
                 setIsSourceVal(false)
@@ -110,7 +113,7 @@ export function WizardStep1Engine({
               className={cn(
                 "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all",
                 !isSourceVal
-                  ? "border-success/50 bg-success/10 text-success shadow-xs"
+                  ? "border-success/50 bg-success/10 text-success hover:bg-success/15 hover:text-success shadow-xs"
                   : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/40"
               )}
             >
@@ -121,7 +124,7 @@ export function WizardStep1Engine({
                 )}
               />
               <span>Target (Destination)</span>
-            </button>
+            </Button>
           </div>
           <p className="text-muted-foreground text-[11px]">
             {isSourceVal

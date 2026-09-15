@@ -7,7 +7,8 @@ import Features from "@/components/home/Features"
 import CTA from "@/components/home/CTA"
 import HowItWorks from "@/components/home/HowItWorks"
 import { Hero } from "@/components/home/Hero"
-import { DatabaseTiles } from "@/components/home/DatabaseTiles"
+import { DashboardPreview } from "@/components/home/DashboardPreview"
+import { Playground } from "@/components/home/playground/Playground"
 
 export const Home = () => {
   const navigate = useNavigate()
@@ -24,11 +25,14 @@ export const Home = () => {
         {/* Hero Section */}
         <Hero onCtaClick={handleStartMigrating} />
 
-        {/* 3D Floating Database Tiles */}
-        <DatabaseTiles />
+        {/* Dashboard Preview Section */}
+        <DashboardPreview />
 
         {/* Core Product Capabilities */}
         <Features />
+
+        {/* Live SQL ⇄ NoSQL Conversion Playground */}
+        <Playground />
 
         {/* 3-Step Interactive Migration Lifecycle */}
         <HowItWorks />

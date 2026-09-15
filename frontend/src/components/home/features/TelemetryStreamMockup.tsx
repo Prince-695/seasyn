@@ -60,8 +60,8 @@ export const TelemetryStreamMockup = () => {
   ]
 
   return (
-    <div className="bg-muted/20 border-border/80 relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border p-3">
-      <div className="bg-card border-border flex w-full max-w-md flex-col gap-2.5 rounded-lg border p-3.5 shadow-xs">
+    <div className="relative flex w-full items-center justify-center overflow-hidden py-1">
+      <div className="bg-card border-border flex w-full max-w-md flex-col gap-2.5 rounded-xl border p-4 shadow-sm sm:max-w-lg">
         {/* Header with Live Throughput */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

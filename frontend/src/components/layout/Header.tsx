@@ -83,7 +83,7 @@ export function Header() {
           size="icon"
           onClick={toggleMobileSidebar}
           aria-label="Toggle navigation menu"
-          className="border-border/60 text-muted-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-lg border transition-colors md:hidden"
+          className="text-muted-foreground hover:bg-muted flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors md:hidden"
         >
           <Menu className="h-4 w-4" />
         </Button>

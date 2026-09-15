@@ -27,7 +27,9 @@ export function Logo({
             : 52
 
   return (
-    <div className={cn("inline-flex items-center gap-2.5 select-none", className)}>
+    <div
+      className={cn("inline-flex items-center gap-2.5 select-none", className)}
+    >
       <svg
         width={pixelSize}
         height={pixelSize}
@@ -38,12 +40,24 @@ export function Logo({
       >
         <defs>
           {/* Blue Upper Chevron (<) Gradients */}
-          <linearGradient id="seasyn-blue-top" x1="20%" y1="35%" x2="80%" y2="15%">
+          <linearGradient
+            id="seasyn-blue-top"
+            x1="20%"
+            y1="35%"
+            x2="80%"
+            y2="15%"
+          >
             <stop offset="0%" stopColor="#305BE0" />
             <stop offset="50%" stopColor="#4775ED" />
             <stop offset="100%" stopColor="#6796F8" />
           </linearGradient>
-          <linearGradient id="seasyn-blue-fold" x1="15%" y1="35%" x2="70%" y2="70%">
+          <linearGradient
+            id="seasyn-blue-fold"
+            x1="15%"
+            y1="35%"
+            x2="70%"
+            y2="70%"
+          >
             <stop offset="0%" stopColor="#1E44BE" />
             <stop offset="35%" stopColor="#325DE0" />
             <stop offset="75%" stopColor="#5B8CF4" />
@@ -51,12 +65,24 @@ export function Logo({
           </linearGradient>
 
           {/* Orange Lower Chevron (>) Gradients */}
-          <linearGradient id="seasyn-orange-top" x1="20%" y1="35%" x2="80%" y2="15%">
+          <linearGradient
+            id="seasyn-orange-top"
+            x1="20%"
+            y1="35%"
+            x2="80%"
+            y2="15%"
+          >
             <stop offset="0%" stopColor="#E3500D" />
             <stop offset="50%" stopColor="#F3741D" />
             <stop offset="100%" stopColor="#FEA646" />
           </linearGradient>
-          <linearGradient id="seasyn-orange-fold" x1="15%" y1="35%" x2="70%" y2="70%">
+          <linearGradient
+            id="seasyn-orange-fold"
+            x1="15%"
+            y1="35%"
+            x2="70%"
+            y2="70%"
+          >
             <stop offset="0%" stopColor="#C93802" />
             <stop offset="35%" stopColor="#E35611" />
             <stop offset="75%" stopColor="#F78528" />
@@ -90,7 +116,12 @@ export function Logo({
       </svg>
 
       {showText && (
-        <span className={cn("text-foreground text-xl font-semibold tracking-tight", textClassName)}>
+        <span
+          className={cn(
+            "text-foreground text-xl font-semibold tracking-tight",
+            textClassName
+          )}
+        >
           Seasyn
         </span>
       )}

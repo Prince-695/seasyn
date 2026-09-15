@@ -118,7 +118,7 @@ function ActivityLineGraph({
               cx={c.x}
               cy={c.y}
               r={1.75}
-              className="fill-primary stroke-card stroke-[1]"
+              className="fill-primary stroke-card stroke-1"
             />
           ))}
         </svg>

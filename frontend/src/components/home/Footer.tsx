@@ -50,12 +50,6 @@ export const Footer = () => {
               <Logo showText size={28} />
             </Link>
 
-            {/* <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Stateless in-flight database migration engine. Stream data across
-              PostgreSQL, MySQL, MongoDB, and SQLite with zero intermediate
-              storage and real-time validation.
-            </p> */}
-
             {/* Social Icons */}
             <div className="flex items-center gap-3 pt-1">
               <a
@@ -84,12 +78,6 @@ export const Footer = () => {
                 <FaLinkedin size={16} />
               </a>
             </div>
-
-            {/* Live Status Pill */}
-            {/* <div className="bg-muted/40 border-border/60 text-muted-foreground mt-2 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs">
-              <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-              <span>Stateless Streaming Active</span>
-            </div> */}
           </div>
 
           {/* Product Links */}

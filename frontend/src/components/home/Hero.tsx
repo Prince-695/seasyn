@@ -20,12 +20,6 @@ const curtainRevealVariants: Variants = {
 }
 
 export const Hero = ({
-  // badge = (
-  //   <div className="border-border bg-muted/60 text-foreground mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium shadow-2xs">
-  //     <Zap className="text-primary fill-primary/20 h-3.5 w-3.5" />
-  //     <span>Cross-Database Migration Studio</span>
-  //   </div>
-  // ),
   title = (
     <>
       <span className="bg-highlight text-highlight-foreground border-border/70 inline-block rounded-xl border px-3.5 py-0.5 font-semibold">
@@ -40,23 +34,21 @@ export const Hero = ({
   onCtaClick,
 }: HeroProps) => {
   return (
-    <section className="relative z-10 mt-35 flex w-full max-w-6xl">
-      <div className="w-full pt-10">
+    <section className="relative z-10 mx-auto mt-20 flex w-full max-w-4xl flex-col items-center justify-center px-4 sm:mt-28 sm:px-6 md:px-8">
+      <div className="w-full pt-6 sm:pt-10">
         <motion.div
-          className="flex w-full flex-col items-center justify-between gap-16 lg:flex-row"
+          className="flex w-full flex-col items-center justify-center"
           variants={curtainRevealVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Center: Text Content */}
-          <div className="flex flex-1 flex-col items-center">
-            {/* {badge} */}
-
-            <h1 className="text-foreground text-center text-5xl font-semibold md:text-6xl lg:text-7xl lg:leading-[1.1]">
+          <div className="flex w-full flex-col items-center text-center">
+            <h1 className="text-foreground text-center text-3xl font-semibold tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.12]">
               {title}
             </h1>
 
-            <p className="text-muted-foreground mt-6 max-w-3xl text-center text-lg leading-relaxed md:text-xl">
+            <p className="text-muted-foreground mt-5 max-w-2xl text-center text-base leading-relaxed sm:mt-6 sm:text-lg md:text-xl">
               {description}
             </p>
 

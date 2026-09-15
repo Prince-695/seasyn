@@ -1,101 +1,261 @@
-import { Activity } from "lucide-react"
+import { useState, useRef } from "react"
+import {
+  Zap,
+  Database,
+  ShieldCheck,
+  Layers,
+  type LucideIcon,
+} from "lucide-react"
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useMotionValueEvent,
+} from "framer-motion"
+import { Button } from "@/components/ui/button"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { cn } from "@/lib/utils"
 import { SecurityMockup } from "./features/SecurityMockup"
 import { IntegrationsMockup } from "./features/IntegrationsMockup"
 import { SchemaTranslationMockup } from "./features/SchemaTranslationMockup"
 import { TelemetryStreamMockup } from "./features/TelemetryStreamMockup"
 
-const FIRST_THREE_CARDS = [
+interface FeatureItem {
+  id: string
+  title: string
+  description: string
+  icon: LucideIcon
+  badge: string
+  mockup: React.ComponentType
+}
+
+const FEATURES: FeatureItem[] = [
   {
-    title: "Safe & Private",
+    id: "cdc-pipeline",
+    title: "Effortless Streaming, Lightning-Fast",
     description:
-      "Your credentials are never saved. No data is stored on our servers.",
+      "Stream gigabytes of live records with zero downtime, microsecond replication lag, and continuous sync telemetry.",
+    icon: Zap,
+    badge: "Live CDC Stream",
+    mockup: TelemetryStreamMockup,
+  },
+  {
+    id: "schema-diff",
+    title: "Automatic Schema & Type Bridge",
+    description:
+      "Intelligently matches tables, column types, and foreign keys across heterogeneous SQL and NoSQL databases.",
+    icon: Database,
+    badge: "Auto Type Inference",
+    mockup: SchemaTranslationMockup,
+  },
+  {
+    id: "security",
+    title: "Ephemeral & Zero Retention",
+    description:
+      "Direct point-to-point TLS 1.3 streaming. Your credentials and database records are never saved on our servers.",
+    icon: ShieldCheck,
+    badge: "End-to-End Encrypted",
     mockup: SecurityMockup,
   },
   {
-    title: "Works Everywhere",
+    id: "integrations",
+    title: "Universal Database Support",
     description:
-      "Easily move data between PostgreSQL, MySQL, MongoDB, and SQLite.",
+      "Seamlessly bridge PostgreSQL, MySQL, MongoDB, SQLite, Supabase, and Snowflake in one unified workspace.",
+    icon: Layers,
+    badge: "Multi-Engine Matrix",
     mockup: IntegrationsMockup,
-  },
-  {
-    title: "Auto-Match Schema",
-    description:
-      "Automatically matches tables, fields, and types between databases.",
-    mockup: SchemaTranslationMockup,
   },
 ]
 
 export const Features = () => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  // Scroll-linked auto feature progression
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  })
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setActiveIndex(
+      Math.min(
+        FEATURES.length - 1,
+        Math.max(0, Math.floor(v * FEATURES.length))
+      )
+    )
+  })
+
+  const handleTabClick = (index: number) => {
+    setActiveIndex(index)
+    if (!containerRef.current) return
+    const { offsetTop, offsetHeight } = containerRef.current
+    const scrollableDistance = Math.max(0, offsetHeight - window.innerHeight)
+    const targetScroll =
+      offsetTop + (index / (FEATURES.length - 1 || 1)) * scrollableDistance
+    window.scrollTo({
+      top: targetScroll,
+      behavior: "smooth",
+    })
+  }
+
+  const activeFeature = FEATURES[activeIndex]
+  const ActiveMockup = activeFeature.mockup
+
   return (
-    <section className="z-10 mt-40 w-full max-w-6xl px-6">
-      {/* Section Header */}
-      <div className="mb-10 flex flex-col items-center justify-center text-center md:mb-12">
-        <div className="bg-secondary text-secondary-foreground mb-1 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
-          Features
-        </div>
-
-        <ScrollRevealText
-          as="h2"
-          lines={[
-            "Effortless database migrations,",
-            "built for zero downtime.",
-          ]}
-          className="text-foreground font-serif text-4xl leading-[1.05] font-semibold sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
-          lineClassName="font-serif leading-[1.05]"
-        />
-
-        <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-snug sm:text-lg">
-          Fast data transfer, automatic table matching, and zero saved data.
-        </p>
-      </div>
-
-      {/* Row 1: First 3 Cards in the Same Row */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {FIRST_THREE_CARDS.map((card) => {
-          const MockupComponent = card.mockup
-          return (
-            <div
-              key={card.title}
-              className="bg-card border-border flex flex-col justify-between rounded-xl border p-4 transition-colors sm:p-5"
-            >
-              <MockupComponent />
-
-              <div className="mt-3.5 text-center">
-                <h3 className="text-foreground font-serif text-lg leading-tight font-semibold sm:text-xl">
-                  {card.title}
-                </h3>
-                <p className="text-muted-foreground mx-auto mt-1 max-w-xs text-xs leading-snug sm:text-[13px]">
-                  {card.description}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Row 2: 4th Card in Next Row (Horizontal Layout) */}
-      <div className="bg-card border-border mt-6 flex flex-col items-center justify-between gap-6 rounded-xl border p-5 transition-colors md:flex-row md:p-6">
-        <div className="flex flex-1 flex-col items-center text-center md:items-start md:text-left">
-          <div className="bg-primary/10 text-primary border-primary/20 mb-2.5 inline-flex items-center gap-1.5 rounded-md border px-3 py-0.5 text-xs font-semibold">
-            <Activity className="h-3.5 w-3.5" />
-            <span>Fast Transfer</span>
+    <div
+      ref={containerRef}
+      className="relative z-10 mt-6 mb-20 h-700 w-full sm:mt-10 sm:mb-32 md:mt-12 md:mb-40"
+    >
+      {/* Sticky Viewport Container - Centered Vertically and Horizontally */}
+      <section className="sticky top-0 flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center">
+          {/* Section Header */}
+          <div className="mb-8 flex flex-col items-center text-center sm:mb-10">
+            <span className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+              Capabilities
+            </span>
+            <ScrollRevealText
+              as="h2"
+              lines={[
+                "Control every migration",
+                <span key="sub" className="text-primary font-serif italic">
+                  in the moment.
+                </span>,
+              ]}
+              className="text-foreground items-center text-center text-3xl sm:text-4xl md:text-5xl lg:leading-[1.15]"
+              lineClassName="leading-[1.15]"
+            />
           </div>
 
-          <h3 className="text-foreground font-serif text-2xl leading-tight font-semibold sm:text-3xl">
-            Fast Live Streaming
-          </h3>
-          <p className="text-muted-foreground mt-1.5 max-w-lg text-sm leading-snug sm:text-base">
-            Move large databases quickly with low memory usage and live
-            progress.
-          </p>
-        </div>
+          <div className="grid w-full grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-14">
+            {/* Left Column: Feature Selectors */}
+            <div className="flex w-full flex-col gap-2.5 sm:gap-3">
+              {FEATURES.map((feature, idx) => {
+                const isActive = activeIndex === idx
+                const Icon = feature.icon
 
-        <div className="w-full md:w-1/2 lg:w-5/12">
-          <TelemetryStreamMockup />
+                return (
+                  <Button
+                    key={feature.id}
+                    variant="ghost"
+                    onClick={() => handleTabClick(idx)}
+                    className={cn(
+                      "group relative flex h-auto w-full cursor-pointer items-start justify-start rounded-xl py-2.5 pr-3 pl-4 text-left whitespace-normal transition-all duration-300 focus-visible:outline-none",
+                      isActive
+                        ? "bg-muted/35 hover:bg-muted/40"
+                        : "hover:bg-muted/15"
+                    )}
+                  >
+                    {/* Active Indicator Bar */}
+                    <div
+                      className={cn(
+                        "bg-primary absolute top-2.5 bottom-2.5 left-0 w-1 rounded-full transition-all duration-300",
+                        isActive
+                          ? "scale-y-100 opacity-100"
+                          : "scale-y-0 opacity-0"
+                      )}
+                    />
+
+                    {/* Icon Box */}
+                    <div
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300 sm:h-11 sm:w-11",
+                        isActive
+                          ? "bg-primary/15 text-primary ring-primary/30 shadow-xs ring-1"
+                          : "bg-muted/60 text-muted-foreground group-hover:bg-muted group-hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </div>
+
+                    {/* Title & Expandable Description */}
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={cn(
+                          "text-base font-semibold transition-colors duration-300 sm:text-lg",
+                          isActive
+                            ? "text-foreground"
+                            : "text-muted-foreground group-hover:text-foreground"
+                        )}
+                      >
+                        {feature.title}
+                      </div>
+
+                      <AnimatePresence initial={false}>
+                        {isActive && (
+                          <motion.p
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{
+                              opacity: 1,
+                              height: "auto",
+                              transition: {
+                                duration: 0.28,
+                                delay: 0.05,
+                                ease: [0.16, 1, 0.3, 1],
+                              },
+                            }}
+                            exit={{
+                              opacity: 0,
+                              height: 0,
+                              transition: { duration: 0.18, ease: "easeIn" },
+                            }}
+                            className="text-muted-foreground mt-1 overflow-hidden text-xs leading-relaxed sm:text-sm"
+                          >
+                            {feature.description}
+                          </motion.p>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </Button>
+                )
+              })}
+            </div>
+
+            {/* Right Column: Balanced Live Stage Showcase */}
+            <div className="bg-muted/40 dark:bg-card/60 border-border/70 relative flex min-h-95 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border p-4 shadow-xs sm:min-h-110 sm:rounded-3xl sm:p-6 md:p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFeature.id}
+                  initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                      duration: 0.35,
+                      delay: 0.08,
+                      ease: [0.16, 1, 0.3, 1],
+                    },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    y: -12,
+                    scale: 0.97,
+                    transition: { duration: 0.2, ease: "easeIn" },
+                  }}
+                  className="flex w-full flex-col items-center"
+                >
+                  {/* Status Pill */}
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className="bg-muted/80 text-foreground border-border/80 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold">
+                      <span className="bg-primary h-2 w-2 animate-pulse rounded-full" />
+                      {activeFeature.badge}
+                    </span>
+                  </div>
+
+                  {/* Mockup Display */}
+                  <div className="flex w-full justify-center">
+                    <ActiveMockup />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   )
 }
 
