@@ -19,6 +19,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore"
 import { authApi } from "@/api/auth"
 import { RoleBadge } from "@/components/orgs/RoleBadge"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/Logo"
 import { SidebarNavItem, type NavItemConfig } from "./SidebarNavItem"
 import { cn } from "@/lib/utils"
 
@@ -186,9 +187,7 @@ export function Sidebar() {
               onClick={() => clearActiveProject()}
               className="flex items-center gap-3 overflow-hidden transition-opacity hover:opacity-90"
             >
-              <div className="font-heading from-primary to-primary/80 text-primary-foreground shadow-primary/20 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br font-semibold shadow-sm">
-                S
-              </div>
+              <Logo size={28} />
               <div className="flex flex-col">
                 <span className="font-heading text-foreground text-base font-semibold">
                   SEASYN

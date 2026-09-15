@@ -74,7 +74,7 @@ export function Header() {
   }
 
   return (
-    <header className="border-border/70 bg-card/40 sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b px-4 backdrop-blur-md sm:px-6">
+    <header className="border-border bg-card/60 sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b px-4 backdrop-blur-md sm:px-6">
       {/* Left: Mobile trigger, Org Switcher & Breadcrumbs */}
       <div className="flex items-center gap-3">
         <Button

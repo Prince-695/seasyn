@@ -76,7 +76,7 @@ export function ConnectionCard({
     <>
       <div
         className={cn(
-          "group border-border/80 bg-card hover:border-border relative flex h-full flex-col justify-between rounded-xl border p-4.5 transition-all duration-200 hover:shadow-md",
+          "group border-border/80 bg-card hover:border-primary/50 relative flex h-full flex-col justify-between rounded-xl border p-4.5 shadow-xs transition-all duration-200",
           showProject ? "min-h-62" : "min-h-55"
         )}
       >

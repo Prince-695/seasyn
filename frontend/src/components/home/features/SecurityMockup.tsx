@@ -67,10 +67,10 @@ export const SecurityMockup = () => {
             >
               <motion.div
                 style={{ opacity: floatingShadowOpacity }}
-                className="pointer-events-none absolute inset-0 rounded-lg shadow-xl"
+                className="pointer-events-none absolute inset-0 rounded-lg shadow-xs"
               />
 
-              <div className="bg-secondary text-secondary-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-md shadow-2xs">
+              <div className="bg-secondary text-secondary-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-md">
                 <ShieldCheck className="h-3.5 w-3.5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -84,7 +84,7 @@ export const SecurityMockup = () => {
 
               <motion.div
                 style={{ opacity: cursorOpacity }}
-                className="pointer-events-none absolute -right-2 -bottom-2 z-20 drop-shadow-md"
+                className="pointer-events-none absolute -right-2 -bottom-2 z-20"
               >
                 <Hand className="fill-card text-foreground h-4 w-4 -rotate-12 stroke-[1.8]" />
               </motion.div>

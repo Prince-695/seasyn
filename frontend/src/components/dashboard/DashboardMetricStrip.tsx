@@ -100,7 +100,7 @@ export function DashboardMetricStrip({
   ]
 
   return (
-    <div className="border-border/70 bg-card/50 overflow-hidden rounded-2xl border shadow-xs backdrop-blur-xs">
+    <div className="border-border bg-card/60 overflow-hidden rounded-xl border shadow-xs">
       <div className="divide-border/60 grid grid-cols-2 divide-y sm:grid-cols-4 sm:divide-x sm:divide-y-0">
         {metrics.map((metric) => (
           <MetricCard key={metric.title} {...metric} />

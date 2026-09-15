@@ -100,7 +100,7 @@ export function LiveProgressCard({
   return (
     <div
       className={cn(
-        "border-border/60 bg-card/60 overflow-hidden rounded-xl border p-5 shadow-sm backdrop-blur-xs",
+        "border-border bg-card/60 overflow-hidden rounded-xl border-2 p-5 shadow-xs",
         className
       )}
     >
@@ -156,14 +156,13 @@ export function LiveProgressCard({
         </div>
       </div>
 
-      {/* High-Precision Progress Bar with Glowing Pulse */}
+      {/* High-Precision Progress Bar */}
       <div className="mt-3">
-        <div className="border-border/50 bg-muted/40 relative h-3.5 w-full overflow-hidden rounded-full border">
+        <div className="border-border/60 bg-muted/30 relative h-2.5 w-full overflow-hidden rounded-md border">
           <div
             className={cn(
               "h-full transition-all duration-500 ease-out",
-              getMigrationProgressBarClass(status),
-              isRunning && "animate-pulse"
+              getMigrationProgressBarClass(status)
             )}
             style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
           />

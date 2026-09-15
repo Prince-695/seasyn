@@ -103,11 +103,6 @@ export function MigrationTerminalLog({
       {/* Console Header */}
       <div className="border-code-border bg-muted/30 flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <span className="bg-mac-close h-2.5 w-2.5 rounded-full" />
-            <span className="bg-mac-minimize h-2.5 w-2.5 rounded-full" />
-            <span className="bg-mac-maximize h-2.5 w-2.5 rounded-full" />
-          </div>
           <div className="text-foreground ml-2 flex items-center gap-1.5 text-xs font-semibold">
             <Terminal className="text-muted-foreground h-3.5 w-3.5" />
             <span>Activity Log</span>
@@ -121,11 +116,11 @@ export function MigrationTerminalLog({
           {status === "running" ? (
             <Badge
               variant="outline"
-              className="flex items-center gap-1.5 border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500"
+              className="border-success/40 bg-success/10 text-success flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-semibold"
             >
               <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                <span className="bg-success relative inline-flex h-1.5 w-1.5 rounded-full" />
               </span>
               <span>Live Streaming</span>
             </Badge>

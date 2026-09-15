@@ -132,7 +132,7 @@ export function SchemaStudioHeader({
 
               <DropdownMenuContent
                 align="start"
-                className="border-border/70 bg-popover min-w-50 p-1 shadow-md"
+                className="border-border bg-popover min-w-50 p-1 shadow-xs"
               >
                 <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[10px] font-semibold uppercase">
                   Databases

@@ -223,7 +223,7 @@ export function ResetPass() {
 
           <Button
             type="submit"
-            className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-3 h-11 w-full font-semibold shadow-md transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-3 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -268,7 +268,7 @@ export function ResetPass() {
           </DialogHeader>
           <Button
             onClick={() => navigate("/sign-in")}
-            className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/80 mt-2 h-11 w-full font-semibold shadow-md transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
           >
             Go to Sign In
           </Button>

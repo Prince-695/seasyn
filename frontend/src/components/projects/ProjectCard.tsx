@@ -55,11 +55,9 @@ export function ProjectCard({
     <div
       onClick={handleOpen}
       className={cn(
-        "group bg-card relative flex cursor-pointer flex-col justify-between rounded-xl border p-5.5 transition-all duration-200",
-        "hover:border-border hover:shadow-md",
-        isActive
-          ? "border-primary/50 bg-primary/2 shadow-xs"
-          : "border-border/80"
+        "group bg-card relative flex cursor-pointer flex-col justify-between rounded-xl border p-5.5 shadow-xs transition-all duration-200",
+        "hover:border-primary/50",
+        isActive ? "border-primary/50 bg-primary/2" : "border-border/80"
       )}
     >
       {/* Card Header */}

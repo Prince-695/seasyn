@@ -10,7 +10,7 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
   return (
     <section className="relative z-10 flex w-full max-w-5xl flex-col items-center justify-center px-6 pt-28 pb-20 text-center sm:pt-36 sm:pb-28 md:pt-44 md:pb-32">
       {/* Eyebrow Secondary Pill Badge */}
-      <div className="bg-secondary text-secondary-foreground mb-6 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+      <div className="bg-secondary text-secondary-foreground border-secondary/40 mb-6 inline-flex items-center justify-center rounded-md border px-3.5 py-1 text-xs font-semibold">
         Get Started
       </div>
 
@@ -21,7 +21,7 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
           "Your data in motion.",
           <>
             Always{" "}
-            <span className="bg-highlight text-highlight-foreground inline-block rounded-xl px-2.5 py-0.5 font-semibold shadow-2xs sm:rounded-2xl sm:px-3.5">
+            <span className="bg-highlight text-highlight-foreground border-border/70 inline-block rounded-lg border px-2.5 py-0.5 font-semibold sm:rounded-xl sm:px-3.5">
               in sync.
             </span>
           </>,
@@ -40,7 +40,7 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
       <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
         <Button
           onClick={onCtaClick}
-          className="group bg-primary text-primary-foreground hover:bg-primary/90 flex cursor-pointer items-center justify-center gap-2.5 rounded-xl px-8 py-6 text-base font-semibold shadow-md transition-all hover:shadow-lg sm:text-lg"
+          className="group bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 flex cursor-pointer items-center justify-center gap-2.5 rounded-lg border px-8 py-6 text-base font-semibold transition-all active:translate-y-px sm:text-lg"
         >
           <span>Start Migration</span>
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

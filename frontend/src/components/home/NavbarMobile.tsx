@@ -45,7 +45,7 @@ export const NavbarMobile = ({
           exit={{ height: 0, opacity: 0 }}
           className="border-border bg-background overflow-hidden border-t md:hidden"
         >
-          <div className="flex flex-col gap-4 p-4 shadow-sm">
+          <div className="flex flex-col gap-4 p-4">
             <nav className="flex flex-col gap-3 text-sm font-medium">
               {navItems.map((item) => (
                 <NavLink

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { Mail, ArrowUpRight } from "lucide-react"
 import { FaGithub, FaLinkedin } from "react-icons/fa"
+import { Logo } from "@/components/Logo"
 
 const productLinks = [
   { name: "Features", href: "/#features" },
@@ -46,13 +47,7 @@ export const Footer = () => {
           {/* Brand Column (Spans 2 on desktop) */}
           <div className="flex flex-col gap-5 lg:col-span-2">
             <Link to="/" className="flex items-center gap-3">
-              <div className="relative flex h-8 w-8 items-center justify-start">
-                <div className="border-primary absolute h-6 w-6 rotate-[-15deg] rounded-[5px] border-[3px] bg-transparent" />
-                <div className="border-secondary absolute h-6 w-6 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-[5px] border-[3px] bg-transparent" />
-              </div>
-              <span className="text-foreground font-serif text-2xl font-semibold">
-                Seasyn
-              </span>
+              <Logo showText size={28} />
             </Link>
 
             {/* <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">

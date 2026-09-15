@@ -47,7 +47,7 @@ export function SslModeSelect({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-36 rounded-lg p-1 shadow-md"
+        className="w-36 rounded-lg p-1 shadow-xs"
       >
         {OPTIONS.map((opt) => (
           <DropdownMenuItem

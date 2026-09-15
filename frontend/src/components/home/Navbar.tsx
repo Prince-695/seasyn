@@ -3,6 +3,7 @@ import { Sun, Moon, Menu } from "lucide-react"
 import { useTheme } from "../theme-provider"
 import { useState, useRef } from "react"
 import { Button } from "../ui/button"
+import { Logo } from "@/components/Logo"
 import { cn } from "@/lib/utils"
 import { motion, useScroll, useMotionValueEvent } from "framer-motion"
 import { authApi } from "@/api/auth"
@@ -78,15 +79,7 @@ export const Navbar = () => {
           to="/"
           className="flex items-center gap-3 transition-opacity hover:opacity-90"
         >
-          <div className="relative flex h-8 w-8 items-center justify-start">
-            {/* First Ring: Database Source */}
-            <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-lg border-4 bg-transparent" />
-            {/* Second Ring: Database Target */}
-            <div className="border-secondary absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-lg border-4 bg-transparent" />
-          </div>
-          <span className="text-foreground ml-1 text-xl font-semibold">
-            Seasyn
-          </span>
+          <Logo showText size={28} />
         </NavLink>
 
         {/* Right Side: Actions */}
@@ -140,7 +133,7 @@ export const Navbar = () => {
                 <NavLink to="/sign-up">
                   <Button
                     variant="default"
-                    className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 h-9 border-none shadow-lg"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 h-9 rounded-md border text-xs font-semibold transition-all active:translate-y-px"
                   >
                     Get Started
                   </Button>

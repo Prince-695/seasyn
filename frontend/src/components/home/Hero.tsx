@@ -28,7 +28,7 @@ export const Hero = ({
   // ),
   title = (
     <>
-      <span className="bg-highlight text-highlight-foreground inline-block rounded-2xl px-3.5 py-0.5 font-semibold shadow-2xs">
+      <span className="bg-highlight text-highlight-foreground border-border/70 inline-block rounded-xl border px-3.5 py-0.5 font-semibold">
         Migrate database.
       </span>
       <br />
@@ -63,7 +63,7 @@ export const Hero = ({
             <div className="relative mt-8 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button
                 onClick={onCtaClick}
-                className="group bg-primary text-primary-foreground hover:bg-primary/90 relative flex items-center justify-center gap-2.5 rounded-xl px-7 py-6 text-base font-semibold shadow-md transition-all hover:shadow-lg"
+                className="group bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 relative flex items-center justify-center gap-2.5 rounded-lg border px-7 py-6 text-base font-semibold transition-all active:translate-y-px"
               >
                 {ctaText}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

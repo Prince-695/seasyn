@@ -57,7 +57,7 @@ export const Features = () => {
           return (
             <div
               key={card.title}
-              className="bg-card border-border/80 flex flex-col justify-between rounded-2xl border p-4 shadow-xs transition-colors sm:p-5"
+              className="bg-card border-border flex flex-col justify-between rounded-xl border p-4 transition-colors sm:p-5"
             >
               <MockupComponent />
 
@@ -75,9 +75,9 @@ export const Features = () => {
       </div>
 
       {/* Row 2: 4th Card in Next Row (Horizontal Layout) */}
-      <div className="bg-card border-border/80 mt-6 flex flex-col items-center justify-between gap-6 rounded-2xl border p-5 shadow-xs transition-colors md:flex-row md:p-6">
+      <div className="bg-card border-border mt-6 flex flex-col items-center justify-between gap-6 rounded-xl border p-5 transition-colors md:flex-row md:p-6">
         <div className="flex flex-1 flex-col items-center text-center md:items-start md:text-left">
-          <div className="bg-primary/10 text-primary mb-2.5 inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-semibold">
+          <div className="bg-primary/10 text-primary border-primary/20 mb-2.5 inline-flex items-center gap-1.5 rounded-md border px-3 py-0.5 text-xs font-semibold">
             <Activity className="h-3.5 w-3.5" />
             <span>Fast Transfer</span>
           </div>

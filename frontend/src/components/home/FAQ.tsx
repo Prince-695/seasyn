@@ -67,10 +67,6 @@ export const FAQ = () => {
       </div>
 
       <div className="relative flex w-full flex-col gap-2.5 sm:gap-3.5">
-        {/* Decorative background glows */}
-        <div className="bg-primary/5 pointer-events-none absolute top-1/4 left-[-10%] -z-10 h-72 w-72 rounded-full blur-[120px]" />
-        <div className="bg-secondary/5 pointer-events-none absolute right-[-10%] bottom-1/4 -z-10 h-72 w-72 rounded-full blur-[120px]" />
-
         {faqData.map((item, index) => {
           const isOpen = openIndex === index
 
