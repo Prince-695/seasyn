@@ -80,7 +80,7 @@ function PersonalInformationCard({
   return (
     <div className="border-border/70 bg-card/40 space-y-6 rounded-xl border p-6 shadow-xs backdrop-blur-xs">
       <div className="border-border/40 border-b pb-4">
-        <h3 className="text-foreground flex items-center gap-2 text-base font-bold">
+        <h3 className="text-foreground flex items-center gap-2 text-base font-semibold">
           <UserIcon className="text-primary h-4 w-4" />
           <span>Personal Information</span>
         </h3>
@@ -91,7 +91,7 @@ function PersonalInformationCard({
 
       {/* Avatar Row */}
       <div className="flex items-center gap-4">
-        <div className="font-heading bg-primary/10 text-primary ring-border/80 flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-extrabold ring-1">
+        <div className="font-heading bg-primary/10 text-primary ring-border/80 flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-semibold ring-1">
           {initials}
         </div>
         <div>
@@ -272,7 +272,7 @@ export function ProfilePage() {
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-foreground text-2xl font-extrabold tracking-tight sm:text-3xl">
+        <h1 className="text-foreground text-2xl font-semibold sm:text-3xl">
           Account Settings
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -292,7 +292,7 @@ export function ProfilePage() {
           <div className="border-border/70 bg-card/40 space-y-6 rounded-xl border p-6 shadow-xs backdrop-blur-xs">
             <div className="border-border/40 flex items-start justify-between border-b pb-4">
               <div>
-                <h3 className="text-foreground flex items-center gap-2 text-base font-bold">
+                <h3 className="text-foreground flex items-center gap-2 text-base font-semibold">
                   <AtSign className="text-primary h-4 w-4" />
                   <span>Unique Username Handle</span>
                 </h3>
@@ -317,7 +317,7 @@ export function ProfilePage() {
                   <span className="text-muted-foreground text-sm">
                     Active Username:
                   </span>
-                  <span className="text-primary font-mono text-base font-bold">
+                  <span className="text-primary font-mono text-base font-semibold">
                     @{currentProfile.username}
                   </span>
                 </div>

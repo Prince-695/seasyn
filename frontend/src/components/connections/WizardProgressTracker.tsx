@@ -20,7 +20,7 @@ export function WizardProgressTracker({
   return (
     <DialogHeader className="gap-1 pb-2">
       <div className="flex items-center justify-between">
-        <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
+        <div className="text-primary flex items-center gap-2 text-xs font-semibold uppercase">
           <Database className="h-4 w-4" />
           <span>Database Adapter Setup</span>
         </div>
@@ -72,7 +72,7 @@ export function WizardProgressTracker({
           </span>
         </div>
       </div>
-      <DialogTitle className="text-lg font-bold">
+      <DialogTitle className="text-lg font-semibold">
         {step === 1 && "1. Select Engine & Role"}
         {step === 2 &&
           `2. Configure ${selectedEngineMeta?.name || "Database"} Adapter`}

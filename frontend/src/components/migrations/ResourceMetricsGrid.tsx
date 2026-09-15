@@ -39,7 +39,7 @@ function StatCell({
         customContent
       ) : (
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-foreground font-mono text-base font-bold">
+          <span className="text-foreground font-mono text-base font-semibold">
             {value}
           </span>
           {subValue && (
@@ -70,14 +70,14 @@ function MetricPanel({
   cells,
 }: MetricPanelProps) {
   return (
-    <div className="border-border/60 bg-card/40 rounded-xl border p-4 shadow-2xs backdrop-blur-xs">
+    <div className="border-border bg-card/60 rounded-xl border-2 p-4 shadow-xs">
       <div className="border-border/40 flex items-center justify-between border-b pb-3">
         <div className="flex items-center gap-2">
           <div className="border-border/50 bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg border">
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-foreground text-sm font-bold">{title}</h3>
+            <h3 className="text-foreground text-sm font-semibold">{title}</h3>
             <p className="text-muted-foreground text-[10px]">{subtitle}</p>
           </div>
         </div>
@@ -151,10 +151,10 @@ export function ResourceMetricsGrid({
       value: "",
       caption: "Running smoothly",
       customContent: (
-        <div className="bg-muted/60 mt-2 h-1.5 w-full overflow-hidden rounded-full">
+        <div className="border-border/60 bg-muted/30 mt-2 h-1.5 w-full overflow-hidden rounded-xs border">
           <div
             className={cn(
-              "h-full rounded-full transition-all duration-300",
+              "h-full transition-all duration-300",
               stats.bufferPressure === "Optimal"
                 ? "bg-success"
                 : stats.bufferPressure === "Nominal"

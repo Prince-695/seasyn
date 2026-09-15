@@ -125,9 +125,7 @@ export function MembersPage() {
           <Building2 className="h-7 w-7" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-bold tracking-tight">
-            No Active Organization
-          </h2>
+          <h2 className="text-xl font-semibold">No Active Organization</h2>
           <p className="text-muted-foreground max-w-sm text-sm">
             Please select or create an organization from the workspace switcher
             in the header.
@@ -143,7 +141,7 @@ export function MembersPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="text-foreground text-2xl font-semibold sm:text-3xl">
               People
             </h1>
             <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-semibold">
@@ -227,7 +225,7 @@ export function MembersPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-border/60 bg-muted/40 text-muted-foreground border-b text-xs font-semibold tracking-wider uppercase">
+                <tr className="border-border/60 bg-muted/40 text-muted-foreground border-b text-xs font-semibold uppercase">
                   <th className="px-6 py-3.5">Member</th>
                   <th className="px-6 py-3.5">Email</th>
                   <th className="px-6 py-3.5">Role</th>

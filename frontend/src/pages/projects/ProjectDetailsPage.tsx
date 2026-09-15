@@ -220,7 +220,7 @@ export function ProjectDetailsPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-2xl font-bold tracking-tight">
+              <h1 className="text-foreground text-2xl font-semibold">
                 {project.name}
               </h1>
               <Badge
@@ -263,7 +263,7 @@ export function ProjectDetailsPage() {
           <span className="text-muted-foreground text-xs font-medium">
             Total Databases
           </span>
-          <p className="text-foreground mt-1 font-mono text-lg font-bold">
+          <p className="text-foreground mt-1 font-mono text-lg font-semibold">
             {projectAnalytics?.connection_quota
               ? `${projectAnalytics.connection_quota.used} / ${projectAnalytics.connection_quota.max}`
               : connections.length}
@@ -274,7 +274,7 @@ export function ProjectDetailsPage() {
           <span className="text-info text-xs font-medium">
             Source DBs (Inbound)
           </span>
-          <p className="text-info mt-1 font-mono text-lg font-bold">
+          <p className="text-info mt-1 font-mono text-lg font-semibold">
             {projectAnalytics?.connection_quota?.sources_count ??
               sourceConnections.length}
           </p>
@@ -284,7 +284,7 @@ export function ProjectDetailsPage() {
           <span className="text-success text-xs font-medium">
             Target DBs (Outbound)
           </span>
-          <p className="text-success mt-1 font-mono text-lg font-bold">
+          <p className="text-success mt-1 font-mono text-lg font-semibold">
             {projectAnalytics?.connection_quota?.targets_count ??
               targetConnections.length}
           </p>
@@ -294,7 +294,7 @@ export function ProjectDetailsPage() {
           <span className="text-muted-foreground text-xs font-medium">
             Data Flow Routes
           </span>
-          <div className="text-foreground mt-1 flex items-center gap-1.5 font-mono text-lg font-bold">
+          <div className="text-foreground mt-1 flex items-center gap-1.5 font-mono text-lg font-semibold">
             <span>{projectAnalytics?.topology_edges?.length ?? 0}</span>
             <span className="text-muted-foreground text-xs font-normal">
               active routes
@@ -314,7 +314,7 @@ export function ProjectDetailsPage() {
                 <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg">
                   <Activity className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+                <h3 className="text-foreground text-sm font-semibold sm:text-base">
                   Data Flow Routes
                 </h3>
               </div>
@@ -390,7 +390,7 @@ export function ProjectDetailsPage() {
                 <div className="bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg">
                   <Layers className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+                <h3 className="text-foreground text-sm font-semibold sm:text-base">
                   Most Active Tables
                 </h3>
               </div>

@@ -184,7 +184,7 @@ export function VerifyEmail() {
         {/* Submit Button */}
         <Button
           type="button"
-          className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 h-11 w-full font-semibold shadow-md transition-all"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
           disabled={isSubmitting || otp.length < 6}
           onClick={() => handleVerify()}
         >

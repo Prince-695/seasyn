@@ -113,7 +113,7 @@ export function InsertRowModal({
             <div className="border-primary/30 bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg border">
               <Plus className="h-4 w-4" />
             </div>
-            <DialogTitle className="text-base font-bold">
+            <DialogTitle className="text-base font-semibold">
               Insert New Row:{" "}
               <span className="text-primary font-mono">{table.name}</span>
             </DialogTitle>

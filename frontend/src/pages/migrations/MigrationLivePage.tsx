@@ -177,7 +177,7 @@ export function MigrationLivePage() {
   if (!orgId) {
     return (
       <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
-        <h2 className="text-foreground text-lg font-bold">
+        <h2 className="text-foreground text-lg font-semibold">
           No Organization Selected
         </h2>
         <p className="text-muted-foreground text-xs">
@@ -207,7 +207,7 @@ export function MigrationLivePage() {
   if (jobError || !job) {
     return (
       <div className="mx-auto max-w-md space-y-4 pt-12 text-center">
-        <h2 className="text-foreground text-lg font-bold">
+        <h2 className="text-foreground text-lg font-semibold">
           Migration Not Found
         </h2>
         <p className="text-muted-foreground text-xs">
@@ -292,7 +292,7 @@ export function MigrationLivePage() {
       {stats && (
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <span className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+            <span className="text-muted-foreground text-[11px] font-semibold uppercase">
               Diagnostic & Telemetry Details
             </span>
           </div>

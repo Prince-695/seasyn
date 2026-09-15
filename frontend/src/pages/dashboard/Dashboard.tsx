@@ -188,7 +188,7 @@ export function Dashboard() {
           <div className="bg-primary/10 text-primary mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
             <Building2 className="h-7 w-7" />
           </div>
-          <h3 className="text-foreground text-lg font-bold">
+          <h3 className="text-foreground text-lg font-semibold">
             No Workspace Selected
           </h3>
           <p className="text-muted-foreground mt-1 max-w-md text-sm">

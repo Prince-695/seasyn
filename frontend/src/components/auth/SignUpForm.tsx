@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react"
@@ -259,6 +259,24 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
           "Sign Up"
         )}
       </Button>
+
+      <p className="text-muted-foreground mt-2 text-center text-xs">
+        By creating an account, you agree to our{" "}
+        <Link
+          to="/terms-and-conditions"
+          className="text-foreground hover:text-primary underline transition-colors"
+        >
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link
+          to="/privacy-policy"
+          className="text-foreground hover:text-primary underline transition-colors"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </p>
     </form>
   )
 }

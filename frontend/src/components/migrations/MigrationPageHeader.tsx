@@ -54,7 +54,7 @@ export function MigrationPageHeader({
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-xl font-bold tracking-tight">
+              <h1 className="text-foreground text-xl font-semibold">
                 Live Data Migration
               </h1>
               <Badge variant="outline" className="font-mono text-[10px]">
@@ -108,7 +108,7 @@ export function MigrationPageHeader({
             <CheckCircle2 className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-foreground text-xs font-bold">
+            <p className="text-foreground text-xs font-semibold">
               Migration Completed Successfully!
             </p>
             <p className="text-success text-xs">

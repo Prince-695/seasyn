@@ -73,8 +73,8 @@ const INTEGRATION_ENGINES = [
 
 export const IntegrationsMockup = () => {
   return (
-    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border p-3">
-      <div className="bg-card border-border flex w-full max-w-xs flex-col gap-2 rounded-lg border p-2.5 shadow-sm">
+    <div className="relative flex w-full items-center justify-center overflow-hidden py-1">
+      <div className="bg-card border-border flex w-full max-w-md flex-col gap-2.5 rounded-xl border p-4 shadow-sm sm:max-w-lg">
         {/* Top "+ Add new integration" Button */}
         <Button
           variant="outline"

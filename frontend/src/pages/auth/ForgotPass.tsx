@@ -79,7 +79,7 @@ export function ForgotPass() {
 
         <Button
           type="submit"
-          className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-2 h-11 w-full font-semibold shadow-md transition-all"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
           disabled={isSubmitting}
         >
           {isSubmitting ? (

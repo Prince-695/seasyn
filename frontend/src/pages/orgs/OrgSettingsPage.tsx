@@ -144,9 +144,7 @@ export function OrgSettingsPage() {
           <Building2 className="h-7 w-7" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-bold tracking-tight">
-            No Active Organization
-          </h2>
+          <h2 className="text-xl font-semibold">No Active Organization</h2>
           <p className="text-muted-foreground max-w-sm text-sm">
             Please select or create an organization from the workspace switcher
             in the header.
@@ -175,7 +173,7 @@ export function OrgSettingsPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
+              <h1 className="text-foreground text-2xl font-semibold sm:text-3xl">
                 Organization Settings
               </h1>
               {currentRole && <RoleBadge role={currentRole} />}
@@ -383,7 +381,7 @@ export function OrgSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="delete-confirm">
                 To confirm, type{" "}
-                <span className="text-destructive font-mono font-bold select-all">
+                <span className="text-destructive font-mono font-semibold select-all">
                   {expectedDeletePhrase}
                 </span>{" "}
                 below:

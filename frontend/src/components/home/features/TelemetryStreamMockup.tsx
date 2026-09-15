@@ -60,8 +60,8 @@ export const TelemetryStreamMockup = () => {
   ]
 
   return (
-    <div className="bg-muted/40 dark:bg-muted/15 border-border/40 relative flex h-full min-h-42.5 w-full items-center justify-center overflow-hidden rounded-xl border p-3">
-      <div className="bg-card border-border flex w-full max-w-md flex-col gap-2.5 rounded-lg border p-3.5 shadow-sm">
+    <div className="relative flex w-full items-center justify-center overflow-hidden py-1">
+      <div className="bg-card border-border flex w-full max-w-md flex-col gap-2.5 rounded-xl border p-4 shadow-sm sm:max-w-lg">
         {/* Header with Live Throughput */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -98,15 +98,15 @@ export const TelemetryStreamMockup = () => {
               key={badge.title}
               className="bg-muted/40 border-border/50 rounded-lg border p-2"
             >
-              <span className="text-muted-foreground block text-[9px] font-semibold tracking-wider uppercase">
+              <span className="text-muted-foreground block text-[9px] font-semibold uppercase">
                 {badge.title}
               </span>
               <div className="mt-0.5 flex items-center justify-between">
-                <span className="text-foreground font-mono text-xs font-bold">
+                <span className="text-foreground font-mono text-xs font-semibold">
                   {badge.value}
                 </span>
                 <span
-                  className={`py-0.2 rounded px-1.5 text-[9px] font-bold ${badge.tagBg} ${badge.tagColor}`}
+                  className={`py-0.2 rounded px-1.5 text-[9px] font-semibold ${badge.tagBg} ${badge.tagColor}`}
                 >
                   {badge.tag}
                 </span>

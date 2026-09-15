@@ -137,7 +137,7 @@ export function MongoForm({
         <div className="absolute inset-0 flex items-center">
           <span className="border-border/60 w-full border-t" />
         </div>
-        <div className="relative flex justify-center text-[10px] font-semibold tracking-wider uppercase">
+        <div className="relative flex justify-center text-[10px] font-semibold uppercase">
           <span className="bg-background text-muted-foreground px-3">
             Or configure individual parameters
           </span>

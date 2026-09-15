@@ -63,7 +63,7 @@ export function Step3BatchConfiguration({
               onClick={() => onChangeBatchSize(preset)}
               className={`rounded-lg border px-3 py-1.5 font-mono text-xs font-medium transition-all ${
                 batchSize === preset
-                  ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-bold shadow-xs"
+                  ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold shadow-xs"
                   : "border-border/70 bg-card hover:bg-muted/40 text-foreground"
               }`}
             >
@@ -108,7 +108,7 @@ export function Step3BatchConfiguration({
                 </div>
               )}
               <div>
-                <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+                <p className="text-muted-foreground text-[11px] font-semibold uppercase">
                   Source Database
                 </p>
                 <p className="text-foreground text-sm font-semibold">
@@ -147,7 +147,7 @@ export function Step3BatchConfiguration({
                 </div>
               )}
               <div>
-                <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+                <p className="text-muted-foreground text-[11px] font-semibold uppercase">
                   Target Database
                 </p>
                 <p className="text-foreground text-sm font-semibold">
@@ -168,7 +168,7 @@ export function Step3BatchConfiguration({
               <p className="text-muted-foreground text-[10px] font-semibold uppercase">
                 Total Records
               </p>
-              <p className="text-foreground font-mono text-sm font-bold">
+              <p className="text-foreground font-mono text-sm font-semibold">
                 {totalRows.toLocaleString()}
               </p>
             </div>
@@ -176,7 +176,7 @@ export function Step3BatchConfiguration({
               <p className="text-muted-foreground text-[10px] font-semibold uppercase">
                 Batch Size
               </p>
-              <p className="text-foreground font-mono text-sm font-bold">
+              <p className="text-foreground font-mono text-sm font-semibold">
                 {batchSize.toLocaleString()}
               </p>
             </div>
@@ -184,7 +184,7 @@ export function Step3BatchConfiguration({
               <p className="text-muted-foreground text-[10px] font-semibold uppercase">
                 Est. Batches
               </p>
-              <p className="text-foreground font-mono text-sm font-bold">
+              <p className="text-foreground font-mono text-sm font-semibold">
                 {estimatedBatches !== null ? `~${estimatedBatches}` : "--"}
               </p>
             </div>
