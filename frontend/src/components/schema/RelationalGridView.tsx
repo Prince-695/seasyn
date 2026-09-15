@@ -229,7 +229,7 @@ export function RelationalGridView({
                     <th
                       key={col.name}
                       onClick={() => handleSort(col.name)}
-                      className="text-muted-foreground hover:text-foreground cursor-pointer px-3 py-2.5 font-mono text-[11px] font-semibold tracking-wider uppercase transition-colors select-none"
+                      className="text-muted-foreground hover:text-foreground cursor-pointer px-3 py-2.5 font-mono text-[11px] font-semibold uppercase transition-colors select-none"
                     >
                       <div className="flex items-center gap-1.5">
                         {col.is_primary_key && (

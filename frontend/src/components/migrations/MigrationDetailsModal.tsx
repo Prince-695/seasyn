@@ -78,7 +78,7 @@ export function MigrationDetailsModal({
               <p className="text-muted-foreground text-[10px] font-semibold uppercase">
                 Rows Migrated
               </p>
-              <p className="text-foreground mt-1 font-mono text-sm font-bold">
+              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
                 {job.migrated_rows?.toLocaleString()} /{" "}
                 {job.total_rows?.toLocaleString() || "--"}
               </p>
@@ -87,7 +87,7 @@ export function MigrationDetailsModal({
               <p className="text-muted-foreground text-[10px] font-semibold uppercase">
                 Progress
               </p>
-              <p className="text-foreground mt-1 font-mono text-sm font-bold">
+              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
                 {job.percentage}%
               </p>
             </div>
@@ -95,7 +95,7 @@ export function MigrationDetailsModal({
               <p className="text-muted-foreground text-[10px] font-semibold uppercase">
                 Batch Size
               </p>
-              <p className="text-foreground mt-1 font-mono text-sm font-bold">
+              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
                 {job.batch_size}
               </p>
             </div>

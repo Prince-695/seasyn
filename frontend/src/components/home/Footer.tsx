@@ -35,7 +35,7 @@ export const Footer = () => {
     <footer className="border-border/70 bg-background relative w-full overflow-hidden border-t pt-16 pb-12 sm:pt-20 sm:pb-16">
       {/* Giant "SEASYN" light text acting as background watermark */}
       <div className="pointer-events-none absolute bottom-0 left-1/2 z-0 -translate-x-1/2 overflow-hidden select-none">
-        <span className="text-foreground/[0.035] dark:text-foreground/4.5 block translate-y-[28%] font-sans text-[15vw] leading-none font-black tracking-tighter sm:text-[17vw] lg:text-[19vw]">
+        <span className="text-foreground/[0.035] dark:text-foreground/4.5 block translate-y-[28%] font-sans text-[15vw] leading-none font-semibold sm:text-[17vw] lg:text-[19vw]">
           SEASYN
         </span>
       </div>
@@ -50,7 +50,7 @@ export const Footer = () => {
                 <div className="border-primary absolute h-6 w-6 rotate-[-15deg] rounded-[5px] border-[3px] bg-transparent" />
                 <div className="border-secondary absolute h-6 w-6 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-[5px] border-[3px] bg-transparent" />
               </div>
-              <span className="text-foreground font-serif text-2xl font-bold tracking-tight">
+              <span className="text-foreground font-serif text-2xl font-semibold">
                 Seasyn
               </span>
             </Link>
@@ -99,7 +99,7 @@ export const Footer = () => {
 
           {/* Product Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold tracking-wide uppercase">
+            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
               Product
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -118,7 +118,7 @@ export const Footer = () => {
 
           {/* Resources Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold tracking-wide uppercase">
+            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
               Resources
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -149,7 +149,7 @@ export const Footer = () => {
 
           {/* Platform Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold tracking-wide uppercase">
+            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
               Platform
             </h4>
             <ul className="flex flex-col gap-3 text-sm">

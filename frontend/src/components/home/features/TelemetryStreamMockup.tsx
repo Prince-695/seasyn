@@ -98,15 +98,15 @@ export const TelemetryStreamMockup = () => {
               key={badge.title}
               className="bg-muted/40 border-border/50 rounded-lg border p-2"
             >
-              <span className="text-muted-foreground block text-[9px] font-semibold tracking-wider uppercase">
+              <span className="text-muted-foreground block text-[9px] font-semibold uppercase">
                 {badge.title}
               </span>
               <div className="mt-0.5 flex items-center justify-between">
-                <span className="text-foreground font-mono text-xs font-bold">
+                <span className="text-foreground font-mono text-xs font-semibold">
                   {badge.value}
                 </span>
                 <span
-                  className={`py-0.2 rounded px-1.5 text-[9px] font-bold ${badge.tagBg} ${badge.tagColor}`}
+                  className={`py-0.2 rounded px-1.5 text-[9px] font-semibold ${badge.tagBg} ${badge.tagColor}`}
                 >
                   {badge.tag}
                 </span>

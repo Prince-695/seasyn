@@ -28,7 +28,7 @@ export const SchemaTranslationMockup = () => {
               className="bg-muted/40 border-border/50 flex items-center justify-between rounded-md border p-1.5 px-2 text-[10px]"
             >
               <div className="flex items-center gap-1">
-                <span className="bg-info/15 text-info py-0.2 rounded px-1 font-mono text-[9px] font-bold">
+                <span className="bg-info/15 text-info py-0.2 rounded px-1 font-mono text-[9px] font-semibold">
                   {item.fromSource}
                 </span>
                 <span className="text-foreground font-mono font-medium">
@@ -37,7 +37,7 @@ export const SchemaTranslationMockup = () => {
               </div>
               <ArrowRight className="text-muted-foreground/60 h-3 w-3 shrink-0" />
               <div className="flex items-center gap-1">
-                <span className="bg-success/15 text-success py-0.2 rounded px-1 font-mono text-[9px] font-bold">
+                <span className="bg-success/15 text-success py-0.2 rounded px-1 font-mono text-[9px] font-semibold">
                   {item.toTarget}
                 </span>
                 <span className="text-foreground font-mono font-medium">

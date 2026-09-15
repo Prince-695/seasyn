@@ -23,33 +23,32 @@ const steps = [
     stepNumber: "01",
     label: "Connect",
     icon: Plug,
-    tagline: "Agentless TLS Handshake",
-    title: "Direct TLS Handshake",
-    description:
-      "Connect securely with temporary credentials. Zero agents, daemons, or persistent storage required.",
-    badges: ["Zero Data at Rest", "TLS 1.3 Encrypted"],
+    tagline: "Quick & Secure",
+    title: "Connect Databases",
+    description: "Connect with your credentials. No extra software to install.",
+    badges: ["Encrypted", "No Data Stored"],
   },
   {
     id: "map",
     stepNumber: "02",
     label: "Synthesize",
     icon: GitMerge,
-    tagline: "Automated Schema Translation",
-    title: "Automated Type Coercion",
+    tagline: "Auto-Match Tables",
+    title: "Match Tables & Fields",
     description:
-      "Deep schema introspection maps SQL and NoSQL types with foreign key order preservation.",
-    badges: ["SQL ↔ NoSQL Bridge", "Instant Type Validation"],
+      "We automatically match your tables and fields across SQL and NoSQL.",
+    badges: ["SQL & NoSQL", "Auto-Verified"],
   },
   {
     id: "stream",
     stepNumber: "03",
     label: "Stream",
     icon: Radio,
-    tagline: "Live Execution & Checksums",
-    title: "Zero-Downtime Streaming",
+    tagline: "Live Transfer",
+    title: "Move Your Data",
     description:
-      "Memory-only cursor streaming with continuous batch checkpoints and row-by-row checksums.",
-    badges: ["38 MB RAM Ceiling", "Auto-Resume Checkpoints"],
+      "Data moves smoothly with live progress. Resumes cleanly if interrupted.",
+    badges: ["Low Memory", "Auto-Resume"],
   },
 ]
 
@@ -70,13 +69,12 @@ export const HowItWorks = () => {
         <ScrollRevealText
           as="h2"
           lines={["Simple to start.", "Built to scale."]}
-          className="text-foreground font-serif text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
+          className="text-foreground font-serif text-4xl leading-[1.05] font-semibold sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
           lineClassName="font-serif leading-[1.05]"
         />
 
         <p className="text-muted-foreground mt-3 max-w-xl text-base leading-snug sm:text-lg">
-          Three streamlined phases from connection handshake to verified
-          migration.
+          Three simple steps to move your data safely.
         </p>
       </div>
 
@@ -128,12 +126,12 @@ export const HowItWorks = () => {
           >
             {/* Left Column: Minimal Narrative */}
             <div className="flex flex-col md:col-span-5">
-              <div className="text-primary mb-2 inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase">
+              <div className="text-primary mb-2 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase">
                 <activeStep.icon className="h-3.5 w-3.5" />
                 <span>{activeStep.tagline}</span>
               </div>
 
-              <h3 className="text-foreground font-serif text-2xl leading-tight font-bold tracking-tight sm:text-3xl">
+              <h3 className="text-foreground font-serif text-2xl leading-tight font-semibold sm:text-3xl">
                 {activeStep.title}
               </h3>
 
@@ -250,7 +248,7 @@ export const HowItWorks = () => {
                     </span>
                   </div>
 
-                  <div className="text-muted-foreground mb-2 flex items-center justify-between px-1 text-[10px] font-semibold tracking-wider uppercase">
+                  <div className="text-muted-foreground mb-2 flex items-center justify-between px-1 text-[10px] font-semibold uppercase">
                     <span>Source (Relational)</span>
                     <span>Target (Document)</span>
                   </div>
@@ -326,7 +324,7 @@ export const HowItWorks = () => {
                         <Zap className="text-primary h-3 w-3" />
                         <span>Speed</span>
                       </div>
-                      <div className="text-foreground font-mono font-bold">
+                      <div className="text-foreground font-mono font-semibold">
                         94,200/s
                       </div>
                     </div>
@@ -335,7 +333,7 @@ export const HowItWorks = () => {
                         <Activity className="text-secondary h-3 w-3" />
                         <span>RAM</span>
                       </div>
-                      <div className="text-foreground font-mono font-bold">
+                      <div className="text-foreground font-mono font-semibold">
                         38 MB
                       </div>
                     </div>
@@ -344,7 +342,7 @@ export const HowItWorks = () => {
                         <ShieldCheck className="text-success h-3 w-3" />
                         <span>Checksum</span>
                       </div>
-                      <div className="text-success font-mono font-bold">
+                      <div className="text-success font-mono font-semibold">
                         CRC32 OK
                       </div>
                     </div>

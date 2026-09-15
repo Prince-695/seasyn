@@ -126,7 +126,7 @@ export function ResetPass() {
                 placeholder="123456"
                 {...register("otp")}
                 aria-invalid={!!errors.otp}
-                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 pl-10 font-mono tracking-widest transition-all duration-200"
+                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 pl-10 font-mono transition-all duration-200"
               />
             </div>
             {errors.otp && (
@@ -257,7 +257,7 @@ export function ResetPass() {
           </div>
 
           <DialogHeader className="space-y-2 text-center sm:text-center">
-            <DialogTitle className="text-primary text-center text-2xl font-bold tracking-tight">
+            <DialogTitle className="text-primary text-center text-2xl font-semibold">
               Password Updated!
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-center text-sm">

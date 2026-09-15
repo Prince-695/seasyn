@@ -200,7 +200,7 @@ export function DashboardProjectsTable({
     <div className="space-y-4">
       {/* Header with Project Count & Filter Pills */}
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <h2 className="text-foreground text-xl font-bold tracking-tight">
+        <h2 className="text-foreground text-xl font-semibold">
           {projects.length} {projects.length === 1 ? "Project" : "Projects"}
         </h2>
 
@@ -287,7 +287,7 @@ export function DashboardProjectsTable({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase">
+                <tr className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold uppercase">
                   {tableHeaders.map((header) => (
                     <th
                       key={header.label}

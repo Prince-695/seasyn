@@ -69,7 +69,7 @@ export const NavbarMobile = ({
                     onClick={onClose}
                     className="border-border bg-card hover:bg-muted flex items-center gap-2 rounded-lg border p-3 transition-colors"
                   >
-                    <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold">
+                    <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold">
                       {(
                         user?.first_name?.[0] ||
                         user?.name?.[0] ||

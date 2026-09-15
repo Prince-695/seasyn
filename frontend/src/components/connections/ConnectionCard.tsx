@@ -99,7 +99,7 @@ export function ConnectionCard({
                   type="button"
                   variant="ghost"
                   onClick={handleOpenStudio}
-                  className="hover:text-primary group/title flex h-auto max-w-full cursor-pointer items-center gap-1 p-0 text-left font-semibold tracking-tight transition-colors"
+                  className="hover:text-primary group/title flex h-auto max-w-full cursor-pointer items-center gap-1 p-0 text-left font-semibold transition-colors"
                   title={`Open ${connection.name} in Schema Studio`}
                 >
                   <span className="text-foreground group-hover/title:text-primary truncate text-sm font-semibold transition-colors">

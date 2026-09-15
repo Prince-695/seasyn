@@ -108,7 +108,7 @@ export function TableStructureView({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-foreground font-mono text-base font-bold">
+                <h2 className="text-foreground font-mono text-base font-semibold">
                   {table.name}
                 </h2>
                 <Badge variant="outline" className="font-mono text-[10px]">
@@ -213,7 +213,7 @@ export function TableStructureView({
         <div className="border-border/70 bg-card overflow-hidden rounded-xl border shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase">
+              <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold uppercase">
                 <tr>
                   <th className="px-3 py-2.5">Column Name</th>
                   <th className="px-3 py-2.5">Universal Type</th>
@@ -301,7 +301,7 @@ export function TableStructureView({
           {table.indexes && table.indexes.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase">
+                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold uppercase">
                   <tr>
                     <th className="px-3 py-2.5">Index Name</th>
                     <th className="px-3 py-2.5">Indexed Columns</th>
@@ -365,7 +365,7 @@ export function TableStructureView({
           {table.constraints && table.constraints.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase">
+                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold uppercase">
                   <tr>
                     <th className="px-3 py-2.5">Constraint Identifier</th>
                     <th className="px-3 py-2.5">Type</th>

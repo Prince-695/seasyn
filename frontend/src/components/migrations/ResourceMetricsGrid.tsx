@@ -39,7 +39,7 @@ function StatCell({
         customContent
       ) : (
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-foreground font-mono text-base font-bold">
+          <span className="text-foreground font-mono text-base font-semibold">
             {value}
           </span>
           {subValue && (
@@ -77,7 +77,7 @@ function MetricPanel({
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-foreground text-sm font-bold">{title}</h3>
+            <h3 className="text-foreground text-sm font-semibold">{title}</h3>
             <p className="text-muted-foreground text-[10px]">{subtitle}</p>
           </div>
         </div>

@@ -1,41 +1,41 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { Button } from "../ui/button"
 
 const faqData = [
   {
     question: "How does Seasyn ensure zero downtime during migration?",
     answer:
-      "Seasyn utilizes non-blocking read streams with cursor-based pagination and change-data-capture (CDC) semantics. Your production source database continues servicing queries normally while data is streamed directly to the destination without locking tables.",
+      "We copy data in small batches without locking any tables. Your database stays live and serves users normally throughout.",
   },
   {
     question:
       "Are database credentials or table records stored on your servers?",
     answer:
-      "Never. Seasyn operates with a strictly stateless architecture. Ephemeral connection secrets exist solely in volatile memory during the active session, and records stream socket-to-socket over TLS 1.3 without touching disk storage.",
+      "Never. Your database passwords and records are never saved to disk. Everything is encrypted and kept only in memory while moving.",
   },
   {
     question: "How does automatic schema translation handle SQL to NoSQL?",
     answer:
-      "Our introspection engine analyzes relational tables, constraints, foreign keys, and indexes, converting them into optimized document structures (e.g. SQL UUID to BSON ObjectId, JSONB to nested objects). You retain full granular control to override mappings before running.",
+      "We read your tables, relationships, and fields, then convert them into matching document formats. You can review and edit mappings before starting.",
   },
   {
     question: "What happens if a network interruption occurs during migration?",
     answer:
-      "Seasyn employs deterministic batch checkpointing. If a connection drops, the engine resumes from the last successfully committed batch ID rather than restarting from zero, preventing duplicate rows and wasted bandwidth.",
+      "We save progress after every batch. If the connection drops, it resumes right where it stopped without duplicating data.",
   },
   {
     question: "Which databases and versions are currently supported?",
     answer:
-      "Seasyn natively supports PostgreSQL (12+), MySQL (8.0+), MongoDB (5.0+), and SQLite (3.x). We are actively expanding engine adapters to include Redis, ClickHouse, and Snowflake in upcoming releases.",
+      "PostgreSQL, MySQL, MongoDB, and SQLite are supported today. Support for Redis and Snowflake is coming soon.",
   },
   {
     question: "Do I need to install any background daemons or agents?",
     answer:
-      "No. Seasyn is 100% agentless. It connects directly via standard database wire protocols. There are no kernel modules, sidecars, or persistent daemons to manage or configure on your servers.",
+      "No. You don't need to install anything on your servers. We connect directly using standard database connections.",
   },
 ]
 
@@ -47,9 +47,9 @@ export const FAQ = () => {
   }
 
   return (
-    <section className="relative z-10 mx-auto mt-36 flex w-full max-w-5xl flex-col items-center justify-center px-6">
+    <section className="relative z-10 mx-auto mt-28 flex w-full max-w-5xl flex-col items-center justify-center px-4 sm:mt-36 sm:px-6">
       {/* Header with ScrollRevealText */}
-      <div className="mb-12 flex flex-col items-center text-center">
+      <div className="mb-10 flex flex-col items-center text-center sm:mb-12">
         <div className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
           FAQ
         </div>
@@ -57,17 +57,16 @@ export const FAQ = () => {
         <ScrollRevealText
           as="h2"
           lines={["Frequently Asked", "Questions."]}
-          className="text-foreground font-serif text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
-          lineClassName="font-serif leading-[1.05]"
+          className="text-foreground font-serif text-3xl leading-[1.08] font-semibold sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
+          lineClassName="font-serif leading-[1.08] sm:leading-[1.05]"
         />
 
-        <p className="text-muted-foreground mt-3 max-w-xl text-base leading-snug sm:text-lg">
-          Everything you need to know about our stateless architecture,
-          security, and migration guarantees.
+        <p className="text-muted-foreground mt-3 max-w-xl text-sm leading-snug sm:text-base md:text-lg">
+          Answers to common questions about how Seasyn works.
         </p>
       </div>
 
-      <div className="relative flex w-full flex-col gap-3.5">
+      <div className="relative flex w-full flex-col gap-2.5 sm:gap-3.5">
         {/* Decorative background glows */}
         <div className="bg-primary/5 pointer-events-none absolute top-1/4 left-[-10%] -z-10 h-72 w-72 rounded-full blur-[120px]" />
         <div className="bg-secondary/5 pointer-events-none absolute right-[-10%] bottom-1/4 -z-10 h-72 w-72 rounded-full blur-[120px]" />
@@ -81,7 +80,7 @@ export const FAQ = () => {
               className={cn(
                 "group border-border/80 bg-card overflow-hidden rounded-xl border transition-all duration-300",
                 isOpen
-                  ? "border-primary/40 shadow-sm"
+                  ? "border-primary/40 shadow-xs"
                   : "hover:border-border hover:bg-card/80"
               )}
             >
@@ -93,7 +92,7 @@ export const FAQ = () => {
               >
                 <span
                   className={cn(
-                    "text-base font-semibold transition-colors duration-200 sm:text-lg",
+                    "min-w-0 flex-1 text-sm leading-snug font-medium transition-colors duration-200 sm:text-base sm:leading-normal sm:font-semibold",
                     isOpen
                       ? "text-primary"
                       : "text-foreground group-hover:text-primary"
@@ -103,13 +102,13 @@ export const FAQ = () => {
                 </span>
                 <div
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-300",
+                    "flex size-7 shrink-0 items-center justify-center rounded-lg border transition-all duration-300 sm:size-8",
                     isOpen
-                      ? "border-primary bg-primary text-primary-foreground rotate-180 shadow-xs"
+                      ? "border-primary bg-primary text-primary-foreground rotate-180 shadow-2xs"
                       : "border-border bg-muted/50 text-foreground group-hover:border-primary/50 group-hover:text-primary"
                   )}
                 >
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="size-3.5 sm:size-4" />
                 </div>
               </Button>
 
@@ -129,9 +128,9 @@ export const FAQ = () => {
                     }}
                     className="overflow-hidden"
                   >
-                    <div className="text-muted-foreground px-4 pb-5 sm:px-5">
-                      <div className="border-border/50 border-t pt-3.5">
-                        <p className="text-sm leading-relaxed sm:text-base">
+                    <div className="text-muted-foreground px-3.5 pb-4 sm:px-5 sm:pb-5">
+                      <div className="border-border/50 border-t pt-3 sm:pt-3.5">
+                        <p className="text-xs leading-relaxed font-normal sm:text-sm sm:leading-relaxed">
                           {item.answer}
                         </p>
                       </div>

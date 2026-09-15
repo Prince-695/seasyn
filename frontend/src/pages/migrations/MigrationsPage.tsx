@@ -101,7 +101,7 @@ export function MigrationsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-foreground text-xl font-bold tracking-tight">
+            <h1 className="text-foreground text-xl font-semibold">
               Migration Studio
             </h1>
             <div className="border-primary/30 bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold">
@@ -153,7 +153,7 @@ export function MigrationsPage() {
                 <span className="bg-info relative inline-flex h-3 w-3 rounded-full"></span>
               </div>
               <div>
-                <p className="text-foreground text-xs font-bold">
+                <p className="text-foreground text-xs font-semibold">
                   Active Live Migration in Progress
                 </p>
                 <p className="text-info font-mono text-[11px]">
@@ -189,7 +189,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Total Pipelines
           </p>
-          <p className="text-foreground mt-1 font-mono text-2xl font-bold tracking-tight">
+          <p className="text-foreground mt-1 font-mono text-2xl font-semibold">
             {totalPipelines}
           </p>
         </Card>
@@ -198,7 +198,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Active Streaming
           </p>
-          <p className="text-info mt-1 font-mono text-2xl font-bold tracking-tight">
+          <p className="text-info mt-1 font-mono text-2xl font-semibold">
             {activeCount}
           </p>
         </Card>
@@ -207,7 +207,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Average Speed
           </p>
-          <p className="text-foreground mt-1 font-mono text-xl font-bold tracking-tight">
+          <p className="text-foreground mt-1 font-mono text-xl font-semibold">
             {avgSpeed}
           </p>
         </Card>
@@ -216,7 +216,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Total Records Synced
           </p>
-          <p className="text-foreground mt-1 font-mono text-2xl font-bold tracking-tight">
+          <p className="text-foreground mt-1 font-mono text-2xl font-semibold">
             {totalSynced.toLocaleString()}
           </p>
         </Card>
@@ -232,7 +232,7 @@ export function MigrationsPage() {
                 <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg">
                   <Clock className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+                <h3 className="text-foreground text-sm font-semibold sm:text-base">
                   Migration Time Ranges
                 </h3>
               </div>
@@ -281,7 +281,7 @@ export function MigrationsPage() {
                 <div className="bg-warning/10 text-warning flex h-7 w-7 items-center justify-center rounded-lg">
                   <AlertCircle className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+                <h3 className="text-foreground text-sm font-semibold sm:text-base">
                   Recent Issues & Failure Reasons
                 </h3>
               </div>

@@ -69,7 +69,7 @@ export const Navbar = () => {
       }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "border-border bg-background/80 fixed inset-x-0 top-6 z-50 mx-auto w-[95%] max-w-5xl rounded-xl border shadow-sm backdrop-blur-md"
+        "border-border bg-background/80 fixed inset-x-0 top-3 z-50 mx-auto w-[95%] max-w-5xl rounded-xl border-2 backdrop-blur-md"
       )}
     >
       <div className="mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -84,27 +84,10 @@ export const Navbar = () => {
             {/* Second Ring: Database Target */}
             <div className="border-secondary absolute h-7 w-7 translate-x-2 translate-y-1 rotate-[-15deg] rounded-lg border-4 bg-transparent" />
           </div>
-          <span className="text-foreground ml-1 text-xl font-bold tracking-tight">
+          <span className="text-foreground ml-1 text-xl font-semibold">
             Seasyn
           </span>
         </NavLink>
-
-        {/* Navigation Links (Desktop) */}
-        {/* <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              className={({ isActive }) =>
-                `hover:text-secondary transition-colors ${
-                  isActive ? "text-primary" : "text-muted-foreground"
-                }`
-              }
-            >
-              {item.name}
-            </NavLink>
-          ))}
-        </nav> */}
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-4">
@@ -127,7 +110,7 @@ export const Navbar = () => {
                   to="/dashboard"
                   className="border-border bg-card/50 hover:bg-muted flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-colors"
                 >
-                  <div className="bg-primary/10 text-primary flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
+                  <div className="bg-primary/10 text-primary flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold">
                     {(
                       user?.first_name?.[0] ||
                       user?.name?.[0] ||

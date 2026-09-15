@@ -97,7 +97,7 @@ export function SchemaDiffViewer({
             </span>
             <PlusCircle className="text-success h-4 w-4" />
           </div>
-          <span className="text-success mt-2 font-mono text-2xl font-bold">
+          <span className="text-success mt-2 font-mono text-2xl font-semibold">
             +{tablesAdded.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -113,7 +113,7 @@ export function SchemaDiffViewer({
             </span>
             <MinusCircle className="text-destructive h-4 w-4" />
           </div>
-          <span className="text-destructive mt-2 font-mono text-2xl font-bold">
+          <span className="text-destructive mt-2 font-mono text-2xl font-semibold">
             -{tablesRemoved.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -138,7 +138,7 @@ export function SchemaDiffViewer({
             </span>
             <AlertCircle className="text-warning h-4 w-4" />
           </div>
-          <span className="text-warning mt-2 font-mono text-2xl font-bold">
+          <span className="text-warning mt-2 font-mono text-2xl font-semibold">
             ~{tablesAltered.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -154,7 +154,7 @@ export function SchemaDiffViewer({
             </span>
             <CheckCircle2 className="text-primary h-4 w-4" />
           </div>
-          <span className="text-foreground mt-2 font-mono text-2xl font-bold">
+          <span className="text-foreground mt-2 font-mono text-2xl font-semibold">
             {tablesSame.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -225,7 +225,7 @@ export function SchemaDiffViewer({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {/* Left Column: Tables Diff Directory */}
         <div className="border-border/70 bg-card space-y-2 overflow-hidden rounded-xl border p-3 shadow-xs lg:col-span-4">
-          <span className="text-muted-foreground block px-1 text-xs font-semibold tracking-wider uppercase">
+          <span className="text-muted-foreground block px-1 text-xs font-semibold uppercase">
             Comparison Directory
           </span>
 
@@ -307,7 +307,7 @@ export function SchemaDiffViewer({
               <div className="border-border/60 bg-muted/30 flex items-center justify-between border-b px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Database className="text-primary h-4 w-4" />
-                  <span className="text-foreground font-mono text-xs font-bold">
+                  <span className="text-foreground font-mono text-xs font-semibold">
                     Table Schema Diff: {selectedTableDiff.name}
                   </span>
                 </div>

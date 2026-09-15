@@ -287,7 +287,7 @@ export function DocumentView({
                       #{index + 1 + (currentPage - 1) * pageSize}
                     </span>
 
-                    <div className="text-foreground flex items-center gap-1.5 font-mono text-xs font-bold">
+                    <div className="text-foreground flex items-center gap-1.5 font-mono text-xs font-semibold">
                       <Hash className="text-muted-foreground h-3.5 w-3.5" />
                       <span>{docId}</span>
                     </div>

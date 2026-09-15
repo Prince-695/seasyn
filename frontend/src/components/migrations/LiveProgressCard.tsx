@@ -108,7 +108,7 @@ export function LiveProgressCard({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-foreground text-sm font-bold tracking-tight">
+            <span className="text-foreground text-sm font-semibold">
               Migration Progress
             </span>
             <span className="text-muted-foreground font-mono text-xs">
@@ -128,7 +128,7 @@ export function LiveProgressCard({
       {/* Hero Metrics Counter */}
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
         <div className="flex items-baseline gap-2.5">
-          <span className="text-foreground font-mono text-3xl font-black tracking-tight sm:text-4xl">
+          <span className="text-foreground font-mono text-3xl font-semibold sm:text-4xl">
             {migratedRows.toLocaleString()}
           </span>
           <span className="text-muted-foreground font-mono text-sm font-medium">
@@ -140,7 +140,7 @@ export function LiveProgressCard({
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "font-mono text-3xl font-black sm:text-4xl",
+              "font-mono text-3xl font-semibold sm:text-4xl",
               isCompleted
                 ? "text-success"
                 : isFailed
@@ -183,11 +183,11 @@ export function LiveProgressCard({
           const Icon = col.icon
           return (
             <div key={col.label} className="space-y-1">
-              <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
+              <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold uppercase">
                 <Icon className={cn("h-3 w-3", col.iconColor)} />
                 <span>{col.label}</span>
               </div>
-              <p className="text-foreground font-mono text-sm font-bold">
+              <p className="text-foreground font-mono text-sm font-semibold">
                 {col.mainValue}{" "}
                 {col.subValue && (
                   <span className="text-muted-foreground text-[10px] font-normal">

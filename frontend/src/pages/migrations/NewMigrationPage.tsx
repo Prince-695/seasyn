@@ -48,7 +48,7 @@ export function NewMigrationPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-foreground text-xl font-bold tracking-tight">
+          <h1 className="text-foreground text-xl font-semibold">
             Launch New Migration Pipeline
           </h1>
           <p className="text-muted-foreground text-xs">

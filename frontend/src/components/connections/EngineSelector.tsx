@@ -56,7 +56,7 @@ export function EngineSelector({
                 </h4>
                 <span
                   className={cn(
-                    "mt-1 inline-block max-w-full truncate rounded-md border px-1.5 py-0 text-[10px] font-medium tracking-tight",
+                    "mt-1 inline-block max-w-full truncate rounded-md border px-1.5 py-0 text-[10px] font-medium",
                     engine.badgeClass
                   )}
                 >

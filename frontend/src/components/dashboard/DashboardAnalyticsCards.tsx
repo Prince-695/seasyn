@@ -81,7 +81,7 @@ export function DashboardAnalyticsCards({
       <div className="border-border/70 bg-card/50 rounded-2xl border p-4 shadow-xs backdrop-blur-xs">
         <div className="border-border/50 flex items-center justify-between border-b pb-3">
           <div>
-            <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+            <h3 className="text-foreground text-sm font-semibold sm:text-base">
               Workspace Limits
             </h3>
             <p className="text-muted-foreground text-xs">
@@ -104,7 +104,7 @@ export function DashboardAnalyticsCards({
       <div className="border-border/70 bg-card/50 rounded-2xl border p-4 shadow-xs backdrop-blur-xs">
         <div className="border-border/50 flex items-center justify-between border-b pb-3">
           <div>
-            <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+            <h3 className="text-foreground text-sm font-semibold sm:text-base">
               Database Engines
             </h3>
             <p className="text-muted-foreground text-xs">
@@ -154,7 +154,7 @@ export function DashboardAnalyticsCards({
       <div className="border-border/70 bg-card/50 rounded-2xl border p-4 shadow-xs backdrop-blur-xs">
         <div className="border-border/50 flex items-center justify-between border-b pb-3">
           <div>
-            <h3 className="text-foreground text-sm font-bold tracking-tight sm:text-base">
+            <h3 className="text-foreground text-sm font-semibold sm:text-base">
               Sync Activity
             </h3>
             <p className="text-muted-foreground text-xs">

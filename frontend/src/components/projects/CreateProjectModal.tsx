@@ -133,7 +133,7 @@ export function CreateProjectModal({
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
+          <div className="text-primary flex items-center gap-2 text-xs font-semibold uppercase">
             <Sparkles className="h-4 w-4" />
             <span>Database Workspace</span>
           </div>

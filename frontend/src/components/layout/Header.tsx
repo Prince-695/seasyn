@@ -1,32 +1,14 @@
 import { useLocation, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
-import {
-  Menu,
-  ChevronRight,
-  User,
-  LogOut,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  Sun,
-  Moon,
-} from "lucide-react"
+import { Menu, ChevronRight, User, LogOut, Sun, Moon } from "lucide-react"
 
 import { useUIStore } from "@/store/uiStore"
 import { useAuthStore } from "@/store/authStore"
 import { useWorkspaceStore } from "@/store/workspaceStore"
 import { useTheme } from "@/components/theme-provider"
 import { authApi } from "@/api/auth"
-import { checkSystemHealth } from "@/api/client"
 import { OrgSwitcher } from "./OrgSwitcher"
 
 import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "@/components/ui/tooltip"
 
 import {
   DropdownMenu,
@@ -80,14 +62,6 @@ export function Header() {
           title: "Overview",
         })
 
-  // Real Backend Health Check (polls every 30s)
-  const { data: isHealthy, isLoading: isCheckingHealth } = useQuery({
-    queryKey: ["systemHealth"],
-    queryFn: checkSystemHealth,
-    refetchInterval: 30_000,
-    staleTime: 15_000,
-  })
-
   const handleLogout = async () => {
     try {
       await authApi.logout()
@@ -136,7 +110,7 @@ export function Header() {
                 className={cn(
                   "h-auto p-0 transition-colors hover:bg-transparent",
                   isProjectRoute && !isProjectSettings
-                    ? "text-foreground hover:text-foreground text-sm font-semibold tracking-tight sm:text-base"
+                    ? "text-foreground hover:text-foreground text-sm font-semibold sm:text-base"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -151,7 +125,7 @@ export function Header() {
             isProjectSettings) && (
             <>
               <ChevronRight className="text-muted-foreground/60 h-3.5 w-3.5" />
-              <span className="text-foreground text-sm font-semibold tracking-tight sm:text-base">
+              <span className="text-foreground text-sm font-semibold sm:text-base">
                 {currentRouteMeta.title}
               </span>
             </>
@@ -161,62 +135,6 @@ export function Header() {
 
       {/* Right: Organization Status & User Menu */}
       <div className="flex items-center gap-3">
-        {/* Live Backend System Health Badge with Tooltip Message Box */}
-        <TooltipProvider delay={100}>
-          {isCheckingHealth ? (
-            <div className="border-border/60 bg-muted/30 text-muted-foreground hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium lg:flex">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <span>Checking API...</span>
-            </div>
-          ) : isHealthy ? (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <div className="border-success/20 bg-success/10 text-success hover:bg-success/15 hidden cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors lg:flex" />
-                }
-              >
-                <CheckCircle2 className="h-3 w-3 animate-pulse" />
-                <span>API Connected</span>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                sideOffset={6}
-                className="px-3 py-2 shadow-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-                  <span className="text-xs font-semibold">
-                    System is operational
-                  </span>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <div className="border-warning/30 bg-warning/10 text-warning hover:bg-warning/15 hidden cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors lg:flex" />
-                }
-              >
-                <AlertCircle className="h-3 w-3" />
-                <span>Backend Offline</span>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                sideOffset={6}
-                className="px-3 py-2 shadow-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="bg-warning h-2 w-2 rounded-full" />
-                  <span className="text-warning text-xs font-semibold">
-                    Unable to reach backend service
-                  </span>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </TooltipProvider>
-
         {/* User Dropdown Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -229,7 +147,7 @@ export function Header() {
               />
             }
           >
-            <div className="bg-primary/10 text-primary flex h-full w-full items-center justify-center rounded-full text-xs font-bold">
+            <div className="bg-primary/10 text-primary flex h-full w-full items-center justify-center rounded-full text-xs font-semibold">
               {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
             </div>
           </DropdownMenuTrigger>

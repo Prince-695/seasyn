@@ -121,11 +121,11 @@ export function ProjectsListPage() {
       {/* Page Header */}
       <div className="border-border/60 flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="text-primary flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
+          <div className="text-primary flex items-center gap-2 text-xs font-semibold uppercase">
             <Layers className="h-3.5 w-3.5" />
             <span>Workspace Management</span>
           </div>
-          <h1 className="text-foreground mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="text-foreground mt-1 text-2xl font-semibold sm:text-3xl">
             Projects
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">

@@ -153,7 +153,7 @@ export function MigrationTerminalLog({
                 className={cn(
                   "h-5 rounded px-1.5 py-0 font-mono text-[10px] transition-colors",
                   activeFilter === lvl
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-bold shadow-2xs"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -194,7 +194,7 @@ export function MigrationTerminalLog({
             </span>
             <span
               className={cn(
-                "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold",
+                "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold",
                 log.level === "INFO" &&
                   "border-info/30 bg-info/10 text-info border",
                 log.level === "STREAM" &&

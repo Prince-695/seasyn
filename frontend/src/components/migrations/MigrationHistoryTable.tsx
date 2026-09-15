@@ -149,7 +149,7 @@ export function MigrationHistoryTable({
       <div className="border-border/70 bg-card/60 overflow-hidden rounded-xl border shadow-xs backdrop-blur-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold tracking-wider uppercase">
+            <thead className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold uppercase">
               <tr>
                 <th className="px-4 py-3">Route (Source ➔ Target)</th>
                 <th className="px-4 py-3">Tables</th>

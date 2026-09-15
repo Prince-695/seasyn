@@ -7,21 +7,21 @@ import { TelemetryStreamMockup } from "./features/TelemetryStreamMockup"
 
 const FIRST_THREE_CARDS = [
   {
-    title: "Stateless Security",
+    title: "Safe & Private",
     description:
-      "Per-request ephemeral credentials guarantee total privacy with zero data stored on middle-man servers.",
+      "Your credentials are never saved. No data is stored on our servers.",
     mockup: SecurityMockup,
   },
   {
-    title: "Universal Compatibility",
+    title: "Works Everywhere",
     description:
-      "Move data seamlessly between PostgreSQL, MySQL, MongoDB, and SQLite with zero vendor lock-in.",
+      "Easily move data between PostgreSQL, MySQL, MongoDB, and SQLite.",
     mockup: IntegrationsMockup,
   },
   {
-    title: "Schema Translation",
+    title: "Auto-Match Schema",
     description:
-      "Automatic introspection discovers foreign keys, relationships, and types, instantly mapping SQL & NoSQL.",
+      "Automatically matches tables, fields, and types between databases.",
     mockup: SchemaTranslationMockup,
   },
 ]
@@ -41,13 +41,12 @@ export const Features = () => {
             "Effortless database migrations,",
             "built for zero downtime.",
           ]}
-          className="text-foreground font-serif text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
+          className="text-foreground font-serif text-4xl leading-[1.05] font-semibold sm:text-5xl sm:leading-[1.05] md:text-6xl md:leading-[1.05]"
           lineClassName="font-serif leading-[1.05]"
         />
 
         <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-snug sm:text-lg">
-          Intelligent schema introspection, cross-paradigm translation, and
-          high-velocity streaming with zero data retention.
+          Fast data transfer, automatic table matching, and zero saved data.
         </p>
       </div>
 
@@ -63,7 +62,7 @@ export const Features = () => {
               <MockupComponent />
 
               <div className="mt-3.5 text-center">
-                <h3 className="text-foreground font-serif text-lg leading-tight font-bold tracking-tight sm:text-xl">
+                <h3 className="text-foreground font-serif text-lg leading-tight font-semibold sm:text-xl">
                   {card.title}
                 </h3>
                 <p className="text-muted-foreground mx-auto mt-1 max-w-xs text-xs leading-snug sm:text-[13px]">
@@ -80,16 +79,15 @@ export const Features = () => {
         <div className="flex flex-1 flex-col items-center text-center md:items-start md:text-left">
           <div className="bg-primary/10 text-primary mb-2.5 inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-semibold">
             <Activity className="h-3.5 w-3.5" />
-            <span>High-Velocity Engine</span>
+            <span>Fast Transfer</span>
           </div>
 
-          <h3 className="text-foreground font-serif text-2xl leading-tight font-bold tracking-tight sm:text-3xl">
-            High-Throughput Streaming & Telemetry
+          <h3 className="text-foreground font-serif text-2xl leading-tight font-semibold sm:text-3xl">
+            Fast Live Streaming
           </h3>
           <p className="text-muted-foreground mt-1.5 max-w-lg text-sm leading-snug sm:text-base">
-            High-performance data streaming ensures even multi-gigabyte
-            databases migrate with minimal RAM overhead, sub-millisecond
-            latency, and live telemetry tracking.
+            Move large databases quickly with low memory usage and live
+            progress.
           </p>
         </div>
 

@@ -84,7 +84,7 @@ export function SchemaStudioHeader({
             <Database className="h-3.5 w-3.5" />
           </div>
           <div className="flex items-center gap-1.5">
-            <h1 className="text-foreground text-xs font-bold whitespace-nowrap sm:text-sm">
+            <h1 className="text-foreground text-xs font-semibold whitespace-nowrap sm:text-sm">
               Schema Studio
             </h1>
             <Badge className="border-success/20 bg-success/10 text-success text-[10px] font-semibold">
@@ -134,7 +134,7 @@ export function SchemaStudioHeader({
                 align="start"
                 className="border-border/70 bg-popover min-w-50 p-1 shadow-md"
               >
-                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[10px] font-semibold tracking-wider uppercase">
+                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[10px] font-semibold uppercase">
                   Databases
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

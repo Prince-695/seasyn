@@ -21,7 +21,7 @@ const curtainRevealVariants: Variants = {
 
 export const Hero = ({
   // badge = (
-  //   <div className="border-border bg-muted/60 text-foreground mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium tracking-wide shadow-2xs">
+  //   <div className="border-border bg-muted/60 text-foreground mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium shadow-2xs">
   //     <Zap className="text-primary fill-primary/20 h-3.5 w-3.5" />
   //     <span>Cross-Database Migration Studio</span>
   //   </div>
@@ -35,7 +35,7 @@ export const Hero = ({
       In seconds, not sprint cycles.
     </>
   ),
-  description = "The universal sync engine for PostgreSQL, MySQL, MongoDB, and SQLite. Stream millions of records cross-paradigm with zero downtime and live throughput telemetry.",
+  description = "Move and sync data between PostgreSQL, MySQL, MongoDB, and SQLite with zero downtime.",
   ctaText = "Launch Studio",
   onCtaClick,
 }: HeroProps) => {
@@ -52,7 +52,7 @@ export const Hero = ({
           <div className="flex flex-1 flex-col items-center">
             {/* {badge} */}
 
-            <h1 className="text-foreground text-center text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl lg:leading-[1.1]">
+            <h1 className="text-foreground text-center text-5xl font-semibold md:text-6xl lg:text-7xl lg:leading-[1.1]">
               {title}
             </h1>
 

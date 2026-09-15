@@ -57,7 +57,7 @@ export function OAuthSuccess() {
   if (error) {
     return (
       <div className="bg-background flex min-h-screen flex-col items-center justify-center p-4 text-center">
-        <h1 className="text-destructive mb-4 text-2xl font-bold">
+        <h1 className="text-destructive mb-4 text-2xl font-semibold">
           Authentication Error
         </h1>
         <p className="text-muted-foreground mb-6 max-w-md">{error}</p>

@@ -78,7 +78,7 @@ export function ProjectCard({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-foreground group-hover:text-primary line-clamp-1 font-semibold tracking-tight transition-colors">
+                <h3 className="text-foreground group-hover:text-primary line-clamp-1 font-semibold transition-colors">
                   {project.name}
                 </h3>
                 {isActive && (

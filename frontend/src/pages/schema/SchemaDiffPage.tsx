@@ -118,7 +118,7 @@ export function SchemaDiffPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-foreground text-xl font-bold">
+            <h1 className="text-foreground text-xl font-semibold">
               Schema Diff Comparator
             </h1>
             <span className="border-primary/20 bg-primary/10 text-primary rounded-md border px-2 py-0.5 text-[10px] font-semibold">
@@ -180,7 +180,7 @@ export function SchemaDiffPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-center">
           {/* Source Picker */}
           <div className="space-y-1.5 md:col-span-5">
-            <span className="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase">
+            <span className="text-muted-foreground block text-[11px] font-semibold uppercase">
               Source Database (Baseline)
             </span>
             <div className="relative">
@@ -207,7 +207,7 @@ export function SchemaDiffPage() {
 
           {/* Target Picker */}
           <div className="space-y-1.5 md:col-span-5">
-            <span className="text-muted-foreground block text-[11px] font-semibold tracking-wider uppercase">
+            <span className="text-muted-foreground block text-[11px] font-semibold uppercase">
               Target Database (Comparison)
             </span>
             <div className="relative">

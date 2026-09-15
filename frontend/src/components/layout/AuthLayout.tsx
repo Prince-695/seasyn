@@ -27,7 +27,7 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
                 <div className="border-primary absolute h-7 w-7 rotate-[-15deg] rounded-lg border-[3.5px] bg-transparent" />
                 <div className="border-secondary absolute h-7 w-7 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-lg border-[3.5px] bg-transparent" />
               </div>
-              <span className="text-foreground ml-1 font-serif text-xl font-bold tracking-tight">
+              <span className="text-foreground ml-1 font-serif text-xl font-semibold">
                 Seasyn
               </span>
             </Link>
@@ -35,7 +35,7 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
 
           {/* Title & Description */}
           <div className="mb-4 text-center">
-            <h1 className="text-foreground font-serif text-3xl font-bold tracking-tight sm:text-[32px]">
+            <h1 className="text-foreground font-serif text-3xl font-semibold sm:text-[32px]">
               {title}
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">{description}</p>
