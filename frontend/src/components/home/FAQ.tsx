@@ -50,7 +50,7 @@ export const FAQ = () => {
   const activeFaq = FAQ_ITEMS[selectedIndex]
 
   return (
-    <section className="relative z-10 mx-auto mt-36 mb-16 flex w-full max-w-6xl flex-col items-center justify-center px-4 sm:mt-48 sm:mb-24 md:mt-56">
+    <section className="relative z-10 mx-auto mt-36 mb-16 flex w-full max-w-5xl flex-col items-center justify-center px-4 sm:mt-48 sm:mb-24 md:mt-56">
       {/* Section Header */}
       <div className="mb-10 flex flex-col items-center text-center sm:mb-12">
         <div className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
@@ -71,10 +71,10 @@ export const FAQ = () => {
       </div>
 
       {/* Main Split Message Box Panel */}
-      <div className="bg-muted/40 dark:bg-card/40 border-primary/40 relative w-full overflow-hidden rounded-3xl border p-4 shadow-sm sm:p-6 md:p-8 lg:p-10">
+      <div className="bg-muted/40 dark:bg-card/40 relative w-full overflow-hidden rounded-3xl border p-4 shadow-sm sm:p-6 md:p-8 lg:p-10">
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:gap-8">
           {/* Left Column: Questions List Box (50%) */}
-          <div className="bg-card border-primary/30 flex flex-col rounded-2xl border p-4 shadow-2xs sm:p-5">
+          <div className="bg-card flex flex-col rounded-2xl border p-4 shadow-2xs sm:p-5">
             <h3 className="text-foreground mb-3 px-1 font-serif text-lg font-semibold sm:text-xl">
               Questions
             </h3>
@@ -131,7 +131,7 @@ export const FAQ = () => {
                   </div>
 
                   {/* Main Answer Message Card */}
-                  <div className="bg-card border-primary/30 rounded-2xl border p-5 shadow-xs sm:p-7">
+                  <div className="bg-card rounded-2xl border p-5 shadow-xs sm:p-7">
                     <p className="text-foreground text-sm leading-relaxed sm:text-base">
                       {activeFaq.answer}
                     </p>

@@ -8,7 +8,7 @@ interface CTAProps {
 
 export const CTA = ({ onCtaClick }: CTAProps) => {
   return (
-    <section className="relative z-10 flex w-full max-w-5xl flex-col items-center justify-center px-6 pt-36 pb-32 text-center sm:pt-48 sm:pb-40 md:pt-60 md:pb-52">
+    <section className="relative z-10 flex w-full max-w-5xl flex-col items-center justify-center px-6 pt-30 pb-32 text-center sm:pt-40 sm:pb-40 md:pt-50 md:pb-52">
       {/* Eyebrow Secondary Pill Badge */}
       <div className="bg-secondary text-secondary-foreground border-secondary/40 mb-6 inline-flex items-center justify-center rounded-md border px-3.5 py-1 text-xs font-semibold">
         Get Started

@@ -106,7 +106,7 @@ export const Features = () => {
   return (
     <div
       ref={containerRef}
-      className="relative z-10 mt-6 mb-20 h-700 w-full sm:mt-10 sm:mb-32 md:mt-12 md:mb-40"
+      className="relative z-10 mt-6 mb-20 h-700 w-full sm:mt-10 sm:mb-32 md:mt-10 md:mb-40"
     >
       {/* Sticky Viewport Container - Centered Vertically and Horizontally */}
       <section className="sticky top-0 flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">

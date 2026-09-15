@@ -31,7 +31,10 @@ export const Playground = () => {
     PLAYGROUND_PRESETS[0].tableName
   )
   const [fields, setFields] = useState<SchemaField[]>(
-    PLAYGROUND_PRESETS[0].fields
+    PLAYGROUND_PRESETS[0].sqlFields
+  )
+  const [jsonDoc, setJsonDoc] = useState<string>(
+    PLAYGROUND_PRESETS[0].nosqlJson
   )
   const [isConverting, setIsConverting] = useState<boolean>(false)
   const [hasConverted, setHasConverted] = useState<boolean>(false)
@@ -53,35 +56,49 @@ export const Playground = () => {
   }, [])
 
   // Handlers
-  const handleDirectionChange = useCallback((newDir: ConversionDirection) => {
-    setDirection(newDir)
-    const matchingPreset =
-      PLAYGROUND_PRESETS.find((p) => p.direction === newDir) ||
-      PLAYGROUND_PRESETS[0]
-    setActivePresetId(matchingPreset.id)
-    setTableName(
-      newDir === "sql-to-nosql"
-        ? matchingPreset.tableName
-        : matchingPreset.collectionName
-    )
-    setFields(matchingPreset.fields)
-    setHasConverted(false)
-  }, [])
+  const handleDirectionChange = useCallback(
+    (newDir: ConversionDirection) => {
+      setDirection(newDir)
+      const currentPreset =
+        PLAYGROUND_PRESETS.find((p) => p.id === activePresetId) ||
+        PLAYGROUND_PRESETS[0]
 
-  const handleSelectPreset = useCallback((preset: PresetTemplate) => {
-    setActivePresetId(preset.id)
-    setDirection(preset.direction)
-    setTableName(
-      preset.direction === "sql-to-nosql"
-        ? preset.tableName
-        : preset.collectionName
-    )
-    setFields(preset.fields)
-    setHasConverted(false)
-  }, [])
+      if (newDir === "sql-to-nosql") {
+        setTableName(currentPreset.tableName)
+        setFields(currentPreset.sqlFields)
+      } else {
+        setTableName(currentPreset.tableName)
+        setJsonDoc(currentPreset.nosqlJson)
+        setFields(currentPreset.nosqlFields)
+      }
+      setHasConverted(false)
+    },
+    [activePresetId]
+  )
+
+  const handleSelectPreset = useCallback(
+    (preset: PresetTemplate) => {
+      setActivePresetId(preset.id)
+      if (direction === "sql-to-nosql") {
+        setTableName(preset.tableName)
+        setFields(preset.sqlFields)
+      } else {
+        setTableName(preset.tableName)
+        setJsonDoc(preset.nosqlJson)
+        setFields(preset.nosqlFields)
+      }
+      setHasConverted(false)
+    },
+    [direction]
+  )
 
   const handleFieldsChange = useCallback((newFields: SchemaField[]) => {
     setFields(newFields)
+    setHasConverted(false)
+  }, [])
+
+  const handleJsonDocChange = useCallback((newDoc: string) => {
+    setJsonDoc(newDoc)
     setHasConverted(false)
   }, [])
 
@@ -89,12 +106,15 @@ export const Playground = () => {
     const currentPreset =
       PLAYGROUND_PRESETS.find((p) => p.id === activePresetId) ||
       PLAYGROUND_PRESETS[0]
-    setTableName(
-      direction === "sql-to-nosql"
-        ? currentPreset.tableName
-        : currentPreset.collectionName
-    )
-    setFields(currentPreset.fields)
+
+    if (direction === "sql-to-nosql") {
+      setTableName(currentPreset.tableName)
+      setFields(currentPreset.sqlFields)
+    } else {
+      setTableName(currentPreset.tableName)
+      setJsonDoc(currentPreset.nosqlJson)
+      setFields(currentPreset.nosqlFields)
+    }
     setHasConverted(false)
   }, [activePresetId, direction])
 
@@ -125,7 +145,7 @@ export const Playground = () => {
       <div className="bg-secondary/5 pointer-events-none absolute top-1/3 right-1/4 h-50 w-87.5 rounded-full blur-[90px]" />
 
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Shortened Section Header */}
+        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -145,8 +165,8 @@ export const Playground = () => {
           />
 
           <p className="text-muted-foreground mt-2.5 max-w-xl text-sm leading-relaxed sm:text-base">
-            Test bidirectional schema mapping in real-time. Edit fields to
-            observe instant type inference.
+            Test bidirectional schema mapping in real-time. Edit fields or
+            documents to observe instant type inference.
           </p>
         </motion.div>
 
@@ -172,7 +192,7 @@ export const Playground = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12"
         >
-          {/* Left: Source Schema Editor */}
+          {/* Left: Source Schema Editor (SQL Table or NoSQL Doc/JSON) */}
           <div className="h-130 lg:col-span-5">
             <SchemaInputForm
               direction={direction}
@@ -180,6 +200,8 @@ export const Playground = () => {
               onTableNameChange={setTableName}
               fields={fields}
               onFieldsChange={handleFieldsChange}
+              jsonDoc={jsonDoc}
+              onJsonDocChange={handleJsonDocChange}
               onSelectPreset={handleSelectPreset}
               activePresetId={activePresetId}
               onReset={handleReset}
@@ -194,7 +216,7 @@ export const Playground = () => {
             />
           </div>
 
-          {/* Right: Target Converted Output Viewer */}
+          {/* Right: Target Converted Output (NoSQL Doc/JSON or SQL Table) */}
           <div className="h-130 lg:col-span-5">
             <ConvertedOutputViewer
               direction={direction}

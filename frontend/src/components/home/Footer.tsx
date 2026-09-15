@@ -163,10 +163,27 @@ export const Footer = () => {
         {/* Bottom Sub-row */}
         <div className="border-border/60 text-muted-foreground mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 text-xs sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Seasyn. All rights reserved.</p>
-          <div className="flex flex-wrap items-center gap-4 text-xs">
-            <span>Zero Data Retention</span>
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs">
+            <Link
+              to="/privacy-policy"
+              className="hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </Link>
             <span>•</span>
-            <span>Client-Side Isolation</span>
+            <Link
+              to="/terms-and-conditions"
+              className="hover:text-foreground transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <span>•</span>
+            <Link
+              to="/cookie-policy"
+              className="hover:text-foreground transition-colors"
+            >
+              Cookie Policy
+            </Link>
             <span>•</span>
             <a
               href="https://github.com/Prince-695/seasyn/"

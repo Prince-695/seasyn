@@ -75,7 +75,7 @@ const WORKFLOW_CARDS: WorkflowCard[] = [
 
 export const HowItWorks = () => {
   return (
-    <section className="relative z-10 mx-auto mt-36 mb-16 w-full max-w-6xl px-6 sm:mt-48 sm:mb-24 md:mt-56">
+    <section className="relative z-10 mx-auto mt-36 mb-10 w-full max-w-6xl px-6 sm:mt-48 sm:mb-20 md:mt-56">
       {/* Section Header */}
       <div className="mb-14 flex flex-col items-center text-center">
         <div className="border-border/80 bg-secondary text-foreground mb-3 inline-flex items-center justify-center rounded-full border px-3 py-1 font-mono text-xs font-semibold">
