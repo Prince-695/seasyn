@@ -7,7 +7,7 @@ import Features from "@/components/home/Features"
 import CTA from "@/components/home/CTA"
 import HowItWorks from "@/components/home/HowItWorks"
 import { Hero } from "@/components/home/Hero"
-import { DashboardPreview } from "@/components/home/DashboardPreview"
+import { DashboardPreview } from "@/components/home/dashPreviews/DashboardPreview"
 import { Playground } from "@/components/home/playground/Playground"
 
 export const Home = () => {

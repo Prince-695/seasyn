@@ -22,7 +22,8 @@ export const GhostIndicator = ({
     }
   }, [isConverting, onAwakened])
 
-  const statusLabel = label ?? (isConverting ? "Waking Up" : "Ghost in the Machine")
+  const statusLabel =
+    label ?? (isConverting ? "Waking Up" : "Ghost in the Machine")
 
   return (
     <div className="flex flex-col items-center justify-center gap-2.5 py-2 select-none">
@@ -48,11 +49,11 @@ export const GhostIndicator = ({
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="relative flex items-center justify-center filter drop-shadow-md"
+        className="relative flex items-center justify-center drop-shadow-md filter"
       >
         <svg
           viewBox="0 0 100 115"
-          className="w-14 h-16"
+          className="h-16 w-14"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -114,12 +115,12 @@ export const GhostIndicator = ({
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -bottom-2 w-10 h-1.5 rounded-full bg-foreground/20 blur-[2px]"
+          className="bg-foreground/20 absolute -bottom-2 h-1.5 w-10 rounded-full blur-[2px]"
         />
       </motion.div>
 
       {/* Friendly Status Label */}
-      <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest text-center">
+      <span className="text-muted-foreground text-center font-mono text-[10px] tracking-widest uppercase">
         {statusLabel}
       </span>
     </div>
