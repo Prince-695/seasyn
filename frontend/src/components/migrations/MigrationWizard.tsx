@@ -142,7 +142,7 @@ export function MigrationWizard({
           {/* Step 1 Indicator */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-bold transition-all ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all ${
                 currentStep === 1
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : currentStep > 1
@@ -167,7 +167,7 @@ export function MigrationWizard({
           {/* Step 2 Indicator */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-bold transition-all ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all ${
                 currentStep === 2
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : currentStep > 2
@@ -192,7 +192,7 @@ export function MigrationWizard({
           {/* Step 3 Indicator */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-bold transition-all ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all ${
                 currentStep === 3
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-muted text-muted-foreground"

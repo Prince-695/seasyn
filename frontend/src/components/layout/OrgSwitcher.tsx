@@ -116,7 +116,7 @@ export function OrgSwitcher() {
           {/* Section 1: Owned Organizations */}
           {ownedOrgs.length > 0 && (
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold tracking-wider uppercase">
+              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold uppercase">
                 My Workspaces ({ownedOrgs.length})
               </DropdownMenuLabel>
               {ownedOrgs.map((org) => {
@@ -150,7 +150,7 @@ export function OrgSwitcher() {
                 <DropdownMenuSeparator className="my-1" />
               )}
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold tracking-wider uppercase">
+                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold uppercase">
                   Shared With Me ({sharedOrgs.length})
                 </DropdownMenuLabel>
                 {sharedOrgs.map((org) => {

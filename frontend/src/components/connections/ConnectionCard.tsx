@@ -76,7 +76,7 @@ export function ConnectionCard({
     <>
       <div
         className={cn(
-          "group border-border/80 bg-card hover:border-border relative flex h-full flex-col justify-between rounded-xl border p-4.5 transition-all duration-200 hover:shadow-md",
+          "group border-border/80 bg-card hover:border-primary/50 relative flex h-full flex-col justify-between rounded-xl border p-4.5 shadow-xs transition-all duration-200",
           showProject ? "min-h-62" : "min-h-55"
         )}
       >
@@ -99,7 +99,7 @@ export function ConnectionCard({
                   type="button"
                   variant="ghost"
                   onClick={handleOpenStudio}
-                  className="hover:text-primary group/title flex h-auto max-w-full cursor-pointer items-center gap-1 p-0 text-left font-semibold tracking-tight transition-colors"
+                  className="hover:text-primary group/title flex h-auto max-w-full cursor-pointer items-center gap-1 p-0 text-left font-semibold transition-colors"
                   title={`Open ${connection.name} in Schema Studio`}
                 >
                   <span className="text-foreground group-hover/title:text-primary truncate text-sm font-semibold transition-colors">

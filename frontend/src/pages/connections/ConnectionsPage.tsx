@@ -143,7 +143,7 @@ export function ConnectionsPage() {
               <Database className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-foreground text-2xl font-bold tracking-tight">
+              <h1 className="text-foreground text-2xl font-semibold">
                 Database Connections
               </h1>
               <p className="text-muted-foreground text-xs">

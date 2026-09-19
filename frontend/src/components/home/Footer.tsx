@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { Mail, ArrowUpRight } from "lucide-react"
 import { FaGithub, FaLinkedin } from "react-icons/fa"
+import { Logo } from "@/components/Logo"
 
 const productLinks = [
   { name: "Features", href: "/#features" },
@@ -35,7 +36,7 @@ export const Footer = () => {
     <footer className="border-border/70 bg-background relative w-full overflow-hidden border-t pt-16 pb-12 sm:pt-20 sm:pb-16">
       {/* Giant "SEASYN" light text acting as background watermark */}
       <div className="pointer-events-none absolute bottom-0 left-1/2 z-0 -translate-x-1/2 overflow-hidden select-none">
-        <span className="text-foreground/[0.035] dark:text-foreground/4.5 block translate-y-[28%] font-sans text-[15vw] leading-none font-black tracking-tighter sm:text-[17vw] lg:text-[19vw]">
+        <span className="text-foreground/[0.035] dark:text-foreground/4.5 block translate-y-[28%] font-sans text-[15vw] leading-none font-semibold sm:text-[17vw] lg:text-[19vw]">
           SEASYN
         </span>
       </div>
@@ -46,20 +47,8 @@ export const Footer = () => {
           {/* Brand Column (Spans 2 on desktop) */}
           <div className="flex flex-col gap-5 lg:col-span-2">
             <Link to="/" className="flex items-center gap-3">
-              <div className="relative flex h-8 w-8 items-center justify-start">
-                <div className="border-primary absolute h-6 w-6 rotate-[-15deg] rounded-[5px] border-[3px] bg-transparent" />
-                <div className="border-secondary absolute h-6 w-6 translate-x-1.5 translate-y-1 rotate-[-15deg] rounded-[5px] border-[3px] bg-transparent" />
-              </div>
-              <span className="text-foreground font-serif text-2xl font-bold tracking-tight">
-                Seasyn
-              </span>
+              <Logo showText size={28} />
             </Link>
-
-            {/* <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Stateless in-flight database migration engine. Stream data across
-              PostgreSQL, MySQL, MongoDB, and SQLite with zero intermediate
-              storage and real-time validation.
-            </p> */}
 
             {/* Social Icons */}
             <div className="flex items-center gap-3 pt-1">
@@ -89,17 +78,11 @@ export const Footer = () => {
                 <FaLinkedin size={16} />
               </a>
             </div>
-
-            {/* Live Status Pill */}
-            {/* <div className="bg-muted/40 border-border/60 text-muted-foreground mt-2 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs">
-              <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-              <span>Stateless Streaming Active</span>
-            </div> */}
           </div>
 
           {/* Product Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold tracking-wide uppercase">
+            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
               Product
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -118,7 +101,7 @@ export const Footer = () => {
 
           {/* Resources Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold tracking-wide uppercase">
+            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
               Resources
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -149,7 +132,7 @@ export const Footer = () => {
 
           {/* Platform Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold tracking-wide uppercase">
+            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
               Platform
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -180,10 +163,27 @@ export const Footer = () => {
         {/* Bottom Sub-row */}
         <div className="border-border/60 text-muted-foreground mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 text-xs sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Seasyn. All rights reserved.</p>
-          <div className="flex flex-wrap items-center gap-4 text-xs">
-            <span>Zero Data Retention</span>
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs">
+            <Link
+              to="/privacy-policy"
+              className="hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </Link>
             <span>•</span>
-            <span>Client-Side Isolation</span>
+            <Link
+              to="/terms-and-conditions"
+              className="hover:text-foreground transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <span>•</span>
+            <Link
+              to="/cookie-policy"
+              className="hover:text-foreground transition-colors"
+            >
+              Cookie Policy
+            </Link>
             <span>•</span>
             <a
               href="https://github.com/Prince-695/seasyn/"

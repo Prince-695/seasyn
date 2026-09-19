@@ -63,7 +63,7 @@ export function PipelineFlowRibbon({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+              <span className="text-muted-foreground text-[10px] font-semibold uppercase">
                 From (Source)
               </span>
               <Badge
@@ -164,7 +164,7 @@ export function PipelineFlowRibbon({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+              <span className="text-muted-foreground text-[10px] font-semibold uppercase">
                 To (Destination)
               </span>
               <Badge

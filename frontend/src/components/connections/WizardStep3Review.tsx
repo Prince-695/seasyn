@@ -47,7 +47,7 @@ export function WizardStep3Review({
           </div>
           <span
             className={cn(
-              "rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase",
+              "rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase",
               isSourceVal
                 ? "bg-primary/10 text-primary border-primary/20 border"
                 : "border-success/20 bg-success/10 text-success border"

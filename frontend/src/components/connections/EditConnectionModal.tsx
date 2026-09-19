@@ -261,7 +261,7 @@ function EditConnectionForm({
         <div className="bg-muted/10 flex flex-col justify-between overflow-y-auto p-5 md:col-span-5">
           <div className="space-y-4">
             {/* Section Header */}
-            <div className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase">
+            <div className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold uppercase">
               <SlidersHorizontal className="text-primary h-3.5 w-3.5" />
               <span>General Settings</span>
             </div>
@@ -341,7 +341,7 @@ function EditConnectionForm({
 
           {/* Dedicated Diagnostic & Health Check Box */}
           <div className="border-border/70 bg-card mt-4 rounded-xl border p-3.5 shadow-2xs">
-            <div className="text-muted-foreground mb-2 flex items-center justify-between text-[11px] font-semibold tracking-wider uppercase">
+            <div className="text-muted-foreground mb-2 flex items-center justify-between text-[11px] font-semibold uppercase">
               <span className="flex items-center gap-1.5">
                 <Activity className="text-primary h-3.5 w-3.5" />
                 <span>Diagnostic Ping</span>
@@ -367,7 +367,7 @@ function EditConnectionForm({
         {/* Right Column: Endpoint Configuration & Credentials */}
         <div className="flex flex-col justify-between overflow-y-auto p-5 md:col-span-7">
           <div className="space-y-3">
-            <div className="text-muted-foreground flex items-center justify-between text-[11px] font-semibold tracking-wider uppercase">
+            <div className="text-muted-foreground flex items-center justify-between text-[11px] font-semibold uppercase">
               <span>Endpoint & Credentials</span>
               {connection.ssl_mode && connection.ssl_mode !== "disable" && (
                 <span className="text-success font-mono text-[10px] font-medium">

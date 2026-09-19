@@ -126,7 +126,7 @@ export function ResetPass() {
                 placeholder="123456"
                 {...register("otp")}
                 aria-invalid={!!errors.otp}
-                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 pl-10 font-mono tracking-widest transition-all duration-200"
+                className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 pl-10 font-mono transition-all duration-200"
               />
             </div>
             {errors.otp && (
@@ -223,7 +223,7 @@ export function ResetPass() {
 
           <Button
             type="submit"
-            className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-3 h-11 w-full font-semibold shadow-md transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-3 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -257,7 +257,7 @@ export function ResetPass() {
           </div>
 
           <DialogHeader className="space-y-2 text-center sm:text-center">
-            <DialogTitle className="text-primary text-center text-2xl font-bold tracking-tight">
+            <DialogTitle className="text-primary text-center text-2xl font-semibold">
               Password Updated!
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-center text-sm">
@@ -268,7 +268,7 @@ export function ResetPass() {
           </DialogHeader>
           <Button
             onClick={() => navigate("/sign-in")}
-            className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/80 mt-2 h-11 w-full font-semibold shadow-md transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
           >
             Go to Sign In
           </Button>

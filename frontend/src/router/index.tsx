@@ -19,6 +19,10 @@ import {
   MigrationsPage,
   NewMigrationPage,
   MigrationLivePage,
+  PrivacyPolicyPage,
+  TermsPage,
+  CookiePolicyPage,
+  NotFoundPage,
 } from "@/pages"
 
 import { ProtectedRoute } from "./ProtectedRoute"
@@ -46,6 +50,27 @@ export const router = createBrowserRouter(
       path: "/reset-password",
       element: <ResetPass />,
     },
+    // Legal Pages
+    {
+      path: "/privacy-policy",
+      element: <PrivacyPolicyPage />,
+    },
+    {
+      path: "/privacy",
+      element: <Navigate to="/privacy-policy" replace />,
+    },
+    {
+      path: "/terms-and-conditions",
+      element: <TermsPage />,
+    },
+    {
+      path: "/terms",
+      element: <Navigate to="/terms-and-conditions" replace />,
+    },
+    {
+      path: "/cookie-policy",
+      element: <CookiePolicyPage />,
+    },
     // Email verification — must be public so unverified users can access it
     // after sign-up or on first sign-in before verifying their account.
     {
@@ -58,6 +83,10 @@ export const router = createBrowserRouter(
     {
       path: "/auth/:provider/callback",
       element: <OAuthSuccess />,
+    },
+    {
+      path: "docs",
+      element: <ComingSoon title="Documentation & API Guides" />,
     },
 
     {
@@ -121,10 +150,6 @@ export const router = createBrowserRouter(
               element: <SchemaDiffPage />,
             },
             {
-              path: "docs",
-              element: <ComingSoon title="Documentation & API Guides" />,
-            },
-            {
               path: "profile",
               element: <ProfilePage />,
             },
@@ -134,7 +159,7 @@ export const router = createBrowserRouter(
     },
     {
       path: "*",
-      element: <Navigate to="/dashboard" replace />,
+      element: <NotFoundPage />,
     },
   ],
 

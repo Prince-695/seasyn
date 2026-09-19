@@ -21,7 +21,7 @@ function MetricCard({
   return (
     <div className="p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+        <span className="text-muted-foreground text-xs font-semibold uppercase">
           {title}
         </span>
         <div
@@ -31,7 +31,7 @@ function MetricCard({
         </div>
       </div>
       <div className="mt-2.5">
-        <p className="text-foreground font-mono text-2xl font-extrabold tracking-tight">
+        <p className="text-foreground font-mono text-2xl font-semibold">
           {primaryValue}
         </p>
         <p className="text-muted-foreground mt-0.5 text-[11px]">{subtitle}</p>
@@ -100,7 +100,7 @@ export function DashboardMetricStrip({
   ]
 
   return (
-    <div className="border-border/70 bg-card/50 overflow-hidden rounded-2xl border shadow-xs backdrop-blur-xs">
+    <div className="border-border bg-card/60 overflow-hidden rounded-xl border shadow-xs">
       <div className="divide-border/60 grid grid-cols-2 divide-y sm:grid-cols-4 sm:divide-x sm:divide-y-0">
         {metrics.map((metric) => (
           <MetricCard key={metric.title} {...metric} />

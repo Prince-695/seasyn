@@ -153,7 +153,7 @@ export function ProjectSettingsPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-2xl font-bold tracking-tight">
+              <h1 className="text-foreground text-2xl font-semibold">
                 {project.name} Settings
               </h1>
               <Badge

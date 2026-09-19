@@ -6,149 +6,185 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #f8f7f6;
-  --foreground: #000000;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --popover: #ffffff;
-  --popover-foreground: #000000;
-  --primary: #4a7bff;
-  --primary-foreground: #ffffff;
-  --secondary: #ff688a;
-  --secondary-foreground: #ffffff;
-  --muted: #f1f1f0;
-  --muted-foreground: #000000;
-  --accent: #00b969;
-  --accent-foreground: #ffffff;
-  --destructive: #ff554f;
-  --destructive-foreground: #ffffff;
-  --border: #e3e1de;
-  --input: #e3e1de;
-  --ring: #4a7bff;
-  --chart-1: #4a7bff;
-  --chart-2: #ff688a;
-  --chart-3: #00b969;
-  --chart-4: #ff9900;
-  --chart-5: #6a60ff;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #000000;
-  --sidebar-primary: #4a7bff;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f1f0;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: #e3e1de;
-  --sidebar-ring: #4a7bff;
-  --highlight: #fce08d;
-  --highlight-foreground: #000000;
+  --background: #FAFAFA;
+  --foreground: #010101;
 
-  /* Custom Status & System Colors (Preserved) */
-  --success: #10b981;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #ffffff;
-  --info: #3b82f6;
-  --info-foreground: #ffffff;
+  --card: #FFFFFF;
+  --card-foreground: #010101;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #010101;
+
+  --primary: #185ADB;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #FEB05D;
+  --secondary-foreground: #010101;
+
+  --muted: #F0F2F5;
+  --muted-foreground: #666666;
+
+  --accent: #F0F2F5;
+  --accent-foreground: #010101;
+
+  --destructive: #C94A4A;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #E5E5E5;
+  --input: #E5E5E5;
+
+  --ring: #185ADB;
+
+  --chart-1: #185ADB;
+  --chart-2: #FEB05D;
+  --chart-3: #010101;
+  --chart-4: #8FA4E0;
+  --chart-5: #F6C98F;
+
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #010101;
+  --sidebar-primary: #185ADB;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FAFAFA;
+  --sidebar-accent-foreground: #010101;
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: #185ADB;
+
+  --highlight: #fbcc99;
+  --highlight-foreground: #010101;
+
+  --success: #10B981;
+  --success-foreground: #FFFFFF;
+
+  --warning: #FEB05D;
+  --warning-foreground: #010101;
+
+  --info: #185ADB;
+  --info-foreground: #FFFFFF;
+
   --mac-close: #ff5f56;
   --mac-minimize: #ffbd2e;
   --mac-maximize: #27c93f;
-  --code-bg: #f5f4f2;
-  --code-foreground: #18181b;
-  --code-border: #e3e1de;
 
-  /* Typography (Preserved Fonts) */
+  --code-bg: #F0F2F5;
+  --code-foreground: #010101;
+  --code-border: #E5E5E5;
+
   --font-sans: "Figtree", sans-serif;
   --font-serif: "EB Garamond", serif;
   --font-mono: Menlo, monospace;
 
-  --radius: 0.5rem;
+  --radius: 0.35rem;
+
   --shadow-x: 0px;
-  --shadow-y: 4px;
-  --shadow-blur: 8px;
-  --shadow-spread: -2px;
-  --shadow-opacity: 0.1;
-  --shadow-color: #000000;
-  --shadow-2xs: 0px 4px 8px -2px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 4px 8px -2px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 1px 2px -3px hsl(0 0% 0% / 0.10);
-  --shadow: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 1px 2px -3px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 2px 4px -3px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 4px 6px -3px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 8px 10px -3px hsl(0 0% 0% / 0.10);
-  --shadow-2xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.25);
-  --tracking-normal: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 0px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.05;
+  --shadow-color: #010101;
+
+  --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.04);
+  --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0px 1px 1px 0px hsl(0 0% 0% / 0.06);
+  --shadow: 0px 1px 1px 0px hsl(0 0% 0% / 0.06);
+  --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.07);
+  --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.08);
+  --shadow-xl: 0px 2px 3px 0px hsl(0 0% 0% / 0.08);
+  --shadow-2xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.10);
+
+  --tracking-normal: 0rem;
   --spacing: 0.25rem;
 }
 
 .dark {
-  --background: #1a1816;
-  --foreground: #ffffff;
-  --card: #25221f;
-  --card-foreground: #ffffff;
-  --popover: #25221f;
-  --popover-foreground: #ffffff;
-  --primary: #6a8eff;
-  --primary-foreground: #0a0f29;
-  --secondary: #ff8ba6;
-  --secondary-foreground: #29000a;
-  --muted: #2f2c28;
-  --muted-foreground: #ffffff;
-  --accent: #33c887;
-  --accent-foreground: #001a0d;
-  --destructive: #ff736f;
-  --destructive-foreground: #290000;
-  --border: #3a3631;
-  --input: #3a3631;
-  --ring: #6a8eff;
-  --chart-1: #6a8eff;
-  --chart-2: #ff8ba6;
-  --chart-3: #33c887;
-  --chart-4: #ffb340;
-  --chart-5: #8c85ff;
-  --sidebar: #1a1816;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #6a8eff;
-  --sidebar-primary-foreground: #0a0f29;
-  --sidebar-accent: #2f2c28;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #3a3631;
-  --sidebar-ring: #6a8eff;
-  --highlight: #fce08d;
-  --highlight-foreground: #000000;
+  --background: #010101;
+  --foreground: #FAFAFA;
 
-  /* Custom Status & System Colors (Preserved) */
-  --success: #34d399;
-  --success-foreground: #064e3b;
-  --warning: #fbbf24;
-  --warning-foreground: #78350f;
-  --info: #60a5fa;
-  --info-foreground: #1e3a8a;
+  --card: #0D0D0D;
+  --card-foreground: #FAFAFA;
+
+  --popover: #0D0D0D;
+  --popover-foreground: #FAFAFA;
+
+  --primary: #185ADB;
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #FEB05D;
+  --secondary-foreground: #010101;
+
+  --muted: #171717;
+  --muted-foreground: #8E8E8E;
+
+  --accent: #171717;
+  --accent-foreground: #FAFAFA;
+
+  --destructive: #E06A6A;
+  --destructive-foreground: #FFFFFF;
+
+  --border: #242424;
+  --input: #242424;
+
+  --ring: #185ADB;
+
+  --chart-1: #185ADB;
+  --chart-2: #FEB05D;
+  --chart-3: #FAFAFA;
+  --chart-4: #8FA4E0;
+  --chart-5: #F6C98F;
+
+  --sidebar: #080808;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #185ADB;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #141414;
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: #1E1E1E;
+  --sidebar-ring: #185ADB;
+
+  --highlight: #fbcc99;
+  --highlight-foreground: #010101;
+
+  --success: #34D399;
+  --success-foreground: #064E3B;
+
+  --warning: #FEB05D;
+  --warning-foreground: #010101;
+
+  --info: #8FA4E0;
+  --info-foreground: #010101;
+
   --mac-close: #ff5f56;
   --mac-minimize: #ffbd2e;
   --mac-maximize: #27c93f;
-  --code-bg: #141311;
-  --code-foreground: #eceae5;
-  --code-border: #3a3631;
 
-  /* Typography (Preserved Fonts) */
+  --code-bg: #080808;
+  --code-foreground: #FAFAFA;
+  --code-border: #1E1E1E;
+
   --font-sans: "Figtree", sans-serif;
   --font-serif: "EB Garamond", serif;
   --font-mono: Menlo, monospace;
 
-  --radius: 0.5rem;
+  --radius: 0.35rem;
+
   --shadow-x: 0px;
-  --shadow-y: 6px;
-  --shadow-blur: 12px;
-  --shadow-spread: -4px;
-  --shadow-opacity: 0.4;
+  --shadow-y: 1px;
+  --shadow-blur: 0px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.15;
   --shadow-color: #000000;
-  --shadow-2xs: 0px 6px 12px -4px hsl(0 0% 0% / 0.20);
-  --shadow-xs: 0px 6px 12px -4px hsl(0 0% 0% / 0.20);
-  --shadow-sm: 0px 6px 12px -4px hsl(0 0% 0% / 0.40), 0px 1px 2px -5px hsl(0 0% 0% / 0.40);
-  --shadow: 0px 6px 12px -4px hsl(0 0% 0% / 0.40), 0px 1px 2px -5px hsl(0 0% 0% / 0.40);
-  --shadow-md: 0px 6px 12px -4px hsl(0 0% 0% / 0.40), 0px 2px 4px -5px hsl(0 0% 0% / 0.40);
-  --shadow-lg: 0px 6px 12px -4px hsl(0 0% 0% / 0.40), 0px 4px 6px -5px hsl(0 0% 0% / 0.40);
-  --shadow-xl: 0px 6px 12px -4px hsl(0 0% 0% / 0.40), 0px 8px 10px -5px hsl(0 0% 0% / 0.40);
-  --shadow-2xl: 0px 6px 12px -4px hsl(0 0% 0% / 1.00);
+
+  --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.15);
+  --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0.20);
+  --shadow-sm: 0px 1px 1px 0px hsl(0 0% 0% / 0.25);
+  --shadow: 0px 1px 1px 0px hsl(0 0% 0% / 0.25);
+  --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.30);
+  --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.30);
+  --shadow-xl: 0px 2px 3px 0px hsl(0 0% 0% / 0.35);
+  --shadow-2xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.40);
+
+  --tracking-normal: 0rem;
+  --spacing: 0.25rem;
 }
 
 @theme inline {
@@ -171,11 +207,13 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -184,19 +222,21 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
   --color-highlight: var(--highlight);
   --color-highlight-foreground: var(--highlight-foreground);
 
-  /* Preserved Status & Mac Theme Inline Mappings */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+
   --color-mac-close: var(--mac-close);
   --color-mac-minimize: var(--mac-minimize);
   --color-mac-maximize: var(--mac-maximize);
+
   --color-code-bg: var(--code-bg);
   --color-code-foreground: var(--code-foreground);
   --color-code-border: var(--code-border);
@@ -205,13 +245,15 @@
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
-  --radius-xs: calc(var(--radius) - 4px);
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 6px);
-  --radius-3xl: calc(var(--radius) + 8px);
+  --radius: var(--radius);
+  --radius-xs: calc(var(--radius) * 0.25);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.25);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 2);
+  --radius-4xl: calc(var(--radius) * 2.5);
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -234,11 +276,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
     letter-spacing: var(--tracking-normal);
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-serif);
   }
 }
@@ -248,32 +297,37 @@
     transform: translate(0, 20);
     opacity: 0;
   }
+
   25% {
     opacity: 1;
   }
+
   35% {
     transform: translate(-80px, -45px);
     opacity: 1;
   }
+
   55% {
     transform: translate(-80px, -45px);
     opacity: 1;
   }
+
   65% {
     opacity: 0;
   }
+
   100% {
     transform: translate(0, 0);
     opacity: 0;
   }
 }
 
-/* Page Transition Animations (Zero-flash hardware accelerated) */
 @keyframes page-enter {
   0% {
     opacity: 0;
     transform: translateY(6px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -284,6 +338,7 @@
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
@@ -294,6 +349,7 @@
     opacity: 0;
     transform: scale(0.985);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -323,7 +379,6 @@
   }
 }
 
-/* Kinetic Scroll & Masked Typography Utilities */
 .line-mask,
 .text-mask {
   overflow: hidden;
@@ -334,7 +389,9 @@
   display: block;
   transform: translateY(115%);
   opacity: 0;
-  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
 }
 
@@ -345,7 +402,6 @@
   opacity: 1;
 }
 
-/* Pure CSS scroll-driven support for browsers with view() timeline */
 @supports (animation-timeline: view()) {
   .css-scroll-reveal {
     animation: css-line-emerge linear both;
@@ -358,6 +414,7 @@
       transform: translateY(115%);
       opacity: 0.1;
     }
+
     to {
       transform: translateY(0%);
       opacity: 1;

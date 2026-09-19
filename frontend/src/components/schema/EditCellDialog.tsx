@@ -100,7 +100,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
         <div className="flex items-center gap-2">
-          <DialogTitle className="text-base font-bold">
+          <DialogTitle className="text-base font-semibold">
             Edit Value:{" "}
             <span className="text-primary font-mono">{column.name}</span>
           </DialogTitle>

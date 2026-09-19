@@ -65,7 +65,7 @@ export function DeleteRowDialog({
         <AlertDialogHeader>
           <div className="text-destructive flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
-            <AlertDialogTitle className="text-base font-bold">
+            <AlertDialogTitle className="text-base font-semibold">
               Delete Record from &apos;{tableName}&apos;?
             </AlertDialogTitle>
           </div>
@@ -78,7 +78,7 @@ export function DeleteRowDialog({
 
         {/* Primary Key Identification */}
         <div className="border-border/70 bg-muted/20 space-y-1.5 rounded-xl border p-3">
-          <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase">
+          <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold uppercase">
             <Key className="text-warning h-3.5 w-3.5" />
             <span>Target Primary Key Identification</span>
           </span>

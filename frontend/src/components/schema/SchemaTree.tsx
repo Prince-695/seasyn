@@ -103,7 +103,7 @@ export function SchemaTree({
             variant="ghost"
             size="xs"
             onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground flex h-auto items-center gap-1 p-0 text-[11px] font-semibold tracking-wider uppercase transition-colors hover:bg-transparent"
+            className="text-muted-foreground hover:text-foreground flex h-auto items-center gap-1 p-0 text-[11px] font-semibold uppercase transition-colors hover:bg-transparent"
           >
             <ChevronRight
               className={cn(

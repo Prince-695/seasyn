@@ -73,7 +73,7 @@ export function JsonNode({ keyName, value, depth = 0 }: JsonNodeProps) {
         {/* Type Badge */}
         <span
           className={cn(
-            "rounded px-1 text-[10px] font-semibold tracking-wider uppercase",
+            "rounded px-1 text-[10px] font-semibold uppercase",
             type === "ObjectId" &&
               "border-primary/20 bg-primary/10 text-primary border",
             type === "string" && "text-success",
