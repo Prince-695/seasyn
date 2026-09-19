@@ -69,13 +69,13 @@ apiClient.interceptors.response.use(
   }
 )
 
-export const checkSystemHealth = async (): Promise<boolean> => {
+export const checkSystemHealth = async (timeoutMs = 7000): Promise<boolean> => {
   try {
     const rootUrl = API_BASE_URL.replace(/\/v1\/?$/, "")
     const response = await axios.get<{ success?: boolean }>(
       `${rootUrl}/health`,
       {
-        timeout: 5000,
+        timeout: timeoutMs,
       }
     )
     return response.status === 200 && response.data?.success === true

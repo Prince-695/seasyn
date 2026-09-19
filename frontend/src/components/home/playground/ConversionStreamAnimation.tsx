@@ -4,19 +4,22 @@ import { GhostIndicator } from "./GhostIndicator"
 interface ConversionStreamAnimationProps {
   isConverting: boolean
   isApiConnected?: boolean | null
+  onApiConnectedChange?: (connected: boolean) => void
 }
 
 export const ConversionStreamAnimation = ({
   isConverting,
   isApiConnected = false,
+  onApiConnectedChange,
 }: ConversionStreamAnimationProps) => {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center px-2 py-4">
       {!isApiConnected ? (
         <GhostIndicator
-          label={
-            isConverting ? "Haunting the Pipeline..." : "Ghost in the Machine"
-          }
+          isConverting={isConverting}
+          onAwakened={() => {
+            onApiConnectedChange?.(true)
+          }}
         />
       ) : (
         /* Floating Center Equalizer Wave Loader (When API Connected) */

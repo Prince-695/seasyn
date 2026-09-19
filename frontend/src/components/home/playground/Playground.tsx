@@ -1,8 +1,7 @@
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
-import { checkSystemHealth } from "@/api/client"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
 import { DirectionSelector } from "./DirectionSelector"
 import { SchemaInputForm } from "./SchemaInputForm"
@@ -39,21 +38,6 @@ export const Playground = () => {
   const [isConverting, setIsConverting] = useState<boolean>(false)
   const [hasConverted, setHasConverted] = useState<boolean>(false)
   const [isApiConnected, setIsApiConnected] = useState<boolean | null>(null)
-
-  // System Health Check
-  useEffect(() => {
-    let isMounted = true
-    checkSystemHealth()
-      .then((healthy) => {
-        if (isMounted) setIsApiConnected(healthy)
-      })
-      .catch(() => {
-        if (isMounted) setIsApiConnected(false)
-      })
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   // Handlers
   const handleDirectionChange = useCallback(
@@ -213,6 +197,7 @@ export const Playground = () => {
             <ConversionStreamAnimation
               isConverting={isConverting}
               isApiConnected={isApiConnected}
+              onApiConnectedChange={setIsApiConnected}
             />
           </div>
 
