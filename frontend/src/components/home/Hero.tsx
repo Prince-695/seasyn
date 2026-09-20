@@ -64,7 +64,7 @@ export const Hero = ({
               </Button>
 
               {/* Editorial handwritten note — placed in the open right-hand flank */}
-              <div className="pointer-events-none absolute right-0 lg:right-4 xl:right-8 top-1/2 -translate-y-1/2 hidden md:inline-flex">
+              <div className="pointer-events-none absolute top-1/2 right-0 hidden -translate-y-1/2 md:inline-flex lg:right-4 xl:right-8">
                 <HandwrittenAnnotation
                   text={["Different databases.", "A unified flow."]}
                   dot

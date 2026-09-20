@@ -191,7 +191,7 @@ export function DashboardPreview({
 
   return (
     <MotionConfig reducedMotion="user">
-      <section className="relative z-10 mx-auto mt-16 sm:mt-20 flex w-full max-w-6xl flex-col items-center justify-center px-4 sm:mb-10 sm:px-6">
+      <section className="relative z-10 mx-auto mt-16 flex w-full max-w-6xl flex-col items-center justify-center px-4 sm:mt-20 sm:mb-10 sm:px-6">
         {/* Editorial handwritten note — placed on the left side */}
         <div className="mb-3 flex w-full justify-start pl-2 sm:pl-6">
           <HandwrittenAnnotation

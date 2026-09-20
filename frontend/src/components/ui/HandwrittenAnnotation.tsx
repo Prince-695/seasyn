@@ -71,9 +71,7 @@ export const HandwrittenAnnotation = memo(function HandwrittenAnnotation({
       <div className="relative flex items-start gap-1.5">
         {/* Optional glowing technical focal dot */}
         {dot && (
-          <span
-            className="mt-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current opacity-90 shadow-[0_0_6px_currentColor]"
-          />
+          <span className="mt-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current opacity-90 shadow-[0_0_6px_currentColor]" />
         )}
 
         <div className="flex flex-col">

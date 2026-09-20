@@ -166,7 +166,7 @@ export const Playground = () => {
           className="relative mb-6 flex items-center justify-center"
         >
           {/* Editorial handwritten note — placed on the left side */}
-          <div className="pointer-events-none absolute left-0 lg:left-4 xl:left-8 top-1/2 -translate-y-1/2 hidden md:inline-flex">
+          <div className="pointer-events-none absolute top-1/2 left-0 hidden -translate-y-1/2 md:inline-flex lg:left-4 xl:left-8">
             <HandwrittenAnnotation
               text="Relational ⇄ Document, live."
               tone="amber"

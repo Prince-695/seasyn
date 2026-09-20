@@ -40,7 +40,7 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
       {/* CTA Action Button with left-side annotation */}
       <div className="relative mt-10 flex w-full items-center justify-center">
         {/* Editorial handwritten note — placed on the left side */}
-        <div className="pointer-events-none absolute left-0 lg:left-6 xl:left-12 top-1/2 -translate-y-1/2 hidden md:inline-flex">
+        <div className="pointer-events-none absolute top-1/2 left-0 hidden -translate-y-1/2 md:inline-flex lg:left-6 xl:left-12">
           <HandwrittenAnnotation
             text="Your data, finally fluid."
             tone="blue"
