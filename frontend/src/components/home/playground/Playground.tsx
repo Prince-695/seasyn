@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/store/authStore"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { HandwrittenAnnotation } from "@/components/ui/HandwrittenAnnotation"
 import { DirectionSelector } from "./DirectionSelector"
 import { SchemaInputForm } from "./SchemaInputForm"
 import { ConversionStreamAnimation } from "./ConversionStreamAnimation"
@@ -135,11 +136,13 @@ export const Playground = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-8 flex flex-col items-center text-center"
+          className="relative mb-8 flex flex-col items-center text-center"
         >
-          <span className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
-            Playground
-          </span>
+          <div className="relative mb-3 inline-flex items-center justify-center">
+            <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+              Playground
+            </span>
+          </div>
 
           <ScrollRevealText
             as="h2"
@@ -154,14 +157,24 @@ export const Playground = () => {
           </p>
         </motion.div>
 
-        {/* Direction Switcher Header */}
+        {/* Direction Switcher Header with left-side annotation */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-6"
+          className="relative mb-6 flex items-center justify-center"
         >
+          {/* Editorial handwritten note — placed on the left side */}
+          <div className="pointer-events-none absolute top-1/2 left-0 hidden -translate-y-1/2 md:inline-flex lg:left-4 xl:left-8">
+            <HandwrittenAnnotation
+              text="Relational ⇄ Document, live."
+              tone="amber"
+              rotate={-2}
+              underline
+            />
+          </div>
+
           <DirectionSelector
             direction={direction}
             onChange={handleDirectionChange}

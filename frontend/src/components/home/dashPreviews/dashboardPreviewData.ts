@@ -108,24 +108,6 @@ export const PREVIEW_PROJECTS: MockProject[] = [
     databases: "2 (1 in, 1 out)",
     status: "Ready",
   },
-  {
-    id: "p3",
-    name: "billing-staging-audit",
-    slug: "/billing-staging",
-    environment: "staging",
-    createdAt: "1 week ago",
-    databases: "2 (1 in, 1 out)",
-    status: "Ready",
-  },
-  {
-    id: "p4",
-    name: "auth-identity-sandbox",
-    slug: "/auth-sandbox",
-    environment: "development",
-    createdAt: "2 weeks ago",
-    databases: "1 (1 in, 0 out)",
-    status: "Ready",
-  },
 ]
 
 export const PREVIEW_CONNECTIONS: MockConnection[] = [
@@ -217,20 +199,6 @@ export const PREVIEW_MIGRATIONS: MockMigration[] = [
     percentage: 100,
     current_rps: 0,
     started_at: "1d ago",
-  },
-  {
-    id: "job-104",
-    name: "billing-staging-audit",
-    source_table: "finance.ledger",
-    target_table: "audit_entries",
-    source_engine: "postgres",
-    target_engine: "sqlite",
-    status: "completed",
-    migrated_rows: 76500,
-    total_rows: 76500,
-    percentage: 100,
-    current_rps: 0,
-    started_at: "3d ago",
   },
 ]
 

@@ -1,6 +1,7 @@
 import { motion, type Variants } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { HandwrittenAnnotation } from "@/components/ui/HandwrittenAnnotation"
 
 interface HeroProps {
   badge?: React.ReactNode
@@ -35,7 +36,7 @@ export const Hero = ({
 }: HeroProps) => {
   return (
     <section className="relative z-10 mx-auto mt-20 flex w-full max-w-4xl flex-col items-center justify-center px-4 sm:mt-28 sm:px-6 md:px-8">
-      <div className="w-full pt-6 sm:pt-10">
+      <div className="relative z-10 w-full pt-6 sm:pt-10">
         <motion.div
           className="flex w-full flex-col items-center justify-center"
           variants={curtainRevealVariants}
@@ -52,7 +53,8 @@ export const Hero = ({
               {description}
             </p>
 
-            <div className="relative mt-8 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            {/* CTA row with right-side annotation in the open margin */}
+            <div className="relative mt-8 flex w-full items-center justify-center">
               <Button
                 onClick={onCtaClick}
                 className="group bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 relative flex items-center justify-center gap-2.5 rounded-lg border px-7 py-6 text-base font-semibold transition-all active:translate-y-px"
@@ -60,6 +62,17 @@ export const Hero = ({
                 {ctaText}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
+
+              {/* Editorial handwritten note — placed in the open right-hand flank */}
+              <div className="pointer-events-none absolute top-1/2 right-0 hidden -translate-y-1/2 md:inline-flex lg:right-4 xl:right-8">
+                <HandwrittenAnnotation
+                  text={["Different databases.", "A unified flow."]}
+                  dot
+                  underline
+                  tone="blue"
+                  rotate={-3}
+                />
+              </div>
             </div>
           </div>
         </motion.div>

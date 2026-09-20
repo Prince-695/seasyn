@@ -3,6 +3,7 @@ import { SiPostgresql, SiMysql, SiMongodb, SiSqlite } from "react-icons/si"
 import { Logo } from "@/components/Logo"
 import { cn } from "@/lib/utils"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { HandwrittenAnnotation } from "@/components/ui/HandwrittenAnnotation"
 
 interface WorkflowCard {
   stepNumber: string
@@ -77,9 +78,11 @@ export const HowItWorks = () => {
   return (
     <section className="relative z-10 mx-auto mt-36 mb-10 w-full max-w-6xl px-6 sm:mt-48 sm:mb-20 md:mt-56">
       {/* Section Header */}
-      <div className="mb-14 flex flex-col items-center text-center">
-        <div className="border-border/80 bg-secondary text-foreground mb-3 inline-flex items-center justify-center rounded-full border px-3 py-1 font-mono text-xs font-semibold">
-          Workflow
+      <div className="relative mb-14 flex flex-col items-center text-center">
+        <div className="relative mb-3 inline-flex items-center justify-center">
+          <div className="border-border/80 bg-secondary text-foreground inline-flex items-center justify-center rounded-full border px-3 py-1 font-mono text-xs font-semibold">
+            Workflow
+          </div>
         </div>
 
         <ScrollRevealText
@@ -92,6 +95,17 @@ export const HowItWorks = () => {
         <p className="text-muted-foreground mt-3 max-w-xl text-base leading-snug sm:text-lg">
           Three simple steps to move your data safely.
         </p>
+      </div>
+
+      {/* Editorial handwritten note — placed on the right side */}
+      <div className="mb-4 hidden w-full justify-end pr-2 sm:flex sm:pr-6">
+        <HandwrittenAnnotation
+          text="Move without interruption."
+          tone="lavender"
+          rotate={2}
+          underline
+          className="inline-flex"
+        />
       </div>
 
       {/* 3-Card Grid Matching Reference Architecture */}
