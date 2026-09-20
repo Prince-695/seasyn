@@ -1,6 +1,7 @@
 import { ArrowRight, ShieldCheck, Zap, Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { HandwrittenAnnotation } from "@/components/ui/HandwrittenAnnotation"
 
 interface CTAProps {
   onCtaClick?: () => void
@@ -36,8 +37,19 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
         Move your data quickly with zero downtime and zero data loss.
       </p>
 
-      {/* CTA Action Button */}
-      <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+      {/* CTA Action Button with left-side annotation */}
+      <div className="relative mt-10 flex w-full items-center justify-center">
+        {/* Editorial handwritten note — placed on the left side */}
+        <div className="pointer-events-none absolute left-0 lg:left-6 xl:left-12 top-1/2 -translate-y-1/2 hidden md:inline-flex">
+          <HandwrittenAnnotation
+            text="Your data, finally fluid."
+            tone="blue"
+            rotate={-3}
+            underline
+            dot
+          />
+        </div>
+
         <Button
           onClick={onCtaClick}
           className="group bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 flex cursor-pointer items-center justify-center gap-2.5 rounded-lg border px-8 py-6 text-base font-semibold transition-all active:translate-y-px sm:text-lg"

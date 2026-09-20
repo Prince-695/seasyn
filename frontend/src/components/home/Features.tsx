@@ -14,6 +14,7 @@ import {
 } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ScrollRevealText } from "@/components/ui/scroll-reveal-text"
+import { HandwrittenAnnotation } from "@/components/ui/HandwrittenAnnotation"
 import { cn } from "@/lib/utils"
 import { SecurityMockup } from "./features/SecurityMockup"
 import { IntegrationsMockup } from "./features/IntegrationsMockup"
@@ -112,10 +113,13 @@ export const Features = () => {
       <section className="sticky top-0 flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center">
           {/* Section Header */}
-          <div className="mb-8 flex flex-col items-center text-center sm:mb-10">
-            <span className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
-              Capabilities
-            </span>
+          <div className="relative mb-8 flex flex-col items-center text-center sm:mb-10">
+            <div className="relative mb-3 inline-flex items-center justify-center">
+              <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+                Capabilities
+              </span>
+            </div>
+
             <ScrollRevealText
               as="h2"
               lines={[
@@ -126,6 +130,17 @@ export const Features = () => {
               ]}
               className="text-foreground items-center text-center text-3xl sm:text-4xl md:text-5xl lg:leading-[1.15]"
               lineClassName="leading-[1.15]"
+            />
+          </div>
+
+          {/* Editorial handwritten note — placed on the right side */}
+          <div className="mb-2 hidden w-full justify-end pr-2 sm:flex sm:pr-6">
+            <HandwrittenAnnotation
+              text="Schema, translated."
+              tone="lavender"
+              rotate={2}
+              underline
+              className="inline-flex"
             />
           </div>
 

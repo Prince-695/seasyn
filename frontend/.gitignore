@@ -27,3 +27,4 @@ dist-ssr
 *.sw?
 info.md
 
+HeroDataFlowBackground.tsx

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
 @import "tw-animate-css";
 
 @import "tailwindcss";
@@ -73,6 +73,7 @@
   --font-sans: "Figtree", sans-serif;
   --font-serif: "EB Garamond", serif;
   --font-mono: Menlo, monospace;
+  --font-handwriting: "Caveat", cursive;
 
   --radius: 0.35rem;
 
@@ -164,6 +165,7 @@
   --font-sans: "Figtree", sans-serif;
   --font-serif: "EB Garamond", serif;
   --font-mono: Menlo, monospace;
+  --font-handwriting: "Caveat", cursive;
 
   --radius: 0.35rem;
 
@@ -244,6 +246,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+  --font-handwriting: var(--font-handwriting);
 
   --radius: var(--radius);
   --radius-xs: calc(var(--radius) * 0.25);
@@ -420,4 +423,8 @@
       opacity: 1;
     }
   }
+}
+
+.font-handwriting {
+  font-family: var(--font-handwriting);
 }
