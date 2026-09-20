@@ -143,9 +143,9 @@ export function DiagnosticPingButton({
         className={cn(
           "h-8 w-full justify-center gap-1.5 text-xs font-medium transition-all",
           isSuccess &&
-            "border-success/40 bg-success/10 text-success hover:bg-success/20 font-semibold",
+            "border-success/40 bg-success/10 text-success hover:bg-success/20 font-medium",
           isFailed &&
-            "border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 font-semibold",
+            "border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 font-medium",
           className
         )}
       >
@@ -182,7 +182,7 @@ export function DiagnosticPingButton({
         size={size}
         onClick={handleTest}
         disabled={testing}
-        className={cn("gap-2 font-semibold transition-all", className)}
+        className={cn("gap-2 font-medium transition-all", className)}
       >
         {testing ? (
           <>

@@ -20,7 +20,7 @@ function QuotaBar({ label, used, max, percentage, barColor }: QuotaBarProps) {
     <div>
       <div className="flex items-center justify-between text-[11px]">
         <span className="text-muted-foreground">{label}</span>
-        <span className="text-foreground font-mono font-semibold">
+        <span className="text-foreground font-mono font-medium">
           {used} / {max}
         </span>
       </div>
@@ -180,7 +180,7 @@ export function DashboardAnalyticsCards({
       <div className="border-border bg-card/60 rounded-xl border p-4 shadow-xs">
         <div className="border-border/60 flex items-center justify-between border-b pb-3">
           <div>
-            <h3 className="text-foreground text-sm font-semibold sm:text-base">
+            <h3 className="text-foreground text-sm font-medium sm:text-base">
               Workspace Limits
             </h3>
             <p className="text-muted-foreground text-xs">
@@ -202,7 +202,7 @@ export function DashboardAnalyticsCards({
       <div className="border-border bg-card/60 rounded-xl border p-4 shadow-xs">
         <div className="border-border/60 flex items-center justify-between border-b pb-3">
           <div>
-            <h3 className="text-foreground text-sm font-semibold sm:text-base">
+            <h3 className="text-foreground text-sm font-medium sm:text-base">
               Database Engines
             </h3>
             <p className="text-muted-foreground text-xs">
@@ -251,7 +251,7 @@ export function DashboardAnalyticsCards({
       <div className="border-border bg-card/60 rounded-xl border p-4 shadow-xs">
         <div className="border-border/60 flex items-center justify-between border-b pb-3">
           <div>
-            <h3 className="text-foreground text-sm font-semibold sm:text-base">
+            <h3 className="text-foreground text-sm font-medium sm:text-base">
               Sync Activity
             </h3>
             <p className="text-muted-foreground text-xs">

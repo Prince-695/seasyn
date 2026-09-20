@@ -86,7 +86,7 @@ export function ResetPass() {
 
           {/* Email Field */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-foreground/80 font-semibold">
+            <Label htmlFor="email" className="text-foreground/80 font-medium">
               Email Address
             </Label>
             <div className="relative">
@@ -112,7 +112,7 @@ export function ResetPass() {
 
           {/* OTP Field */}
           <div className="space-y-2">
-            <Label htmlFor="otp" className="text-foreground/80 font-semibold">
+            <Label htmlFor="otp" className="text-foreground/80 font-medium">
               Verification Code (OTP)
             </Label>
             <div className="relative">
@@ -141,7 +141,7 @@ export function ResetPass() {
           <div className="space-y-2">
             <Label
               htmlFor="password"
-              className="text-foreground/80 font-semibold"
+              className="text-foreground/80 font-medium"
             >
               New Password
             </Label>
@@ -183,7 +183,7 @@ export function ResetPass() {
           <div className="space-y-2">
             <Label
               htmlFor="confirmPassword"
-              className="text-foreground/80 font-semibold"
+              className="text-foreground/80 font-medium"
             >
               Confirm New Password
             </Label>
@@ -223,7 +223,7 @@ export function ResetPass() {
 
           <Button
             type="submit"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-3 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-3 h-11 w-full rounded-lg border font-medium transition-all active:translate-y-px"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -257,7 +257,7 @@ export function ResetPass() {
           </div>
 
           <DialogHeader className="space-y-2 text-center sm:text-center">
-            <DialogTitle className="text-primary text-center text-2xl font-semibold">
+            <DialogTitle className="text-primary text-center text-2xl font-medium">
               Password Updated!
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-center text-sm">
@@ -268,7 +268,7 @@ export function ResetPass() {
           </DialogHeader>
           <Button
             onClick={() => navigate("/sign-in")}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-medium transition-all active:translate-y-px"
           >
             Go to Sign In
           </Button>

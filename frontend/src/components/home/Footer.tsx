@@ -1,27 +1,28 @@
 import { Link } from "react-router-dom"
 import { Mail, ArrowUpRight } from "lucide-react"
-import { FaGithub, FaLinkedin } from "react-icons/fa"
+import { FaLinkedin } from "react-icons/fa"
 import { Logo } from "@/components/Logo"
 
-const productLinks = [
+interface FooterLink {
+  name: string
+  href: string
+  external?: boolean
+}
+
+const productLinks: FooterLink[] = [
   { name: "Features", href: "/#features" },
   { name: "How It Works", href: "/#workflow" },
   { name: "Technical FAQ", href: "/#faq" },
   { name: "Migration Studio", href: "/migration" },
 ]
 
-const resourceLinks = [
+const resourceLinks: FooterLink[] = [
   { name: "Documentation", href: "/docs" },
   { name: "Schema Inspector", href: "/docs" },
   { name: "Zero-Retention Security", href: "/docs" },
-  {
-    name: "GitHub Repository",
-    href: "https://github.com/Prince-695/seasyn/",
-    external: true,
-  },
 ]
 
-const platformLinks = [
+const platformLinks: FooterLink[] = [
   { name: "Get Started", href: "/sign-up" },
   { name: "Sign In", href: "/sign-in" },
   {
@@ -36,7 +37,7 @@ export const Footer = () => {
     <footer className="border-border/70 bg-background relative w-full overflow-hidden border-t pt-16 pb-12 sm:pt-20 sm:pb-16">
       {/* Giant "SEASYN" light text acting as background watermark */}
       <div className="pointer-events-none absolute bottom-0 left-1/2 z-0 -translate-x-1/2 overflow-hidden select-none">
-        <span className="text-foreground/[0.035] dark:text-foreground/4.5 block translate-y-[28%] font-sans text-[15vw] leading-none font-semibold sm:text-[17vw] lg:text-[19vw]">
+        <span className="text-foreground/[0.035] dark:text-foreground/4.5 block translate-y-[28%] font-sans text-[15vw] leading-none font-medium sm:text-[17vw] lg:text-[19vw]">
           SEASYN
         </span>
       </div>
@@ -60,15 +61,6 @@ export const Footer = () => {
                 <Mail size={16} />
               </a>
               <a
-                href="https://github.com/Prince-695/seasyn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border-border/80 bg-background/80 text-muted-foreground hover:border-primary/60 hover:text-primary hover:bg-primary/5 flex h-9 w-9 items-center justify-center rounded-xl border transition-all"
-                aria-label="GitHub"
-              >
-                <FaGithub size={16} />
-              </a>
-              <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -82,7 +74,7 @@ export const Footer = () => {
 
           {/* Product Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
+            <h4 className="text-foreground font-serif text-sm font-medium uppercase">
               Product
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -101,7 +93,7 @@ export const Footer = () => {
 
           {/* Resources Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
+            <h4 className="text-foreground font-serif text-sm font-medium uppercase">
               Resources
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -132,7 +124,7 @@ export const Footer = () => {
 
           {/* Platform Links */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-foreground font-serif text-sm font-semibold uppercase">
+            <h4 className="text-foreground font-serif text-sm font-medium uppercase">
               Platform
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
@@ -184,15 +176,6 @@ export const Footer = () => {
             >
               Cookie Policy
             </Link>
-            <span>•</span>
-            <a
-              href="https://github.com/Prince-695/seasyn/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
-            >
-              Open Source
-            </a>
           </div>
         </div>
       </div>

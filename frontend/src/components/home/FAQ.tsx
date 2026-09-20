@@ -53,7 +53,7 @@ export const FAQ = () => {
     <section className="relative z-10 mx-auto mt-36 mb-16 flex w-full max-w-5xl flex-col items-center justify-center px-4 sm:mt-48 sm:mb-24 md:mt-56">
       {/* Section Header */}
       <div className="mb-10 flex flex-col items-center text-center sm:mb-12">
-        <div className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+        <div className="bg-secondary text-secondary-foreground mb-3 inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-medium shadow-2xs">
           FAQ
         </div>
         <ScrollRevealText
@@ -75,7 +75,7 @@ export const FAQ = () => {
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:gap-8">
           {/* Left Column: Questions List Box (50%) */}
           <div className="bg-card flex flex-col rounded-2xl border p-4 shadow-2xs sm:p-5">
-            <h3 className="text-foreground mb-3 px-1 font-serif text-lg font-semibold sm:text-xl">
+            <h3 className="text-foreground mb-3 px-1 font-serif text-lg font-medium sm:text-xl">
               Questions
             </h3>
 
@@ -92,7 +92,7 @@ export const FAQ = () => {
                     className={cn(
                       "relative h-auto w-full cursor-pointer justify-start rounded-xl p-3 pl-4 text-left text-xs font-medium whitespace-normal transition-all duration-200 focus-visible:outline-none sm:text-sm",
                       isSelected
-                        ? "bg-secondary/10 text-foreground border-secondary/30 hover:bg-secondary/15 hover:text-foreground border font-semibold shadow-2xs"
+                        ? "bg-secondary/10 text-foreground border-secondary/30 hover:bg-secondary/15 hover:text-foreground border font-medium shadow-2xs"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
@@ -142,7 +142,7 @@ export const FAQ = () => {
                     <div className="bg-secondary/10 border-secondary/30 flex h-8 w-8 items-center justify-center rounded-full border shadow-2xs">
                       <Logo size={16} showText={false} />
                     </div>
-                    <span className="text-muted-foreground text-xs font-semibold">
+                    <span className="text-muted-foreground text-xs font-medium">
                       Seasyn Migration Engine
                     </span>
                   </div>

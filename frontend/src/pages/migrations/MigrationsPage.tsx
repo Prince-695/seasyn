@@ -101,10 +101,10 @@ export function MigrationsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-foreground text-xl font-semibold">
+            <h1 className="text-foreground text-xl font-medium">
               Migration Studio
             </h1>
-            <div className="border-primary/30 bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold">
+            <div className="border-primary/30 bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium">
               <Zap className="h-3 w-3" />
               <span>Real-Time CDC</span>
             </div>
@@ -123,7 +123,7 @@ export function MigrationsPage() {
               refetchJobs()
               refetchAnalytics()
             }}
-            className="gap-1.5 text-xs font-semibold"
+            className="gap-1.5 text-xs font-medium"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Refresh</span>
@@ -132,10 +132,7 @@ export function MigrationsPage() {
           <Link
             to={`/migration/new${projectSlugOrId ? `?project=${projectSlugOrId}` : ""}`}
           >
-            <Button
-              size="sm"
-              className="gap-1.5 text-xs font-semibold shadow-xs"
-            >
+            <Button size="sm" className="gap-1.5 text-xs font-medium shadow-xs">
               <Plus className="h-3.5 w-3.5" />
               <span>New Migration</span>
             </Button>
@@ -153,7 +150,7 @@ export function MigrationsPage() {
                 <span className="bg-info relative inline-flex h-3 w-3 rounded-full"></span>
               </div>
               <div>
-                <p className="text-foreground text-xs font-semibold">
+                <p className="text-foreground text-xs font-medium">
                   Active Live Migration in Progress
                 </p>
                 <p className="text-info font-mono text-[11px]">
@@ -173,7 +170,7 @@ export function MigrationsPage() {
             >
               <Button
                 size="sm"
-                className="bg-info text-info-foreground hover:bg-info/90 gap-1.5 text-xs font-semibold shadow-xs"
+                className="bg-info text-info-foreground hover:bg-info/90 gap-1.5 text-xs font-medium shadow-xs"
               >
                 <Activity className="h-3.5 w-3.5 animate-spin" />
                 <span>Open Live Telemetry</span>
@@ -189,7 +186,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Total Pipelines
           </p>
-          <p className="text-foreground mt-1 font-mono text-2xl font-semibold">
+          <p className="text-foreground mt-1 font-mono text-2xl font-medium">
             {totalPipelines}
           </p>
         </Card>
@@ -198,7 +195,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Active Streaming
           </p>
-          <p className="text-info mt-1 font-mono text-2xl font-semibold">
+          <p className="text-info mt-1 font-mono text-2xl font-medium">
             {activeCount}
           </p>
         </Card>
@@ -207,7 +204,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Average Speed
           </p>
-          <p className="text-foreground mt-1 font-mono text-xl font-semibold">
+          <p className="text-foreground mt-1 font-mono text-xl font-medium">
             {avgSpeed}
           </p>
         </Card>
@@ -216,7 +213,7 @@ export function MigrationsPage() {
           <p className="text-muted-foreground text-xs font-medium">
             Total Records Synced
           </p>
-          <p className="text-foreground mt-1 font-mono text-2xl font-semibold">
+          <p className="text-foreground mt-1 font-mono text-2xl font-medium">
             {totalSynced.toLocaleString()}
           </p>
         </Card>
@@ -232,7 +229,7 @@ export function MigrationsPage() {
                 <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg">
                   <Clock className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-semibold sm:text-base">
+                <h3 className="text-foreground text-sm font-medium sm:text-base">
                   Migration Time Ranges
                 </h3>
               </div>
@@ -281,7 +278,7 @@ export function MigrationsPage() {
                 <div className="bg-warning/10 text-warning flex h-7 w-7 items-center justify-center rounded-lg">
                   <AlertCircle className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-semibold sm:text-base">
+                <h3 className="text-foreground text-sm font-medium sm:text-base">
                   Recent Issues & Failure Reasons
                 </h3>
               </div>
@@ -315,7 +312,7 @@ export function MigrationsPage() {
                 <div className="bg-success/10 text-success mb-2 flex h-8 w-8 items-center justify-center rounded-full">
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
-                <p className="text-foreground text-xs font-semibold">
+                <p className="text-foreground text-xs font-medium">
                   Zero Failure Incidents
                 </p>
                 <p className="text-muted-foreground mt-0.5 text-[11px]">
@@ -330,7 +327,7 @@ export function MigrationsPage() {
       {/* Migration Pipelines History Table */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-foreground text-sm font-semibold">
+          <h2 className="text-foreground text-sm font-medium">
             Pipeline History & Active Telemetry
           </h2>
         </div>

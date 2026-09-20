@@ -117,7 +117,7 @@ export function ProjectSettingsTab({
     <div className="space-y-6 pt-2">
       {/* General Metadata Form */}
       <div className="border-border/70 bg-card rounded-lg border p-6 shadow-xs">
-        <h3 className="text-foreground text-base font-semibold">
+        <h3 className="text-foreground text-base font-medium">
           General Project Settings
         </h3>
         <p className="text-muted-foreground text-xs">
@@ -191,7 +191,7 @@ export function ProjectSettingsTab({
                   id="env-dev"
                   className="sr-only"
                 />
-                <span className="text-info font-mono text-xs font-semibold">
+                <span className="text-info font-mono text-xs font-medium">
                   Development
                 </span>
                 <span className="text-muted-foreground mt-1 text-[10px]">
@@ -213,7 +213,7 @@ export function ProjectSettingsTab({
                   id="env-staging"
                   className="sr-only"
                 />
-                <span className="text-warning font-mono text-xs font-semibold">
+                <span className="text-warning font-mono text-xs font-medium">
                   Staging
                 </span>
                 <span className="text-muted-foreground mt-1 text-[10px]">
@@ -235,7 +235,7 @@ export function ProjectSettingsTab({
                   id="env-prod"
                   className="sr-only"
                 />
-                <span className="text-success font-mono text-xs font-semibold">
+                <span className="text-success font-mono text-xs font-medium">
                   Production
                 </span>
                 <span className="text-muted-foreground mt-1 text-[10px]">
@@ -284,7 +284,7 @@ export function ProjectSettingsTab({
       {/* Danger Zone */}
       <PermissionGuard allowedRoles={["owner", "admin"]}>
         <div className="border-destructive/25 bg-destructive/5 rounded-lg border p-6 shadow-xs">
-          <h3 className="text-destructive text-base font-semibold">
+          <h3 className="text-destructive text-base font-medium">
             Danger Zone
           </h3>
           <p className="text-muted-foreground mt-1 text-xs">
@@ -313,7 +313,7 @@ export function ProjectSettingsTab({
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     Are you sure you want to delete{" "}
-                    <span className="text-foreground font-semibold">
+                    <span className="text-foreground font-medium">
                       "{project.name}"
                     </span>
                     ? All {connectionsCount} database connections and configured

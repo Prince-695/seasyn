@@ -139,7 +139,7 @@ export const Playground = () => {
           className="relative mb-8 flex flex-col items-center text-center"
         >
           <div className="relative mb-3 inline-flex items-center justify-center">
-            <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+            <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-full px-3.5 py-1 text-xs font-medium shadow-2xs">
               Playground
             </span>
           </div>

@@ -108,7 +108,7 @@ export function SegmentedControl<V extends string>({
               "h-6 px-2 text-xs font-medium",
               active
                 ? cn(
-                    "bg-background font-semibold shadow-xs",
+                    "bg-background font-medium shadow-xs",
                     o.activeClassName ?? "text-foreground"
                   )
                 : "text-muted-foreground hover:text-foreground"
@@ -136,7 +136,7 @@ export function PageHeader({ title, desc, badge, actions }: PageHeaderProps) {
     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
       <div>
         <div className="flex items-center gap-2">
-          <h3 className="text-foreground text-lg font-semibold">{title}</h3>
+          <h3 className="text-foreground text-lg font-medium">{title}</h3>
           {badge}
         </div>
         <p className="text-muted-foreground text-xs">{desc}</p>
@@ -190,7 +190,7 @@ export function PillBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-medium",
         TONES[tone],
         className
       )}
@@ -236,7 +236,7 @@ export function DataTable<T>({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+            <tr className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-medium uppercase">
               {columns.map((col) => (
                 <th
                   key={col.header}
@@ -326,7 +326,7 @@ export function MetricTile({ label, value, sub }: MetricTileProps) {
   return (
     <div className={cn(CARD, "p-3")}>
       <p className="text-muted-foreground text-[11px] font-medium">{label}</p>
-      <p className="text-foreground mt-0.5 font-mono text-xl font-semibold">
+      <p className="text-foreground mt-0.5 font-mono text-xl font-medium">
         {value}
       </p>
       <p className="text-muted-foreground text-[10px]">{sub}</p>
@@ -378,7 +378,7 @@ export function EntityCell({
         {icon}
       </div>
       <div className="min-w-0">
-        <span className="text-foreground group-hover:text-primary block truncate font-semibold transition-colors">
+        <span className="text-foreground group-hover:text-primary block truncate font-medium transition-colors">
           {title}
         </span>
         <p className="text-muted-foreground font-mono text-[11px]">

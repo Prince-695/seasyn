@@ -108,7 +108,7 @@ export function LiveProgressCard({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-foreground text-sm font-semibold">
+            <span className="text-foreground text-sm font-medium">
               Migration Progress
             </span>
             <span className="text-muted-foreground font-mono text-xs">
@@ -128,7 +128,7 @@ export function LiveProgressCard({
       {/* Hero Metrics Counter */}
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
         <div className="flex items-baseline gap-2.5">
-          <span className="text-foreground font-mono text-3xl font-semibold sm:text-4xl">
+          <span className="text-foreground font-mono text-3xl font-medium sm:text-4xl">
             {migratedRows.toLocaleString()}
           </span>
           <span className="text-muted-foreground font-mono text-sm font-medium">
@@ -140,7 +140,7 @@ export function LiveProgressCard({
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "font-mono text-3xl font-semibold sm:text-4xl",
+              "font-mono text-3xl font-medium sm:text-4xl",
               isCompleted
                 ? "text-success"
                 : isFailed
@@ -182,11 +182,11 @@ export function LiveProgressCard({
           const Icon = col.icon
           return (
             <div key={col.label} className="space-y-1">
-              <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold uppercase">
+              <div className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium uppercase">
                 <Icon className={cn("h-3 w-3", col.iconColor)} />
                 <span>{col.label}</span>
               </div>
-              <p className="text-foreground font-mono text-sm font-semibold">
+              <p className="text-foreground font-mono text-sm font-medium">
                 {col.mainValue}{" "}
                 {col.subValue && (
                   <span className="text-muted-foreground text-[10px] font-normal">
@@ -204,7 +204,7 @@ export function LiveProgressCard({
         <div className="border-destructive/30 bg-destructive/10 text-destructive mt-4 flex items-start gap-2.5 rounded-xl border p-3.5 text-xs">
           <AlertCircle className="text-destructive mt-0.5 h-4 w-4 shrink-0" />
           <div className="space-y-1">
-            <p className="font-semibold">Migration encountered an issue</p>
+            <p className="font-medium">Migration encountered an issue</p>
             <p className="text-destructive/90 font-mono text-[11px] leading-relaxed">
               {errorMessage || job.error_message}
             </p>

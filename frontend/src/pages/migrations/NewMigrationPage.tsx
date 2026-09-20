@@ -48,7 +48,7 @@ export function NewMigrationPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-foreground text-xl font-semibold">
+          <h1 className="text-foreground text-xl font-medium">
             Launch New Migration Pipeline
           </h1>
           <p className="text-muted-foreground text-xs">
@@ -68,20 +68,20 @@ export function NewMigrationPage() {
           <div className="border-warning/20 bg-warning/10 text-warning mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border">
             <AlertCircle className="h-6 w-6" />
           </div>
-          <h3 className="text-foreground mt-4 text-base font-semibold">
+          <h3 className="text-foreground mt-4 text-base font-medium">
             At Least 2 Database Connections Required
           </h3>
           <p className="text-muted-foreground mx-auto mt-1 max-w-md text-xs leading-relaxed">
             Cross-database migration requires an origin Source database and a
             destination Target database. You currently have{" "}
-            <span className="text-foreground font-semibold">
+            <span className="text-foreground font-medium">
               {connections.length}
             </span>{" "}
             connection registered.
           </p>
           <div className="mt-5">
             <Link to="/connections">
-              <Button size="sm" className="gap-1.5 text-xs font-semibold">
+              <Button size="sm" className="gap-1.5 text-xs font-medium">
                 <Plus className="h-3.5 w-3.5" />
                 <span>Register Destination Connection</span>
               </Button>

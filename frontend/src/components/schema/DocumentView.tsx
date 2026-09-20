@@ -199,7 +199,7 @@ export function DocumentView({
               <Button
                 size="sm"
                 onClick={() => setInsertModalOpen(true)}
-                className="h-8 gap-1.5 text-xs font-semibold shadow-xs"
+                className="h-8 gap-1.5 text-xs font-medium shadow-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Insert Document</span>
@@ -222,7 +222,7 @@ export function DocumentView({
       ) : filteredDocs.length === 0 ? (
         <div className="border-border/70 bg-card rounded-xl border p-12 text-center shadow-xs">
           <FileJson className="text-muted-foreground/40 mx-auto mb-3 h-10 w-10" />
-          <h3 className="text-foreground text-sm font-semibold">
+          <h3 className="text-foreground text-sm font-medium">
             {searchTerm ? "No documents match query" : "Collection is Empty"}
           </h3>
           <p className="text-muted-foreground mx-auto mt-1 max-w-sm text-xs">
@@ -234,7 +234,7 @@ export function DocumentView({
             <Button
               size="sm"
               onClick={() => setInsertModalOpen(true)}
-              className="mt-4 gap-1.5 text-xs font-semibold"
+              className="mt-4 gap-1.5 text-xs font-medium"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Insert First Document</span>
@@ -283,11 +283,11 @@ export function DocumentView({
                 {/* Document Card Header */}
                 <div className="border-border/50 flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
                   <div className="flex items-center gap-2">
-                    <span className="bg-muted/40 text-muted-foreground flex h-5 w-6 items-center justify-center rounded font-mono text-[10px] font-semibold">
+                    <span className="bg-muted/40 text-muted-foreground flex h-5 w-6 items-center justify-center rounded font-mono text-[10px] font-medium">
                       #{index + 1 + (currentPage - 1) * pageSize}
                     </span>
 
-                    <div className="text-foreground flex items-center gap-1.5 font-mono text-xs font-semibold">
+                    <div className="text-foreground flex items-center gap-1.5 font-mono text-xs font-medium">
                       <Hash className="text-muted-foreground h-3.5 w-3.5" />
                       <span>{docId}</span>
                     </div>

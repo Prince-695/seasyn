@@ -53,7 +53,7 @@ export function ForgotPass() {
         )}
 
         <div className="space-y-2.5">
-          <Label htmlFor="email" className="text-foreground/80 font-semibold">
+          <Label htmlFor="email" className="text-foreground/80 font-medium">
             Email Address
           </Label>
           <div className="relative">
@@ -79,7 +79,7 @@ export function ForgotPass() {
 
         <Button
           type="submit"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-medium transition-all active:translate-y-px"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -96,7 +96,7 @@ export function ForgotPass() {
       <div className="pt-2 text-center text-sm">
         <Link
           to="/sign-in"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 font-semibold transition-colors"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 font-medium transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Sign In

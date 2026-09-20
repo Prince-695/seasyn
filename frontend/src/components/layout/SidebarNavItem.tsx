@@ -73,7 +73,7 @@ export function SidebarNavItem({
       className={cn(
         "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-all",
         active
-          ? "bg-primary/10 text-primary font-semibold shadow-xs"
+          ? "bg-primary/10 text-primary font-medium shadow-xs"
           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
         !sidebarOpen && "justify-center px-2"
       )}
@@ -86,7 +86,7 @@ export function SidebarNavItem({
       />
       {sidebarOpen && <span className="flex-1 truncate">{item.label}</span>}
       {sidebarOpen && item.badge && (
-        <span className="border-success/20 bg-success/10 text-success rounded border px-1.5 py-0.5 text-[10px] font-semibold">
+        <span className="border-success/20 bg-success/10 text-success rounded border px-1.5 py-0.5 text-[10px] font-medium">
           {item.badge}
         </span>
       )}

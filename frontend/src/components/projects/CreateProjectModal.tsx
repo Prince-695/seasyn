@@ -124,7 +124,7 @@ export function CreateProjectModal({
           trigger ? (
             (trigger as React.ReactElement)
           ) : (
-            <Button className="gap-2 font-semibold shadow-xs">
+            <Button className="gap-2 font-medium shadow-xs">
               <Plus className="h-4 w-4" />
               <span>Create Project</span>
             </Button>
@@ -133,7 +133,7 @@ export function CreateProjectModal({
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="text-primary flex items-center gap-2 text-xs font-semibold uppercase">
+          <div className="text-primary flex items-center gap-2 text-xs font-medium uppercase">
             <Sparkles className="h-4 w-4" />
             <span>Database Workspace</span>
           </div>
@@ -147,7 +147,7 @@ export function CreateProjectModal({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           {/* Project Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="projectName" className="text-xs font-semibold">
+            <Label htmlFor="projectName" className="text-xs font-medium">
               Project Name <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -164,7 +164,7 @@ export function CreateProjectModal({
 
           {/* Environment Picker */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Environment</Label>
+            <Label className="text-xs font-medium">Environment</Label>
             <RadioGroup
               value={selectedEnv}
               onValueChange={(val) => {
@@ -184,7 +184,7 @@ export function CreateProjectModal({
                   htmlFor="env-dev"
                   className="border-border/80 bg-card peer-data-checked:border-info peer-data-checked:bg-info/10 peer-data-checked:text-info hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center rounded-lg border p-2.5 text-center text-xs font-medium transition-all"
                 >
-                  <span className="font-semibold">Dev</span>
+                  <span className="font-medium">Dev</span>
                   <span className="text-muted-foreground text-[10px]">
                     Sandbox
                   </span>
@@ -201,7 +201,7 @@ export function CreateProjectModal({
                   htmlFor="env-staging"
                   className="border-border/80 bg-card peer-data-checked:border-warning peer-data-checked:bg-warning/10 peer-data-checked:text-warning hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center rounded-lg border p-2.5 text-center text-xs font-medium transition-all"
                 >
-                  <span className="font-semibold">Staging</span>
+                  <span className="font-medium">Staging</span>
                   <span className="text-muted-foreground text-[10px]">
                     Pre-prod
                   </span>
@@ -218,7 +218,7 @@ export function CreateProjectModal({
                   htmlFor="env-prod"
                   className="border-border/80 bg-card peer-data-checked:border-success peer-data-checked:bg-success/10 peer-data-checked:text-success hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center rounded-lg border p-2.5 text-center text-xs font-medium transition-all"
                 >
-                  <span className="font-semibold">Prod</span>
+                  <span className="font-medium">Prod</span>
                   <span className="text-muted-foreground text-[10px]">
                     Live
                   </span>
@@ -229,7 +229,7 @@ export function CreateProjectModal({
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label htmlFor="projectDesc" className="text-xs font-semibold">
+            <Label htmlFor="projectDesc" className="text-xs font-medium">
               Description (Optional)
             </Label>
             <Textarea

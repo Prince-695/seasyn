@@ -100,7 +100,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
         <div className="flex items-center gap-2">
-          <DialogTitle className="text-base font-semibold">
+          <DialogTitle className="text-base font-medium">
             Edit Value:{" "}
             <span className="text-primary font-mono">{column.name}</span>
           </DialogTitle>
@@ -116,7 +116,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
           <div className="border-border/70 bg-muted/20 flex items-center justify-between rounded-xl border p-3">
             <Label
               htmlFor="boolField"
-              className="cursor-pointer text-xs font-semibold"
+              className="cursor-pointer text-xs font-medium"
             >
               Boolean State: {boolVal ? "TRUE" : "FALSE"}
             </Label>
@@ -129,7 +129,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
         ) : isJson ? (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="jsonArea" className="text-xs font-semibold">
+              <Label htmlFor="jsonArea" className="text-xs font-medium">
                 JSON / Object Editor
               </Label>
               <span className="text-muted-foreground flex items-center gap-1 font-mono text-[10px]">
@@ -149,7 +149,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
           </div>
         ) : (
           <div className="space-y-1.5">
-            <Label htmlFor="fieldInput" className="text-xs font-semibold">
+            <Label htmlFor="fieldInput" className="text-xs font-medium">
               Column Value ({column.data_type})
             </Label>
             <Input

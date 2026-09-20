@@ -97,7 +97,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
         <div className="space-y-1">
           <Label
             htmlFor="firstName"
-            className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+            className="text-foreground text-xs font-medium sm:text-[13px]"
           >
             First Name
           </Label>
@@ -120,7 +120,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
         <div className="space-y-1">
           <Label
             htmlFor="lastName"
-            className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+            className="text-foreground text-xs font-medium sm:text-[13px]"
           >
             Last Name
           </Label>
@@ -145,7 +145,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
       <div className="space-y-1">
         <Label
           htmlFor="email"
-          className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+          className="text-foreground text-xs font-medium sm:text-[13px]"
         >
           Email Address
         </Label>
@@ -169,7 +169,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
       <div className="space-y-1">
         <Label
           htmlFor="password"
-          className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+          className="text-foreground text-xs font-medium sm:text-[13px]"
         >
           Password
         </Label>
@@ -209,7 +209,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
       <div className="space-y-1">
         <Label
           htmlFor="confirmPassword"
-          className="text-foreground text-xs font-semibold sm:text-[13px] sm:font-medium"
+          className="text-foreground text-xs font-medium sm:text-[13px]"
         >
           Confirm Password
         </Label>
@@ -247,7 +247,7 @@ export function SignUpForm({ setServerError }: SignUpFormProps) {
 
       <Button
         type="submit"
-        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-1 h-10 w-full cursor-pointer text-sm font-semibold shadow-xs transition-all"
+        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-1 h-10 w-full cursor-pointer text-sm font-medium shadow-xs transition-all"
         disabled={isSubmitting}
       >
         {isSubmitting ? (

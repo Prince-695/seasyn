@@ -54,7 +54,7 @@ export function WizardFooter({
             type="button"
             size="sm"
             onClick={onNextFromStep1}
-            className="cursor-pointer gap-1.5 text-xs font-semibold"
+            className="cursor-pointer gap-1.5 text-xs font-medium"
           >
             <span>Next: Credentials</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -66,7 +66,7 @@ export function WizardFooter({
             type="button"
             size="sm"
             onClick={onNextFromStep2}
-            className="gap-1.5 text-xs font-semibold"
+            className="gap-1.5 text-xs font-medium"
           >
             <span>Next: Test & Save</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -78,7 +78,7 @@ export function WizardFooter({
             type="submit"
             size="sm"
             disabled={isPending}
-            className="gap-1.5 text-xs font-semibold"
+            className="gap-1.5 text-xs font-medium"
           >
             {isPending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />

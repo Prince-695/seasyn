@@ -184,7 +184,7 @@ export function VerifyEmail() {
         {/* Submit Button */}
         <Button
           type="button"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 h-11 w-full rounded-lg border font-semibold transition-all active:translate-y-px"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 h-11 w-full rounded-lg border font-medium transition-all active:translate-y-px"
           disabled={isSubmitting || otp.length < 6}
           onClick={() => handleVerify()}
         >
@@ -208,7 +208,7 @@ export function VerifyEmail() {
               size="sm"
               disabled={resendTimer > 0 || resendLoading || !email}
               onClick={handleResend}
-              className="text-primary hover:text-primary/80 inline-flex h-auto items-center gap-1 p-0 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-primary hover:text-primary/80 inline-flex h-auto items-center gap-1 p-0 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {resendLoading ? (
                 <>
@@ -234,7 +234,7 @@ export function VerifyEmail() {
 
           <Link
             to="/sign-in"
-            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Sign In

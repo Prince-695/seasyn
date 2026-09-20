@@ -15,7 +15,7 @@ export const NotFoundPage = () => {
 
         <div className="relative z-10 mx-auto max-w-lg">
           {/* Badge */}
-          <div className="bg-secondary/10 border-secondary/30 text-secondary mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-semibold shadow-2xs">
+          <div className="bg-secondary/10 border-secondary/30 text-secondary mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-medium shadow-2xs">
             <Compass
               className="h-3.5 w-3.5 animate-spin"
               style={{ animationDuration: "12s" }}
@@ -24,12 +24,12 @@ export const NotFoundPage = () => {
           </div>
 
           {/* Big Stylized 404 */}
-          <h1 className="font-serif text-6xl font-bold tracking-tight sm:text-8xl">
+          <h1 className="font-serif text-6xl font-medium tracking-tight sm:text-8xl">
             404
           </h1>
 
           {/* Heading */}
-          <h2 className="text-foreground mt-3 font-serif text-xl font-semibold sm:text-2xl">
+          <h2 className="text-foreground mt-3 font-serif text-xl font-medium sm:text-2xl">
             Lost in transit
           </h2>
 
@@ -44,7 +44,7 @@ export const NotFoundPage = () => {
             <Link to="/" className="w-full sm:w-auto">
               <Button
                 variant="default"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-full gap-2 px-5 text-sm font-semibold sm:w-auto"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-full gap-2 px-5 text-sm font-medium sm:w-auto"
               >
                 <Home className="h-4 w-4" />
                 Back to Home
@@ -54,7 +54,7 @@ export const NotFoundPage = () => {
             <Link to="/dashboard" className="w-full sm:w-auto">
               <Button
                 variant="outline"
-                className="border-border/80 bg-card hover:bg-muted h-10 w-full gap-2 px-5 text-sm font-semibold sm:w-auto"
+                className="border-border/80 bg-card hover:bg-muted h-10 w-full gap-2 px-5 text-sm font-medium sm:w-auto"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Go to Dashboard

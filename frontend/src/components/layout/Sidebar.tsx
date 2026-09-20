@@ -189,7 +189,7 @@ export function Sidebar() {
             >
               <Logo size={28} />
               <div className="flex flex-col">
-                <span className="font-heading text-foreground text-base font-semibold">
+                <span className="font-heading text-foreground text-base font-medium">
                   SEASYN
                 </span>
                 <span className="text-muted-foreground text-[10px] font-medium uppercase">
@@ -236,7 +236,7 @@ export function Sidebar() {
                   clearActiveProject()
                   setMobileSidebarOpen(false)
                 }}
-                className="text-muted-foreground hover:text-foreground hover:bg-muted/60 flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/60 flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 <span>All Projects</span>
@@ -249,7 +249,7 @@ export function Sidebar() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p
-                    className="text-foreground truncate text-xs leading-tight font-semibold"
+                    className="text-foreground truncate text-xs leading-tight font-medium"
                     title={activeProjectName || projectSlug}
                   >
                     {activeProjectName || projectSlug || "Project"}
@@ -282,7 +282,7 @@ export function Sidebar() {
             {/* Project Scoped Tools */}
             <div className="space-y-1">
               {sidebarOpen && (
-                <h3 className="text-muted-foreground/70 px-3 text-[11px] font-semibold uppercase">
+                <h3 className="text-muted-foreground/70 px-3 text-[11px] font-medium uppercase">
                   Project Studio
                 </h3>
               )}
@@ -302,7 +302,7 @@ export function Sidebar() {
             {/* Compact Organization Links */}
             <div className="border-border/50 space-y-1 border-t pt-3">
               {sidebarOpen && (
-                <h3 className="text-muted-foreground/60 px-3 text-[10px] font-semibold uppercase">
+                <h3 className="text-muted-foreground/60 px-3 text-[10px] font-medium uppercase">
                   Organization
                 </h3>
               )}
@@ -326,7 +326,7 @@ export function Sidebar() {
           /* Mode 2: Clean Organization Navigation */
           <div className="space-y-1">
             {sidebarOpen && (
-              <h3 className="text-muted-foreground/70 px-3 text-[11px] font-semibold uppercase">
+              <h3 className="text-muted-foreground/70 px-3 text-[11px] font-medium uppercase">
                 Organization
               </h3>
             )}
@@ -362,11 +362,11 @@ export function Sidebar() {
               className="hover:bg-muted/60 flex min-w-0 flex-1 items-center gap-2.5 rounded-lg p-1 transition-colors"
               title="Account Settings"
             >
-              <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+              <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
                 {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
               </div>
               <div className="flex min-w-0 flex-col text-left">
-                <span className="text-foreground truncate text-xs font-semibold">
+                <span className="text-foreground truncate text-xs font-medium">
                   {user?.username
                     ? `@${user.username}`
                     : user?.first_name
@@ -398,7 +398,7 @@ export function Sidebar() {
               className="hover:bg-muted/60 flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
               title="Account Settings"
             >
-              <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+              <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
                 {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
               </div>
             </NavLink>

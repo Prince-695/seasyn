@@ -51,7 +51,7 @@ export function EngineSelector({
                 <EngineIcon type={engine.type} className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="text-foreground text-sm leading-tight font-semibold">
+                <h4 className="text-foreground text-sm leading-tight font-medium">
                   {engine.name}
                 </h4>
                 <span

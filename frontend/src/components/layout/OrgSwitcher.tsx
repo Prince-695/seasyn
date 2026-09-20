@@ -94,7 +94,7 @@ export function OrgSwitcher() {
           </div>
 
           <div className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
-            <span className="truncate text-xs font-semibold sm:text-sm">
+            <span className="truncate text-xs font-medium sm:text-sm">
               {isLoading ? (
                 <span className="text-muted-foreground flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -116,7 +116,7 @@ export function OrgSwitcher() {
           {/* Section 1: Owned Organizations */}
           {ownedOrgs.length > 0 && (
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold uppercase">
+              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-medium uppercase">
                 My Workspaces ({ownedOrgs.length})
               </DropdownMenuLabel>
               {ownedOrgs.map((org) => {
@@ -150,7 +150,7 @@ export function OrgSwitcher() {
                 <DropdownMenuSeparator className="my-1" />
               )}
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-semibold uppercase">
+                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[11px] font-medium uppercase">
                   Shared With Me ({sharedOrgs.length})
                 </DropdownMenuLabel>
                 {sharedOrgs.map((org) => {

@@ -63,7 +63,7 @@ export function ConnectionWizardModal({
           trigger ? (
             (trigger as React.ReactElement)
           ) : (
-            <Button className="gap-2 font-semibold">
+            <Button className="gap-2 font-medium">
               <Plus className="h-4 w-4" />
               <span>Add Database Connection</span>
             </Button>

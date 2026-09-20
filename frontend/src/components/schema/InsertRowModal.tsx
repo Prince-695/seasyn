@@ -113,7 +113,7 @@ export function InsertRowModal({
             <div className="border-primary/30 bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg border">
               <Plus className="h-4 w-4" />
             </div>
-            <DialogTitle className="text-base font-semibold">
+            <DialogTitle className="text-base font-medium">
               Insert New Row:{" "}
               <span className="text-primary font-mono">{table.name}</span>
             </DialogTitle>
@@ -142,7 +142,7 @@ export function InsertRowModal({
                       {isPk && <Key className="text-warning h-3.5 w-3.5" />}
                       <Label
                         htmlFor={`col-${col.name}`}
-                        className="font-mono text-xs font-semibold"
+                        className="font-mono text-xs font-medium"
                       >
                         {col.name}
                       </Label>
@@ -227,7 +227,7 @@ export function InsertRowModal({
               type="submit"
               size="sm"
               disabled={isSubmitting}
-              className="gap-1.5 font-semibold"
+              className="gap-1.5 font-medium"
             >
               {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               <span>{isSubmitting ? "Inserting..." : "Insert Record"}</span>

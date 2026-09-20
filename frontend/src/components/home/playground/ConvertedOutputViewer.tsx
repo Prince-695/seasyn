@@ -66,10 +66,10 @@ export const ConvertedOutputViewer = ({
             )}
           </div>
           <div>
-            <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+            <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
               Target Output
             </span>
-            <h3 className="text-foreground text-sm font-bold">
+            <h3 className="text-foreground text-sm font-medium">
               {isSqlToNoSql
                 ? `MongoDB: ${targetName}`
                 : `PostgreSQL Table: ${targetName}`}
@@ -86,7 +86,7 @@ export const ConvertedOutputViewer = ({
                 onClick={() => setViewMode("table")}
                 className={`flex items-center gap-1 rounded-md px-2 py-1 font-medium transition-colors ${
                   viewMode === "table"
-                    ? "bg-background text-foreground font-semibold shadow-2xs"
+                    ? "bg-background text-foreground font-medium shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -98,7 +98,7 @@ export const ConvertedOutputViewer = ({
                 onClick={() => setViewMode("sql")}
                 className={`flex items-center gap-1 rounded-md px-2 py-1 font-medium transition-colors ${
                   viewMode === "sql"
-                    ? "bg-background text-foreground font-semibold shadow-2xs"
+                    ? "bg-background text-foreground font-medium shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -118,7 +118,7 @@ export const ConvertedOutputViewer = ({
               {copied ? (
                 <>
                   <Check className="size-3.5 text-emerald-500" />
-                  <span className="font-semibold text-emerald-500">Copied</span>
+                  <span className="font-medium text-emerald-500">Copied</span>
                 </>
               ) : (
                 <>
@@ -146,7 +146,7 @@ export const ConvertedOutputViewer = ({
                 <Code2 className="size-6" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-foreground text-sm font-semibold">
+                <h4 className="text-foreground text-sm font-medium">
                   Ready for Real-Time Transformation
                 </h4>
                 <p className="text-muted-foreground max-w-70 text-xs">
@@ -157,7 +157,7 @@ export const ConvertedOutputViewer = ({
               <Button
                 size="sm"
                 onClick={onConvert}
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/80 mt-1 flex h-8 items-center gap-1.5 rounded-lg px-4 text-xs font-semibold"
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/80 mt-1 flex h-8 items-center gap-1.5 rounded-lg px-4 text-xs font-medium"
               >
                 <Play className="size-3.5 fill-current" />
                 <span>Start Live Stream</span>
@@ -184,7 +184,7 @@ export const ConvertedOutputViewer = ({
                   </span>
                 </div>
                 <span
-                  className={`text-[10px] font-semibold ${isConverting ? "text-secondary animate-pulse" : "text-emerald-500"}`}
+                  className={`text-[10px] font-medium ${isConverting ? "text-secondary animate-pulse" : "text-emerald-500"}`}
                 >
                   {isConverting ? "Streaming..." : "Live In-Sync"}
                 </span>
@@ -200,7 +200,7 @@ export const ConvertedOutputViewer = ({
                           {result.tableColumns.map((col) => (
                             <th
                               key={col.name}
-                              className="px-3 py-2 text-[11px] font-semibold"
+                              className="px-3 py-2 text-[11px] font-medium"
                             >
                               <div className="flex items-center gap-1.5">
                                 <span className="text-foreground">

@@ -16,7 +16,7 @@ export function RoleBadge({ role, className }: RoleBadgeProps) {
     <Badge
       variant="outline"
       className={cn(
-        "px-2 py-0.5 text-xs font-semibold capitalize",
+        "px-2 py-0.5 text-xs font-medium capitalize",
         config.className,
         className
       )}

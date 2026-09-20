@@ -92,12 +92,12 @@ export function SchemaDiffViewer({
           )}
         >
           <div className="flex w-full items-center justify-between">
-            <span className="text-muted-foreground text-xs font-semibold">
+            <span className="text-muted-foreground text-xs font-medium">
               Tables to Add
             </span>
             <PlusCircle className="text-success h-4 w-4" />
           </div>
-          <span className="text-success mt-2 font-mono text-2xl font-semibold">
+          <span className="text-success mt-2 font-mono text-2xl font-medium">
             +{tablesAdded.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -108,12 +108,12 @@ export function SchemaDiffViewer({
         {/* Removed Tables */}
         <div className="border-border/70 bg-card flex flex-col items-start rounded-xl border p-3.5 text-left shadow-xs">
           <div className="flex w-full items-center justify-between">
-            <span className="text-muted-foreground text-xs font-semibold">
+            <span className="text-muted-foreground text-xs font-medium">
               Target Orphans
             </span>
             <MinusCircle className="text-destructive h-4 w-4" />
           </div>
-          <span className="text-destructive mt-2 font-mono text-2xl font-semibold">
+          <span className="text-destructive mt-2 font-mono text-2xl font-medium">
             -{tablesRemoved.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -133,12 +133,12 @@ export function SchemaDiffViewer({
           )}
         >
           <div className="flex w-full items-center justify-between">
-            <span className="text-muted-foreground text-xs font-semibold">
+            <span className="text-muted-foreground text-xs font-medium">
               Altered Tables
             </span>
             <AlertCircle className="text-warning h-4 w-4" />
           </div>
-          <span className="text-warning mt-2 font-mono text-2xl font-semibold">
+          <span className="text-warning mt-2 font-mono text-2xl font-medium">
             ~{tablesAltered.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -149,12 +149,12 @@ export function SchemaDiffViewer({
         {/* Identical Tables */}
         <div className="border-border/70 bg-card flex flex-col items-start rounded-xl border p-3.5 text-left shadow-xs">
           <div className="flex w-full items-center justify-between">
-            <span className="text-muted-foreground text-xs font-semibold">
+            <span className="text-muted-foreground text-xs font-medium">
               Identical Tables
             </span>
             <CheckCircle2 className="text-primary h-4 w-4" />
           </div>
-          <span className="text-foreground mt-2 font-mono text-2xl font-semibold">
+          <span className="text-foreground mt-2 font-mono text-2xl font-medium">
             {tablesSame.length}
           </span>
           <span className="text-muted-foreground mt-0.5 text-[11px]">
@@ -167,7 +167,7 @@ export function SchemaDiffViewer({
       <div className="border-border/70 bg-card flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 shadow-xs">
         <div className="flex items-center gap-2">
           <Filter className="text-muted-foreground h-4 w-4" />
-          <span className="text-foreground text-xs font-semibold">View:</span>
+          <span className="text-foreground text-xs font-medium">View:</span>
           <div className="flex items-center gap-1">
             <Button
               variant={filter === "all" ? "default" : "outline"}
@@ -208,7 +208,7 @@ export function SchemaDiffViewer({
           size="sm"
           variant="outline"
           onClick={handleCopyMigrationDdl}
-          className="h-7 gap-1.5 text-xs font-semibold"
+          className="h-7 gap-1.5 text-xs font-medium"
         >
           {copiedMigrationSql ? (
             <Check className="text-success h-3.5 w-3.5" />
@@ -225,7 +225,7 @@ export function SchemaDiffViewer({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {/* Left Column: Tables Diff Directory */}
         <div className="border-border/70 bg-card space-y-2 overflow-hidden rounded-xl border p-3 shadow-xs lg:col-span-4">
-          <span className="text-muted-foreground block px-1 text-xs font-semibold uppercase">
+          <span className="text-muted-foreground block px-1 text-xs font-medium uppercase">
             Comparison Directory
           </span>
 
@@ -238,7 +238,7 @@ export function SchemaDiffViewer({
               >
                 <div className="flex items-center gap-2 font-mono">
                   <PlusCircle className="text-success h-3.5 w-3.5 shrink-0" />
-                  <span className="text-foreground font-semibold">
+                  <span className="text-foreground font-medium">
                     {tableName}
                   </span>
                 </div>
@@ -266,7 +266,7 @@ export function SchemaDiffViewer({
                 >
                   <div className="flex items-center gap-2 font-mono">
                     <AlertCircle className="text-warning h-3.5 w-3.5 shrink-0" />
-                    <span className="text-foreground font-semibold">
+                    <span className="text-foreground font-medium">
                       {td.name}
                     </span>
                   </div>
@@ -307,7 +307,7 @@ export function SchemaDiffViewer({
               <div className="border-border/60 bg-muted/30 flex items-center justify-between border-b px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Database className="text-primary h-4 w-4" />
-                  <span className="text-foreground font-mono text-xs font-semibold">
+                  <span className="text-foreground font-mono text-xs font-medium">
                     Table Schema Diff: {selectedTableDiff.name}
                   </span>
                 </div>
@@ -315,7 +315,7 @@ export function SchemaDiffViewer({
                 <div className="flex items-center gap-2 font-mono text-xs">
                   <span className="text-muted-foreground">{sourceDbName}</span>
                   <ArrowRight className="text-primary h-3.5 w-3.5" />
-                  <span className="text-foreground font-semibold">
+                  <span className="text-foreground font-medium">
                     {targetDbName}
                   </span>
                 </div>
@@ -324,7 +324,7 @@ export function SchemaDiffViewer({
               {/* Diff Columns Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-border/60 bg-muted/50 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+                  <thead className="border-border/60 bg-muted/50 text-muted-foreground border-b text-[11px] font-medium uppercase">
                     <tr>
                       <th className="px-3 py-2.5">Column Name</th>
                       <th className="px-3 py-2.5">Diff Status</th>
@@ -347,7 +347,7 @@ export function SchemaDiffViewer({
                             isAltered && "bg-warning/5"
                           )}
                         >
-                          <td className="text-foreground px-3 py-2.5 font-semibold">
+                          <td className="text-foreground px-3 py-2.5 font-medium">
                             {cd.name}
                           </td>
 
@@ -424,7 +424,7 @@ export function SchemaDiffViewer({
           ) : (
             <div className="text-muted-foreground p-12 text-center">
               <Layers className="text-muted-foreground/40 mx-auto mb-2 h-8 w-8" />
-              <p className="text-foreground text-sm font-semibold">
+              <p className="text-foreground text-sm font-medium">
                 Select an Altered Table
               </p>
               <p className="text-muted-foreground mt-1 text-xs">

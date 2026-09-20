@@ -144,7 +144,7 @@ export function OrgSettingsPage() {
           <Building2 className="h-7 w-7" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold">No Active Organization</h2>
+          <h2 className="text-xl font-medium">No Active Organization</h2>
           <p className="text-muted-foreground max-w-sm text-sm">
             Please select or create an organization from the workspace switcher
             in the header.
@@ -173,7 +173,7 @@ export function OrgSettingsPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-2xl font-semibold sm:text-3xl">
+              <h1 className="text-foreground text-2xl font-medium sm:text-3xl">
                 Organization Settings
               </h1>
               {currentRole && <RoleBadge role={currentRole} />}
@@ -281,7 +281,7 @@ export function OrgSettingsPage() {
           <div className="border-destructive/15 flex flex-col gap-1 border-b p-6">
             <div className="text-destructive flex items-center gap-2">
               <ShieldAlert className="h-5 w-5" />
-              <h3 className="text-destructive text-base leading-none font-semibold">
+              <h3 className="text-destructive text-base leading-none font-medium">
                 Danger Zone
               </h3>
             </div>
@@ -326,7 +326,7 @@ export function OrgSettingsPage() {
                   className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className={`text-sm font-semibold ${action.titleClass}`}>
+                    <p className={`text-sm font-medium ${action.titleClass}`}>
                       {action.title}
                     </p>
                     <p className="text-muted-foreground mt-0.5 text-xs">
@@ -360,7 +360,7 @@ export function OrgSettingsPage() {
             <DialogDescription>
               This action cannot be undone. All projects, schemas, database
               credentials, and migrations under{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 {activeOrg.name}
               </span>{" "}
               will be permanently deleted.
@@ -381,7 +381,7 @@ export function OrgSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="delete-confirm">
                 To confirm, type{" "}
-                <span className="text-destructive font-mono font-semibold select-all">
+                <span className="text-destructive font-mono font-medium select-all">
                   {expectedDeletePhrase}
                 </span>{" "}
                 below:
@@ -433,7 +433,7 @@ export function OrgSettingsPage() {
             </div>
             <DialogDescription>
               To transfer ownership of{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 {activeOrg.name}
               </span>
               , please navigate to the{" "}

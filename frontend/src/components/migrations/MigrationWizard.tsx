@@ -142,7 +142,7 @@ export function MigrationWizard({
           {/* Step 1 Indicator */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-medium transition-all ${
                 currentStep === 1
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : currentStep > 1
@@ -153,7 +153,7 @@ export function MigrationWizard({
               {currentStep > 1 ? <Check className="h-4 w-4" /> : "1"}
             </div>
             <div className="hidden sm:block">
-              <p className="text-foreground text-xs font-semibold">
+              <p className="text-foreground text-xs font-medium">
                 Step 1: Source
               </p>
               <p className="text-muted-foreground text-[11px]">
@@ -167,7 +167,7 @@ export function MigrationWizard({
           {/* Step 2 Indicator */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-medium transition-all ${
                 currentStep === 2
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : currentStep > 2
@@ -178,7 +178,7 @@ export function MigrationWizard({
               {currentStep > 2 ? <Check className="h-4 w-4" /> : "2"}
             </div>
             <div className="hidden sm:block">
-              <p className="text-foreground text-xs font-semibold">
+              <p className="text-foreground text-xs font-medium">
                 Step 2: Target
               </p>
               <p className="text-muted-foreground text-[11px]">
@@ -192,7 +192,7 @@ export function MigrationWizard({
           {/* Step 3 Indicator */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-medium transition-all ${
                 currentStep === 3
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-muted text-muted-foreground"
@@ -201,7 +201,7 @@ export function MigrationWizard({
               3
             </div>
             <div className="hidden sm:block">
-              <p className="text-foreground text-xs font-semibold">
+              <p className="text-foreground text-xs font-medium">
                 Step 3: Review
               </p>
               <p className="text-muted-foreground text-[11px]">
@@ -282,7 +282,7 @@ export function MigrationWizard({
               size="sm"
               onClick={handleNext}
               disabled={currentStep === 1 ? !isStep1Valid : !isStep2Valid}
-              className="gap-1.5 text-xs font-semibold"
+              className="gap-1.5 text-xs font-medium"
             >
               <span>Next Step</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -293,7 +293,7 @@ export function MigrationWizard({
               size="sm"
               onClick={handleStartPipeline}
               disabled={!isStep3Valid || startMutation.isPending}
-              className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-semibold shadow-xs"
+              className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-medium shadow-xs"
             >
               {startMutation.isPending ? (
                 <>

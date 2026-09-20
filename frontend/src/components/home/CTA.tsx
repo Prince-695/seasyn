@@ -11,7 +11,7 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
   return (
     <section className="relative z-10 flex w-full max-w-5xl flex-col items-center justify-center px-6 pt-30 pb-32 text-center sm:pt-40 sm:pb-40 md:pt-50 md:pb-52">
       {/* Eyebrow Secondary Pill Badge */}
-      <div className="bg-secondary text-secondary-foreground border-secondary/40 mb-6 inline-flex items-center justify-center rounded-md border px-3.5 py-1 text-xs font-semibold">
+      <div className="bg-secondary text-secondary-foreground border-secondary/40 mb-6 inline-flex items-center justify-center rounded-md border px-3.5 py-1 text-xs font-medium">
         Get Started
       </div>
 
@@ -22,12 +22,12 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
           "Your data in motion.",
           <>
             Always{" "}
-            <span className="bg-highlight text-highlight-foreground border-border/70 inline-block rounded-lg border px-2.5 py-0.5 font-semibold sm:rounded-xl sm:px-3.5">
+            <span className="bg-highlight text-highlight-foreground border-border/70 inline-block rounded-lg border px-2.5 py-0.5 font-medium sm:rounded-xl sm:px-3.5">
               in sync.
             </span>
           </>,
         ]}
-        className="text-foreground items-center text-center font-serif text-5xl font-semibold sm:text-6xl md:text-7xl lg:text-8xl"
+        className="text-foreground items-center text-center font-serif text-5xl font-medium sm:text-6xl md:text-7xl lg:text-8xl"
         lineClassName="font-serif leading-[1.08] py-1"
         maskClassName="py-1 -my-1"
       />
@@ -52,7 +52,7 @@ export const CTA = ({ onCtaClick }: CTAProps) => {
 
         <Button
           onClick={onCtaClick}
-          className="group bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 flex cursor-pointer items-center justify-center gap-2.5 rounded-lg border px-8 py-6 text-base font-semibold transition-all active:translate-y-px sm:text-lg"
+          className="group bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 flex cursor-pointer items-center justify-center gap-2.5 rounded-lg border px-8 py-6 text-base font-medium transition-all active:translate-y-px sm:text-lg"
         >
           <span>Start Migration</span>
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

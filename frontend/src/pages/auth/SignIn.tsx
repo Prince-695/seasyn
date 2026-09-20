@@ -50,7 +50,7 @@ export function SignIn() {
         Don&apos;t have an account yet?{" "}
         <Link
           to="/sign-up"
-          className="text-primary hover:text-primary/80 font-semibold transition-colors"
+          className="text-primary hover:text-primary/80 font-medium transition-colors"
         >
           Sign Up
         </Link>

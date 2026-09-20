@@ -21,7 +21,7 @@ function MetricCard({
   return (
     <div className="p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs font-semibold uppercase">
+        <span className="text-muted-foreground text-xs font-medium uppercase">
           {title}
         </span>
         <div
@@ -31,7 +31,7 @@ function MetricCard({
         </div>
       </div>
       <div className="mt-2.5">
-        <p className="text-foreground font-mono text-2xl font-semibold">
+        <p className="text-foreground font-mono text-2xl font-medium">
           {primaryValue}
         </p>
         <p className="text-muted-foreground mt-0.5 text-[11px]">{subtitle}</p>
@@ -109,7 +109,7 @@ export function DashboardMetricStrip({
 
       <div className="border-border/60 bg-muted/20 text-muted-foreground border-t px-5 py-2.5 text-[11px]">
         Telemetry metrics for organization{" "}
-        <span className="text-foreground font-semibold">{orgName}</span>.
+        <span className="text-foreground font-medium">{orgName}</span>.
         Synchronized in real-time across all database adapters.
       </div>
     </div>

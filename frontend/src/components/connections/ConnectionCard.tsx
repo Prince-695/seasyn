@@ -99,10 +99,10 @@ export function ConnectionCard({
                   type="button"
                   variant="ghost"
                   onClick={handleOpenStudio}
-                  className="hover:text-primary group/title flex h-auto max-w-full cursor-pointer items-center gap-1 p-0 text-left font-semibold transition-colors"
+                  className="hover:text-primary group/title flex h-auto max-w-full cursor-pointer items-center gap-1 p-0 text-left font-medium transition-colors"
                   title={`Open ${connection.name} in Schema Studio`}
                 >
-                  <span className="text-foreground group-hover/title:text-primary truncate text-sm font-semibold transition-colors">
+                  <span className="text-foreground group-hover/title:text-primary truncate text-sm font-medium transition-colors">
                     {connection.name}
                   </span>
                   <ChevronRight className="text-primary h-3 w-3 shrink-0 opacity-0 transition-all duration-150 group-hover/title:translate-x-0.5 group-hover/title:opacity-100" />
@@ -111,7 +111,7 @@ export function ConnectionCard({
                 <div className="mt-1 flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
                   <Badge
                     variant="outline"
-                    className="border-border bg-muted/40 shrink-0 px-1.5 py-0 font-mono text-[10px] font-semibold uppercase"
+                    className="border-border bg-muted/40 shrink-0 px-1.5 py-0 font-mono text-[10px] font-medium uppercase"
                   >
                     {connection.db_type}
                   </Badge>
@@ -119,7 +119,7 @@ export function ConnectionCard({
                   <Badge
                     variant="outline"
                     className={cn(
-                      "shrink-0 px-1.5 py-0 font-mono text-[10px] font-semibold",
+                      "shrink-0 px-1.5 py-0 font-mono text-[10px] font-medium",
                       connection.is_source
                         ? "border-info/30 bg-info/10 text-info"
                         : "border-success/30 bg-success/10 text-success"
@@ -204,7 +204,7 @@ export function ConnectionCard({
                       {connection.host || "localhost"}
                     </span>
                   </div>
-                  <span className="text-muted-foreground shrink-0 font-semibold">
+                  <span className="text-muted-foreground shrink-0 font-medium">
                     :{connection.port || 5432}
                   </span>
                 </div>
@@ -264,7 +264,7 @@ export function ConnectionCard({
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 "{connection.name}"
               </span>
               ? This database connection will be unlinked from active migration

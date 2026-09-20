@@ -54,7 +54,9 @@ export function ConnectionFieldGuide({
               {selectedEngine !== "sqlite" ? (
                 <ul className="text-muted-foreground space-y-1">
                   <li>
-                    <strong className="text-foreground">Host / Server:</strong>{" "}
+                    <strong className="text-foreground font-medium">
+                      Host / Server:
+                    </strong>{" "}
                     Server domain or IP (e.g.{" "}
                     <code className="font-mono text-[10px]">
                       ep-example.neon.tech
@@ -67,7 +69,9 @@ export function ConnectionFieldGuide({
                     <code className="font-mono text-[10px]">127.0.0.1</code>).
                   </li>
                   <li>
-                    <strong className="text-foreground">Port Number:</strong>{" "}
+                    <strong className="text-foreground font-medium">
+                      Port Number:
+                    </strong>{" "}
                     Network port (
                     <code className="font-mono text-[10px]">5432</code>{" "}
                     Postgres,{" "}
@@ -76,19 +80,21 @@ export function ConnectionFieldGuide({
                     MongoDB).
                   </li>
                   <li>
-                    <strong className="text-foreground">Database Name:</strong>{" "}
+                    <strong className="text-foreground font-medium">
+                      Database Name:
+                    </strong>{" "}
                     Logical database name to inspect and migrate (e.g.{" "}
                     <code className="font-mono text-[10px]">neondb</code> or{" "}
                     <code className="font-mono text-[10px]">production</code>).
                   </li>
                   <li>
-                    <strong className="text-foreground">
+                    <strong className="text-foreground font-medium">
                       Database User & Password:
                     </strong>{" "}
                     Credentials with read/write access permissions.
                   </li>
                   <li>
-                    <strong className="text-foreground">
+                    <strong className="text-foreground font-medium">
                       SSL Security Mode:
                     </strong>{" "}
                     Use <code className="font-mono text-[10px]">Require</code>{" "}
@@ -99,7 +105,7 @@ export function ConnectionFieldGuide({
                 </ul>
               ) : (
                 <p className="text-muted-foreground">
-                  <strong className="text-foreground">
+                  <strong className="text-foreground font-medium">
                     Database File Path:
                   </strong>{" "}
                   Absolute file path to the SQLite{" "}

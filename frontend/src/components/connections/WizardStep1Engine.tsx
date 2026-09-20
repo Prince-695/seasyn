@@ -34,7 +34,7 @@ export function WizardStep1Engine({
     <div className="space-y-4 pt-1">
       {/* Engine Selection in 4-column horizontal cards */}
       <div className="space-y-1.5">
-        <Label className="text-muted-foreground text-xs font-semibold">
+        <Label className="text-muted-foreground text-xs font-medium">
           Select Database Engine
         </Label>
         <EngineSelector
@@ -50,7 +50,7 @@ export function WizardStep1Engine({
         <div className="space-y-1.5">
           <Label
             htmlFor="connName"
-            className="text-foreground text-xs font-semibold"
+            className="text-foreground text-xs font-medium"
           >
             Connection Name <span className="text-destructive">*</span>
           </Label>
@@ -74,7 +74,7 @@ export function WizardStep1Engine({
 
         {/* Source vs Target Segmented Buttons */}
         <div className="space-y-1.5">
-          <Label className="text-foreground text-xs font-semibold">
+          <Label className="text-foreground text-xs font-medium">
             Database Role
           </Label>
           <div className="grid grid-cols-2 gap-2">
@@ -87,7 +87,7 @@ export function WizardStep1Engine({
                 setValue("is_source", true)
               }}
               className={cn(
-                "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all",
+                "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-medium transition-all",
                 isSourceVal
                   ? "border-primary/50 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary shadow-xs"
                   : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -111,7 +111,7 @@ export function WizardStep1Engine({
                 setValue("is_source", false)
               }}
               className={cn(
-                "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all",
+                "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 text-xs font-medium transition-all",
                 !isSourceVal
                   ? "border-success/50 bg-success/10 text-success hover:bg-success/15 hover:text-success shadow-xs"
                   : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/40"

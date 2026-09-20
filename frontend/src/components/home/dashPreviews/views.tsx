@@ -293,7 +293,7 @@ const TILES = [
 const MIGRATION_COLUMNS: Column<MockMigration>[] = [
   {
     header: "Pipeline",
-    className: "text-foreground font-semibold",
+    className: "text-foreground font-medium",
     cell: (j) => j.name,
   },
   {
@@ -345,7 +345,7 @@ function ActiveMigrationBanner({ job }: { job: MockMigration }) {
           <span className="bg-info relative h-2.5 w-2.5 rounded-full" />
         </span>
         <div>
-          <p className="text-foreground text-xs font-semibold">
+          <p className="text-foreground text-xs font-medium">
             Active Live Migration in Progress
           </p>
           <p className="text-info font-mono text-[11px]">
@@ -357,7 +357,7 @@ function ActiveMigrationBanner({ job }: { job: MockMigration }) {
       </div>
       <Button
         size="xs"
-        className="bg-info text-info-foreground hover:bg-info/90 h-7 gap-1.5 text-xs font-semibold shadow-xs"
+        className="bg-info text-info-foreground hover:bg-info/90 h-7 gap-1.5 text-xs font-medium shadow-xs"
       >
         <Activity className="h-3.5 w-3.5 animate-spin" />
         Live Telemetry
@@ -394,7 +394,7 @@ function MigrationsView() {
         getRowKey={(j) => j.id}
         toolbar={
           <>
-            <span className="text-foreground text-xs font-semibold">
+            <span className="text-foreground text-xs font-medium">
               Pipeline History &amp; Telemetry
             </span>
             <span className="text-muted-foreground font-mono text-[10px]">
@@ -448,7 +448,7 @@ const SCHEMA_TABLE_COLUMNS: Column<MockSchemaColumn>[] = [
       <span
         className={cn(
           "font-mono text-[11px]",
-          c.nullable ? "text-muted-foreground" : "text-foreground font-semibold"
+          c.nullable ? "text-muted-foreground" : "text-foreground font-medium"
         )}
       >
         {c.nullable ? "YES" : "NO"}
@@ -482,7 +482,7 @@ function SchemaView() {
         <div className="flex flex-wrap items-center gap-2">
           <span className={CHIP}>
             <EngineIcon type="postgres" className="h-3.5 w-3.5" />
-            <span className="text-foreground font-semibold">
+            <span className="text-foreground font-medium">
               {PREVIEW_SCHEMA_TABLE.connection}
             </span>
           </span>
@@ -515,7 +515,7 @@ const MEMBER_COLUMNS: Column<MockMember>[] = [
     cell: (m) => (
       <EntityCell
         icon={m.initials}
-        iconClassName="h-8 w-8 rounded-full border-transparent text-xs font-semibold"
+        iconClassName="h-8 w-8 rounded-full border-transparent text-xs font-medium"
         title={m.name}
         subtitle={`@${m.username}`}
       />

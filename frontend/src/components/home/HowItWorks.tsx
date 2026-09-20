@@ -80,7 +80,7 @@ export const HowItWorks = () => {
       {/* Section Header */}
       <div className="relative mb-14 flex flex-col items-center text-center">
         <div className="relative mb-3 inline-flex items-center justify-center">
-          <div className="border-border/80 bg-secondary text-foreground inline-flex items-center justify-center rounded-full border px-3 py-1 font-mono text-xs font-semibold">
+          <div className="border-border/80 bg-secondary text-foreground inline-flex items-center justify-center rounded-full border px-3 py-1 font-mono text-xs font-medium">
             Workflow
           </div>
         </div>
@@ -121,7 +121,7 @@ export const HowItWorks = () => {
             {/* Top Narrative Block */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground font-mono text-xs font-semibold uppercase">
+                <span className="text-muted-foreground font-mono text-xs font-medium uppercase">
                   Step {card.stepNumber}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -137,7 +137,7 @@ export const HowItWorks = () => {
                 </div>
               </div>
 
-              <h3 className="text-foreground text-xl font-semibold sm:text-2xl">
+              <h3 className="text-foreground text-xl font-medium sm:text-2xl">
                 {card.title}
               </h3>
 
@@ -155,7 +155,7 @@ export const HowItWorks = () => {
             >
               {/* Top Row: Tagline & Illustration */}
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-semibold">
+                <div className="flex items-center gap-1.5 text-xs font-medium">
                   <card.icon className="h-4 w-4" />
                   <span>{card.tagline}</span>
                 </div>
@@ -164,7 +164,7 @@ export const HowItWorks = () => {
 
               {/* Bottom Row: Large Step Number & Arrow */}
               <div className="mt-6 flex items-end justify-between">
-                <span className="font-mono text-5xl font-bold tracking-tighter sm:text-6xl">
+                <span className="font-mono text-5xl font-medium tracking-tighter sm:text-6xl">
                   {card.stepNumber}
                 </span>
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-current/10">

@@ -108,6 +108,24 @@ export const PREVIEW_PROJECTS: MockProject[] = [
     databases: "2 (1 in, 1 out)",
     status: "Ready",
   },
+  {
+    id: "p3",
+    name: "billing-events-pipeline",
+    slug: "/billing-events",
+    environment: "staging",
+    createdAt: "1 week ago",
+    databases: "2 (1 in, 1 out)",
+    status: "Ready",
+  },
+  {
+    id: "p4",
+    name: "user-profile-sync",
+    slug: "/user-profiles",
+    environment: "development",
+    createdAt: "2 weeks ago",
+    databases: "2 (1 in, 1 out)",
+    status: "Ready",
+  },
 ]
 
 export const PREVIEW_CONNECTIONS: MockConnection[] = [
@@ -155,6 +173,28 @@ export const PREVIEW_CONNECTIONS: MockConnection[] = [
     status: "connected",
     tablesCount: 6,
   },
+  {
+    id: "c5",
+    name: "orders-postgres-replica",
+    db_type: "postgres",
+    role: "target",
+    host: "pg-replica.acme-infra.internal:5432",
+    database: "orders_replica",
+    pingMs: 1.6,
+    status: "connected",
+    tablesCount: 22,
+  },
+  {
+    id: "c6",
+    name: "billing-mysql-source",
+    db_type: "mysql",
+    role: "source",
+    host: "mysql.acme-billing.internal:3306",
+    database: "billing_core",
+    pingMs: 2.9,
+    status: "idle",
+    tablesCount: 17,
+  },
 ]
 
 export const PREVIEW_MIGRATIONS: MockMigration[] = [
@@ -199,6 +239,20 @@ export const PREVIEW_MIGRATIONS: MockMigration[] = [
     percentage: 100,
     current_rps: 0,
     started_at: "1d ago",
+  },
+  {
+    id: "job-104",
+    name: "inventory-delta-sync",
+    source_table: "public.inventory",
+    target_table: "inventory_snapshots",
+    source_engine: "mysql",
+    target_engine: "mongodb",
+    status: "pending",
+    migrated_rows: 0,
+    total_rows: 320000,
+    percentage: 0,
+    current_rps: 0,
+    started_at: "Queued",
   },
 ]
 
@@ -251,6 +305,30 @@ export const PREVIEW_SCHEMA_COLUMNS: MockSchemaColumn[] = [
     default_val: "CURRENT_TIMESTAMP",
     target_type: "Date (createdAt)",
   },
+  {
+    name: "avatar_url",
+    type: "text",
+    nullable: true,
+    is_pk: false,
+    default_val: "NULL",
+    target_type: "String (avatarUrl)",
+  },
+  {
+    name: "is_active",
+    type: "boolean",
+    nullable: false,
+    is_pk: false,
+    default_val: "true",
+    target_type: "Boolean (isActive)",
+  },
+  {
+    name: "updated_at",
+    type: "timestamptz",
+    nullable: false,
+    is_pk: false,
+    default_val: "CURRENT_TIMESTAMP",
+    target_type: "Date (updatedAt)",
+  },
 ]
 
 export const PREVIEW_MEMBERS: MockMember[] = [
@@ -280,6 +358,24 @@ export const PREVIEW_MEMBERS: MockMember[] = [
     role: "member",
     initials: "MV",
     joinedAt: "Mar 14, 2026",
+  },
+  {
+    id: "u4",
+    name: "Priya Nair",
+    username: "priyan",
+    email: "priya.n@acme.dev",
+    role: "member",
+    initials: "PN",
+    joinedAt: "Apr 02, 2026",
+  },
+  {
+    id: "u5",
+    name: "Daniel Kim",
+    username: "danielk",
+    email: "daniel.k@acme.dev",
+    role: "member",
+    initials: "DK",
+    joinedAt: "May 19, 2026",
   },
 ]
 

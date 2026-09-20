@@ -62,7 +62,7 @@ export function Step1SourceSelection({
       <div className="space-y-2">
         <Label
           htmlFor="sourceConn"
-          className="text-foreground text-xs font-semibold"
+          className="text-foreground text-xs font-medium"
         >
           1. Select Source Database Connection
         </Label>
@@ -100,7 +100,7 @@ export function Step1SourceSelection({
         <div className="space-y-2 pt-2">
           <Label
             htmlFor="sourceTable"
-            className="text-foreground text-xs font-semibold"
+            className="text-foreground text-xs font-medium"
           >
             2. Select Source {terminology.entitySingular}
           </Label>
@@ -150,7 +150,7 @@ export function Step1SourceSelection({
                   >
                     <div className="flex items-center gap-2.5 overflow-hidden">
                       <TableIcon className="text-primary/70 h-4 w-4 shrink-0" />
-                      <span className="text-foreground truncate font-mono text-xs font-semibold">
+                      <span className="text-foreground truncate font-mono text-xs font-medium">
                         {t.name}
                       </span>
                     </div>
@@ -175,14 +175,14 @@ export function Step1SourceSelection({
             <div className="border-border/60 bg-muted/20 mt-3 flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs">
               <div className="flex items-center gap-2">
                 <Layers className="text-primary h-4 w-4" />
-                <span className="text-foreground font-mono font-semibold">
+                <span className="text-foreground font-mono font-medium">
                   {activeTableObj.name}
                 </span>
                 <span className="text-muted-foreground">
                   ({activeTableObj.columns.length} columns)
                 </span>
               </div>
-              <span className="text-foreground font-mono font-semibold">
+              <span className="text-foreground font-mono font-medium">
                 Est. {activeTableObj.row_count.toLocaleString()} rows to stream
               </span>
             </div>

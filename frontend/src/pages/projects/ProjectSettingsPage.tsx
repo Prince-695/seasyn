@@ -118,7 +118,7 @@ export function ProjectSettingsPage() {
     return (
       <div className="border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center rounded-2xl border p-12 text-center">
         <AlertTriangle className="text-destructive h-10 w-10" />
-        <h3 className="text-foreground mt-3 text-base font-semibold">
+        <h3 className="text-foreground mt-3 text-base font-medium">
           Project Not Found
         </h3>
         <p className="text-muted-foreground mt-1 max-w-md text-xs">
@@ -129,7 +129,7 @@ export function ProjectSettingsPage() {
           variant="outline"
           size="sm"
           onClick={() => navigate("/projects")}
-          className="mt-4 text-xs font-semibold"
+          className="mt-4 text-xs font-medium"
         >
           Return to Projects
         </Button>
@@ -153,7 +153,7 @@ export function ProjectSettingsPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-2xl font-semibold">
+              <h1 className="text-foreground text-2xl font-medium">
                 {project.name} Settings
               </h1>
               <Badge
@@ -178,7 +178,7 @@ export function ProjectSettingsPage() {
           variant="outline"
           size="sm"
           onClick={() => navigate(`/projects/${project.slug || project.id}`)}
-          className="gap-2 self-start text-xs font-semibold shadow-2xs sm:self-auto"
+          className="gap-2 self-start text-xs font-medium shadow-2xs sm:self-auto"
         >
           <Server className="text-primary h-3.5 w-3.5" />
           <span>Databases & Studio</span>

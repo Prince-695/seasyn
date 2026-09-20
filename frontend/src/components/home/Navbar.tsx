@@ -129,7 +129,7 @@ export const Navbar = () => {
               to="/dashboard"
               className="border-border/70 bg-card/60 hover:bg-muted flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors"
             >
-              <div className="bg-primary/10 text-primary flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold">
+              <div className="bg-primary/10 text-primary flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium">
                 {(
                   user?.first_name?.[0] ||
                   user?.name?.[0] ||
@@ -150,7 +150,7 @@ export const Navbar = () => {
               <Button
                 variant="default"
                 size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 h-8.5 rounded-md border px-3.5 text-xs font-semibold transition-all active:translate-y-px"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 h-8.5 rounded-md border px-3.5 text-xs font-medium transition-all active:translate-y-px"
               >
                 Get Started
               </Button>
@@ -206,7 +206,7 @@ export const Navbar = () => {
           >
             {/* Section 1: User / Workspace Header */}
             <div className="px-3 py-2.5">
-              <p className="text-foreground truncate text-sm font-semibold">
+              <p className="text-foreground truncate text-sm font-medium">
                 {userName}
               </p>
               <p className="text-muted-foreground mt-0.5 truncate font-mono text-xs">
@@ -225,7 +225,7 @@ export const Navbar = () => {
                   cn(
                     "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-secondary/15 text-foreground font-semibold"
+                      ? "bg-secondary/15 text-foreground font-medium"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                   )
                 }
@@ -242,7 +242,7 @@ export const Navbar = () => {
                     cn(
                       "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-secondary/15 text-foreground font-semibold"
+                        ? "bg-secondary/15 text-foreground font-medium"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                     )
                   }

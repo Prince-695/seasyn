@@ -80,7 +80,7 @@ function PersonalInformationCard({
   return (
     <div className="border-border/70 bg-card/40 space-y-6 rounded-xl border p-6 shadow-xs backdrop-blur-xs">
       <div className="border-border/40 border-b pb-4">
-        <h3 className="text-foreground flex items-center gap-2 text-base font-semibold">
+        <h3 className="text-foreground flex items-center gap-2 text-base font-medium">
           <UserIcon className="text-primary h-4 w-4" />
           <span>Personal Information</span>
         </h3>
@@ -91,11 +91,11 @@ function PersonalInformationCard({
 
       {/* Avatar Row */}
       <div className="flex items-center gap-4">
-        <div className="font-heading bg-primary/10 text-primary ring-border/80 flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-semibold ring-1">
+        <div className="font-heading bg-primary/10 text-primary ring-border/80 flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-medium ring-1">
           {initials}
         </div>
         <div>
-          <p className="text-foreground text-sm font-semibold">
+          <p className="text-foreground text-sm font-medium">
             {profile?.first_name
               ? `${profile.first_name} ${profile.last_name || ""}`
               : profile?.email}
@@ -272,7 +272,7 @@ export function ProfilePage() {
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-foreground text-2xl font-semibold sm:text-3xl">
+        <h1 className="text-foreground text-2xl font-medium sm:text-3xl">
           Account Settings
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -292,7 +292,7 @@ export function ProfilePage() {
           <div className="border-border/70 bg-card/40 space-y-6 rounded-xl border p-6 shadow-xs backdrop-blur-xs">
             <div className="border-border/40 flex items-start justify-between border-b pb-4">
               <div>
-                <h3 className="text-foreground flex items-center gap-2 text-base font-semibold">
+                <h3 className="text-foreground flex items-center gap-2 text-base font-medium">
                   <AtSign className="text-primary h-4 w-4" />
                   <span>Unique Username Handle</span>
                 </h3>
@@ -303,7 +303,7 @@ export function ProfilePage() {
               </div>
 
               {currentProfile?.username && (
-                <div className="border-primary/20 bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold">
+                <div className="border-primary/20 bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium">
                   <Lock className="h-3 w-3" />
                   <span>Permanent Handle</span>
                 </div>
@@ -317,7 +317,7 @@ export function ProfilePage() {
                   <span className="text-muted-foreground text-sm">
                     Active Username:
                   </span>
-                  <span className="text-primary font-mono text-base font-semibold">
+                  <span className="text-primary font-mono text-base font-medium">
                     @{currentProfile.username}
                   </span>
                 </div>
@@ -332,7 +332,7 @@ export function ProfilePage() {
                 <div className="border-warning/30 bg-warning/10 text-warning flex items-start gap-2.5 rounded-lg border p-3.5 text-xs">
                   <AlertCircle className="text-warning mt-0.5 h-4 w-4 shrink-0" />
                   <div>
-                    <span className="font-semibold">Important Notice:</span> You
+                    <span className="font-medium">Important Notice:</span> You
                     can only choose your username once. Once claimed, it is
                     permanently locked to your account.
                   </div>

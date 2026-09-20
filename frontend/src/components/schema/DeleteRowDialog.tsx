@@ -65,7 +65,7 @@ export function DeleteRowDialog({
         <AlertDialogHeader>
           <div className="text-destructive flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
-            <AlertDialogTitle className="text-base font-semibold">
+            <AlertDialogTitle className="text-base font-medium">
               Delete Record from &apos;{tableName}&apos;?
             </AlertDialogTitle>
           </div>
@@ -78,7 +78,7 @@ export function DeleteRowDialog({
 
         {/* Primary Key Identification */}
         <div className="border-border/70 bg-muted/20 space-y-1.5 rounded-xl border p-3">
-          <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold uppercase">
+          <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium uppercase">
             <Key className="text-warning h-3.5 w-3.5" />
             <span>Target Primary Key Identification</span>
           </span>
@@ -86,7 +86,7 @@ export function DeleteRowDialog({
             {Object.entries(pkRecord).map(([k, v]) => (
               <div key={k} className="flex items-center justify-between py-1">
                 <span className="text-muted-foreground">{k}</span>
-                <span className="text-foreground max-w-55 truncate font-semibold">
+                <span className="text-foreground max-w-55 truncate font-medium">
                   {String(v ?? "NULL")}
                 </span>
               </div>
@@ -107,7 +107,7 @@ export function DeleteRowDialog({
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-1.5 text-xs font-semibold"
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-1.5 text-xs font-medium"
           >
             {isDeleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             <span>{isDeleting ? "Deleting..." : "Delete Permanently"}</span>
