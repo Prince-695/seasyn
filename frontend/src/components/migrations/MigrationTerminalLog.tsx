@@ -103,7 +103,7 @@ export function MigrationTerminalLog({
       {/* Console Header */}
       <div className="border-code-border bg-muted/30 flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <div className="text-foreground ml-2 flex items-center gap-1.5 text-xs font-semibold">
+          <div className="text-foreground ml-2 flex items-center gap-1.5 text-xs font-medium">
             <Terminal className="text-muted-foreground h-3.5 w-3.5" />
             <span>Activity Log</span>
           </div>
@@ -116,7 +116,7 @@ export function MigrationTerminalLog({
           {status === "running" ? (
             <Badge
               variant="outline"
-              className="border-success/40 bg-success/10 text-success flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-semibold"
+              className="border-success/40 bg-success/10 text-success flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
@@ -148,7 +148,7 @@ export function MigrationTerminalLog({
                 className={cn(
                   "h-5 rounded px-1.5 py-0 font-mono text-[10px] transition-colors",
                   activeFilter === lvl
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold shadow-2xs"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-medium shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -189,7 +189,7 @@ export function MigrationTerminalLog({
             </span>
             <span
               className={cn(
-                "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold",
+                "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium",
                 log.level === "INFO" &&
                   "border-info/30 bg-info/10 text-info border",
                 log.level === "STREAM" &&

@@ -74,7 +74,7 @@ function ChangeRoleContent({ orgId, member, onClose }: ChangeRoleContentProps) {
             <DialogTitle>Change Member Role</DialogTitle>
             <DialogDescription>
               Update access permissions for{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 {member.first_name} {member.last_name} ({member.email})
               </span>
             </DialogDescription>

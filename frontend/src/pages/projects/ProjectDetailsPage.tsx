@@ -185,7 +185,7 @@ export function ProjectDetailsPage() {
         </Link>
         <div className="border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center rounded-2xl border p-12 text-center">
           <AlertTriangle className="text-destructive h-10 w-10" />
-          <h3 className="text-foreground mt-3 text-base font-semibold">
+          <h3 className="text-foreground mt-3 text-base font-medium">
             Project Not Found
           </h3>
           <p className="text-muted-foreground mt-1 max-w-md text-xs">
@@ -220,7 +220,7 @@ export function ProjectDetailsPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-2xl font-semibold">
+              <h1 className="text-foreground text-2xl font-medium">
                 {project.name}
               </h1>
               <Badge
@@ -247,7 +247,7 @@ export function ProjectDetailsPage() {
               projectId={project.id}
               defaultIsSource={true}
               trigger={
-                <Button size="sm" className="gap-2 font-semibold shadow-xs">
+                <Button size="sm" className="gap-2 font-medium shadow-xs">
                   <Plus className="h-4 w-4" />
                   <span>Add Database</span>
                 </Button>
@@ -263,7 +263,7 @@ export function ProjectDetailsPage() {
           <span className="text-muted-foreground text-xs font-medium">
             Total Databases
           </span>
-          <p className="text-foreground mt-1 font-mono text-lg font-semibold">
+          <p className="text-foreground mt-1 font-mono text-lg font-medium">
             {projectAnalytics?.connection_quota
               ? `${projectAnalytics.connection_quota.used} / ${projectAnalytics.connection_quota.max}`
               : connections.length}
@@ -274,7 +274,7 @@ export function ProjectDetailsPage() {
           <span className="text-info text-xs font-medium">
             Source DBs (Inbound)
           </span>
-          <p className="text-info mt-1 font-mono text-lg font-semibold">
+          <p className="text-info mt-1 font-mono text-lg font-medium">
             {projectAnalytics?.connection_quota?.sources_count ??
               sourceConnections.length}
           </p>
@@ -284,7 +284,7 @@ export function ProjectDetailsPage() {
           <span className="text-success text-xs font-medium">
             Target DBs (Outbound)
           </span>
-          <p className="text-success mt-1 font-mono text-lg font-semibold">
+          <p className="text-success mt-1 font-mono text-lg font-medium">
             {projectAnalytics?.connection_quota?.targets_count ??
               targetConnections.length}
           </p>
@@ -294,7 +294,7 @@ export function ProjectDetailsPage() {
           <span className="text-muted-foreground text-xs font-medium">
             Data Flow Routes
           </span>
-          <div className="text-foreground mt-1 flex items-center gap-1.5 font-mono text-lg font-semibold">
+          <div className="text-foreground mt-1 flex items-center gap-1.5 font-mono text-lg font-medium">
             <span>{projectAnalytics?.topology_edges?.length ?? 0}</span>
             <span className="text-muted-foreground text-xs font-normal">
               active routes
@@ -314,7 +314,7 @@ export function ProjectDetailsPage() {
                 <div className="bg-primary/10 text-primary flex h-7 w-7 items-center justify-center rounded-lg">
                   <Activity className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-semibold sm:text-base">
+                <h3 className="text-foreground text-sm font-medium sm:text-base">
                   Data Flow Routes
                 </h3>
               </div>
@@ -390,7 +390,7 @@ export function ProjectDetailsPage() {
                 <div className="bg-info/10 text-info flex h-7 w-7 items-center justify-center rounded-lg">
                   <Layers className="h-4 w-4" />
                 </div>
-                <h3 className="text-foreground text-sm font-semibold sm:text-base">
+                <h3 className="text-foreground text-sm font-medium sm:text-base">
                   Most Active Tables
                 </h3>
               </div>

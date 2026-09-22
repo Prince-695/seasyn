@@ -118,10 +118,10 @@ export function SchemaDiffPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-foreground text-xl font-semibold">
+            <h1 className="text-foreground text-xl font-medium">
               Schema Diff Comparator
             </h1>
-            <span className="border-primary/20 bg-primary/10 text-primary rounded-md border px-2 py-0.5 text-[10px] font-semibold">
+            <span className="border-primary/20 bg-primary/10 text-primary rounded-md border px-2 py-0.5 text-[10px] font-medium">
               Heterogeneous Engine
             </span>
           </div>
@@ -165,7 +165,7 @@ export function SchemaDiffPage() {
             disabled={
               isDiffLoading || !effectiveSourceConnId || !effectiveTargetConnId
             }
-            className="gap-1.5 text-xs font-semibold shadow-xs"
+            className="gap-1.5 text-xs font-medium shadow-xs"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${isDiffLoading ? "animate-spin" : ""}`}
@@ -180,7 +180,7 @@ export function SchemaDiffPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-center">
           {/* Source Picker */}
           <div className="space-y-1.5 md:col-span-5">
-            <span className="text-muted-foreground block text-[11px] font-semibold uppercase">
+            <span className="text-muted-foreground block text-[11px] font-medium uppercase">
               Source Database (Baseline)
             </span>
             <div className="relative">
@@ -207,7 +207,7 @@ export function SchemaDiffPage() {
 
           {/* Target Picker */}
           <div className="space-y-1.5 md:col-span-5">
-            <span className="text-muted-foreground block text-[11px] font-semibold uppercase">
+            <span className="text-muted-foreground block text-[11px] font-medium uppercase">
               Target Database (Comparison)
             </span>
             <div className="relative">
@@ -235,7 +235,7 @@ export function SchemaDiffPage() {
       {connections.length < 2 ? (
         <div className="border-border/70 bg-card rounded-2xl border p-12 text-center shadow-xs">
           <Server className="text-muted-foreground/50 mx-auto mb-3 h-10 w-10" />
-          <h3 className="text-foreground text-sm font-semibold">
+          <h3 className="text-foreground text-sm font-medium">
             Two Database Connections Required
           </h3>
           <p className="text-muted-foreground mx-auto mt-1 max-w-sm text-xs">
@@ -243,10 +243,7 @@ export function SchemaDiffPage() {
             source and one target database connection.
           </p>
           <Link to="/connections" className="mt-4 inline-block">
-            <Button
-              size="sm"
-              className="gap-1.5 text-xs font-semibold shadow-xs"
-            >
+            <Button size="sm" className="gap-1.5 text-xs font-medium shadow-xs">
               <Plus className="h-3.5 w-3.5" />
               <span>Configure Connections</span>
             </Button>

@@ -14,7 +14,7 @@ export function SqliteForm({ form, disabled = false }: SqliteFormProps) {
 
   return (
     <div className="space-y-2 pt-1">
-      <Label htmlFor="filePath" className="text-xs font-semibold">
+      <Label htmlFor="filePath" className="text-xs font-medium">
         Database File Path <span className="text-destructive">*</span>
       </Label>
       <div className="relative">

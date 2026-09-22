@@ -39,7 +39,7 @@ function StatCell({
         customContent
       ) : (
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-foreground font-mono text-base font-semibold">
+          <span className="text-foreground font-mono text-base font-medium">
             {value}
           </span>
           {subValue && (
@@ -77,7 +77,7 @@ function MetricPanel({
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-foreground text-sm font-semibold">{title}</h3>
+            <h3 className="text-foreground text-sm font-medium">{title}</h3>
             <p className="text-muted-foreground text-[10px]">{subtitle}</p>
           </div>
         </div>
@@ -183,7 +183,7 @@ export function ResourceMetricsGrid({
       rightHeader: (
         <span
           className={cn(
-            "font-mono text-[9px] font-semibold",
+            "font-mono text-[9px] font-medium",
             isConnected ? "text-success" : "text-muted-foreground"
           )}
         >

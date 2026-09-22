@@ -72,7 +72,7 @@ export function SchemaStudioContent({
     return (
       <div className="border-border/80 bg-muted/10 flex h-full flex-col items-center justify-center rounded-2xl border border-dashed p-8 text-center">
         <Server className="text-muted-foreground/60 mb-3 h-10 w-10" />
-        <h3 className="text-foreground text-sm font-semibold">
+        <h3 className="text-foreground text-sm font-medium">
           No Database Connections Configured
         </h3>
         <p className="text-muted-foreground mt-1 max-w-sm text-xs">
@@ -80,7 +80,7 @@ export function SchemaStudioContent({
           MongoDB, or SQLite database.
         </p>
         <Link to="/connections" className="mt-4">
-          <Button size="sm" className="gap-1.5 text-xs font-semibold shadow-xs">
+          <Button size="sm" className="gap-1.5 text-xs font-medium shadow-xs">
             <Plus className="h-3.5 w-3.5" />
             <span>Configure Connection</span>
           </Button>
@@ -183,7 +183,7 @@ export function SchemaStudioContent({
           {connections.length < 2 ? (
             <div className="border-border/70 bg-card rounded-xl border p-8 text-center">
               <ArrowRightLeft className="text-muted-foreground/60 mx-auto mb-2 h-8 w-8" />
-              <h4 className="text-foreground text-sm font-semibold">
+              <h4 className="text-foreground text-sm font-medium">
                 Requires At Least 2 Database Connections
               </h4>
               <p className="text-muted-foreground mx-auto mt-1 max-w-sm text-xs">
@@ -192,7 +192,7 @@ export function SchemaStudioContent({
                 connection to use this feature.
               </p>
               <Link to="/connections" className="mt-4 inline-block">
-                <Button size="sm" className="gap-1.5 text-xs font-semibold">
+                <Button size="sm" className="gap-1.5 text-xs font-medium">
                   <Plus className="h-3.5 w-3.5" />
                   <span>Add Target Database</span>
                 </Button>

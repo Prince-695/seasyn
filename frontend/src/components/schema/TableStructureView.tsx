@@ -108,7 +108,7 @@ export function TableStructureView({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-foreground font-mono text-base font-semibold">
+                <h2 className="text-foreground font-mono text-base font-medium">
                   {table.name}
                 </h2>
                 <Badge variant="outline" className="font-mono text-[10px]">
@@ -136,7 +136,7 @@ export function TableStructureView({
               <Button
                 size="sm"
                 onClick={onSwitchToDataGrid}
-                className="gap-1.5 text-xs font-semibold"
+                className="gap-1.5 text-xs font-medium"
               >
                 <Database className="h-3.5 w-3.5" />
                 <span>View Live {terminology.recordPlural}</span>
@@ -153,7 +153,7 @@ export function TableStructureView({
             size="xs"
             onClick={() => setActiveSubTab("columns")}
             className={cn(
-              "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+              "cursor-pointer rounded-lg px-3 py-1 text-xs font-medium transition-colors",
               activeSubTab === "columns"
                 ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -167,7 +167,7 @@ export function TableStructureView({
             size="xs"
             onClick={() => setActiveSubTab("indexes")}
             className={cn(
-              "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+              "cursor-pointer rounded-lg px-3 py-1 text-xs font-medium transition-colors",
               activeSubTab === "indexes"
                 ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -182,7 +182,7 @@ export function TableStructureView({
               size="xs"
               onClick={() => setActiveSubTab("constraints")}
               className={cn(
-                "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+                "cursor-pointer rounded-lg px-3 py-1 text-xs font-medium transition-colors",
                 activeSubTab === "constraints"
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -197,7 +197,7 @@ export function TableStructureView({
             size="xs"
             onClick={() => setActiveSubTab("ddl")}
             className={cn(
-              "cursor-pointer rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+              "cursor-pointer rounded-lg px-3 py-1 text-xs font-medium transition-colors",
               activeSubTab === "ddl"
                 ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -213,7 +213,7 @@ export function TableStructureView({
         <div className="border-border/70 bg-card overflow-hidden rounded-xl border shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+              <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-medium uppercase">
                 <tr>
                   <th className="px-3 py-2.5">Column Name</th>
                   <th className="px-3 py-2.5">Universal Type</th>
@@ -231,7 +231,7 @@ export function TableStructureView({
                       className="hover:bg-muted/20 transition-colors"
                     >
                       <td className="px-3 py-2.5">
-                        <div className="text-foreground flex items-center gap-1.5 font-semibold">
+                        <div className="text-foreground flex items-center gap-1.5 font-medium">
                           {col.is_primary_key && (
                             <Key className="text-warning h-3.5 w-3.5 shrink-0" />
                           )}
@@ -256,7 +256,7 @@ export function TableStructureView({
                             Nullable
                           </span>
                         ) : (
-                          <span className="text-foreground text-[11px] font-semibold">
+                          <span className="text-foreground text-[11px] font-medium">
                             NOT NULL
                           </span>
                         )}
@@ -301,7 +301,7 @@ export function TableStructureView({
           {table.indexes && table.indexes.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-medium uppercase">
                   <tr>
                     <th className="px-3 py-2.5">Index Name</th>
                     <th className="px-3 py-2.5">Indexed Columns</th>
@@ -315,7 +315,7 @@ export function TableStructureView({
                       key={idx.name || `index-${i}`}
                       className="hover:bg-muted/20 transition-colors"
                     >
-                      <td className="text-foreground px-3 py-2.5 font-semibold">
+                      <td className="text-foreground px-3 py-2.5 font-medium">
                         {idx.name || (
                           <span className="text-muted-foreground/60 italic">
                             unnamed
@@ -365,7 +365,7 @@ export function TableStructureView({
           {table.constraints && table.constraints.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+                <thead className="border-border/60 bg-muted/40 text-muted-foreground border-b text-[11px] font-medium uppercase">
                   <tr>
                     <th className="px-3 py-2.5">Constraint Identifier</th>
                     <th className="px-3 py-2.5">Type</th>
@@ -379,7 +379,7 @@ export function TableStructureView({
                       key={c.name || `constraint-${i}`}
                       className="hover:bg-muted/20 transition-colors"
                     >
-                      <td className="text-foreground px-3 py-2.5 font-semibold">
+                      <td className="text-foreground px-3 py-2.5 font-medium">
                         {c.name || (
                           <span className="text-muted-foreground/60 italic">
                             unnamed
@@ -430,7 +430,7 @@ export function TableStructureView({
       {activeSubTab === "ddl" && (
         <div className="border-border/70 bg-card overflow-hidden rounded-xl border shadow-xs">
           <div className="border-border/60 bg-muted/30 flex items-center justify-between border-b px-4 py-2">
-            <div className="text-foreground flex items-center gap-1.5 text-xs font-semibold">
+            <div className="text-foreground flex items-center gap-1.5 text-xs font-medium">
               <FileCode className="text-primary h-4 w-4" />
               <span>Generated SQL DDL Schema Definition</span>
             </div>

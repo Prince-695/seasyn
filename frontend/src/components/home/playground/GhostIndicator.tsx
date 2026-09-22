@@ -1,5 +1,6 @@
-import { motion } from "framer-motion"
-import { useEffect, useRef } from "react"
+import { motion, useInView } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
+import { checkSystemHealth } from "@/api/client"
 
 export interface GhostIndicatorProps {
   label?: string
@@ -12,25 +13,54 @@ export const GhostIndicator = ({
   isConverting = false,
   onAwakened,
 }: GhostIndicatorProps) => {
-  const hasAwakened = useRef(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const isInView = useInView(containerRef, { once: true, amount: 0.2 })
+  const [status, setStatus] = useState<"ghost" | "waking" | "awake">("ghost")
+  const hasCheckedRef = useRef(false)
 
-  // Fire once, the first time conversion starts
+  // Hit backend health API once when the user reaches the playground
   useEffect(() => {
-    if (isConverting && !hasAwakened.current) {
-      hasAwakened.current = true
-      onAwakened?.()
-    }
-  }, [isConverting, onAwakened])
+    if (!isInView || hasCheckedRef.current) return
+    hasCheckedRef.current = true
 
-  const statusLabel =
-    label ?? (isConverting ? "Waking Up" : "Ghost in the Machine")
+    // If sleeping / cold starting, switch message to "Waking Up" after 3.5s
+    const wakingTimer = setTimeout(() => {
+      setStatus("waking")
+    }, 3500)
+
+    checkSystemHealth(35000)
+      .then((isHealthy) => {
+        clearTimeout(wakingTimer)
+        if (isHealthy) {
+          setStatus("awake")
+          onAwakened?.()
+        } else {
+          setStatus("ghost")
+        }
+      })
+      .catch(() => {
+        clearTimeout(wakingTimer)
+        setStatus("ghost")
+      })
+
+    return () => {
+      clearTimeout(wakingTimer)
+    }
+  }, [isInView, onAwakened])
+
+  const isWaking = status === "waking" || isConverting
+
+  const statusLabel = label ?? (isWaking ? "Waking Up" : "Ghost in the Machine")
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2.5 py-2 select-none">
+    <div
+      ref={containerRef}
+      className="flex flex-col items-center justify-center gap-2.5 py-2 select-none"
+    >
       {/* Animated Floating Ghost */}
       <motion.div
         animate={
-          isConverting
+          isWaking
             ? {
                 x: [-18, 18, -18],
                 y: [-9, 9, -9],
@@ -45,7 +75,7 @@ export const GhostIndicator = ({
               }
         }
         transition={{
-          duration: isConverting ? 1.4 : 3,
+          duration: isWaking ? 1.4 : 3,
           repeat: Infinity,
           ease: "easeInOut",
         }}
@@ -83,9 +113,9 @@ export const GhostIndicator = ({
             className="fill-foreground"
             animate={{ scaleY: [1, 0.1, 1] }}
             transition={{
-              duration: isConverting ? 2 : 4,
+              duration: isWaking ? 2 : 4,
               repeat: Infinity,
-              repeatDelay: isConverting ? 1 : 2,
+              repeatDelay: isWaking ? 1 : 2,
             }}
           />
 
@@ -97,9 +127,9 @@ export const GhostIndicator = ({
             className="fill-foreground"
             animate={{ scaleY: [1, 0.1, 1] }}
             transition={{
-              duration: isConverting ? 2 : 4,
+              duration: isWaking ? 2 : 4,
               repeat: Infinity,
-              repeatDelay: isConverting ? 1 : 2,
+              repeatDelay: isWaking ? 1 : 2,
             }}
           />
         </svg>
@@ -108,10 +138,10 @@ export const GhostIndicator = ({
         <motion.div
           animate={{
             scaleX: [1.2, 0.8, 1.2],
-            opacity: isConverting ? [0.3, 0.55, 0.3] : [0.2, 0.4, 0.2],
+            opacity: isWaking ? [0.3, 0.55, 0.3] : [0.2, 0.4, 0.2],
           }}
           transition={{
-            duration: isConverting ? 1.4 : 3,
+            duration: isWaking ? 1.4 : 3,
             repeat: Infinity,
             ease: "easeInOut",
           }}

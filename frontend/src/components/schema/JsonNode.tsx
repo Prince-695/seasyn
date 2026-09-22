@@ -66,14 +66,14 @@ export function JsonNode({ keyName, value, depth = 0 }: JsonNodeProps) {
           <span className="w-4 shrink-0" />
         )}
 
-        <span className="text-primary/90 font-semibold select-all">
+        <span className="text-primary/90 font-medium select-all">
           {keyName}:
         </span>
 
         {/* Type Badge */}
         <span
           className={cn(
-            "rounded px-1 text-[10px] font-semibold uppercase",
+            "rounded px-1 text-[10px] font-medium uppercase",
             type === "ObjectId" &&
               "border-primary/20 bg-primary/10 text-primary border",
             type === "string" && "text-success",

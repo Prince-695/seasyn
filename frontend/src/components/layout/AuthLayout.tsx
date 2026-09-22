@@ -26,7 +26,7 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
 
           {/* Title & Description */}
           <div className="mb-4 text-center">
-            <h1 className="text-foreground font-serif text-3xl font-semibold sm:text-[32px]">
+            <h1 className="text-foreground font-serif text-3xl font-medium sm:text-[32px]">
               {title}
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">{description}</p>

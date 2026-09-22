@@ -1,18 +1,13 @@
-import { useState, useSyncExternalStore } from "react"
+import { useState } from "react"
 import {
   motion,
   AnimatePresence,
   MotionConfig,
   type Variants,
 } from "framer-motion"
-import {
-  ChevronDown,
-  SlidersHorizontal,
-  Image as ImageIcon,
-} from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/Logo"
-import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { HandwrittenAnnotation } from "@/components/ui/HandwrittenAnnotation"
 import {
@@ -23,20 +18,6 @@ import {
 } from "./dashboardPreviewData"
 import { StatusDot } from "./primitives"
 import { VIEWS } from "./views"
-
-// ── Hook ──────────────────────────────────────────────────────────────────
-
-function useMediaQuery(query: string) {
-  return useSyncExternalStore(
-    (notify) => {
-      const mql = window.matchMedia(query)
-      mql.addEventListener("change", notify)
-      return () => mql.removeEventListener("change", notify)
-    },
-    () => window.matchMedia(query).matches,
-    () => false
-  )
-}
 
 // ── Sidebar ───────────────────────────────────────────────────────────────
 
@@ -52,7 +33,7 @@ function PreviewSidebar({ activeNav, onNavChange }: PreviewSidebarProps) {
         <div className="flex items-center gap-2">
           <Logo size={20} showText={false} />
           <div className="flex flex-col text-left leading-tight">
-            <span className="text-foreground text-xs font-semibold">
+            <span className="text-foreground text-xs font-medium">
               {ORG_NAME}
             </span>
             <span className="text-muted-foreground font-mono text-[10px]">
@@ -76,7 +57,7 @@ function PreviewSidebar({ activeNav, onNavChange }: PreviewSidebarProps) {
               className={cn(
                 "h-8.5 w-full justify-start gap-2.5 rounded-lg px-2.5 text-xs font-medium transition-all",
                 active
-                  ? "text-foreground bg-muted font-semibold shadow-2xs"
+                  ? "text-foreground bg-muted font-medium shadow-2xs"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -89,7 +70,7 @@ function PreviewSidebar({ activeNav, onNavChange }: PreviewSidebarProps) {
 
       <div className="border-border/60 mt-auto border-t pt-2.5">
         <div className="flex items-center gap-2 px-1">
-          <div className="bg-primary/15 text-primary flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold">
+          <div className="bg-primary/15 text-primary flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-medium">
             {PREVIEW_USER.initial}
           </div>
           <div className="flex flex-col text-left leading-none">
@@ -106,38 +87,27 @@ function PreviewSidebar({ activeNav, onNavChange }: PreviewSidebarProps) {
   )
 }
 
-// ── Live / Static toggle ──────────────────────────────────────────────────
+// ── Bottom fade ───────────────────────────────────────────────────────────
 
-type ViewMode = "live" | "image"
+// Blurs the content that scrolls under the bottom edge (strongest at the bottom).
+const CONTENT_BLUR_MASK = "linear-gradient(to top, black 30%, transparent 100%)"
 
-const MODES = [
-  { id: "live", label: "Live", icon: SlidersHorizontal },
-  { id: "image", label: "Static", icon: ImageIcon },
-] as const
+// Fades the WHOLE card (content, border and shadow) into the page background.
+// The wrapper that uses it extends 4rem below the card, so the card's bottom
+// edge sits at `calc(100% - 4rem)`; alpha reaches 0 just above that edge.
+const CARD_FADE_MASK =
+  "linear-gradient(to bottom, black calc(100% - 15rem), rgb(0 0 0 / 0.55) calc(100% - 10rem), transparent calc(100% - 4.5rem))"
 
-function ViewToggle({
-  value,
-  onChange,
-}: {
-  value: ViewMode
-  onChange: (m: ViewMode) => void
-}) {
+function BottomBlur() {
   return (
-    <div className="bg-muted/70 border-border/60 inline-flex rounded-lg border p-0.5">
-      {MODES.map(({ id, label, icon: Icon }) => (
-        <Button
-          key={id}
-          variant={value === id ? "secondary" : "ghost"}
-          size="xs"
-          aria-pressed={value === id}
-          onClick={() => onChange(id)}
-          className="h-6 gap-1 px-2.5 text-[11px] font-medium"
-        >
-          <Icon className="h-3 w-3" />
-          <span>{label}</span>
-        </Button>
-      ))}
-    </div>
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-48 backdrop-blur-md"
+      style={{
+        maskImage: CONTENT_BLUR_MASK,
+        WebkitMaskImage: CONTENT_BLUR_MASK,
+      }}
+    />
   )
 }
 
@@ -159,32 +129,14 @@ const tabContentVariants: Variants = {
   },
 }
 
-const fade = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.2 },
-}
-
-interface DashboardPreviewProps {
+export interface DashboardPreviewProps {
   imageSrc?: string
   darkImageSrc?: string
   altText?: string
 }
 
-export function DashboardPreview({
-  imageSrc = "/dashboard.png",
-  darkImageSrc = "/dashboard-dark.png",
-  altText = "Seasyn Dashboard Preview",
-}: DashboardPreviewProps) {
-  const { theme } = useTheme()
-  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)")
-  const [viewMode, setViewMode] = useState<ViewMode>("live")
+export function DashboardPreview() {
   const [activeNav, setActiveNav] = useState<NavId>("projects")
-
-  const isDark = theme === "dark" || (theme === "system" && prefersDark)
-  const activeImage = isDark ? darkImageSrc : imageSrc
-  const showImage = viewMode === "image" && Boolean(activeImage)
 
   const ActiveView = VIEWS[activeNav]
   const activeLabel = SIDEBAR_NAV.find((n) => n.id === activeNav)?.label
@@ -212,64 +164,53 @@ export function DashboardPreview({
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 w-full"
         >
-          <div className="border-border/70 bg-card relative flex h-160 w-full flex-col overflow-hidden rounded-2xl border-2 shadow-2xl">
-            {/* Top bar */}
-            <div className="border-border/60 bg-muted/40 flex h-11 shrink-0 items-center justify-between border-b px-4">
-              <div className="flex items-center gap-2.5">
-                <StatusDot className="h-2 w-2" />
-                <span className="text-foreground text-xs font-medium">
-                  {ORG_NAME} Workspace
-                </span>
-                <span className="text-border/80 hidden sm:inline">•</span>
-                <span className="text-muted-foreground hidden font-mono text-[11px] sm:inline">
-                  Live Interactive Preview
-                </span>
+          <div
+            className="-mx-4 -mt-8 -mb-16 px-4 pt-8 pb-16"
+            style={{
+              maskImage: CARD_FADE_MASK,
+              WebkitMaskImage: CARD_FADE_MASK,
+            }}
+          >
+            <div className="border-border/70 bg-card relative flex h-160 w-full flex-col overflow-hidden rounded-2xl border-2 shadow-2xl">
+              {/* Top bar */}
+              <div className="border-border/60 bg-muted/40 flex h-11 shrink-0 items-center justify-between border-b px-4">
+                <div className="flex items-center gap-2.5">
+                  <StatusDot className="h-2 w-2" />
+                  <span className="text-foreground text-xs font-medium">
+                    {ORG_NAME} Workspace
+                  </span>
+                  <span className="text-border/80 hidden sm:inline">•</span>
+                  <span className="text-muted-foreground hidden font-mono text-[11px] sm:inline">
+                    Live Interactive Preview
+                  </span>
+                </div>
               </div>
-              {activeImage && (
-                <ViewToggle value={viewMode} onChange={setViewMode} />
-              )}
-            </div>
 
-            {/* Body */}
-            <AnimatePresence mode="wait">
-              {showImage ? (
-                <motion.div
-                  key="image-view"
-                  {...fade}
-                  className="bg-card flex flex-1 items-center justify-center overflow-hidden"
-                >
-                  <img
-                    src={activeImage}
-                    alt={altText}
-                    className="h-full w-full object-cover object-top"
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="live-view"
-                  {...fade}
-                  className="relative flex flex-1 overflow-hidden"
-                >
-                  <PreviewSidebar
-                    activeNav={activeNav}
-                    onNavChange={setActiveNav}
-                  />
+              {/* Body - Live View */}
+              <div className="relative flex flex-1 overflow-hidden">
+                <PreviewSidebar
+                  activeNav={activeNav}
+                  onNavChange={setActiveNav}
+                />
 
-                  <div className="bg-background/50 relative flex flex-1 flex-col overflow-y-auto">
-                    <div className="border-border/60 bg-card/40 flex h-10 shrink-0 items-center justify-between border-b px-4">
-                      <div className="text-muted-foreground flex items-center gap-1.5 font-mono text-[11px]">
-                        <span>Organization</span>
-                        <span>/</span>
-                        <span className="text-foreground font-medium">
-                          {activeLabel}
-                        </span>
-                      </div>
-                      <span className="text-muted-foreground hidden font-mono text-[11px] sm:inline">
-                        Auto-sync active (SSE)
+                {/* Non-scrolling wrapper so the blur stays pinned to the bottom */}
+                <div className="bg-background/50 relative flex min-w-0 flex-1 flex-col overflow-hidden">
+                  <div className="border-border/60 bg-card/40 flex h-10 shrink-0 items-center justify-between border-b px-4">
+                    <div className="text-muted-foreground flex items-center gap-1.5 font-mono text-[11px]">
+                      <span>Organization</span>
+                      <span>/</span>
+                      <span className="text-foreground font-medium">
+                        {activeLabel}
                       </span>
                     </div>
+                    <span className="text-muted-foreground hidden font-mono text-[11px] sm:inline">
+                      Auto-sync active (SSE)
+                    </span>
+                  </div>
 
-                    <div className="flex flex-col p-4 sm:p-5">
+                  {/* Scrollable content */}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="flex flex-col p-4 pb-16 sm:p-5 sm:pb-16">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={activeNav}
@@ -282,12 +223,12 @@ export function DashboardPreview({
                         </motion.div>
                       </AnimatePresence>
                     </div>
-
-                    <div className="from-background/95 via-background/60 pointer-events-none sticky inset-x-0 bottom-0 h-24 bg-linear-to-t to-transparent backdrop-blur-[3px]" />
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
+                  <BottomBlur />
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
       </section>

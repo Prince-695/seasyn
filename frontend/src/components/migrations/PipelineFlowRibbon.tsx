@@ -63,7 +63,7 @@ export function PipelineFlowRibbon({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <span className="text-muted-foreground text-[10px] font-medium uppercase">
                 From (Source)
               </span>
               <Badge
@@ -73,7 +73,7 @@ export function PipelineFlowRibbon({
                 {effectiveSourceType}
               </Badge>
             </div>
-            <p className="text-foreground truncate text-sm font-semibold">
+            <p className="text-foreground truncate text-sm font-medium">
               {effectiveSourceName}
             </p>
             <p className="text-muted-foreground text-xs">
@@ -164,7 +164,7 @@ export function PipelineFlowRibbon({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <span className="text-muted-foreground text-[10px] font-medium uppercase">
                 To (Destination)
               </span>
               <Badge
@@ -174,7 +174,7 @@ export function PipelineFlowRibbon({
                 {effectiveTargetType}
               </Badge>
             </div>
-            <p className="text-foreground truncate text-sm font-semibold">
+            <p className="text-foreground truncate text-sm font-medium">
               {effectiveTargetName}
             </p>
             <p className="text-muted-foreground text-xs">

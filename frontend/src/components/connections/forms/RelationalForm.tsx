@@ -23,7 +23,7 @@ export function RelationalForm({
     <div className="space-y-3">
       <div className="grid grid-cols-4 gap-2.5">
         <div className="col-span-3 space-y-1">
-          <Label htmlFor="host" className="text-xs font-semibold">
+          <Label htmlFor="host" className="text-xs font-medium">
             Host / Server Address <span className="text-destructive">*</span>
           </Label>
           <div className="relative">
@@ -43,7 +43,7 @@ export function RelationalForm({
         </div>
 
         <div className="col-span-1 space-y-1">
-          <Label htmlFor="port" className="text-xs font-semibold">
+          <Label htmlFor="port" className="text-xs font-medium">
             Port Number <span className="text-destructive">*</span>
           </Label>
           <Input
@@ -59,7 +59,7 @@ export function RelationalForm({
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         <div className="space-y-1">
-          <Label htmlFor="database" className="text-xs font-semibold">
+          <Label htmlFor="database" className="text-xs font-medium">
             Database Name <span className="text-destructive">*</span>
           </Label>
           <Input
@@ -76,7 +76,7 @@ export function RelationalForm({
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="username" className="text-xs font-semibold">
+          <Label htmlFor="username" className="text-xs font-medium">
             Database User <span className="text-destructive">*</span>
           </Label>
           <Input
@@ -93,7 +93,7 @@ export function RelationalForm({
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="password" className="text-xs font-semibold">
+          <Label htmlFor="password" className="text-xs font-medium">
             Password
           </Label>
           <Input
@@ -112,7 +112,7 @@ export function RelationalForm({
         <div>
           <Label
             htmlFor="ssl_mode"
-            className="text-foreground text-xs font-semibold"
+            className="text-foreground text-xs font-medium"
           >
             SSL Security Mode
           </Label>

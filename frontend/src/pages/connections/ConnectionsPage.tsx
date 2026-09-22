@@ -143,7 +143,7 @@ export function ConnectionsPage() {
               <Database className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-foreground text-2xl font-semibold">
+              <h1 className="text-foreground text-2xl font-medium">
                 Database Connections
               </h1>
               <p className="text-muted-foreground text-xs">
@@ -169,7 +169,7 @@ export function ConnectionsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-1.5 text-xs font-semibold shadow-xs"
+                    className="gap-1.5 text-xs font-medium shadow-xs"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     <span>Add Source DB</span>
@@ -186,7 +186,7 @@ export function ConnectionsPage() {
                 trigger={
                   <Button
                     size="sm"
-                    className="gap-1.5 text-xs font-semibold shadow-xs"
+                    className="gap-1.5 text-xs font-medium shadow-xs"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     <span>Add Target DB</span>
@@ -242,7 +242,7 @@ export function ConnectionsPage() {
                 className={cn(
                   "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-all",
                   selectedEngine === opt.value
-                    ? "bg-background text-foreground font-semibold shadow-xs"
+                    ? "bg-background text-foreground font-medium shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -263,7 +263,7 @@ export function ConnectionsPage() {
                 className={cn(
                   "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-all",
                   selectedRole === opt.value
-                    ? "bg-background text-foreground font-semibold shadow-xs"
+                    ? "bg-background text-foreground font-medium shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -305,7 +305,7 @@ export function ConnectionsPage() {
             <Server className="text-muted-foreground h-7 w-7" />
           </div>
 
-          <h3 className="text-foreground mt-4 text-base font-semibold">
+          <h3 className="text-foreground mt-4 text-base font-medium">
             {searchQuery || selectedEngine !== "all" || selectedRole !== "all"
               ? "No matching connections found"
               : "No database connections configured"}

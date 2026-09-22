@@ -200,7 +200,7 @@ export function DashboardProjectsTable({
     <div className="space-y-4">
       {/* Header with Project Count & Filter Pills */}
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <h2 className="text-foreground text-xl font-semibold">
+        <h2 className="text-foreground text-xl font-medium">
           {projects.length} {projects.length === 1 ? "Project" : "Projects"}
         </h2>
 
@@ -219,7 +219,7 @@ export function DashboardProjectsTable({
                   "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-all",
                   isActive
                     ? cn(
-                        "bg-background font-semibold shadow-xs",
+                        "bg-background font-medium shadow-xs",
                         tab.activeTextClass || "text-foreground"
                       )
                     : "text-muted-foreground hover:text-foreground"
@@ -256,7 +256,7 @@ export function DashboardProjectsTable({
           <div className="border-border/80 bg-muted/40 flex h-14 w-14 items-center justify-center rounded-2xl border">
             <FolderKanban className="text-muted-foreground h-7 w-7" />
           </div>
-          <h3 className="text-foreground mt-4 text-base font-semibold">
+          <h3 className="text-foreground mt-4 text-base font-medium">
             {searchQuery || envFilter !== "all"
               ? "No matching projects found"
               : "No projects created yet"}
@@ -271,7 +271,7 @@ export function DashboardProjectsTable({
               <PermissionGuard allowedRoles={["owner", "admin"]}>
                 <CreateProjectModal
                   trigger={
-                    <Button size="sm" className="gap-2 font-semibold">
+                    <Button size="sm" className="gap-2 font-medium">
                       <Plus className="h-4 w-4" />
                       <span>Create First Project</span>
                     </Button>
@@ -287,7 +287,7 @@ export function DashboardProjectsTable({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+                <tr className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-medium uppercase">
                   {tableHeaders.map((header) => (
                     <th
                       key={header.label}
@@ -333,7 +333,7 @@ export function DashboardProjectsTable({
                             <FolderKanban className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <span className="text-foreground group-hover:text-primary font-semibold transition-colors">
+                            <span className="text-foreground group-hover:text-primary font-medium transition-colors">
                               {project.name}
                             </span>
                             <p className="text-muted-foreground truncate font-mono text-[11px]">

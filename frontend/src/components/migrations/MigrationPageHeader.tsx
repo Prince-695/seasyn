@@ -54,7 +54,7 @@ export function MigrationPageHeader({
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-foreground text-xl font-semibold">
+              <h1 className="text-foreground text-xl font-medium">
                 Live Data Migration
               </h1>
               <Badge variant="outline" className="font-mono text-[10px]">
@@ -81,7 +81,7 @@ export function MigrationPageHeader({
               variant="destructive"
               size="sm"
               onClick={onCancelClick}
-              className="gap-1.5 text-xs font-semibold shadow-xs"
+              className="gap-1.5 text-xs font-medium shadow-xs"
             >
               <Ban className="h-3.5 w-3.5" />
               <span>Cancel Migration</span>
@@ -92,7 +92,7 @@ export function MigrationPageHeader({
             <Button
               size="sm"
               onClick={() => navigate(returnUrl)}
-              className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-semibold shadow-xs"
+              className="bg-success text-success-foreground hover:bg-success/90 gap-1.5 text-xs font-medium shadow-xs"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               <span>Done (Back to Migrations)</span>
@@ -108,14 +108,14 @@ export function MigrationPageHeader({
             <CheckCircle2 className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-foreground text-xs font-semibold">
+            <p className="text-foreground text-xs font-medium">
               Migration Completed Successfully!
             </p>
             <p className="text-success text-xs">
               All {migratedRows.toLocaleString()} rows copied from{" "}
-              <span className="font-semibold">{sourceName}</span>
+              <span className="font-medium">{sourceName}</span>
               {sourceTable && ` (${sourceTable})`} to{" "}
-              <span className="font-semibold">{targetName}</span>
+              <span className="font-medium">{targetName}</span>
               {targetTable && ` (${targetTable})`}.
             </p>
           </div>

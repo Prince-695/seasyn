@@ -120,7 +120,7 @@ export const IntegrationsMockup = () => {
                       >
                         <Icon className={cn("h-3.5 w-3.5", engine.iconColor)} />
                       </div>
-                      <span className="text-foreground text-[11px] font-semibold">
+                      <span className="text-foreground text-[11px] font-medium">
                         {engine.name}
                       </span>
                     </div>

@@ -61,7 +61,7 @@ export function Step2TargetSelection({
       <div className="space-y-2">
         <Label
           htmlFor="targetConn"
-          className="text-foreground text-xs font-semibold"
+          className="text-foreground text-xs font-medium"
         >
           1. Select Destination Database Connection
         </Label>
@@ -97,7 +97,7 @@ export function Step2TargetSelection({
         <div className="space-y-2 pt-2">
           <Label
             htmlFor="targetTableName"
-            className="text-foreground text-xs font-semibold"
+            className="text-foreground text-xs font-medium"
           >
             2. Destination {terminology.entitySingular} Name
           </Label>
@@ -123,7 +123,7 @@ export function Step2TargetSelection({
                 <div className="border-info/30 bg-info/10 text-info flex items-center gap-2.5 rounded-xl border p-3.5 text-xs">
                   <CheckCircle2 className="text-info h-4 w-4 shrink-0" />
                   <div>
-                    <span className="font-semibold">
+                    <span className="font-medium">
                       Existing {terminology.entitySingular} Detected:{" "}
                     </span>
                     <span className="text-info/90">
@@ -137,7 +137,7 @@ export function Step2TargetSelection({
                 <div className="border-success/30 bg-success/10 text-success flex items-center gap-2.5 rounded-xl border p-3.5 text-xs">
                   <Sparkles className="text-success h-4 w-4 shrink-0" />
                   <div>
-                    <span className="font-semibold">
+                    <span className="font-medium">
                       Automatic Schema DDL Active:{" "}
                     </span>
                     <span className="text-success/90">

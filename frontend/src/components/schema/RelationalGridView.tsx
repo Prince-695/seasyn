@@ -195,7 +195,7 @@ export function RelationalGridView({
             <Button
               size="sm"
               onClick={() => setInsertModalOpen(true)}
-              className="h-8 gap-1.5 text-xs font-semibold shadow-xs"
+              className="h-8 gap-1.5 text-xs font-medium shadow-xs"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>New Row</span>
@@ -229,7 +229,7 @@ export function RelationalGridView({
                     <th
                       key={col.name}
                       onClick={() => handleSort(col.name)}
-                      className="text-muted-foreground hover:text-foreground cursor-pointer px-3 py-2.5 font-mono text-[11px] font-semibold uppercase transition-colors select-none"
+                      className="text-muted-foreground hover:text-foreground cursor-pointer px-3 py-2.5 font-mono text-[11px] font-medium uppercase transition-colors select-none"
                     >
                       <div className="flex items-center gap-1.5">
                         {col.is_primary_key && (
@@ -274,7 +274,7 @@ export function RelationalGridView({
                     className="text-muted-foreground py-12 text-center"
                   >
                     <TableIcon className="text-muted-foreground/40 mx-auto mb-2 h-8 w-8" />
-                    <p className="text-foreground text-xs font-semibold">
+                    <p className="text-foreground text-xs font-medium">
                       No Records Found
                     </p>
                     <p className="text-muted-foreground mt-0.5 text-[11px]">

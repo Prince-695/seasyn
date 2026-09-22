@@ -136,7 +136,7 @@ export function JsonDocumentDialog({
       <DialogContent className="w-full max-w-2xl overflow-hidden sm:max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <DialogTitle className="text-base font-semibold">
+            <DialogTitle className="text-base font-medium">
               {isEdit ? (
                 "Edit Document JSON"
               ) : (

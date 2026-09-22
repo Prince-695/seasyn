@@ -28,7 +28,7 @@ export const SecurityMockup = () => {
             <span className="bg-mac-minimize h-2.5 w-2.5 rounded-full" />
             <span className="bg-mac-maximize h-2.5 w-2.5 rounded-full" />
           </div>
-          <span className="bg-success/15 text-success inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold">
+          <span className="bg-success/15 text-success inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
             <span className="bg-success h-1.5 w-1.5 rounded-full" />
             Zero Data Stored
           </span>
@@ -42,7 +42,7 @@ export const SecurityMockup = () => {
               <ShieldCheck className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="text-foreground truncate text-xs font-semibold">
+              <h4 className="text-foreground truncate text-xs font-medium">
                 Ephemeral In-Memory Credentials
               </h4>
               <p className="text-muted-foreground truncate text-[11px]">
@@ -65,7 +65,7 @@ export const SecurityMockup = () => {
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-foreground truncate text-xs font-semibold">
+                  <h4 className="text-foreground truncate text-xs font-medium">
                     {row.title}
                   </h4>
                   <p className="text-muted-foreground truncate text-[11px]">

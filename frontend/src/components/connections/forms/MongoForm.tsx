@@ -123,7 +123,7 @@ export function MongoForm({
             type="button"
             size="sm"
             disabled={disabled || !currentUri.trim()}
-            className="h-9 shrink-0 cursor-pointer gap-1.5 px-3 text-xs font-semibold shadow-xs"
+            className="h-9 shrink-0 cursor-pointer gap-1.5 px-3 text-xs font-medium shadow-xs"
             onClick={() => handleAutoFillFromUri(currentUri)}
           >
             <Zap className="h-3.5 w-3.5" />
@@ -137,7 +137,7 @@ export function MongoForm({
         <div className="absolute inset-0 flex items-center">
           <span className="border-border/60 w-full border-t" />
         </div>
-        <div className="relative flex justify-center text-[10px] font-semibold uppercase">
+        <div className="relative flex justify-center text-[10px] font-medium uppercase">
           <span className="bg-background text-muted-foreground px-3">
             Or configure individual parameters
           </span>
@@ -147,7 +147,7 @@ export function MongoForm({
       {/* ── 3. Individual Host & Port Fields ── */}
       <div className="grid grid-cols-4 gap-2.5">
         <div className="col-span-3 space-y-1">
-          <Label htmlFor="host" className="text-xs font-semibold">
+          <Label htmlFor="host" className="text-xs font-medium">
             Host / Server Address <span className="text-destructive">*</span>
           </Label>
           <div className="relative">
@@ -163,7 +163,7 @@ export function MongoForm({
         </div>
 
         <div className="col-span-1 space-y-1">
-          <Label htmlFor="port" className="text-xs font-semibold">
+          <Label htmlFor="port" className="text-xs font-medium">
             Port Number
           </Label>
           <Input
@@ -180,7 +180,7 @@ export function MongoForm({
       {/* ── 4. Database Name, Username, Password ── */}
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         <div className="space-y-1">
-          <Label htmlFor="database" className="text-xs font-semibold">
+          <Label htmlFor="database" className="text-xs font-medium">
             Database Name <span className="text-destructive">*</span>
           </Label>
           <Input
@@ -193,7 +193,7 @@ export function MongoForm({
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="username" className="text-xs font-semibold">
+          <Label htmlFor="username" className="text-xs font-medium">
             Database User / Username
           </Label>
           <Input
@@ -206,7 +206,7 @@ export function MongoForm({
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="password" className="text-xs font-semibold">
+          <Label htmlFor="password" className="text-xs font-medium">
             Password
           </Label>
           <Input
@@ -225,7 +225,7 @@ export function MongoForm({
         <div>
           <Label
             htmlFor="mongo_ssl_mode"
-            className="text-foreground text-xs font-semibold"
+            className="text-foreground text-xs font-medium"
           >
             SSL / TLS Security Mode
           </Label>

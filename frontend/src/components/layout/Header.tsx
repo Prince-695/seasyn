@@ -110,7 +110,7 @@ export function Header() {
                 className={cn(
                   "h-auto p-0 transition-colors hover:bg-transparent",
                   isProjectRoute && !isProjectSettings
-                    ? "text-foreground hover:text-foreground text-sm font-semibold sm:text-base"
+                    ? "text-foreground hover:text-foreground text-sm font-medium sm:text-base"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -125,7 +125,7 @@ export function Header() {
             isProjectSettings) && (
             <>
               <ChevronRight className="text-muted-foreground/60 h-3.5 w-3.5" />
-              <span className="text-foreground text-sm font-semibold sm:text-base">
+              <span className="text-foreground text-sm font-medium sm:text-base">
                 {currentRouteMeta.title}
               </span>
             </>
@@ -147,7 +147,7 @@ export function Header() {
               />
             }
           >
-            <div className="bg-primary/10 text-primary flex h-full w-full items-center justify-center rounded-full text-xs font-semibold">
+            <div className="bg-primary/10 text-primary flex h-full w-full items-center justify-center rounded-full text-xs font-medium">
               {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
             </div>
           </DropdownMenuTrigger>
@@ -155,7 +155,7 @@ export function Header() {
           <DropdownMenuContent align="end" className="w-56 p-1.5">
             <DropdownMenuGroup>
               <DropdownMenuLabel className="px-2 py-1.5">
-                <p className="text-foreground truncate text-xs font-semibold">
+                <p className="text-foreground truncate text-xs font-medium">
                   {user?.first_name
                     ? `${user.first_name} ${user.last_name || ""}`
                     : user?.name || "Account"}
@@ -203,7 +203,7 @@ export function Header() {
                 )}
                 <span>Theme</span>
               </div>
-              <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+              <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-[10px] font-medium uppercase">
                 {theme === "dark" ? "Dark" : "Light"}
               </span>
             </DropdownMenuItem>

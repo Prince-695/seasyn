@@ -1,6 +1,5 @@
 # 🌊 SeaSyn Frontend — Real-Time Database Migration Dashboard
 
-![Frontend CI](https://github.com/Prince-695/seasyn/actions/workflows/frontend.yml/badge.svg)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite)](https://vite.dev)
@@ -466,8 +465,7 @@ All design tokens are defined as CSS custom properties in `src/index.css` and co
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/Prince-695/seasyn.git
-cd seasyn/frontend
+cd frontend
 pnpm install
 ```
 

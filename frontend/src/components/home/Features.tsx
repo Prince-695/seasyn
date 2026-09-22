@@ -115,7 +115,7 @@ export const Features = () => {
           {/* Section Header */}
           <div className="relative mb-8 flex flex-col items-center text-center sm:mb-10">
             <div className="relative mb-3 inline-flex items-center justify-center">
-              <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold shadow-2xs">
+              <span className="bg-secondary text-secondary-foreground inline-flex items-center rounded-full px-3.5 py-1 text-xs font-medium shadow-2xs">
                 Capabilities
               </span>
             </div>
@@ -189,7 +189,7 @@ export const Features = () => {
                     <div className="min-w-0 flex-1">
                       <div
                         className={cn(
-                          "text-base font-semibold transition-colors duration-300 sm:text-lg",
+                          "text-base font-medium transition-colors duration-300 sm:text-lg",
                           isActive
                             ? "text-foreground"
                             : "text-muted-foreground group-hover:text-foreground"
@@ -254,7 +254,7 @@ export const Features = () => {
                 >
                   {/* Status Pill */}
                   <div className="mb-4 flex items-center gap-2">
-                    <span className="bg-muted/80 text-foreground border-border/80 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold">
+                    <span className="bg-muted/80 text-foreground border-border/80 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
                       <span className="bg-primary h-2 w-2 animate-pulse rounded-full" />
                       {activeFeature.badge}
                     </span>

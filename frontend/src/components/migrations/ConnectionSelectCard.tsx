@@ -30,7 +30,7 @@ export function ConnectionSelectCard({
       <div className="flex items-center gap-3">
         <EngineIcon engine={connection.db_type} className="h-5 w-5" />
         <div>
-          <p className="text-foreground text-xs font-semibold">
+          <p className="text-foreground text-xs font-medium">
             {connection.name}
           </p>
           <p className="text-muted-foreground font-mono text-[11px]">

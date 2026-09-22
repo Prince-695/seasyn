@@ -54,7 +54,7 @@ export function UriQuickPasteBar({
           type="button"
           size="sm"
           disabled={disabled || !quickPasteUri.trim()}
-          className="h-9 shrink-0 cursor-pointer gap-1.5 px-3 text-xs font-semibold shadow-xs"
+          className="h-9 shrink-0 cursor-pointer gap-1.5 px-3 text-xs font-medium shadow-xs"
           onClick={() => onApply(quickPasteUri)}
         >
           <Zap className="h-3.5 w-3.5" />

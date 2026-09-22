@@ -66,11 +66,11 @@ export const TelemetryStreamMockup = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="text-primary h-4 w-4 animate-pulse" />
-            <span className="text-foreground text-xs font-semibold">
+            <span className="text-foreground text-xs font-medium">
               Live Migration Stream
             </span>
           </div>
-          <span className="bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold">
+          <span className="bg-primary/10 text-primary inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-medium">
             <span className="bg-primary h-1.5 w-1.5 animate-pulse rounded-full" />
             {rate.toLocaleString()} rec/s
           </span>
@@ -98,15 +98,15 @@ export const TelemetryStreamMockup = () => {
               key={badge.title}
               className="bg-muted/40 border-border/50 rounded-lg border p-2"
             >
-              <span className="text-muted-foreground block text-[9px] font-semibold uppercase">
+              <span className="text-muted-foreground block text-[9px] font-medium uppercase">
                 {badge.title}
               </span>
               <div className="mt-0.5 flex items-center justify-between">
-                <span className="text-foreground font-mono text-xs font-semibold">
+                <span className="text-foreground font-mono text-xs font-medium">
                   {badge.value}
                 </span>
                 <span
-                  className={`py-0.2 rounded px-1.5 text-[9px] font-semibold ${badge.tagBg} ${badge.tagColor}`}
+                  className={`py-0.2 rounded px-1.5 text-[9px] font-medium ${badge.tagBg} ${badge.tagColor}`}
                 >
                   {badge.tag}
                 </span>

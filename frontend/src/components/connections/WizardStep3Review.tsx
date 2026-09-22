@@ -37,7 +37,7 @@ export function WizardStep3Review({
               <EngineIcon type={selectedEngine} className="h-4 w-4" />
             </div>
             <div>
-              <span className="text-foreground text-xs font-semibold">
+              <span className="text-foreground text-xs font-medium">
                 {formValues.name || "Unnamed Connection"}
               </span>
               <span className="text-muted-foreground ml-2 text-[11px]">
@@ -47,7 +47,7 @@ export function WizardStep3Review({
           </div>
           <span
             className={cn(
-              "rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase",
+              "rounded-md px-2 py-0.5 text-[10px] font-medium uppercase",
               isSourceVal
                 ? "bg-primary/10 text-primary border-primary/20 border"
                 : "border-success/20 bg-success/10 text-success border"
@@ -103,7 +103,7 @@ export function WizardStep3Review({
       {/* Live Diagnostics Card */}
       <div className="border-border/70 bg-card rounded-xl border p-3.5">
         <div className="flex items-center justify-between pb-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold">
+          <div className="flex items-center gap-1.5 text-xs font-medium">
             <ShieldCheck className="text-primary h-4 w-4" />
             <span>Live Connection Diagnostic</span>
           </div>

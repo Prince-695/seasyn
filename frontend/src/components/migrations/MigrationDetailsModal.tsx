@@ -28,7 +28,7 @@ export function MigrationDetailsModal({
       <DialogContent className="border-border/80 bg-card max-w-lg">
         <DialogHeader>
           <div className="flex items-center justify-between pr-4">
-            <DialogTitle className="text-foreground text-base font-semibold">
+            <DialogTitle className="text-foreground text-base font-medium">
               Migration Pipeline Audit Details
             </DialogTitle>
             <MigrationStatusBadge status={job.status} />
@@ -42,10 +42,10 @@ export function MigrationDetailsModal({
           {/* Pipeline Endpoints */}
           <div className="border-border/60 bg-muted/20 grid grid-cols-2 gap-3 rounded-xl border p-3.5">
             <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <p className="text-muted-foreground text-[10px] font-medium uppercase">
                 Source Engine
               </p>
-              <div className="text-foreground mt-1 flex items-center gap-1.5 font-semibold">
+              <div className="text-foreground mt-1 flex items-center gap-1.5 font-medium">
                 {job.source_db_type && (
                   <EngineIcon engine={job.source_db_type} className="h-4 w-4" />
                 )}
@@ -57,10 +57,10 @@ export function MigrationDetailsModal({
             </div>
 
             <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <p className="text-muted-foreground text-[10px] font-medium uppercase">
                 Target Engine
               </p>
-              <div className="text-foreground mt-1 flex items-center gap-1.5 font-semibold">
+              <div className="text-foreground mt-1 flex items-center gap-1.5 font-medium">
                 {job.target_db_type && (
                   <EngineIcon engine={job.target_db_type} className="h-4 w-4" />
                 )}
@@ -75,27 +75,27 @@ export function MigrationDetailsModal({
           {/* Transfer Metrics */}
           <div className="border-border/60 bg-muted/20 grid grid-cols-3 gap-3 rounded-xl border p-3.5">
             <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <p className="text-muted-foreground text-[10px] font-medium uppercase">
                 Rows Migrated
               </p>
-              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
+              <p className="text-foreground mt-1 font-mono text-sm font-medium">
                 {job.migrated_rows?.toLocaleString()} /{" "}
                 {job.total_rows?.toLocaleString() || "--"}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <p className="text-muted-foreground text-[10px] font-medium uppercase">
                 Progress
               </p>
-              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
+              <p className="text-foreground mt-1 font-mono text-sm font-medium">
                 {job.percentage}%
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase">
+              <p className="text-muted-foreground text-[10px] font-medium uppercase">
                 Batch Size
               </p>
-              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
+              <p className="text-foreground mt-1 font-mono text-sm font-medium">
                 {job.batch_size}
               </p>
             </div>
@@ -130,7 +130,7 @@ export function MigrationDetailsModal({
           {/* Failure Error Message */}
           {job.error_message && (
             <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-xl border p-3.5">
-              <p className="mb-1 text-xs font-semibold">
+              <p className="mb-1 text-xs font-medium">
                 Execution Failure Error Log
               </p>
               <p className="font-mono text-[11px] leading-relaxed break-all">

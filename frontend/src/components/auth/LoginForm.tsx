@@ -156,7 +156,7 @@ export function LoginForm({ setServerError }: LoginFormProps) {
 
       <Button
         type="submit"
-        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-2 h-10 w-full cursor-pointer text-sm font-semibold shadow-xs transition-all"
+        className="bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90 mt-2 h-10 w-full cursor-pointer text-sm font-medium shadow-xs transition-all"
         disabled={isSubmitting}
       >
         {isSubmitting ? (

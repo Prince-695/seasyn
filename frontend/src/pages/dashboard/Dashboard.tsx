@@ -168,7 +168,7 @@ export function Dashboard() {
             <PermissionGuard allowedRoles={["owner", "admin"]}>
               <CreateProjectModal
                 trigger={
-                  <Button className="gap-2 font-semibold shadow-xs">
+                  <Button className="gap-2 font-medium shadow-xs">
                     <Plus className="h-4 w-4" />
                     <span>New project</span>
                   </Button>
@@ -188,7 +188,7 @@ export function Dashboard() {
           <div className="bg-primary/10 text-primary mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
             <Building2 className="h-7 w-7" />
           </div>
-          <h3 className="text-foreground text-lg font-semibold">
+          <h3 className="text-foreground text-lg font-medium">
             No Workspace Selected
           </h3>
           <p className="text-muted-foreground mt-1 max-w-md text-sm">
@@ -273,7 +273,7 @@ export function Dashboard() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 "{projectToDelete?.name}"
               </span>
               ? This action is permanent and will remove all associated database

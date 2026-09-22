@@ -111,7 +111,7 @@ export function MigrationHistoryTable({
                 size="xs"
                 onClick={() => setSelectedStatus(tab)}
                 className={cn(
-                  "flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all",
+                  "flex h-auto cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-all",
                   isSelected
                     ? "bg-background text-foreground hover:bg-background shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -149,7 +149,7 @@ export function MigrationHistoryTable({
       <div className="border-border/70 bg-card/60 overflow-hidden rounded-xl border shadow-xs backdrop-blur-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-semibold uppercase">
+            <thead className="border-border/60 bg-muted/30 text-muted-foreground border-b text-[11px] font-medium uppercase">
               <tr>
                 <th className="px-4 py-3">Route (Source ➔ Target)</th>
                 <th className="px-4 py-3">Tables</th>
@@ -204,7 +204,7 @@ export function MigrationHistoryTable({
                                 className="h-4 w-4"
                               />
                             )}
-                            <span className="text-foreground font-semibold">
+                            <span className="text-foreground font-medium">
                               {job.source_connection_name || "Source"}
                             </span>
                           </div>
@@ -218,7 +218,7 @@ export function MigrationHistoryTable({
                                 className="h-4 w-4"
                               />
                             )}
-                            <span className="text-foreground font-semibold">
+                            <span className="text-foreground font-medium">
                               {job.target_connection_name || "Target"}
                             </span>
                           </div>
@@ -246,7 +246,7 @@ export function MigrationHistoryTable({
                       {/* 4. Progress / Rows Synced */}
                       <td className="px-4 py-3.5">
                         <div>
-                          <div className="text-foreground flex items-baseline gap-1 font-mono text-xs font-semibold">
+                          <div className="text-foreground flex items-baseline gap-1 font-mono text-xs font-medium">
                             <span>{job.migrated_rows?.toLocaleString()}</span>
                             <span className="text-muted-foreground text-[10px] font-normal">
                               /{" "}

@@ -140,10 +140,10 @@ export const SchemaInputForm = ({
               )}
             </div>
             <div>
-              <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+              <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Source Entity
               </span>
-              <h3 className="text-foreground text-sm font-bold">
+              <h3 className="text-foreground text-sm font-medium">
                 {isSql ? "Relational SQL Table" : "NoSQL Document (JSON)"}
               </h3>
             </div>
@@ -174,7 +174,7 @@ export const SchemaInputForm = ({
                 onClick={() => onSelectPreset(preset)}
                 className={`flex h-6 shrink-0 items-center gap-1 rounded-md px-2 text-[10.5px] font-medium transition-all ${
                   isSelected
-                    ? "bg-secondary text-secondary-foreground font-semibold shadow-xs"
+                    ? "bg-secondary text-secondary-foreground font-medium shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -204,7 +204,7 @@ export const SchemaInputForm = ({
       {/* Body: SQL Fields or NoSQL JSON Format */}
       {isSql ? (
         <div className="max-h-90 flex-1 space-y-2 overflow-y-auto py-2.5 pr-1">
-          <div className="text-muted-foreground grid grid-cols-12 gap-2 px-1 text-[11px] font-semibold uppercase">
+          <div className="text-muted-foreground grid grid-cols-12 gap-2 px-1 text-[11px] font-medium uppercase">
             <div className="col-span-4">Field Name</div>
             <div className="col-span-3">Type</div>
             <div className="col-span-4">Sample Value</div>
@@ -284,7 +284,7 @@ export const SchemaInputForm = ({
             </span>
             <div className="flex items-center gap-2">
               {jsonError ? (
-                <span className="text-destructive font-mono text-[10px] font-semibold">
+                <span className="text-destructive font-mono text-[10px] font-medium">
                   {jsonError}
                 </span>
               ) : (

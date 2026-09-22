@@ -62,7 +62,7 @@ export function CancelMigrationDialog({
               await onConfirm()
               onOpenChange(false)
             }}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5 text-xs font-semibold"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5 text-xs font-medium"
           >
             {isCancelling ? (
               <>

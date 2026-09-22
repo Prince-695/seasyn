@@ -84,10 +84,10 @@ export function SchemaStudioHeader({
             <Database className="h-3.5 w-3.5" />
           </div>
           <div className="flex items-center gap-1.5">
-            <h1 className="text-foreground text-xs font-semibold whitespace-nowrap sm:text-sm">
+            <h1 className="text-foreground text-xs font-medium whitespace-nowrap sm:text-sm">
               Schema Studio
             </h1>
-            <Badge className="border-success/20 bg-success/10 text-success text-[10px] font-semibold">
+            <Badge className="border-success/20 bg-success/10 text-success text-[10px] font-medium">
               Live
             </Badge>
           </div>
@@ -100,7 +100,7 @@ export function SchemaStudioHeader({
           {displayProject && (
             <div className="border-border/70 bg-muted/40 text-foreground flex shrink-0 items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-medium shadow-2xs">
               <FolderKanban className="text-primary h-3.5 w-3.5 shrink-0" />
-              <span className="max-w-25 truncate font-semibold sm:max-w-32.5">
+              <span className="max-w-25 truncate font-medium sm:max-w-32.5">
                 {displayProject.name}
               </span>
               <Badge
@@ -134,7 +134,7 @@ export function SchemaStudioHeader({
                 align="start"
                 className="border-border bg-popover min-w-50 p-1 shadow-xs"
               >
-                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[10px] font-semibold uppercase">
+                <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-[10px] font-medium uppercase">
                   Databases
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -146,7 +146,7 @@ export function SchemaStudioHeader({
                       onClick={() => onSelectConnection(c.id)}
                       className={cn(
                         "flex cursor-pointer items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
-                        isSelected && "bg-muted text-foreground font-semibold"
+                        isSelected && "bg-muted text-foreground font-medium"
                       )}
                     >
                       <div className="flex min-w-0 items-center gap-2">
@@ -185,7 +185,7 @@ export function SchemaStudioHeader({
             size="sm"
             onClick={() => onSelectTab("structure")}
             className={cn(
-              "relative flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold transition-colors",
+              "relative flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors",
               activeTab === "structure"
                 ? "bg-background text-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
@@ -205,7 +205,7 @@ export function SchemaStudioHeader({
             size="sm"
             onClick={() => onSelectTab("data")}
             className={cn(
-              "relative flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold transition-colors",
+              "relative flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors",
               activeTab === "data"
                 ? "bg-background text-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
@@ -221,7 +221,7 @@ export function SchemaStudioHeader({
             size="sm"
             onClick={() => onSelectTab("diff")}
             className={cn(
-              "relative flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold transition-colors",
+              "relative flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors",
               activeTab === "diff"
                 ? "bg-background text-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"

@@ -55,7 +55,7 @@ export function ProjectConnectionSection({
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-foreground text-sm font-semibold">
+            <h3 className="text-foreground text-sm font-medium">
               {title} ({connections.length})
             </h3>
             <p className="text-muted-foreground text-[11px]">{description}</p>
@@ -98,7 +98,7 @@ export function ProjectConnectionSection({
       ) : (
         <div className="border-border/80 bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
           <Icon className="text-muted-foreground/60 h-8 w-8" />
-          <h4 className="text-foreground mt-2 text-xs font-semibold">
+          <h4 className="text-foreground mt-2 text-xs font-medium">
             {emptyTitle}
           </h4>
           <p className="text-muted-foreground mt-1 max-w-sm text-[11px]">

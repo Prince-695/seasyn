@@ -125,7 +125,7 @@ export function MembersPage() {
           <Building2 className="h-7 w-7" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold">No Active Organization</h2>
+          <h2 className="text-xl font-medium">No Active Organization</h2>
           <p className="text-muted-foreground max-w-sm text-sm">
             Please select or create an organization from the workspace switcher
             in the header.
@@ -141,10 +141,10 @@ export function MembersPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-foreground text-2xl font-semibold sm:text-3xl">
+            <h1 className="text-foreground text-2xl font-medium sm:text-3xl">
               People
             </h1>
-            <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-semibold">
+            <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-medium">
               {members.length} {members.length === 1 ? "member" : "members"}
             </span>
           </div>
@@ -203,7 +203,7 @@ export function MembersPage() {
         ) : error ? (
           <div className="text-destructive flex min-h-50 flex-col items-center justify-center gap-2 p-8 text-center">
             <AlertCircle className="h-8 w-8" />
-            <p className="text-sm font-semibold">Unable to load team members</p>
+            <p className="text-sm font-medium">Unable to load team members</p>
             <p className="text-muted-foreground max-w-sm text-xs">
               {getErrorMessage(
                 error,
@@ -225,7 +225,7 @@ export function MembersPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-border/60 bg-muted/40 text-muted-foreground border-b text-xs font-semibold uppercase">
+                <tr className="border-border/60 bg-muted/40 text-muted-foreground border-b text-xs font-medium uppercase">
                   <th className="px-6 py-3.5">Member</th>
                   <th className="px-6 py-3.5">Email</th>
                   <th className="px-6 py-3.5">Role</th>
@@ -261,7 +261,7 @@ export function MembersPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="bg-primary/10 text-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+                          <div className="bg-primary/10 text-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-medium">
                             {initials}
                           </div>
                           <div className="min-w-0">
@@ -374,12 +374,12 @@ export function MembersPage() {
             </div>
             <DialogDescription>
               Are you sure you want to remove{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 {memberToRemove?.first_name} {memberToRemove?.last_name} (
                 {memberToRemove?.email})
               </span>{" "}
               from{" "}
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-medium">
                 {activeOrg.name}
               </span>
               ? They will immediately lose access to all projects and databases.

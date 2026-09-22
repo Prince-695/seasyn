@@ -67,7 +67,7 @@ export function SchemaTree({
             <Database className="h-4 w-4" />
           </div>
           <div>
-            <div className="text-foreground flex items-center gap-1.5 text-xs font-semibold">
+            <div className="text-foreground flex items-center gap-1.5 text-xs font-medium">
               <span className="max-w-32.5 truncate">{databaseName}</span>
               <span className="text-muted-foreground font-mono text-[10px] uppercase">
                 ({dbType})
@@ -103,7 +103,7 @@ export function SchemaTree({
             variant="ghost"
             size="xs"
             onClick={() => setIsOpen(!isOpen)}
-            className="text-muted-foreground hover:text-foreground flex h-auto items-center gap-1 p-0 text-[11px] font-semibold uppercase transition-colors hover:bg-transparent"
+            className="text-muted-foreground hover:text-foreground flex h-auto items-center gap-1 p-0 text-[11px] font-medium uppercase transition-colors hover:bg-transparent"
           >
             <ChevronRight
               className={cn(
@@ -155,7 +155,7 @@ export function SchemaTree({
                     className={cn(
                       "group flex h-auto w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-150",
                       isSelected
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-semibold shadow-xs"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-medium shadow-xs"
                         : "text-foreground hover:bg-muted/50"
                     )}
                   >

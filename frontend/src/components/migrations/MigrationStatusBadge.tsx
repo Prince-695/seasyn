@@ -26,7 +26,7 @@ export function MigrationStatusBadge({
         <Badge
           variant="secondary"
           className={cn(
-            "border-info/30 bg-info/10 text-info gap-1.5 font-mono text-xs font-semibold uppercase",
+            "border-info/30 bg-info/10 text-info gap-1.5 font-mono text-xs font-medium uppercase",
             className
           )}
         >
@@ -39,7 +39,7 @@ export function MigrationStatusBadge({
         <Badge
           variant="secondary"
           className={cn(
-            "border-success/30 bg-success/10 text-success gap-1.5 font-mono text-xs font-semibold uppercase",
+            "border-success/30 bg-success/10 text-success gap-1.5 font-mono text-xs font-medium uppercase",
             className
           )}
         >
@@ -52,7 +52,7 @@ export function MigrationStatusBadge({
         <Badge
           variant="destructive"
           className={cn(
-            "border-destructive/30 bg-destructive/10 text-destructive gap-1.5 font-mono text-xs font-semibold uppercase",
+            "border-destructive/30 bg-destructive/10 text-destructive gap-1.5 font-mono text-xs font-medium uppercase",
             className
           )}
         >
@@ -65,7 +65,7 @@ export function MigrationStatusBadge({
         <Badge
           variant="secondary"
           className={cn(
-            "border-warning/30 bg-warning/10 text-warning gap-1.5 font-mono text-xs font-semibold uppercase",
+            "border-warning/30 bg-warning/10 text-warning gap-1.5 font-mono text-xs font-medium uppercase",
             className
           )}
         >
@@ -79,7 +79,7 @@ export function MigrationStatusBadge({
         <Badge
           variant="outline"
           className={cn(
-            "text-muted-foreground border-border bg-muted/40 gap-1.5 font-mono text-xs font-semibold uppercase",
+            "text-muted-foreground border-border bg-muted/40 gap-1.5 font-mono text-xs font-medium uppercase",
             className
           )}
         >
