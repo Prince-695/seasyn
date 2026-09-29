@@ -18,10 +18,9 @@ It features **zero-allocation channel streaming**, **bounded backpressure contro
 
 1. [System Overview & Key Capabilities](#-system-overview--key-capabilities)
 2. [High-Level Design (HLD) Architecture](#-high-level-design-hld-architecture)
-   - [Architectural Infographic](#1-architectural-infographic)
-   - [Architectural Layers Breakdown](#2-architectural-layers-breakdown)
-   - [End-to-End Migration Sequence Flow](#3-end-to-end-migration-sequence-flow)
-   - [Core Systems Engineering Innovations](#4-core-systems-engineering-innovations)
+   - [Architectural Layers Breakdown](#1-architectural-layers-breakdown)
+   - [End-to-End Migration Sequence Flow](#2-end-to-end-migration-sequence-flow)
+   - [Core Systems Engineering Innovations](#3-core-systems-engineering-innovations)
 3. [Universal Type System (`SeasonType`) & Auto-DDL](#-universal-type-system-seasontype--auto-ddl)
 4. [Clean / Hexagonal Architecture & Code Layout](#-clean--hexagonal-architecture--code-layout)
 5. [Heterogeneous Database Adapters Matrix](#-heterogeneous-database-adapters-matrix)
@@ -48,13 +47,7 @@ It features **zero-allocation channel streaming**, **bounded backpressure contro
 
 ## 🏛 High-Level Design (HLD) Architecture
 
-### 1. Architectural Infographic
-
-![Seasyn Migration Engine HLD Architecture](docs/assets/migration_engine_hld.jpg)
-
----
-
-### 2. Architectural Layers Breakdown
+### 1. Architectural Layers Breakdown
 
 ```mermaid
 flowchart TB
@@ -187,7 +180,7 @@ flowchart TB
 
 ---
 
-### 3. End-to-End Migration Sequence Flow
+### 2. End-to-End Migration Sequence Flow
 
 ```mermaid
 sequenceDiagram
@@ -251,7 +244,7 @@ sequenceDiagram
 
 ---
 
-### 4. Core Systems Engineering Innovations
+### 3. Core Systems Engineering Innovations
 
 | Engineering Dimension | Implementation Strategy | Architectural Benefit |
 |---|---|---|
