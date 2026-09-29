@@ -1,4 +1,4 @@
-# 📚 SeaSyn Technical Architecture & System Documentation Portal
+# 📚 Seasyn Technical Architecture & System Documentation Portal
 
 [![System Status](https://img.shields.io/badge/System%20Design-Enterprise%20Ready-00F0FF?style=flat)](README.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Hexagonal%20Ports%20%26%20Adapters-7952B3?style=flat)](../backend/README.md)
@@ -6,7 +6,7 @@
 [![React Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%207-61DAFB?style=flat&logo=react)](../frontend)
 [![OpenAPI Spec](https://img.shields.io/badge/Swagger-OpenAPI%203.0-85EA2D?style=flat&logo=swagger)](http://localhost:8080/swagger/index.html)
 
-Welcome to the **SeaSyn Technical Documentation Portal**. This repository of technical specifications, system design blueprints, and operational runbooks documents the internal mechanics of SeaSyn—a cloud-native, high-throughput database migration, schema synchronization, and live telemetry platform.
+Welcome to the **Seasyn Technical Documentation Portal**. This repository of technical specifications, system design blueprints, and operational runbooks documents the internal mechanics of Seasyn—a cloud-native, high-throughput database migration, schema synchronization, and live telemetry platform.
 
 ---
 
@@ -109,7 +109,7 @@ flowchart TB
     %% STORAGE & INFRASTRUCTURE
     %% ==========================================
     subgraph StorageLayer ["7. Storage & Infrastructure Layer"]
-        SystemDB["SeaSyn Core DB (PostgreSQL)<br/>migration_jobs, audit_logs, users"]
+        SystemDB["Seasyn Core DB (PostgreSQL)<br/>migration_jobs, audit_logs, users"]
         SourceDB["Source Database<br/>(Postgres, MySQL, Mongo, SQLite)"]
         TargetDB["Target Database<br/>(Postgres, MySQL, Mongo, SQLite)"]
     end
@@ -172,7 +172,7 @@ sequenceDiagram
     participant Str as Streamer Core
     participant Src as Source Database
     participant Dst as Target Database
-    participant DB as SeaSyn System DB
+    participant DB as Seasyn System DB
 
     Client->>GW: POST /v1/organizations/:orgID/projects/:projectID/migrations
     GW->>Auth: Validate JWT & Verify Admin/Owner Role
@@ -227,7 +227,7 @@ sequenceDiagram
 
 ### 1. Bounded Channel Pipeline & Memory Isolation
 
-A major engineering challenge in database migrations is unbounded memory consumption when reading millions of records into RAM. SeaSyn solves this using an asynchronous producer-consumer channel pipeline with strict capacity bounds:
+A major engineering challenge in database migrations is unbounded memory consumption when reading millions of records into RAM. Seasyn solves this using an asynchronous producer-consumer channel pipeline with strict capacity bounds:
 
 ```go
 // StreamRows initializes a bounded channel pipeline
@@ -243,7 +243,7 @@ errCh := make(chan error, 1)
 
 ### 2. Universal Type System (`SeasonType`) & Auto-DDL
 
-Databases enforce incompatible type systems. SeaSyn defines an intermediate canonical type layer (`SeasonType`) to normalize source schemas before synthesizing target DDL:
+Databases enforce incompatible type systems. Seasyn defines an intermediate canonical type layer (`SeasonType`) to normalize source schemas before synthesizing target DDL:
 
 <p align="center">
   <img src="assets/seasontype_mapping.svg" alt="SeasonType Canonical Mapping" width="90%" />
@@ -317,7 +317,7 @@ $$\text{Progress (\%)} = \min\left(100.0, \frac{\text{Migrated Rows}}{\text{Tota
 
 ## 🔌 Heterogeneous Database Adapter Matrix
 
-SeaSyn utilizes a **Hexagonal Adapter Registry** (`ports.AdapterRegistry`). Drivers satisfy the `ports.DatabaseConnection` interface:
+Seasyn utilizes a **Hexagonal Adapter Registry** (`ports.AdapterRegistry`). Drivers satisfy the `ports.DatabaseConnection` interface:
 
 | Engine | Driver Library | Batch Read Mechanism | Bulk Ingestion Strategy | DDL & Constraints |
 |---|---|---|---|---|
@@ -373,7 +373,7 @@ frontend/src/
 
 ## 🔔 Webhooks & Audit Trail Specifications
 
-SeaSyn maintains an immutable audit log of all organizational actions and supports outbound webhook dispatching:
+Seasyn maintains an immutable audit log of all organizational actions and supports outbound webhook dispatching:
 
 ### Outbound Webhook Delivery
 - **Cryptographic Signature**: Payload delivery includes the HTTP header `X-Seasyn-Signature: sha256=<HMAC-SHA256>` generated with the webhook secret.

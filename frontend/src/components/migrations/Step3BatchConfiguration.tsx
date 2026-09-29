@@ -48,7 +48,7 @@ export function Step3BatchConfiguration({
         </div>
 
         <p className="text-muted-foreground text-xs">
-          Controls how many records SeaSyn fetches, transforms, and bulk-inserts
+          Controls how many records Seasyn fetches, transforms, and bulk-inserts
           in each network chunk.
         </p>
 
@@ -196,7 +196,7 @@ export function Step3BatchConfiguration({
       <div className="border-border/60 bg-muted/20 text-muted-foreground flex items-start gap-2.5 rounded-xl border p-3.5 text-xs">
         <ShieldCheck className="text-success mt-0.5 h-4 w-4 shrink-0" />
         <p className="leading-relaxed">
-          SeaSyn operates statelessly. Data is streamed directly between your
+          Seasyn operates statelessly. Data is streamed directly between your
           source and target connections in memory without writing records to
           external disk or third-party servers.
         </p>

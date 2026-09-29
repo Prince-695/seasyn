@@ -1,4 +1,4 @@
-# 🌊 SeaSyn Frontend — Real-Time Database Migration Dashboard
+# 🌊 Seasyn Frontend — Real-Time Database Migration Dashboard
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
@@ -6,7 +6,7 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-The **SeaSyn Frontend** is a React 19 SPA that serves as the operational control plane for cross-database migrations. It provides a live dashboard for tracking SSE-streamed migration telemetry, an interactive schema studio for cross-engine type mapping, a connection wizard for managing heterogeneous database adapters, and an analytics suite for org-level health monitoring — all integrated with the SeaSyn backend via a cookie-authenticated Axios client.
+The **Seasyn Frontend** is a React 19 SPA that serves as the operational control plane for cross-database migrations. It provides a live dashboard for tracking SSE-streamed migration telemetry, an interactive schema studio for cross-engine type mapping, a connection wizard for managing heterogeneous database adapters, and an analytics suite for org-level health monitoring — all integrated with the Seasyn backend via a cookie-authenticated Axios client.
 
 ---
 
@@ -77,7 +77,7 @@ flowchart TD
         State --> Transport
     end
 
-    Transport -->|"REST /v1/*"| Backend["SeaSyn Backend\nGo · Fiber · GORM\nhttps://seasyn.onrender.com/v1"]
+    Transport -->|"REST /v1/*"| Backend["Seasyn Backend\nGo · Fiber · GORM\nhttps://seasyn.onrender.com/v1"]
     Transport -->|"SSE /v1/.../progress"| Backend
 ```
 
@@ -91,7 +91,7 @@ sequenceDiagram
     actor User as User (Browser)
     participant UI as NewMigrationPage
     participant Axios as Axios Client
-    participant BE as SeaSyn Backend
+    participant BE as Seasyn Backend
     participant Live as MigrationLivePage
     participant SSE as useMigrationStream (EventSource)
 
@@ -460,7 +460,7 @@ All design tokens are defined as CSS custom properties in `src/index.css` and co
 ### Prerequisites
 - **Node.js**: `22+`
 - **pnpm**: `10.19+` (`npm install -g pnpm`)
-- **SeaSyn Backend**: Running locally on `:8080` or use the hosted endpoint
+- **Seasyn Backend**: Running locally on `:8080` or use the hosted endpoint
 
 ### 1. Clone & Install
 
