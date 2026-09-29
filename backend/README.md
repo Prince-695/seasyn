@@ -1,4 +1,4 @@
-# 🌊 SeaSyn Backend — Cloud-Native Database Migration & Real-Time Sync Engine
+# 🌊 Seasyn Backend — Cloud-Native Database Migration & Real-Time Sync Engine
 
 ![Backend CI](https://github.com/Prince-695/seasyn/actions/workflows/backend.yml/badge.svg)
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=for-the-badge&logo=go)](https://golang.org)
@@ -8,7 +8,7 @@
 [![Swagger / OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-85EA2D?style=for-the-badge&logo=swagger)](http://localhost:8080/swagger/index.html)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**SeaSyn** is a high-throughput, cross-database migration, schema synchronization, and live replication engine engineered in Go. Designed as a cloud-native, distributed-ready system, SeaSyn eliminates the operational complexity of migrating relational and NoSQL databases across heterogeneous environments (PostgreSQL, MySQL, MongoDB, SQLite).
+**Seasyn** is a high-throughput, cross-database migration, schema synchronization, and live replication engine engineered in Go. Designed as a cloud-native, distributed-ready system, Seasyn eliminates the operational complexity of migrating relational and NoSQL databases across heterogeneous environments (PostgreSQL, MySQL, MongoDB, SQLite).
 
 It features **zero-allocation channel streaming**, **bounded backpressure controls**, **universal schema translation via `SeasonType`**, **dynamic Auto-DDL synthesis**, and **real-time physics telemetry (RPS, bandwidth velocity, batch latency)** broadcast to frontend dashboards via Server-Sent Events (SSE).
 
@@ -50,7 +50,7 @@ It features **zero-allocation channel streaming**, **bounded backpressure contro
 
 ### 1. Architectural Infographic
 
-![SeaSyn Migration Engine HLD Architecture](docs/assets/migration_engine_hld.jpg)
+![Seasyn Migration Engine HLD Architecture](docs/assets/migration_engine_hld.jpg)
 
 ---
 
@@ -133,7 +133,7 @@ flowchart TB
     %% INFRASTRUCTURE & STORAGE
     %% ==========================================
     subgraph StorageLayer ["7. Storage & Infrastructure Layer"]
-        SystemDB[("SeaSyn Core DB (PostgreSQL)\nmigration_jobs, audit_logs, users")]
+        SystemDB[("Seasyn Core DB (PostgreSQL)\nmigration_jobs, audit_logs, users")]
         SourceDB[("Source Database\n(Postgres, MySQL, Mongo, SQLite)")]
         TargetDB[("Target Database\n(Postgres, MySQL, Mongo, SQLite)")]
     end
@@ -200,7 +200,7 @@ sequenceDiagram
     participant Str as Streamer Core
     participant Src as Source Database
     participant Dst as Target Database
-    participant DB as SeaSyn System DB
+    participant DB as Seasyn System DB
 
     Client->>GW: POST /v1/organizations/:orgID/projects/:projectID/migrations
     GW->>Auth: Validate JWT & Verify Admin/Owner Role
@@ -265,7 +265,7 @@ sequenceDiagram
 
 ## 🔄 Universal Type System (`SeasonType`) & Auto-DDL
 
-Databases utilize divergent type systems (e.g. Postgres `TIMESTAMPTZ` vs MySQL `DATETIME(6)` vs MongoDB BSON `date`). SeaSyn resolves this through **`SeasonType`**, an intermediate canonical representation.
+Databases utilize divergent type systems (e.g. Postgres `TIMESTAMPTZ` vs MySQL `DATETIME(6)` vs MongoDB BSON `date`). Seasyn resolves this through **`SeasonType`**, an intermediate canonical representation.
 
 ```mermaid
 flowchart LR
@@ -316,7 +316,7 @@ flowchart LR
 
 ## 📂 Clean / Hexagonal Architecture & Code Layout
 
-SeaSyn adheres strictly to Hexagonal (Ports & Adapters) architectural design principles to ensure testability and engine independence:
+Seasyn adheres strictly to Hexagonal (Ports & Adapters) architectural design principles to ensure testability and engine independence:
 
 ```
 backend/
@@ -461,7 +461,7 @@ $$\text{Bandwidth} = \frac{\text{Estimated Batch Bytes}}{\Delta t}$$
 
 ## 🔔 Webhooks & Audit Trail Engine
 
-SeaSyn records all tenant actions and can broadcast cryptographically signed webhook notifications to external monitoring services or CI/CD pipelines.
+Seasyn records all tenant actions and can broadcast cryptographically signed webhook notifications to external monitoring services or CI/CD pipelines.
 
 - **HMAC-SHA256 Signatures**: Every webhook payload includes a header `X-Seasyn-Signature: sha256=<hash>` signed with the webhook secret.
 - **Supported Events**:

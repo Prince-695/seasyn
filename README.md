@@ -1,4 +1,4 @@
-# 🌊 SeaSyn — Modern Full-Stack Database Migration & Live Telemetry Platform
+# 🌊 Seasyn — Modern Full-Stack Database Migration & Live Telemetry Platform
 
 [![Build CI](https://github.com/Prince-695/seasyn/actions/workflows/build.yml/badge.svg)](https://github.com/Prince-695/seasyn/actions/workflows/build.yml)
 [![Backend CI](https://github.com/Prince-695/seasyn/actions/workflows/backend.yml/badge.svg)](https://github.com/Prince-695/seasyn/actions/workflows/backend.yml)
@@ -12,7 +12,7 @@
 [![OpenAPI 3.0](https://img.shields.io/badge/Swagger-OpenAPI%203.0-85EA2D?style=flat&logo=swagger)](http://localhost:8080/swagger/index.html)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat)](LICENSE)
 
-**SeaSyn** is an enterprise-ready, full-stack database migration, schema synchronization, and live telemetry platform. Built with a high-performance **Go (Fiber v2)** backend and a reactive **React 19 (Vite + Tailwind CSS v4 + TanStack Query)** frontend, SeaSyn eliminates the friction of moving data across heterogeneous database systems (PostgreSQL, MySQL, MongoDB, SQLite).
+**Seasyn** is an enterprise-ready, full-stack database migration, schema synchronization, and live telemetry platform. Built with a high-performance **Go (Fiber v2)** backend and a reactive **React 19 (Vite + Tailwind CSS v4 + TanStack Query)** frontend, Seasyn eliminates the friction of moving data across heterogeneous database systems (PostgreSQL, MySQL, MongoDB, SQLite).
 
 It combines **zero-OOM memory-safe channel streaming**, **dynamic Auto-DDL synthesis via canonical `SeasonType`**, and **real-time physics telemetry (moving graphs for RPS velocity, bandwidth MB/s, and batch latency)** streamed directly to the browser via HTML5 Server-Sent Events (SSE).
 
@@ -36,7 +36,7 @@ It combines **zero-OOM memory-safe channel streaming**, **dynamic Auto-DDL synth
 
 ## 🏛 Full-Stack Architecture Overview
 
-SeaSyn is architected as a decoupled, full-stack distributed system where the frontend dashboard interacts with the backend over both high-speed RESTful JSON APIs and persistent Server-Sent Events (SSE) streams:
+Seasyn is architected as a decoupled, full-stack distributed system where the frontend dashboard interacts with the backend over both high-speed RESTful JSON APIs and persistent Server-Sent Events (SSE) streams:
 
 ```mermaid
 flowchart TB
@@ -111,7 +111,7 @@ flowchart TB
     %% STORAGE & INFRASTRUCTURE
     %% ==========================================
     subgraph StorageLayer ["7. Storage & Infrastructure Layer"]
-        SystemDB["SeaSyn Core DB (PostgreSQL)<br/>migration_jobs, audit_logs, users, connections"]
+        SystemDB["Seasyn Core DB (PostgreSQL)<br/>migration_jobs, audit_logs, users, connections"]
         SourceDB["Source Database<br/>(Postgres, MySQL, Mongo, SQLite)"]
         TargetDB["Target Database<br/>(Postgres, MySQL, Mongo, SQLite)"]
     end
@@ -175,7 +175,7 @@ sequenceDiagram
     participant Str as Streamer Core
     participant Src as Source Database
     participant Dst as Target Database
-    participant DB as SeaSyn System DB
+    participant DB as Seasyn System DB
 
     Client->>GW: POST /v1/organizations/:orgID/projects/:projectID/migrations
     GW->>Auth: Validate JWT & Verify Admin/Owner Role
@@ -243,7 +243,7 @@ sequenceDiagram
 
 ## 🔄 Universal Type System (`SeasonType`) & Auto-DDL
 
-To seamlessly convert types between SQL engines (Postgres, MySQL, SQLite) and document databases (MongoDB), SeaSyn maps native driver types through an intermediate canonical representation:
+To seamlessly convert types between SQL engines (Postgres, MySQL, SQLite) and document databases (MongoDB), Seasyn maps native driver types through an intermediate canonical representation:
 
 <p align="center">
   <img src="Docs/assets/seasontype_mapping.svg" alt="SeasonType Universal Mapping Matrix" width="90%" />
@@ -451,4 +451,4 @@ pnpm build
 
 ## 📄 License
 
-SeaSyn is open-source software licensed under the **[MIT License](LICENSE)**.
+Seasyn is open-source software licensed under the **[MIT License](LICENSE)**.

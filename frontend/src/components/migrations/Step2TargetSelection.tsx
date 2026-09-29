@@ -142,7 +142,7 @@ export function Step2TargetSelection({
                     </span>
                     <span className="text-success/90">
                       "{targetTable}" does not exist in {activeTargetConn?.name}
-                      . SeaSyn will automatically generate and execute the
+                      . Seasyn will automatically generate and execute the
                       target table DDL before streaming begins.
                     </span>
                   </div>
@@ -158,7 +158,7 @@ export function Step2TargetSelection({
         <div className="border-border/60 bg-muted/20 text-muted-foreground flex items-start gap-2.5 rounded-xl border p-3.5 text-xs">
           <Info className="text-primary mt-0.5 h-4 w-4 shrink-0" />
           <p className="leading-relaxed">
-            SeaSyn automatically handles cross-engine data type conversions
+            Seasyn automatically handles cross-engine data type conversions
             (e.g. UUID to String, JSONB to BSON, Timestamps to ISO-8601).
           </p>
         </div>
