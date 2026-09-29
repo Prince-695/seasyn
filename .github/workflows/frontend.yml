@@ -19,9 +19,9 @@ jobs:
 
       # ✅ Install pnpm FIRST
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 10
 
       # ✅ THEN setup node with cache
       - name: Setup Node

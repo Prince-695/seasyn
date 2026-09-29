@@ -1,0 +1,109 @@
+import { useState } from "react"
+import { useNavigate, Link } from "react-router-dom"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Mail, Loader2, AlertCircle, ArrowLeft } from "lucide-react"
+import { forgotPasswordSchema } from "@/lib/validators"
+import type { ForgotPasswordInput } from "@/lib/validators"
+import { authApi } from "@/api/auth"
+import { AuthLayout } from "@/components/layout"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { getErrorMessage } from "@/lib/errors"
+
+export function ForgotPass() {
+  const navigate = useNavigate()
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+  })
+
+  const onSubmit = async (data: ForgotPasswordInput) => {
+    try {
+      setServerError(null)
+      await authApi.forgotPassword(data)
+      navigate("/reset-password", { state: { email: data.email } })
+    } catch (err) {
+      setServerError(
+        getErrorMessage(
+          err,
+          "Unable to send password reset code. Please verify that your email address is correct and try again."
+        )
+      )
+    }
+  }
+
+  return (
+    <AuthLayout
+      title="Forgot Password"
+      description="Enter your email and we'll send you an OTP code to reset your password."
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {serverError && (
+          <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{serverError}</span>
+          </div>
+        )}
+
+        <div className="space-y-2.5">
+          <Label htmlFor="email" className="text-foreground/80 font-medium">
+            Email Address
+          </Label>
+          <div className="relative">
+            <span className="text-muted-foreground absolute top-3 left-3 h-5 w-5">
+              <Mail className="h-5 w-5" />
+            </span>
+            <Input
+              id="email"
+              type="email"
+              placeholder="jane@example.com"
+              {...register("email")}
+              aria-invalid={!!errors.email}
+              className="border-muted/80 bg-muted/30 focus-visible:border-primary focus-visible:ring-primary/20 h-11 w-full pl-10 transition-all duration-200"
+            />
+          </div>
+          {errors.email && (
+            <p className="text-destructive flex items-center gap-1.5 text-sm font-medium">
+              <AlertCircle className="h-4 w-4" />
+              {errors.email?.message}
+            </p>
+          )}
+        </div>
+
+        <Button
+          type="submit"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 border-primary/30 mt-2 h-11 w-full rounded-lg border font-medium transition-all active:translate-y-px"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Sending Code
+            </>
+          ) : (
+            "Send Code"
+          )}
+        </Button>
+      </form>
+
+      <div className="pt-2 text-center text-sm">
+        <Link
+          to="/sign-in"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 font-medium transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Sign In
+        </Link>
+      </div>
+    </AuthLayout>
+  )
+}
+
+export default ForgotPass

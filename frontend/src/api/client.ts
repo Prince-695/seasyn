@@ -1,25 +1,87 @@
 import axios from "axios"
 import { useAuthStore } from "../store/authStore"
 
-// Create an Axios instance configuration
+// ─── API Base URL ─────────────────────────────────────────────────────────────
+// In production or cross-origin dev, targeting the backend directly ensures
+// the browser automatically attaches cookies scoped to the backend domain
+// (including those set during Google/GitHub OAuth redirects).
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "https://seasyn.onrender.com/v1"
+
+// ─── Axios Instance ────────────────────────────────────────────────────────────
+// withCredentials ensures the browser attaches HttpOnly cookies automatically
+// on every request — no manual token handling required.
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/v1",
-  withCredentials: true, // Enable automatic transmission of HTTP-Only cookies
+  baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 })
 
-// Response interceptor to handle global authentication errors (e.g., expired cookie)
+// ─── Response Interceptor ──────────────────────────────────────────────────────
+// Singleton refresh promise to eliminate race conditions when multiple concurrent
+// requests fail with 401 at the same time.
+let refreshPromise: Promise<void> | null = null
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear auth store if session is expired or unauthorized
-      useAuthStore.getState().clearAuth()
+  async (error) => {
+    const originalRequest = error.config
+
+    if (!originalRequest) {
+      return Promise.reject(error)
     }
+
+    const url = originalRequest.url || ""
+    const isAuthHandshake =
+      url.includes("/auth/login") ||
+      url.includes("/auth/signup") ||
+      url.includes("/auth/refresh") ||
+      url.includes("/auth/logout")
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthHandshake
+    ) {
+      originalRequest._retry = true
+
+      try {
+        if (!refreshPromise) {
+          refreshPromise = axios
+            .post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true })
+            .then(() => {})
+            .finally(() => {
+              refreshPromise = null
+            })
+        }
+
+        await refreshPromise
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        useAuthStore.getState().clearAuth()
+        return Promise.reject(refreshError)
+      }
+    }
+
     return Promise.reject(error)
   }
 )
+
+export const checkSystemHealth = async (timeoutMs = 7000): Promise<boolean> => {
+  try {
+    const rootUrl = API_BASE_URL.replace(/\/v1\/?$/, "")
+    const response = await axios.get<{ success?: boolean }>(
+      `${rootUrl}/health`,
+      {
+        timeout: timeoutMs,
+      }
+    )
+    return response.status === 200 && response.data?.success === true
+  } catch {
+    return false
+  }
+}
 
 export default apiClient

@@ -5,26 +5,117 @@
  * throughout the application for reliable caching and invalidation.
  */
 
+import type { TableRowQueryParams } from "@/types/schema"
+
 export const projectKeys = {
   all: ["projects"] as const,
-  lists: () => [...projectKeys.all, "list"] as const,
-  list: (filters: string) => [...projectKeys.lists(), { filters }] as const,
-  details: () => [...projectKeys.all, "detail"] as const,
-  detail: (id: string) => [...projectKeys.details(), id] as const,
+  byOrg: (orgId: string) => [...projectKeys.all, "org", orgId] as const,
+  list: (orgId: string) => [...projectKeys.byOrg(orgId), "list"] as const,
+  detail: (orgId: string, projectId: string) =>
+    [...projectKeys.byOrg(orgId), "detail", projectId] as const,
+}
+
+export const connectionKeys = {
+  all: ["connections"] as const,
+  byOrg: (orgId: string, projectIds?: string[]) =>
+    [
+      ...connectionKeys.all,
+      "org",
+      orgId,
+      "allProjects",
+      ...(projectIds ? [projectIds.join(",")] : []),
+    ] as const,
+  byProject: (orgId: string, projectId: string) =>
+    [...connectionKeys.all, "org", orgId, "project", projectId] as const,
+  list: (orgId: string, projectId: string) =>
+    [...connectionKeys.byProject(orgId, projectId), "list"] as const,
+  detail: (orgId: string, projectId: string, connId: string) =>
+    [...connectionKeys.byProject(orgId, projectId), "detail", connId] as const,
 }
 
 export const migrationKeys = {
   all: ["migrations"] as const,
-  lists: (projectId: string) =>
-    [...migrationKeys.all, "list", projectId] as const,
-  detail: (migrationId: string) =>
-    [...migrationKeys.all, "detail", migrationId] as const,
+  byProject: (orgId: string, projectId: string) =>
+    [...migrationKeys.all, "org", orgId, "project", projectId] as const,
+  list: (orgId: string, projectId: string) =>
+    [...migrationKeys.byProject(orgId, projectId), "list"] as const,
+  detail: (orgId: string, projectId: string, migrationId: string) =>
+    [
+      ...migrationKeys.byProject(orgId, projectId),
+      "detail",
+      migrationId,
+    ] as const,
 }
 
 export const schemaKeys = {
   all: ["schema"] as const,
-  tables: (projectId: string) =>
-    [...schemaKeys.all, "tables", projectId] as const,
-  tableData: (projectId: string, tableName: string) =>
-    [...schemaKeys.all, "tableData", projectId, tableName] as const,
+  byConn: (orgId: string, projectId: string, connId: string) =>
+    [
+      ...schemaKeys.all,
+      "org",
+      orgId,
+      "project",
+      projectId,
+      "connection",
+      connId,
+    ] as const,
+  database: (orgId: string, projectId: string, connId: string) =>
+    [...schemaKeys.byConn(orgId, projectId, connId), "full"] as const,
+  tables: (orgId: string, projectId: string, connId: string) =>
+    [...schemaKeys.byConn(orgId, projectId, connId), "tables"] as const,
+  table: (
+    orgId: string,
+    projectId: string,
+    connId: string,
+    tableName: string
+  ) =>
+    [
+      ...schemaKeys.byConn(orgId, projectId, connId),
+      "table",
+      tableName,
+    ] as const,
+  rows: (
+    orgId: string,
+    projectId: string,
+    connId: string,
+    tableName: string,
+    params?: TableRowQueryParams | Record<string, unknown>
+  ) =>
+    [
+      ...schemaKeys.byConn(orgId, projectId, connId),
+      "rows",
+      tableName,
+      params ?? {},
+    ] as const,
+  diff: (
+    orgId: string,
+    projectId: string,
+    sourceId: string,
+    targetId: string
+  ) =>
+    [...schemaKeys.all, "diff", orgId, projectId, sourceId, targetId] as const,
+}
+
+export const orgKeys = {
+  all: ["organizations"] as const,
+  list: () => [...orgKeys.all, "list"] as const,
+  detail: (id: string) => [...orgKeys.all, "detail", id] as const,
+  members: (orgId: string) => [...orgKeys.all, "members", orgId] as const,
+}
+
+export const analyticsKeys = {
+  all: ["analytics"] as const,
+  orgOverview: (orgId: string) =>
+    [...analyticsKeys.all, "org", orgId, "overview"] as const,
+  project: (orgId: string, projectId: string) =>
+    [...analyticsKeys.all, "org", orgId, "project", projectId] as const,
+  migration: (orgId: string, projectId: string) =>
+    [
+      ...analyticsKeys.all,
+      "org",
+      orgId,
+      "project",
+      projectId,
+      "migrations",
+    ] as const,
 }
