@@ -1,4 +1,4 @@
-export * from "./SeasonTypeBadge"
+export * from "./SeasynTypeBadge"
 export * from "./SchemaTree"
 export * from "./TableStructureView"
 export * from "./DatabaseDataViewer"

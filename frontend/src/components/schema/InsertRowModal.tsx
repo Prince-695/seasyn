@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { SeasonTypeBadge } from "./SeasonTypeBadge"
+import { SeasynTypeBadge } from "./SeasynTypeBadge"
 import type { TableSchema } from "@/types/schema"
 import { Plus, Key, Loader2, AlertCircle } from "lucide-react"
 import { getErrorMessage } from "@/lib/errors"
@@ -70,7 +70,7 @@ export function InsertRowModal({
           continue
         }
 
-        if (colDef.season_type === "json" || colDef.season_type === "array") {
+        if (colDef.seasyn_type === "json" || colDef.seasyn_type === "array") {
           try {
             payload[colName] =
               typeof rawVal === "string" ? JSON.parse(rawVal) : rawVal
@@ -80,9 +80,9 @@ export function InsertRowModal({
             )
           }
         } else if (
-          colDef.season_type === "int" ||
-          colDef.season_type === "float" ||
-          colDef.season_type === "decimal"
+          colDef.seasyn_type === "int" ||
+          colDef.seasyn_type === "float" ||
+          colDef.seasyn_type === "decimal"
         ) {
           payload[colName] = Number(rawVal)
         } else {
@@ -128,9 +128,9 @@ export function InsertRowModal({
           <div className="space-y-3">
             {table.columns.map((col) => {
               const isPk = col.is_primary_key
-              const isBool = col.season_type === "bool"
+              const isBool = col.seasyn_type === "bool"
               const isJson =
-                col.season_type === "json" || col.season_type === "array"
+                col.seasyn_type === "json" || col.seasyn_type === "array"
 
               return (
                 <div
@@ -151,7 +151,7 @@ export function InsertRowModal({
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <SeasonTypeBadge type={col.season_type} />
+                      <SeasynTypeBadge type={col.seasyn_type} />
                       {col.default_value && (
                         <span className="text-muted-foreground font-mono text-[10px]">
                           default: {col.default_value}

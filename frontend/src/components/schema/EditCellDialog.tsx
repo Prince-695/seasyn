@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { SeasonTypeBadge } from "./SeasonTypeBadge"
+import { SeasynTypeBadge } from "./SeasynTypeBadge"
 import type { ColumnSchema } from "@/types/schema"
 import { Code2, AlertCircle } from "lucide-react"
 import { getErrorMessage } from "@/lib/errors"
@@ -33,8 +33,8 @@ interface EditCellInnerProps {
 }
 
 function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
-  const isJson = column.season_type === "json" || column.season_type === "array"
-  const isBool = column.season_type === "bool"
+  const isJson = column.seasyn_type === "json" || column.seasyn_type === "array"
+  const isBool = column.seasyn_type === "bool"
   const raw = row[column.name]
 
   const [boolVal, setBoolVal] = useState<boolean>(() =>
@@ -71,9 +71,9 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
           return
         }
       } else if (
-        column.season_type === "int" ||
-        column.season_type === "float" ||
-        column.season_type === "decimal"
+        column.seasyn_type === "int" ||
+        column.seasyn_type === "float" ||
+        column.seasyn_type === "decimal"
       ) {
         if (value.trim() === "") {
           finalVal = column.is_nullable ? null : 0
@@ -104,7 +104,7 @@ function EditCellInner({ row, column, onSave, onClose }: EditCellInnerProps) {
             Edit Value:{" "}
             <span className="text-primary font-mono">{column.name}</span>
           </DialogTitle>
-          <SeasonTypeBadge type={column.season_type} />
+          <SeasynTypeBadge type={column.seasyn_type} />
         </div>
         <DialogDescription className="text-xs">
           Modify cell value. Type constraints and nullability rules apply.

@@ -1,4 +1,4 @@
-export type SeasonType =
+export type SeasynType =
   | "int"
   | "string"
   | "bool"
@@ -15,7 +15,7 @@ export type SeasonType =
 export interface ColumnSchema {
   name: string
   data_type: string
-  season_type: SeasonType
+  seasyn_type: SeasynType
   is_nullable: boolean
   default_value?: string
   max_length?: number

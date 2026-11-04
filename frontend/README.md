@@ -18,7 +18,7 @@ The **SeaSyn Frontend** is a React 19 SPA that serves as the operational control
    - [User Journey Sequence](#user-journey-sequence)
    - [Routing & Auth Flow](#routing--auth-flow)
 3. [Supported Database Engines](#-supported-database-engines)
-4. [SeasonType Schema Mapping Visualization](#-seasontype-schema-mapping-visualization)
+4. [SeasynType Schema Mapping Visualization](#-seasyntype-schema-mapping-visualization)
 5. [Project Environment System](#-project-environment-system)
 6. [Project Structure](#-project-structure)
 7. [Page & Feature Catalog](#-page--feature-catalog)
@@ -35,7 +35,7 @@ The **SeaSyn Frontend** is a React 19 SPA that serves as the operational control
 | Capability | Implementation |
 |---|---|
 | **Live Migration Dashboard** | SSE consumer via `useMigrationStream` hook; streams RPS, bandwidth, percentage, and batch latency in real time |
-| **Schema Studio** | Cross-engine field mapping view with `SeasonType` diff visualization (`SchemaDiffPage`, `SchemaExplorerPage`) |
+| **Schema Studio** | Cross-engine field mapping view with `SeasynType` diff visualization (`SchemaDiffPage`, `SchemaExplorerPage`) |
 | **Connection Wizard** | Multi-step connection form with live diagnostic ping (`useConnectionWizard`, `ConnectionsPage`) |
 | **Organization & RBAC** | Owner / Admin / Member / Viewer role enforcement via `useHasPermission` + `PermissionGuard` |
 | **Analytics Suite** | Org-level quota gauge, velocity timeline, engine distribution heatmap (`Dashboard.tsx`) |
@@ -138,9 +138,9 @@ All four engines render with `EngineIcon.tsx` (via `react-icons/si`) and carry e
 
 ---
 
-## 🔄 SeasonType Schema Mapping Visualization
+## 🔄 SeasynType Schema Mapping Visualization
 
-The Schema Studio surfaces **canonical cross-engine type mappings** defined in `lib/constants/schemaMappings.ts`. These same mappings drive the `SchemaDiffPage` side-by-side diff and the `SeasonTypeBadge` component.
+The Schema Studio surfaces **canonical cross-engine type mappings** defined in `lib/constants/schemaMappings.ts`. These same mappings drive the `SchemaDiffPage` side-by-side diff and the `SeasynTypeBadge` component.
 
 | Source Type (SQL) | Source Example | Target Type (BSON) | Target Example | Behaviour |
 |---|---|---|---|---|
@@ -150,7 +150,7 @@ The Schema Studio surfaces **canonical cross-engine type mappings** defined in `
 | `VARCHAR(255)` | `name: VARCHAR(255)` | `String` | `name: String` | Mapped |
 | `BOOLEAN` | `is_active: BOOLEAN` | `Boolean` | `is_active: Boolean` | Preserved |
 
-> These mappings are the frontend representation of the backend's `SeasonType` universal type system. See the [Backend README](../backend/README.md) for the full canonical type registry.
+> These mappings are the frontend representation of the backend's `SeasynType` universal type system. See the [Backend README](../backend/README.md) for the full canonical type registry.
 
 ---
 
@@ -196,7 +196,7 @@ frontend/
 │   │   ├── migrations/             # MigrationStatusBadge, PipelineFlowRibbon
 │   │   ├── orgs/                   # Org member/role management components
 │   │   ├── projects/               # ProjectCard, ProjectSettingsTab
-│   │   ├── schema/                 # SchemaTree, TableStructureView, SeasonTypeBadge, SchemaDiff
+│   │   ├── schema/                 # SchemaTree, TableStructureView, SeasynTypeBadge, SchemaDiff
 │   │   ├── ui/                     # shadcn/Base UI primitives
 │   │   └── theme-provider.tsx      # Dark/light theme context
 │   │
@@ -217,7 +217,7 @@ frontend/
 │   │   │   ├── environments.ts     # ENVIRONMENT_CONFIG (dev · staging · prod)
 │   │   │   ├── roles.ts            # ROLE_CONFIG (owner · admin · member · viewer)
 │   │   │   ├── migrations.ts       # Migration status constants
-│   │   │   ├── schemaMappings.ts   # CANONICAL_SCHEMA_MAPPINGS (SeasonType)
+│   │   │   ├── schemaMappings.ts   # CANONICAL_SCHEMA_MAPPINGS (SeasynType)
 │   │   │   ├── databaseViewers.ts  # DB viewer config
 │   │   │   └── playgroundPresets.ts # SQL↔NoSQL playground preset queries
 │   │   ├── validators.ts           # Composed Zod schemas (emailField, passwordField, etc.)
@@ -257,7 +257,7 @@ frontend/
 │   │   ├── analytics.ts            # OrgQuotasSummary, EngineDistributionItem, DailyVelocityPoint
 │   │   ├── org.ts                  # OrgRole, OrgMember, Organization
 │   │   ├── project.ts              # Project, ProjectDetails
-│   │   └── schema.ts               # SchemaColumn, SeasonType, SchemaDiff
+│   │   └── schema.ts               # SchemaColumn, SeasynType, SchemaDiff
 │   │
 │   ├── App.tsx                     # Root provider tree
 │   ├── main.tsx                    # Vite entry point
@@ -300,7 +300,7 @@ frontend/
 | `/migration/:jobId` | `MigrationLivePage` | Real-time SSE telemetry stream, progress bar, log feed | Protected |
 | `/migration/:projectSlug/:jobId` | `MigrationLivePage` | Project-scoped live migration view | Protected |
 | `/editor` | `SchemaExplorerPage` | Browse database tables, columns, types via `SchemaTree` | Protected |
-| `/schema-diff` | `SchemaDiffPage` | Side-by-side cross-engine schema diff with `SeasonType` mappings | Protected |
+| `/schema-diff` | `SchemaDiffPage` | Side-by-side cross-engine schema diff with `SeasynType` mappings | Protected |
 | `/org/members` | `MembersPage` | Invite, manage roles, remove members | Protected (Admin+) |
 | `/org/settings` | `OrgSettingsPage` | Org name, webhook config, danger zone | Protected (Owner) |
 | `/profile` | `ProfilePage` | Update user name, avatar, password | Protected |
