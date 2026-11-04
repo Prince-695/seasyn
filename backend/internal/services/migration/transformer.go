@@ -77,7 +77,7 @@ var seasynToSQLite = map[domain.SeasynType]string{
 type TransformedColumn struct {
 	Name         string            `json:"name"`
 	SourceType   string            `json:"source_type"`
-	SeasynType   domain.SeasynType `json:"season_type"`
+	SeasynType   domain.SeasynType `json:"seasyn_type"`
 	TargetType   string            `json:"target_type"`
 	IsNullable   bool              `json:"is_nullable"`
 	IsPrimaryKey bool              `json:"is_primary_key"`
@@ -113,11 +113,6 @@ func MapSeasynToNative(seasynType domain.SeasynType, targetDB domain.DBType) str
 		return native
 	}
 	return "TEXT"
-}
-
-// MapSeasonToNative is an alias for MapSeasynToNative for backward compatibility.
-func MapSeasonToNative(seasonType domain.SeasonType, targetDB domain.DBType) string {
-	return MapSeasynToNative(seasonType, targetDB)
 }
 
 // TransformSchema converts a source table schema into a target-ready schema using SeasynType as the intermediate representation.

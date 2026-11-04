@@ -1079,7 +1079,7 @@ The transformer converts a source `domain.Schema` into a schema suitable for the
 3. Maps each `SeasynType` to the best native type in the destination DB
 
 ```go
-var seasonToMongo = map[domain.SeasynType]string{
+var seasynToMongo = map[domain.SeasynType]string{
     domain.SeasynTypeString:    "string",
     domain.SeasynTypeInt:       "int",
     domain.SeasynTypeFloat:     "double",

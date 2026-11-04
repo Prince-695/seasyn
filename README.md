@@ -246,7 +246,7 @@ sequenceDiagram
 To seamlessly convert types between SQL engines (Postgres, MySQL, SQLite) and document databases (MongoDB), Seasyn maps native driver types through an intermediate canonical representation:
 
 <p align="center">
-  <img src="Docs/assets/seasontype_mapping.svg" alt="SeasynType Universal Mapping Matrix" width="90%" />
+  <img src="Docs/assets/seasyntype_mapping.svg" alt="SeasynType Universal Mapping Matrix" width="90%" />
 </p>
 
 ### Canonical Mapping Matrix

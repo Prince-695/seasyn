@@ -152,7 +152,7 @@ definitions:
         type: integer
       name:
         type: string
-      season_type:
+      seasyn_type:
         allOf:
         - $ref: '#/definitions/domain.SeasynType'
         description: Universal normalized type

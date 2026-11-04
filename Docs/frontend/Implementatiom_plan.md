@@ -308,7 +308,7 @@ export interface ConnectionConfig {
 export interface ColumnSchema {
   name: string;
   dataType: string;
-  seasonType: SeasynType;
+  seasynType: SeasynType;
   nullable: boolean;
   isPrimary: boolean;
   maxLength?: number;

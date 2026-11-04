@@ -246,7 +246,7 @@ errCh := make(chan error, 1)
 Databases enforce incompatible type systems. Seasyn defines an intermediate canonical type layer (`SeasynType`) to normalize source schemas before synthesizing target DDL:
 
 <p align="center">
-  <img src="assets/seasontype_mapping.svg" alt="SeasynType Canonical Mapping" width="90%" />
+  <img src="assets/seasyntype_mapping.svg" alt="SeasynType Canonical Mapping" width="90%" />
 </p>
 
 #### Canonical Type Mapping Matrix

@@ -5,9 +5,6 @@ import "time"
 // SeasynType is SEASYN's universal intermediate type for cross-database mapping.
 type SeasynType string
 
-// Deprecated: SeasonType alias maintained for backwards compatibility.
-type SeasonType = SeasynType
-
 const (
 	SeasynTypeInt       SeasynType = "int"
 	SeasynTypeString    SeasynType = "string"
@@ -27,7 +24,7 @@ const (
 type ColumnSchema struct {
 	Name          string     `json:"name"`
 	DataType      string     `json:"data_type"`   // Native database data type (e.g., "varchar(255)", "int4")
-	SeasynType    SeasynType `json:"season_type"` // Universal normalized type
+	SeasynType    SeasynType `json:"seasyn_type"` // Universal normalized type
 	IsNullable    bool       `json:"is_nullable"`
 	DefaultValue  *string    `json:"default_value,omitempty"`
 	MaxLength     *int       `json:"max_length,omitempty"`

@@ -543,8 +543,8 @@ Response:
     {
       "name": "users",
       "columns": [
-        { "name": "id", "data_type": "int4", "season_type": "int", "nullable": false, "primary_key": true },
-        { "name": "email", "data_type": "varchar", "season_type": "string", "nullable": false, "max_length": 255 }
+        { "name": "id", "data_type": "int4", "seasyn_type": "int", "nullable": false, "primary_key": true },
+        { "name": "email", "data_type": "varchar", "seasyn_type": "string", "nullable": false, "max_length": 255 }
       ],
       "primary_keys": ["id"],
       "row_count": 1500
@@ -749,7 +749,7 @@ START
 [VALIDATE] — Test source + dest connections; validate schema compatibility
   │
   ▼
-[INSPECT] — Read source schema; build SeasonSchema representation
+[INSPECT] — Read source schema; build SeasynSchema representation
   │
   ▼
 [TRANSFORM] — Map source schema to destination schema format

@@ -3960,7 +3960,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "season_type": {
+                "seasyn_type": {
                     "description": "Universal normalized type",
                     "allOf": [
                         {

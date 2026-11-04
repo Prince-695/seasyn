@@ -1,6 +1,6 @@
 # Phase 4 QA Manual: Live Schema Inspection, Diff Engine & Data Explorer
 
-This manual covers testing for **Live Database Introspection, Table & Column Metadata, Universal Type Mapping (`SeasonType`), Cross-Database Schema Diff Engine, and Live Data Explorer (Row CRUD)**.
+This manual covers testing for **Live Database Introspection, Table & Column Metadata, Universal Type Mapping (`SeasynType`), Cross-Database Schema Diff Engine, and Live Data Explorer (Row CRUD)**.
 
 ---
 
@@ -25,7 +25,7 @@ This manual covers testing for **Live Database Introspection, Table & Column Met
 - **Action**: Inspect a PostgreSQL database containing multiple tables.
 - **Verification**:
   - `tables` array returned with all base public tables.
-  - Columns include: `data_type` (native type) and `season_type` (e.g., `int`, `string`, `bool`, `timestamp`, `json`, `uuid`).
+  - Columns include: `data_type` (native type) and `seasyn_type` (e.g., `int`, `string`, `bool`, `timestamp`, `json`, `uuid`).
   - `primary_keys` accurately extracted from constraints.
   - `indexes` list uniqueness and index type (`btree`, `gin`).
 
@@ -97,7 +97,7 @@ This manual covers testing for **Live Database Introspection, Table & Column Met
 | Checkpoint ID | Verification Item | Status | Tester Remarks / Failures / Edge Cases | Fixed? |
 | :--- | :--- | :--- | :--- | :--- |
 | **CP-4.01** | Inspect schema returns complete tables, columns, primary keys, foreign keys, and indexes | [ ] PASS | | |
-| **CP-4.02** | Universal type mapper (`SeasonType`) converts native types accurately | [ ] PASS | | |
+| **CP-4.02** | Universal type mapper (`SeasynType`) converts native types accurately | [ ] PASS | | |
 | **CP-4.03** | Schema diff correctly identifies added, removed, and altered tables/columns | [ ] PASS | | |
 | **CP-4.04** | Table rows pagination correctly handles `page` and `limit` boundaries | [ ] PASS | | |
 | **CP-4.05** | SQL injection prevention: table and column identifiers are double-quote sanitized | [ ] PASS | | |
