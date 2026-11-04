@@ -10,7 +10,7 @@
 
 **Seasyn** is a high-throughput, cross-database migration, schema synchronization, and live replication engine engineered in Go. Designed as a cloud-native, distributed-ready system, Seasyn eliminates the operational complexity of migrating relational and NoSQL databases across heterogeneous environments (PostgreSQL, MySQL, MongoDB, SQLite).
 
-It features **zero-allocation channel streaming**, **bounded backpressure controls**, **universal schema translation via `SeasonType`**, **dynamic Auto-DDL synthesis**, and **real-time physics telemetry (RPS, bandwidth velocity, batch latency)** broadcast to frontend dashboards via Server-Sent Events (SSE).
+It features **zero-allocation channel streaming**, **bounded backpressure controls**, **universal schema translation via `SeasynType`**, **dynamic Auto-DDL synthesis**, and **real-time physics telemetry (RPS, bandwidth velocity, batch latency)** broadcast to frontend dashboards via Server-Sent Events (SSE).
 
 ---
 
@@ -21,7 +21,7 @@ It features **zero-allocation channel streaming**, **bounded backpressure contro
    - [Architectural Layers Breakdown](#1-architectural-layers-breakdown)
    - [End-to-End Migration Sequence Flow](#2-end-to-end-migration-sequence-flow)
    - [Core Systems Engineering Innovations](#3-core-systems-engineering-innovations)
-3. [Universal Type System (`SeasonType`) & Auto-DDL](#-universal-type-system-seasontype--auto-ddl)
+3. [Universal Type System (`SeasynType`) & Auto-DDL](#-universal-type-system-seasyntype--auto-ddl)
 4. [Clean / Hexagonal Architecture & Code Layout](#-clean--hexagonal-architecture--code-layout)
 5. [Heterogeneous Database Adapters Matrix](#-heterogeneous-database-adapters-matrix)
 6. [API Catalog & Swagger Documentation](#-api-catalog--swagger-documentation)
@@ -91,7 +91,7 @@ flowchart TB
         Streamer["Streamer Engine"]
         CryptoEngine["Credential Decryptor\n(AES-GCM Decryption of URI & Passwords)"]
         Preflight["Pre-flight Inspector\n(Source Row Count & Target Check)"]
-        SchemaTransformer["Canonical Schema Transformer\n(Source Types -> SeasonType -> Target Types)"]
+        SchemaTransformer["Canonical Schema Transformer\n(Source Types -> SeasynType -> Target Types)"]
         DDLEngine["Auto-DDL Synthesizer\n(Generates & Applies Missing CREATE TABLE)"]
         
         subgraph PipelineChannels ["In-Memory Pipeline (Bounded Channels)"]
@@ -219,7 +219,7 @@ sequenceDiagram
         Str->>Dst: ListTables()
         
         opt Target Table Does Not Exist
-            Str->>Str: TransformSchema(SeasonType) -> GenerateTargetDDL()
+            Str->>Str: TransformSchema(SeasynType) -> GenerateTargetDDL()
             Str->>Dst: ExecDDL(CREATE TABLE ...)
         end
 
@@ -256,9 +256,9 @@ sequenceDiagram
 
 ---
 
-## 🔄 Universal Type System (`SeasonType`) & Auto-DDL
+## 🔄 Universal Type System (`SeasynType`) & Auto-DDL
 
-Databases utilize divergent type systems (e.g. Postgres `TIMESTAMPTZ` vs MySQL `DATETIME(6)` vs MongoDB BSON `date`). Seasyn resolves this through **`SeasonType`**, an intermediate canonical representation.
+Databases utilize divergent type systems (e.g. Postgres `TIMESTAMPTZ` vs MySQL `DATETIME(6)` vs MongoDB BSON `date`). Seasyn resolves this through **`SeasynType`**, an intermediate canonical representation.
 
 ```mermaid
 flowchart LR
@@ -270,7 +270,7 @@ flowchart LR
     end
 
     subgraph CanonicalCore ["Universal Type Intermediate"]
-        ST["SeasonType Canonical System\n• SeasonTypeInt\n• SeasonTypeString\n• SeasonTypeTimestamp\n• SeasonTypeJSON\n• SeasonTypeUUID\n• SeasonTypeBinary\n• SeasonTypeDecimal"]
+        ST["SeasynType Canonical System\n• SeasynTypeInt\n• SeasynTypeString\n• SeasynTypeTimestamp\n• SeasynTypeJSON\n• SeasynTypeUUID\n• SeasynTypeBinary\n• SeasynTypeDecimal"]
     end
 
     subgraph TargetEngines ["Target Dialect Synthesizer"]
@@ -293,17 +293,17 @@ flowchart LR
 
 ### Type Translation Matrix
 
-| `SeasonType` | PostgreSQL | MySQL | MongoDB | SQLite |
+| `SeasynType` | PostgreSQL | MySQL | MongoDB | SQLite |
 |---|---|---|---|---|
-| `SeasonTypeInt` | `BIGINT` | `BIGINT` | `int` / `long` | `INTEGER` |
-| `SeasonTypeString` | `TEXT` | `TEXT` | `string` | `TEXT` |
-| `SeasonTypeBool` | `BOOLEAN` | `TINYINT(1)` | `bool` | `INTEGER` |
-| `SeasonTypeTimestamp` | `TIMESTAMPTZ` | `DATETIME(6)` | `date` | `TEXT` |
-| `SeasonTypeJSON` | `JSONB` | `JSON` | `object` | `TEXT` |
-| `SeasonTypeFloat` | `DOUBLE PRECISION` | `DOUBLE` | `double` | `REAL` |
-| `SeasonTypeDecimal` | `NUMERIC` | `DECIMAL(38,18)` | `decimal` | `NUMERIC` |
-| `SeasonTypeBinary` | `BYTEA` | `LONGBLOB` | `binData` | `BLOB` |
-| `SeasonTypeUUID` | `UUID` | `CHAR(36)` | `string` | `TEXT` |
+| `SeasynTypeInt` | `BIGINT` | `BIGINT` | `int` / `long` | `INTEGER` |
+| `SeasynTypeString` | `TEXT` | `TEXT` | `string` | `TEXT` |
+| `SeasynTypeBool` | `BOOLEAN` | `TINYINT(1)` | `bool` | `INTEGER` |
+| `SeasynTypeTimestamp` | `TIMESTAMPTZ` | `DATETIME(6)` | `date` | `TEXT` |
+| `SeasynTypeJSON` | `JSONB` | `JSON` | `object` | `TEXT` |
+| `SeasynTypeFloat` | `DOUBLE PRECISION` | `DOUBLE` | `double` | `REAL` |
+| `SeasynTypeDecimal` | `NUMERIC` | `DECIMAL(38,18)` | `decimal` | `NUMERIC` |
+| `SeasynTypeBinary` | `BYTEA` | `LONGBLOB` | `binData` | `BLOB` |
+| `SeasynTypeUUID` | `UUID` | `CHAR(36)` | `string` | `TEXT` |
 
 ---
 
@@ -331,7 +331,7 @@ backend/
 │   │   ├── analytics.go            # Analytics charts, quotas, topologies, and heatmap structures
 │   │   ├── migration.go            # Migration jobs, telemetry payloads, batch definitions
 │   │   ├── project.go              # Projects, database connections, and credentials
-│   │   ├── schema.go               # TableSchema, ColumnSchema, SeasonType abstractions
+│   │   ├── schema.go               # TableSchema, ColumnSchema, SeasynType abstractions
 │   │   ├── user.go                 # Users, credentials, organizations, roles
 │   │   └── webhook.go              # Webhook configurations and delivery logs
 │   ├── http/                       # HTTP Transport Layer (Driving Adapters)

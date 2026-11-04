@@ -3961,7 +3961,7 @@
                     "description": "Universal normalized type",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.SeasonType"
+                            "$ref": "#/definitions/domain.SeasynType"
                         }
                     ]
                 }
@@ -5011,7 +5011,7 @@
                 }
             }
         },
-        "domain.SeasonType": {
+        "domain.SeasynType": {
             "type": "string",
             "enum": [
                 "int",
@@ -5028,18 +5028,18 @@
                 "unknown"
             ],
             "x-enum-varnames": [
-                "SeasonTypeInt",
-                "SeasonTypeString",
-                "SeasonTypeBool",
-                "SeasonTypeTimestamp",
-                "SeasonTypeJSON",
-                "SeasonTypeFloat",
-                "SeasonTypeDecimal",
-                "SeasonTypeBinary",
-                "SeasonTypeUUID",
-                "SeasonTypeEnum",
-                "SeasonTypeArray",
-                "SeasonTypeUnknown"
+                "SeasynTypeInt",
+                "SeasynTypeString",
+                "SeasynTypeBool",
+                "SeasynTypeTimestamp",
+                "SeasynTypeJSON",
+                "SeasynTypeFloat",
+                "SeasynTypeDecimal",
+                "SeasynTypeBinary",
+                "SeasynTypeUUID",
+                "SeasynTypeEnum",
+                "SeasynTypeArray",
+                "SeasynTypeUnknown"
             ]
         },
         "domain.SetUsernameRequest": {
