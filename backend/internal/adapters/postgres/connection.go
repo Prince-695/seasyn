@@ -81,7 +81,7 @@ func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*dom
 		}
 
 		col.IsNullable = strings.ToUpper(isNullableStr) == "YES"
-		col.SeasonType = MapPostgresType(col.DataType)
+		col.SeasynType = MapPostgresType(col.DataType)
 		if defaultVal.Valid {
 			val := defaultVal.String
 			col.DefaultValue = &val

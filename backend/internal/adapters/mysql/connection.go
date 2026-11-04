@@ -83,7 +83,7 @@ func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*dom
 		}
 
 		col.IsNullable = strings.ToUpper(isNullableStr) == "YES"
-		col.SeasonType = MapMySQLType(col.DataType)
+		col.SeasynType = MapMySQLType(col.DataType)
 		col.IsPrimaryKey = strings.ToUpper(colKey) == "PRI"
 		if col.IsPrimaryKey {
 			primaryKeys = append(primaryKeys, col.Name)
@@ -450,27 +450,27 @@ func (c *Connection) ExecDDL(ctx context.Context, ddl string) error {
 	return err
 }
 
-func MapMySQLType(dt string) domain.SeasonType {
+func MapMySQLType(dt string) domain.SeasynType {
 	dt = strings.ToLower(strings.TrimSpace(dt))
 	switch {
 	case strings.Contains(dt, "tinyint(1)"), strings.Contains(dt, "bool"), strings.Contains(dt, "boolean"):
-		return domain.SeasonTypeBool
+		return domain.SeasynTypeBool
 	case strings.Contains(dt, "int"):
-		return domain.SeasonTypeInt
+		return domain.SeasynTypeInt
 	case strings.Contains(dt, "datetime"), strings.Contains(dt, "timestamp"), strings.Contains(dt, "date"):
-		return domain.SeasonTypeTimestamp
+		return domain.SeasynTypeTimestamp
 	case strings.Contains(dt, "float"), strings.Contains(dt, "double"):
-		return domain.SeasonTypeFloat
+		return domain.SeasynTypeFloat
 	case strings.Contains(dt, "decimal"), strings.Contains(dt, "numeric"):
-		return domain.SeasonTypeDecimal
+		return domain.SeasynTypeDecimal
 	case strings.Contains(dt, "json"):
-		return domain.SeasonTypeJSON
+		return domain.SeasynTypeJSON
 	case strings.Contains(dt, "blob"), strings.Contains(dt, "binary"):
-		return domain.SeasonTypeBinary
+		return domain.SeasynTypeBinary
 	case strings.Contains(dt, "enum"):
-		return domain.SeasonTypeEnum
+		return domain.SeasynTypeEnum
 	default:
-		return domain.SeasonTypeString
+		return domain.SeasynTypeString
 	}
 }
 

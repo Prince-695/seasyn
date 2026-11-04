@@ -27,7 +27,7 @@ func (m *mockDBConnForHandler) GetTableSchema(ctx context.Context, tableName str
 	return &domain.TableSchema{
 		Name: tableName,
 		Columns: []domain.ColumnSchema{
-			{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID, IsPrimaryKey: true},
+			{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID, IsPrimaryKey: true},
 		},
 		PrimaryKeys: []string{"id"},
 	}, nil
@@ -40,7 +40,7 @@ func (m *mockDBConnForHandler) GetSchema(ctx context.Context) (*domain.DatabaseS
 			{
 				Name: "users",
 				Columns: []domain.ColumnSchema{
-					{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID, IsPrimaryKey: true},
+					{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID, IsPrimaryKey: true},
 				},
 				PrimaryKeys: []string{"id"},
 			},

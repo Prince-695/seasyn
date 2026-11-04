@@ -17,14 +17,14 @@ func TestAll16PairTransformations(t *testing.T) {
 	sampleTable := domain.TableSchema{
 		Name: "users_sample",
 		Columns: []domain.ColumnSchema{
-			{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID, IsPrimaryKey: true},
-			{Name: "username", DataType: "varchar(50)", SeasonType: domain.SeasonTypeString, IsNullable: false},
-			{Name: "age", DataType: "int", SeasonType: domain.SeasonTypeInt, IsNullable: true},
-			{Name: "balance", DataType: "decimal(10,2)", SeasonType: domain.SeasonTypeDecimal, IsNullable: true},
-			{Name: "is_active", DataType: "boolean", SeasonType: domain.SeasonTypeBool, IsNullable: false},
-			{Name: "metadata", DataType: "jsonb", SeasonType: domain.SeasonTypeJSON, IsNullable: true},
-			{Name: "tags", DataType: "array", SeasonType: domain.SeasonTypeArray, IsNullable: true},
-			{Name: "created_at", DataType: "timestamptz", SeasonType: domain.SeasonTypeTimestamp, IsNullable: false},
+			{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID, IsPrimaryKey: true},
+			{Name: "username", DataType: "varchar(50)", SeasynType: domain.SeasynTypeString, IsNullable: false},
+			{Name: "age", DataType: "int", SeasynType: domain.SeasynTypeInt, IsNullable: true},
+			{Name: "balance", DataType: "decimal(10,2)", SeasynType: domain.SeasynTypeDecimal, IsNullable: true},
+			{Name: "is_active", DataType: "boolean", SeasynType: domain.SeasynTypeBool, IsNullable: false},
+			{Name: "metadata", DataType: "jsonb", SeasynType: domain.SeasynTypeJSON, IsNullable: true},
+			{Name: "tags", DataType: "array", SeasynType: domain.SeasynTypeArray, IsNullable: true},
+			{Name: "created_at", DataType: "timestamptz", SeasynType: domain.SeasynTypeTimestamp, IsNullable: false},
 		},
 		PrimaryKeys: []string{"id"},
 	}

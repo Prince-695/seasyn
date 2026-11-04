@@ -17,7 +17,7 @@ Welcome to the **Seasyn Technical Documentation Portal**. This repository of tec
    - [End-to-End Migration Sequence Flow](#2-end-to-end-migration-sequence-flow)
 2. [Migration Engine Technical Specification](#-migration-engine-technical-specification)
    - [Bounded Channel Pipeline & Memory Isolation](#1-bounded-channel-pipeline--memory-isolation)
-   - [Universal Type System (`SeasonType`) & Auto-DDL](#2-universal-type-system-seasontype--auto-ddl)
+   - [Universal Type System (`SeasynType`) & Auto-DDL](#2-universal-type-system-seasyntype--auto-ddl)
    - [Real-Time Physics Telemetry & SSE Pub/Sub Broker](#3-real-time-physics-telemetry--sse-pubsub-broker)
    - [Concurrency Collision Guard & Cooperative Cancellation](#4-concurrency-collision-guard--cooperative-cancellation)
 3. [Heterogeneous Database Adapter Matrix](#-heterogeneous-database-adapter-matrix)
@@ -78,7 +78,7 @@ flowchart TB
         Streamer["Streamer Engine"]
         CryptoEngine["Credential Decryptor<br/>(AES-GCM Decryption of URI & Passwords)"]
         Preflight["Pre-flight Inspector<br/>(Source Row Count & Target Check)"]
-        SchemaTransformer["Canonical Schema Transformer<br/>(Source Types -> SeasonType -> Target Types)"]
+        SchemaTransformer["Canonical Schema Transformer<br/>(Source Types -> SeasynType -> Target Types)"]
         DDLEngine["Auto-DDL Synthesizer<br/>(Generates & Applies Missing CREATE TABLE)"]
         RowChannel["Buffered Row Batch Channel<br/>(chan domain.RowBatch, cap=4)"]
         ErrChannel["Error Channel<br/>(chan error, cap=1)"]
@@ -198,7 +198,7 @@ sequenceDiagram
         Str->>Dst: ListTables()
         
         opt Target Table Does Not Exist
-            Str->>Str: TransformSchema(SeasonType) -> GenerateTargetDDL()
+            Str->>Str: TransformSchema(SeasynType) -> GenerateTargetDDL()
             Str->>Dst: ExecDDL(CREATE TABLE ...)
         end
 
@@ -241,32 +241,32 @@ errCh := make(chan error, 1)
 
 ---
 
-### 2. Universal Type System (`SeasonType`) & Auto-DDL
+### 2. Universal Type System (`SeasynType`) & Auto-DDL
 
-Databases enforce incompatible type systems. Seasyn defines an intermediate canonical type layer (`SeasonType`) to normalize source schemas before synthesizing target DDL:
+Databases enforce incompatible type systems. Seasyn defines an intermediate canonical type layer (`SeasynType`) to normalize source schemas before synthesizing target DDL:
 
 <p align="center">
-  <img src="assets/seasontype_mapping.svg" alt="SeasonType Canonical Mapping" width="90%" />
+  <img src="assets/seasyntype_mapping.svg" alt="SeasynType Canonical Mapping" width="90%" />
 </p>
 
 #### Canonical Type Mapping Matrix
 
-| `SeasonType` | PostgreSQL (`pgx`) | MySQL (`go-sql-driver`) | MongoDB (`mongo-driver`) | SQLite (`modernc`) |
+| `SeasynType` | PostgreSQL (`pgx`) | MySQL (`go-sql-driver`) | MongoDB (`mongo-driver`) | SQLite (`modernc`) |
 |---|---|---|---|---|
-| `SeasonTypeInt` | `BIGINT` | `BIGINT` | `int` / `long` | `INTEGER` |
-| `SeasonTypeString` | `TEXT` | `TEXT` | `string` | `TEXT` |
-| `SeasonTypeBool` | `BOOLEAN` | `TINYINT(1)` | `bool` | `INTEGER` |
-| `SeasonTypeTimestamp` | `TIMESTAMPTZ` | `DATETIME(6)` | `date` | `TEXT` |
-| `SeasonTypeJSON` | `JSONB` | `JSON` | `object` | `TEXT` |
-| `SeasonTypeFloat` | `DOUBLE PRECISION` | `DOUBLE` | `double` | `REAL` |
-| `SeasonTypeDecimal` | `NUMERIC` | `DECIMAL(38,18)` | `decimal` | `NUMERIC` |
-| `SeasonTypeBinary` | `BYTEA` | `LONGBLOB` | `binData` | `BLOB` |
-| `SeasonTypeUUID` | `UUID` | `CHAR(36)` | `string` | `TEXT` |
+| `SeasynTypeInt` | `BIGINT` | `BIGINT` | `int` / `long` | `INTEGER` |
+| `SeasynTypeString` | `TEXT` | `TEXT` | `string` | `TEXT` |
+| `SeasynTypeBool` | `BOOLEAN` | `TINYINT(1)` | `bool` | `INTEGER` |
+| `SeasynTypeTimestamp` | `TIMESTAMPTZ` | `DATETIME(6)` | `date` | `TEXT` |
+| `SeasynTypeJSON` | `JSONB` | `JSON` | `object` | `TEXT` |
+| `SeasynTypeFloat` | `DOUBLE PRECISION` | `DOUBLE` | `double` | `REAL` |
+| `SeasynTypeDecimal` | `NUMERIC` | `DECIMAL(38,18)` | `decimal` | `NUMERIC` |
+| `SeasynTypeBinary` | `BYTEA` | `LONGBLOB` | `binData` | `BLOB` |
+| `SeasynTypeUUID` | `UUID` | `CHAR(36)` | `string` | `TEXT` |
 
 #### Auto-DDL Pipeline
 If a migration targets a relational engine and the destination table does not exist:
 1. `GetTableSchema(ctx, sourceTable)` inspects column names, nullability, and primary keys.
-2. `TransformSchema(srcSchema, srcDB, dstDB)` maps types into `SeasonType` and outputs a `TransformedSchema`.
+2. `TransformSchema(srcSchema, srcDB, dstDB)` maps types into `SeasynType` and outputs a `TransformedSchema`.
 3. `GenerateTargetDDL(transformed)` synthesizes target-dialect DDL (e.g. `CREATE TABLE "users" ("id" UUID PRIMARY KEY, ...)`).
 4. `ExecDDL(ctx, ddl)` provisions the destination table schema before the first batch is written.
 

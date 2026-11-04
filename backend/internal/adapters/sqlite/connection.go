@@ -81,7 +81,7 @@ func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*dom
 		col := domain.ColumnSchema{
 			Name:         name,
 			DataType:     dType,
-			SeasonType:   MapSQLiteType(dType),
+			SeasynType:   MapSQLiteType(dType),
 			IsNullable:   notNull == 0,
 			IsPrimaryKey: isPK,
 		}
@@ -428,27 +428,27 @@ func (c *Connection) ExecDDL(ctx context.Context, ddl string) error {
 	return err
 }
 
-func MapSQLiteType(dt string) domain.SeasonType {
+func MapSQLiteType(dt string) domain.SeasynType {
 	dt = strings.ToLower(strings.TrimSpace(dt))
 	switch {
 	case strings.Contains(dt, "int"):
-		return domain.SeasonTypeInt
+		return domain.SeasynTypeInt
 	case strings.Contains(dt, "char"), strings.Contains(dt, "text"), strings.Contains(dt, "clob"):
-		return domain.SeasonTypeString
+		return domain.SeasynTypeString
 	case strings.Contains(dt, "bool"):
-		return domain.SeasonTypeBool
+		return domain.SeasynTypeBool
 	case strings.Contains(dt, "time"), strings.Contains(dt, "date"):
-		return domain.SeasonTypeTimestamp
+		return domain.SeasynTypeTimestamp
 	case strings.Contains(dt, "real"), strings.Contains(dt, "floa"), strings.Contains(dt, "doub"):
-		return domain.SeasonTypeFloat
+		return domain.SeasynTypeFloat
 	case strings.Contains(dt, "numeric"), strings.Contains(dt, "dec"):
-		return domain.SeasonTypeDecimal
+		return domain.SeasynTypeDecimal
 	case strings.Contains(dt, "json"):
-		return domain.SeasonTypeJSON
+		return domain.SeasynTypeJSON
 	case strings.Contains(dt, "blob"):
-		return domain.SeasonTypeBinary
+		return domain.SeasynTypeBinary
 	default:
-		return domain.SeasonTypeString
+		return domain.SeasynTypeString
 	}
 }
 

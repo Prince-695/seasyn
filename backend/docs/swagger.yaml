@@ -152,9 +152,9 @@ definitions:
         type: integer
       name:
         type: string
-      season_type:
+      seasyn_type:
         allOf:
-        - $ref: '#/definitions/domain.SeasonType'
+        - $ref: '#/definitions/domain.SeasynType'
         description: Universal normalized type
     type: object
   domain.CompareSchemaRequest:
@@ -873,7 +873,7 @@ definitions:
       target_db_type:
         $ref: '#/definitions/domain.DBType'
     type: object
-  domain.SeasonType:
+  domain.SeasynType:
     enum:
     - int
     - string
@@ -889,18 +889,18 @@ definitions:
     - unknown
     type: string
     x-enum-varnames:
-    - SeasonTypeInt
-    - SeasonTypeString
-    - SeasonTypeBool
-    - SeasonTypeTimestamp
-    - SeasonTypeJSON
-    - SeasonTypeFloat
-    - SeasonTypeDecimal
-    - SeasonTypeBinary
-    - SeasonTypeUUID
-    - SeasonTypeEnum
-    - SeasonTypeArray
-    - SeasonTypeUnknown
+    - SeasynTypeInt
+    - SeasynTypeString
+    - SeasynTypeBool
+    - SeasynTypeTimestamp
+    - SeasynTypeJSON
+    - SeasynTypeFloat
+    - SeasynTypeDecimal
+    - SeasynTypeBinary
+    - SeasynTypeUUID
+    - SeasynTypeEnum
+    - SeasynTypeArray
+    - SeasynTypeUnknown
   domain.SetUsernameRequest:
     properties:
       username:

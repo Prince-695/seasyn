@@ -167,7 +167,7 @@ This module allows you to inspect tables, understand data types, compare differe
 
 ### `GET /.../connections/{connID}/schema`
 - **What it does**: Reads the entire live database structure without downloading data. Returns all tables, columns, primary keys, foreign keys, and indexes.
-- **SeasonType**: Automatically translates engine-specific types (like Postgres `timestamptz`, `int8`, `jsonb`) into universal normalized types (`timestamp`, `int`, `json`).
+- **SeasynType**: Automatically translates engine-specific types (like Postgres `timestamptz`, `int8`, `jsonb`) into universal normalized types (`timestamp`, `int`, `json`).
 
 ### `GET /.../connections/{connID}/tables`
 - **What it does**: Returns a quick list of all table names in the database.

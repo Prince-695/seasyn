@@ -407,25 +407,25 @@ type TableSchema struct {
 type ColumnSchema struct {
     Name       string
     DataType   string     // Native type (e.g., "varchar", "int4", "ObjectId")
-    SeasonType SeasonType // Normalized internal type for cross-DB mapping
+    SeasynType SeasynType // Normalized internal type for cross-DB mapping
     Nullable   bool
     Default    *string
     MaxLength  *int
 }
 
-// SeasonType is SEASYN's normalized type system for cross-DB mapping
-type SeasonType string
+// SeasynType is SEASYN's normalized type system for cross-DB mapping
+type SeasynType string
 
 const (
-    SeasonTypeString    SeasonType = "string"
-    SeasonTypeInt       SeasonType = "int"
-    SeasonTypeFloat     SeasonType = "float"
-    SeasonTypeBool      SeasonType = "bool"
-    SeasonTypeTimestamp SeasonType = "timestamp"
-    SeasonTypeJSON      SeasonType = "json"
-    SeasonTypeBinary    SeasonType = "binary"
-    SeasonTypeArray     SeasonType = "array"
-    SeasonTypeDecimal   SeasonType = "decimal"
+    SeasynTypeString    SeasynType = "string"
+    SeasynTypeInt       SeasynType = "int"
+    SeasynTypeFloat     SeasynType = "float"
+    SeasynTypeBool      SeasynType = "bool"
+    SeasynTypeTimestamp SeasynType = "timestamp"
+    SeasynTypeJSON      SeasynType = "json"
+    SeasynTypeBinary    SeasynType = "binary"
+    SeasynTypeArray     SeasynType = "array"
+    SeasynTypeDecimal   SeasynType = "decimal"
 )
 ```
 
@@ -543,8 +543,8 @@ Response:
     {
       "name": "users",
       "columns": [
-        { "name": "id", "data_type": "int4", "season_type": "int", "nullable": false, "primary_key": true },
-        { "name": "email", "data_type": "varchar", "season_type": "string", "nullable": false, "max_length": 255 }
+        { "name": "id", "data_type": "int4", "seasyn_type": "int", "nullable": false, "primary_key": true },
+        { "name": "email", "data_type": "varchar", "seasyn_type": "string", "nullable": false, "max_length": 255 }
       ],
       "primary_keys": ["id"],
       "row_count": 1500
@@ -725,7 +725,7 @@ func (a *MongoAdapter) Connect(ctx context.Context, cfg domain.ConnectionConfig)
 
 ### 8.3 Type Mapping Table
 
-| SeasonType | PostgreSQL | MongoDB | MySQL |
+| SeasynType | PostgreSQL | MongoDB | MySQL |
 |------------|-----------|---------|-------|
 | string | varchar, text | string | varchar, text |
 | int | int2, int4, int8 | int, long | tinyint, int, bigint |
@@ -749,7 +749,7 @@ START
 [VALIDATE] — Test source + dest connections; validate schema compatibility
   │
   ▼
-[INSPECT] — Read source schema; build SeasonSchema representation
+[INSPECT] — Read source schema; build SeasynSchema representation
   │
   ▼
 [TRANSFORM] — Map source schema to destination schema format

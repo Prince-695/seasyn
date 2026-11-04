@@ -309,18 +309,18 @@ type ConnectionConfig struct {
     Options          map[string]string `json:"options"`
 }
 
-type SeasonType string
+type SeasynType string
 
 const (
-    SeasonTypeString    SeasonType = "string"
-    SeasonTypeInt       SeasonType = "int"
-    SeasonTypeFloat     SeasonType = "float"
-    SeasonTypeBool      SeasonType = "bool"
-    SeasonTypeTimestamp SeasonType = "timestamp"
-    SeasonTypeJSON      SeasonType = "json"
-    SeasonTypeBinary    SeasonType = "binary"
-    SeasonTypeArray     SeasonType = "array"
-    SeasonTypeDecimal   SeasonType = "decimal"
+    SeasynTypeString    SeasynType = "string"
+    SeasynTypeInt       SeasynType = "int"
+    SeasynTypeFloat     SeasynType = "float"
+    SeasynTypeBool      SeasynType = "bool"
+    SeasynTypeTimestamp SeasynType = "timestamp"
+    SeasynTypeJSON      SeasynType = "json"
+    SeasynTypeBinary    SeasynType = "binary"
+    SeasynTypeArray     SeasynType = "array"
+    SeasynTypeDecimal   SeasynType = "decimal"
 )
 
 type Schema struct {
@@ -338,7 +338,7 @@ type TableSchema struct {
 type ColumnSchema struct {
     Name       string
     DataType   string
-    SeasonType SeasonType
+    SeasynType SeasynType
     Nullable   bool
     Default    *string
     MaxLength  *int
@@ -922,22 +922,22 @@ JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constra
 WHERE tc.table_name = $1 AND tc.constraint_type = 'PRIMARY KEY';
 ```
 
-Map Postgres data types to `domain.SeasonType` using a type map:
+Map Postgres data types to `domain.SeasynType` using a type map:
 ```go
-var pgTypeMap = map[string]domain.SeasonType{
-    "integer": domain.SeasonTypeInt,
-    "bigint": domain.SeasonTypeInt,
-    "character varying": domain.SeasonTypeString,
-    "text": domain.SeasonTypeString,
-    "boolean": domain.SeasonTypeBool,
-    "timestamp without time zone": domain.SeasonTypeTimestamp,
-    "timestamp with time zone": domain.SeasonTypeTimestamp,
-    "json": domain.SeasonTypeJSON,
-    "jsonb": domain.SeasonTypeJSON,
-    "numeric": domain.SeasonTypeDecimal,
-    "real": domain.SeasonTypeFloat,
-    "double precision": domain.SeasonTypeFloat,
-    "bytea": domain.SeasonTypeBinary,
+var pgTypeMap = map[string]domain.SeasynType{
+    "integer": domain.SeasynTypeInt,
+    "bigint": domain.SeasynTypeInt,
+    "character varying": domain.SeasynTypeString,
+    "text": domain.SeasynTypeString,
+    "boolean": domain.SeasynTypeBool,
+    "timestamp without time zone": domain.SeasynTypeTimestamp,
+    "timestamp with time zone": domain.SeasynTypeTimestamp,
+    "json": domain.SeasynTypeJSON,
+    "jsonb": domain.SeasynTypeJSON,
+    "numeric": domain.SeasynTypeDecimal,
+    "real": domain.SeasynTypeFloat,
+    "double precision": domain.SeasynTypeFloat,
+    "bytea": domain.SeasynTypeBinary,
     // ... more as you discover them
 }
 ```
@@ -981,7 +981,7 @@ Schema inference for MongoDB:
 ```go
 // Sample documents and build a synthetic schema
 func inferSchema(docs []bson.M) []domain.ColumnSchema {
-    fieldTypes := make(map[string]domain.SeasonType)
+    fieldTypes := make(map[string]domain.SeasynType)
     for _, doc := range docs {
         for key, val := range doc {
             fieldTypes[key] = inferBSONType(val)
@@ -1075,17 +1075,17 @@ Stores job metadata (DB type, host, table name — NOT credentials) in the `migr
 
 The transformer converts a source `domain.Schema` into a schema suitable for the destination DB type. It:
 1. Takes the source schema and destination `DBType`
-2. Uses the `SeasonType` as the intermediate representation
-3. Maps each `SeasonType` to the best native type in the destination DB
+2. Uses the `SeasynType` as the intermediate representation
+3. Maps each `SeasynType` to the best native type in the destination DB
 
 ```go
-var seasonToMongo = map[domain.SeasonType]string{
-    domain.SeasonTypeString:    "string",
-    domain.SeasonTypeInt:       "int",
-    domain.SeasonTypeFloat:     "double",
-    domain.SeasonTypeBool:      "bool",
-    domain.SeasonTypeTimestamp: "date",
-    domain.SeasonTypeJSON:      "object",
+var seasynToMongo = map[domain.SeasynType]string{
+    domain.SeasynTypeString:    "string",
+    domain.SeasynTypeInt:       "int",
+    domain.SeasynTypeFloat:     "double",
+    domain.SeasynTypeBool:      "bool",
+    domain.SeasynTypeTimestamp: "date",
+    domain.SeasynTypeJSON:      "object",
 }
 ```
 

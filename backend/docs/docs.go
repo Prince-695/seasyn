@@ -3960,11 +3960,11 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "season_type": {
+                "seasyn_type": {
                     "description": "Universal normalized type",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.SeasonType"
+                            "$ref": "#/definitions/domain.SeasynType"
                         }
                     ]
                 }
@@ -5014,7 +5014,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.SeasonType": {
+        "domain.SeasynType": {
             "type": "string",
             "enum": [
                 "int",
@@ -5031,18 +5031,18 @@ const docTemplate = `{
                 "unknown"
             ],
             "x-enum-varnames": [
-                "SeasonTypeInt",
-                "SeasonTypeString",
-                "SeasonTypeBool",
-                "SeasonTypeTimestamp",
-                "SeasonTypeJSON",
-                "SeasonTypeFloat",
-                "SeasonTypeDecimal",
-                "SeasonTypeBinary",
-                "SeasonTypeUUID",
-                "SeasonTypeEnum",
-                "SeasonTypeArray",
-                "SeasonTypeUnknown"
+                "SeasynTypeInt",
+                "SeasynTypeString",
+                "SeasynTypeBool",
+                "SeasynTypeTimestamp",
+                "SeasynTypeJSON",
+                "SeasynTypeFloat",
+                "SeasynTypeDecimal",
+                "SeasynTypeBinary",
+                "SeasynTypeUUID",
+                "SeasynTypeEnum",
+                "SeasynTypeArray",
+                "SeasynTypeUnknown"
             ]
         },
         "domain.SetUsernameRequest": {

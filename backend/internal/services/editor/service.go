@@ -237,8 +237,8 @@ func compareTableSchemas(src, dst domain.TableSchema) domain.TableDiff {
 
 		// Check changes
 		var alterDetails []string
-		if srcCol.SeasonType != dstCol.SeasonType {
-			alterDetails = append(alterDetails, fmt.Sprintf("type changed from %s (%s) to %s (%s)", dstCol.SeasonType, dstCol.DataType, srcCol.SeasonType, srcCol.DataType))
+		if srcCol.SeasynType != dstCol.SeasynType {
+			alterDetails = append(alterDetails, fmt.Sprintf("type changed from %s (%s) to %s (%s)", dstCol.SeasynType, dstCol.DataType, srcCol.SeasynType, srcCol.DataType))
 		}
 		if srcCol.IsNullable != dstCol.IsNullable {
 			alterDetails = append(alterDetails, fmt.Sprintf("nullable changed from %v to %v", dstCol.IsNullable, srcCol.IsNullable))

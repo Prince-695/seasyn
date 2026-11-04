@@ -51,7 +51,7 @@ func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*dom
 	}
 	defer cursor.Close(ctx)
 
-	fieldTypes := make(map[string]domain.SeasonType)
+	fieldTypes := make(map[string]domain.SeasynType)
 	var sampleDocs []bson.M
 	if err := cursor.All(ctx, &sampleDocs); err != nil {
 		return nil, fmt.Errorf("decode sample documents: %w", err)
@@ -59,24 +59,24 @@ func (c *Connection) GetTableSchema(ctx context.Context, tableName string) (*dom
 
 	for _, doc := range sampleDocs {
 		for k, v := range doc {
-			if _, exists := fieldTypes[k]; !exists || fieldTypes[k] == domain.SeasonTypeUnknown {
-				fieldTypes[k] = inferBsonSeasonType(v)
+			if _, exists := fieldTypes[k]; !exists || fieldTypes[k] == domain.SeasynTypeUnknown {
+				fieldTypes[k] = inferBsonSeasynType(v)
 			}
 		}
 	}
 
 	// Always ensure _id is present as Primary Key
 	if _, ok := fieldTypes["_id"]; !ok {
-		fieldTypes["_id"] = domain.SeasonTypeString
+		fieldTypes["_id"] = domain.SeasynTypeString
 	}
 
 	var columns []domain.ColumnSchema
-	for fieldName, seasonType := range fieldTypes {
+	for fieldName, seasynType := range fieldTypes {
 		isPK := fieldName == "_id"
 		columns = append(columns, domain.ColumnSchema{
 			Name:         fieldName,
-			DataType:     string(seasonType),
-			SeasonType:   seasonType,
+			DataType:     string(seasynType),
+			SeasynType:   seasynType,
 			IsPrimaryKey: isPK,
 			IsNullable:   !isPK,
 		})
@@ -313,29 +313,29 @@ func (c *Connection) ExecDDL(ctx context.Context, ddl string) error {
 
 // Helpers
 
-func inferBsonSeasonType(v interface{}) domain.SeasonType {
+func inferBsonSeasynType(v interface{}) domain.SeasynType {
 	if v == nil {
-		return domain.SeasonTypeUnknown
+		return domain.SeasynTypeUnknown
 	}
 	switch v.(type) {
 	case bool:
-		return domain.SeasonTypeBool
+		return domain.SeasynTypeBool
 	case int, int32, int64:
-		return domain.SeasonTypeInt
+		return domain.SeasynTypeInt
 	case float32, float64:
-		return domain.SeasonTypeFloat
+		return domain.SeasynTypeFloat
 	case string:
-		return domain.SeasonTypeString
+		return domain.SeasynTypeString
 	case time.Time, primitive.DateTime:
-		return domain.SeasonTypeTimestamp
+		return domain.SeasynTypeTimestamp
 	case primitive.ObjectID:
-		return domain.SeasonTypeString
+		return domain.SeasynTypeString
 	case []interface{}, primitive.A:
-		return domain.SeasonTypeArray
+		return domain.SeasynTypeArray
 	case map[string]interface{}, bson.M, bson.D:
-		return domain.SeasonTypeJSON
+		return domain.SeasynTypeJSON
 	default:
-		return domain.SeasonTypeString
+		return domain.SeasynTypeString
 	}
 }
 
