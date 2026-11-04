@@ -56,7 +56,7 @@ sequenceDiagram
     QA->>Org: 3. Create Organization & Invite Team Member
     QA->>Proj: 4. Create Project & Add Source + Target Connections
     QA->>Proj: 5. Run Live Connection Diagnostics & Latency Tests
-    QA->>Schema: 6. Inspect Live Source Database Schema (SeasonTypes)
+    QA->>Schema: 6. Inspect Live Source Database Schema (SeasynTypes)
     QA->>Schema: 7. Run Schema Diff Engine between Source & Target
     QA->>Schema: 8. Execute Table Rows Query & Insert Test Row
     QA->>Hook: 9. Register Webhook for migration.* events & Ping Test
@@ -146,7 +146,7 @@ sequenceDiagram
 - `POST /v1/organizations/{orgID}/projects/{projectID}/schema/diff`
 
 ### Core Verification Steps
-1. **Schema Introspection**: Inspect database schema. Verify `tables`, `columns`, `primary_keys`, `indexes`, and universal `SeasonType` mapping.
+1. **Schema Introspection**: Inspect database schema. Verify `tables`, `columns`, `primary_keys`, `indexes`, and universal `SeasynType` mapping.
 2. **Schema Diff Calculation**: Submit `source_connection_id` and `target_connection_id` to `/schema/diff`. Verify output arrays: `tables_added`, `tables_removed`, `tables_altered`, `tables_same`.
 3. **Data Explorer (Row CRUD)**:
    - Query paginated rows with `page`, `limit`, `order_by`, `order_dir`.
@@ -216,7 +216,7 @@ sequenceDiagram
 | **P3** | **CP-3.03** | Passwords omitted from all API responses | [ ] PASS | | |
 | **P3** | **CP-3.04** | Direct and saved connection tests return latency metrics | [ ] PASS | | |
 | **P4** | **CP-4.01** | Live schema inspection extracts tables, PKs, FKs, and indexes | [ ] PASS | | |
-| **P4** | **CP-4.02** | Universal `SeasonType` mapping accurate across DB types | [ ] PASS | | |
+| **P4** | **CP-4.02** | Universal `SeasynType` mapping accurate across DB types | [ ] PASS | | |
 | **P4** | **CP-4.03** | Schema diff identifies added, removed, and altered tables | [ ] PASS | | |
 | **P4** | **CP-4.04** | Data Explorer paginated row queries and double-quote sanitization | [ ] PASS | | |
 | **P4** | **CP-4.05** | Data Explorer Insert, Update, and Delete operations work | [ ] PASS | | |

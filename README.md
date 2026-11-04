@@ -14,7 +14,7 @@
 
 **Seasyn** is an enterprise-ready, full-stack database migration, schema synchronization, and live telemetry platform. Built with a high-performance **Go (Fiber v2)** backend and a reactive **React 19 (Vite + Tailwind CSS v4 + TanStack Query)** frontend, Seasyn eliminates the friction of moving data across heterogeneous database systems (PostgreSQL, MySQL, MongoDB, SQLite).
 
-It combines **zero-OOM memory-safe channel streaming**, **dynamic Auto-DDL synthesis via canonical `SeasonType`**, and **real-time physics telemetry (moving graphs for RPS velocity, bandwidth MB/s, and batch latency)** streamed directly to the browser via HTML5 Server-Sent Events (SSE).
+It combines **zero-OOM memory-safe channel streaming**, **dynamic Auto-DDL synthesis via canonical `SeasynType`**, and **real-time physics telemetry (moving graphs for RPS velocity, bandwidth MB/s, and batch latency)** streamed directly to the browser via HTML5 Server-Sent Events (SSE).
 
 ---
 
@@ -23,7 +23,7 @@ It combines **zero-OOM memory-safe channel streaming**, **dynamic Auto-DDL synth
 1. [Full-Stack Architecture Overview](#-full-stack-architecture-overview)
 2. [End-to-End Migration Sequence Flow](#-end-to-end-migration-sequence-flow)
 3. [Key Platform Features](#-key-platform-features)
-4. [Universal Type System (`SeasonType`) & Auto-DDL](#-universal-type-system-seasontype--auto-ddl)
+4. [Universal Type System (`SeasynType`) & Auto-DDL](#-universal-type-system-seasyntype--auto-ddl)
 5. [Technology Stack](#-technology-stack)
 6. [Monorepo Project Structure](#-monorepo-project-structure)
 7. [Getting Started & Local Development](#-getting-started--local-development)
@@ -80,7 +80,7 @@ flowchart TB
         Streamer["Streamer Engine"]
         CryptoEngine["Credential Decryptor<br/>(AES-GCM Decryption of URI & Passwords)"]
         Preflight["Pre-flight Inspector<br/>(Source Row Count & Target Check)"]
-        SchemaTransformer["Canonical Schema Transformer<br/>(Source Types -> SeasonType -> Target Types)"]
+        SchemaTransformer["Canonical Schema Transformer<br/>(Source Types -> SeasynType -> Target Types)"]
         DDLEngine["Auto-DDL Synthesizer<br/>(Generates & Applies Missing CREATE TABLE)"]
         RowChannel["Buffered Row Batch Channel<br/>(chan domain.RowBatch, cap=4)"]
         ErrChannel["Error Channel<br/>(chan error, cap=1)"]
@@ -201,7 +201,7 @@ sequenceDiagram
         Str->>Dst: ListTables()
         
         opt Target Table Does Not Exist
-            Str->>Str: TransformSchema(SeasonType) -> GenerateTargetDDL()
+            Str->>Str: TransformSchema(SeasynType) -> GenerateTargetDDL()
             Str->>Dst: ExecDDL(CREATE TABLE ...)
         end
 
@@ -230,7 +230,7 @@ sequenceDiagram
 
 - **Reactive Telemetry Graphs**: Live moving charts in the frontend render instantaneous Throughput (Rows/sec), Bandwidth (MB/s), and Batch Latency (ms) in real time over SSE.
 - **Zero-OOM Bounded Pipeline**: Bounded channel pipeline (`chan domain.RowBatch, cap=4`) enforces flat memory usage ($<64\text{ MB}$) regardless of table size.
-- **Dynamic Auto-DDL Synthesis**: Converts heterogeneous source schemas into universal `SeasonType` abstractions and creates missing target tables automatically.
+- **Dynamic Auto-DDL Synthesis**: Converts heterogeneous source schemas into universal `SeasynType` abstractions and creates missing target tables automatically.
 - **Visual Schema Diff & Data Explorer**: Interactively compare schemas across databases and explore table records with sorting, filtering, and row inspection.
 - **Concurrency Collision Guard**: Thread-safe `sync.Map` mutex preventing duplicate concurrent runs on identical source/target datasets.
 - **Cooperative Cancellation**: Instantly abort running jobs with `context.WithCancel` without corrupting transaction states or socket handles.
@@ -241,27 +241,27 @@ sequenceDiagram
 
 ---
 
-## 🔄 Universal Type System (`SeasonType`) & Auto-DDL
+## 🔄 Universal Type System (`SeasynType`) & Auto-DDL
 
 To seamlessly convert types between SQL engines (Postgres, MySQL, SQLite) and document databases (MongoDB), Seasyn maps native driver types through an intermediate canonical representation:
 
 <p align="center">
-  <img src="Docs/assets/seasontype_mapping.svg" alt="SeasonType Universal Mapping Matrix" width="90%" />
+  <img src="Docs/assets/seasontype_mapping.svg" alt="SeasynType Universal Mapping Matrix" width="90%" />
 </p>
 
 ### Canonical Mapping Matrix
 
-| `SeasonType` | PostgreSQL (`pgx`) | MySQL (`go-sql-driver`) | MongoDB (`mongo-driver`) | SQLite (`modernc`) |
+| `SeasynType` | PostgreSQL (`pgx`) | MySQL (`go-sql-driver`) | MongoDB (`mongo-driver`) | SQLite (`modernc`) |
 |---|---|---|---|---|
-| `SeasonTypeInt` | `BIGINT` | `BIGINT` | `int` / `long` | `INTEGER` |
-| `SeasonTypeString` | `TEXT` | `TEXT` | `string` | `TEXT` |
-| `SeasonTypeBool` | `BOOLEAN` | `TINYINT(1)` | `bool` | `INTEGER` |
-| `SeasonTypeTimestamp` | `TIMESTAMPTZ` | `DATETIME(6)` | `date` | `TEXT` |
-| `SeasonTypeJSON` | `JSONB` | `JSON` | `object` | `TEXT` |
-| `SeasonTypeFloat` | `DOUBLE PRECISION` | `DOUBLE` | `double` | `REAL` |
-| `SeasonTypeDecimal` | `NUMERIC` | `DECIMAL(38,18)` | `decimal` | `NUMERIC` |
-| `SeasonTypeBinary` | `BYTEA` | `LONGBLOB` | `binData` | `BLOB` |
-| `SeasonTypeUUID` | `UUID` | `CHAR(36)` | `string` | `TEXT` |
+| `SeasynTypeInt` | `BIGINT` | `BIGINT` | `int` / `long` | `INTEGER` |
+| `SeasynTypeString` | `TEXT` | `TEXT` | `string` | `TEXT` |
+| `SeasynTypeBool` | `BOOLEAN` | `TINYINT(1)` | `bool` | `INTEGER` |
+| `SeasynTypeTimestamp` | `TIMESTAMPTZ` | `DATETIME(6)` | `date` | `TEXT` |
+| `SeasynTypeJSON` | `JSONB` | `JSON` | `object` | `TEXT` |
+| `SeasynTypeFloat` | `DOUBLE PRECISION` | `DOUBLE` | `double` | `REAL` |
+| `SeasynTypeDecimal` | `NUMERIC` | `DECIMAL(38,18)` | `decimal` | `NUMERIC` |
+| `SeasynTypeBinary` | `BYTEA` | `LONGBLOB` | `binData` | `BLOB` |
+| `SeasynTypeUUID` | `UUID` | `CHAR(36)` | `string` | `TEXT` |
 
 ---
 
@@ -310,7 +310,7 @@ seasyn/
 │   │   └── store/                  # Zustand global application state
 │   └── package.json                # Frontend dependencies and build scripts
 ├── Docs/                           # Technical Specifications & Documentation Portal
-│   ├── assets/                     # Architecture SeasonType SVG
+│   ├── assets/                     # Architecture SeasynType SVG
 │   ├── backend/                    # Backend architecture documents & HLD specifications
 │   ├── testing/                    # Test plans, QA validation reports & audit runs
 │   ├── ci.md                       # Pre-PR continuous integration verification standards

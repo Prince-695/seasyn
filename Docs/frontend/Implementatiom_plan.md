@@ -292,7 +292,7 @@ touch src/lib/queryKeys.ts
 ```typescript
 export type DBType = 'postgres' | 'mongodb' | 'mysql' | 'sqlite';
 
-export type SeasonType = 'string' | 'int' | 'float' | 'bool' | 'timestamp' | 'json' | 'binary' | 'array' | 'decimal';
+export type SeasynType = 'string' | 'int' | 'float' | 'bool' | 'timestamp' | 'json' | 'binary' | 'array' | 'decimal';
 
 export interface ConnectionConfig {
   type: DBType;
@@ -308,7 +308,7 @@ export interface ConnectionConfig {
 export interface ColumnSchema {
   name: string;
   dataType: string;
-  seasonType: SeasonType;
+  seasonType: SeasynType;
   nullable: boolean;
   isPrimary: boolean;
   maxLength?: number;
@@ -1130,7 +1130,7 @@ export const useMigrationWizardStore = create<MigrationWizardState>()((set) => (
 
 Renders a table. One row per source column. Each row has:
 - Source column name (read-only, monospace)
-- Source type badge (colored by `SeasonType`)
+- Source type badge (colored by `SeasynType`)
 - Arrow icon
 - Destination column name input (editable, pre-filled with source name)
 - Destination type select (shows suggested type, overridable)
