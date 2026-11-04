@@ -36,19 +36,57 @@ export const Hero = ({
 }: HeroProps) => {
   return (
     <section className="relative mx-auto mt-20 flex w-full max-w-4xl flex-col items-center justify-center px-4 sm:mt-28 sm:px-6 md:px-8">
-      {/* ── Ambient background layer ── */}
+      {/* ── Pulsating ambient background layer ── */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -inset-x-32 -inset-y-16 -z-10"
       >
-        {/* Primary blue glow — top-center, the dominant orb */}
-        <div className="bg-primary/20 absolute -top-20 left-1/2 h-125 w-175 -translate-x-1/2 rounded-full blur-[80px]" />
+        {/* Primary blue glow — top-center, slow deep breath */}
+        <motion.div
+          className="bg-primary/20 absolute -top-20 left-1/2 h-125 w-175 -translate-x-1/2 rounded-full blur-[80px]"
+          animate={{
+            scale: [1, 1.12, 1],
+            opacity: [0.2, 0.32, 0.2],
+          }}
+          transition={{
+            duration: 7,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "loop",
+          }}
+        />
 
-        {/* Amber accent — bottom-left */}
-        <div className="bg-secondary/20 absolute bottom-0 -left-20 h-75 w-100 rounded-full blur-[70px]" />
+        {/* Amber accent — bottom-left, offset phase */}
+        <motion.div
+          className="bg-secondary/20 absolute bottom-0 -left-20 h-75 w-100 rounded-full blur-[70px]"
+          animate={{
+            scale: [1, 1.15, 1],
+            opacity: [0.2, 0.35, 0.2],
+          }}
+          transition={{
+            duration: 9,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "loop",
+            delay: 2.5,
+          }}
+        />
 
-        {/* Faint right-side blue echo */}
-        <div className="bg-primary/15 absolute top-1/4 -right-10 h-65 w-80 rounded-full blur-[60px]" />
+        {/* Right-side echo — fastest, subtlest */}
+        <motion.div
+          className="bg-primary/15 absolute top-1/4 -right-10 h-65 w-[320px] rounded-full blur-[60px]"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.15, 0.26, 0.15],
+          }}
+          transition={{
+            duration: 11,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "loop",
+            delay: 5,
+          }}
+        />
 
         {/* Dot-grid texture */}
         <div
