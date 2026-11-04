@@ -209,17 +209,17 @@ func TestCalculateSchemaDiff(t *testing.T) {
 			{
 				Name: "users",
 				Columns: []domain.ColumnSchema{
-					{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID, IsPrimaryKey: true},
-					{Name: "email", DataType: "varchar(255)", SeasonType: domain.SeasonTypeString, IsNullable: false},
-					{Name: "age", DataType: "int4", SeasonType: domain.SeasonTypeInt, IsNullable: true},
+					{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID, IsPrimaryKey: true},
+					{Name: "email", DataType: "varchar(255)", SeasynType: domain.SeasynTypeString, IsNullable: false},
+					{Name: "age", DataType: "int4", SeasynType: domain.SeasynTypeInt, IsNullable: true},
 				},
 				PrimaryKeys: []string{"id"},
 			},
 			{
 				Name: "orders",
 				Columns: []domain.ColumnSchema{
-					{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID, IsPrimaryKey: true},
-					{Name: "total", DataType: "numeric", SeasonType: domain.SeasonTypeDecimal},
+					{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID, IsPrimaryKey: true},
+					{Name: "total", DataType: "numeric", SeasynType: domain.SeasynTypeDecimal},
 				},
 				PrimaryKeys: []string{"id"},
 			},
@@ -234,15 +234,15 @@ func TestCalculateSchemaDiff(t *testing.T) {
 			{
 				Name: "users",
 				Columns: []domain.ColumnSchema{
-					{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID, IsPrimaryKey: true},
-					{Name: "email", DataType: "varchar(255)", SeasonType: domain.SeasonTypeString, IsNullable: true}, // altered nullable
+					{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID, IsPrimaryKey: true},
+					{Name: "email", DataType: "varchar(255)", SeasynType: domain.SeasynTypeString, IsNullable: true}, // altered nullable
 				},
 				PrimaryKeys: []string{"id"},
 			},
 			{
 				Name: "products",
 				Columns: []domain.ColumnSchema{
-					{Name: "id", DataType: "uuid", SeasonType: domain.SeasonTypeUUID},
+					{Name: "id", DataType: "uuid", SeasynType: domain.SeasynTypeUUID},
 				},
 			},
 		},
@@ -283,7 +283,7 @@ func TestSchemaService_InspectAndQuery(t *testing.T) {
 			{
 				Name: "accounts",
 				Columns: []domain.ColumnSchema{
-					{Name: "id", DataType: "int8", SeasonType: domain.SeasonTypeInt, IsPrimaryKey: true},
+					{Name: "id", DataType: "int8", SeasynType: domain.SeasynTypeInt, IsPrimaryKey: true},
 				},
 				PrimaryKeys: []string{"id"},
 				RowCount:    100,

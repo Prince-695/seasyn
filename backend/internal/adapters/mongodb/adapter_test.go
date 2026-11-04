@@ -9,32 +9,32 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func TestInferBsonSeasonType(t *testing.T) {
+func TestInferBsonSeasynType(t *testing.T) {
 	oid := primitive.NewObjectID()
 	now := time.Now()
 
 	tests := []struct {
 		name     string
 		input    interface{}
-		expected domain.SeasonType
+		expected domain.SeasynType
 	}{
-		{"bool", true, domain.SeasonTypeBool},
-		{"int", 42, domain.SeasonTypeInt},
-		{"int64", int64(100), domain.SeasonTypeInt},
-		{"float", 3.14, domain.SeasonTypeFloat},
-		{"string", "hello", domain.SeasonTypeString},
-		{"timestamp", now, domain.SeasonTypeTimestamp},
-		{"objectID", oid, domain.SeasonTypeString},
-		{"array", []interface{}{1, 2, 3}, domain.SeasonTypeArray},
-		{"jsonMap", map[string]interface{}{"a": "b"}, domain.SeasonTypeJSON},
-		{"nil", nil, domain.SeasonTypeUnknown},
+		{"bool", true, domain.SeasynTypeBool},
+		{"int", 42, domain.SeasynTypeInt},
+		{"int64", int64(100), domain.SeasynTypeInt},
+		{"float", 3.14, domain.SeasynTypeFloat},
+		{"string", "hello", domain.SeasynTypeString},
+		{"timestamp", now, domain.SeasynTypeTimestamp},
+		{"objectID", oid, domain.SeasynTypeString},
+		{"array", []interface{}{1, 2, 3}, domain.SeasynTypeArray},
+		{"jsonMap", map[string]interface{}{"a": "b"}, domain.SeasynTypeJSON},
+		{"nil", nil, domain.SeasynTypeUnknown},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := inferBsonSeasonType(tt.input)
+			got := inferBsonSeasynType(tt.input)
 			if got != tt.expected {
-				t.Errorf("inferBsonSeasonType(%v) = %v, want %v", tt.input, got, tt.expected)
+				t.Errorf("inferBsonSeasynType(%v) = %v, want %v", tt.input, got, tt.expected)
 			}
 		})
 	}

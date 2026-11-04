@@ -2,29 +2,32 @@ package domain
 
 import "time"
 
-// SeasonType is SEASYN's universal intermediate type for cross-database mapping.
-type SeasonType string
+// SeasynType is SEASYN's universal intermediate type for cross-database mapping.
+type SeasynType string
+
+// Deprecated: SeasonType alias maintained for backwards compatibility.
+type SeasonType = SeasynType
 
 const (
-	SeasonTypeInt       SeasonType = "int"
-	SeasonTypeString    SeasonType = "string"
-	SeasonTypeBool      SeasonType = "bool"
-	SeasonTypeTimestamp SeasonType = "timestamp"
-	SeasonTypeJSON      SeasonType = "json"
-	SeasonTypeFloat     SeasonType = "float"
-	SeasonTypeDecimal   SeasonType = "decimal"
-	SeasonTypeBinary    SeasonType = "binary"
-	SeasonTypeUUID      SeasonType = "uuid"
-	SeasonTypeEnum      SeasonType = "enum"
-	SeasonTypeArray     SeasonType = "array"
-	SeasonTypeUnknown   SeasonType = "unknown"
+	SeasynTypeInt       SeasynType = "int"
+	SeasynTypeString    SeasynType = "string"
+	SeasynTypeBool      SeasynType = "bool"
+	SeasynTypeTimestamp SeasynType = "timestamp"
+	SeasynTypeJSON      SeasynType = "json"
+	SeasynTypeFloat     SeasynType = "float"
+	SeasynTypeDecimal   SeasynType = "decimal"
+	SeasynTypeBinary    SeasynType = "binary"
+	SeasynTypeUUID      SeasynType = "uuid"
+	SeasynTypeEnum      SeasynType = "enum"
+	SeasynTypeArray     SeasynType = "array"
+	SeasynTypeUnknown   SeasynType = "unknown"
 )
 
 // ColumnSchema describes a single column's metadata within a table.
 type ColumnSchema struct {
 	Name          string     `json:"name"`
 	DataType      string     `json:"data_type"`   // Native database data type (e.g., "varchar(255)", "int4")
-	SeasonType    SeasonType `json:"season_type"` // Universal normalized type
+	SeasynType    SeasynType `json:"season_type"` // Universal normalized type
 	IsNullable    bool       `json:"is_nullable"`
 	DefaultValue  *string    `json:"default_value,omitempty"`
 	MaxLength     *int       `json:"max_length,omitempty"`

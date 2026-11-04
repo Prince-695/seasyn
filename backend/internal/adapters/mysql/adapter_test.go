@@ -9,20 +9,20 @@ import (
 func TestMapMySQLType(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected domain.SeasonType
+		expected domain.SeasynType
 	}{
-		{"int", domain.SeasonTypeInt},
-		{"bigint", domain.SeasonTypeInt},
-		{"tinyint(1)", domain.SeasonTypeBool},
-		{"varchar(255)", domain.SeasonTypeString},
-		{"text", domain.SeasonTypeString},
-		{"datetime", domain.SeasonTypeTimestamp},
-		{"timestamp", domain.SeasonTypeTimestamp},
-		{"double", domain.SeasonTypeFloat},
-		{"decimal(10,2)", domain.SeasonTypeDecimal},
-		{"json", domain.SeasonTypeJSON},
-		{"blob", domain.SeasonTypeBinary},
-		{"enum('a','b')", domain.SeasonTypeEnum},
+		{"int", domain.SeasynTypeInt},
+		{"bigint", domain.SeasynTypeInt},
+		{"tinyint(1)", domain.SeasynTypeBool},
+		{"varchar(255)", domain.SeasynTypeString},
+		{"text", domain.SeasynTypeString},
+		{"datetime", domain.SeasynTypeTimestamp},
+		{"timestamp", domain.SeasynTypeTimestamp},
+		{"double", domain.SeasynTypeFloat},
+		{"decimal(10,2)", domain.SeasynTypeDecimal},
+		{"json", domain.SeasynTypeJSON},
+		{"blob", domain.SeasynTypeBinary},
+		{"enum('a','b')", domain.SeasynTypeEnum},
 	}
 
 	for _, tt := range tests {
