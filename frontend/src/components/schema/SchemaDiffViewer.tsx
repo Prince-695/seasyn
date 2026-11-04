@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { SeasonTypeBadge } from "./SeasonTypeBadge"
+import { SeasynTypeBadge } from "./SeasynTypeBadge"
 import type { SchemaDiff, TableDiff } from "@/types/schema"
 import { formatDate } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
@@ -371,8 +371,8 @@ export function SchemaDiffViewer({
                             {cd.source_column ? (
                               <div className="flex items-center gap-1.5">
                                 <span>{cd.source_column.data_type}</span>
-                                <SeasonTypeBadge
-                                  type={cd.source_column.season_type}
+                                <SeasynTypeBadge
+                                  type={cd.source_column.seasyn_type}
                                 />
                               </div>
                             ) : (
@@ -388,8 +388,8 @@ export function SchemaDiffViewer({
                                 <span className="text-foreground">
                                   {cd.target_column.data_type}
                                 </span>
-                                <SeasonTypeBadge
-                                  type={cd.target_column.season_type}
+                                <SeasynTypeBadge
+                                  type={cd.target_column.seasyn_type}
                                 />
                               </div>
                             ) : (

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import type { SeasonType } from "@/types/schema"
+import type { SeasynType } from "@/types/schema"
 import {
   Hash,
   Type,
@@ -12,8 +12,8 @@ import {
   Key,
 } from "lucide-react"
 
-interface SeasonTypeBadgeProps {
-  type: SeasonType | string
+export interface SeasynTypeBadgeProps {
+  type: SeasynType | string
   className?: string
   showIcon?: boolean
 }
@@ -84,11 +84,11 @@ const TYPE_CONFIG: Record<
   },
 }
 
-export function SeasonTypeBadge({
+export function SeasynTypeBadge({
   type,
   className,
   showIcon = true,
-}: SeasonTypeBadgeProps) {
+}: SeasynTypeBadgeProps) {
   const normalized = (type || "unknown").toLowerCase()
   const config = TYPE_CONFIG[normalized] || TYPE_CONFIG.unknown
   const IconComponent = config.icon

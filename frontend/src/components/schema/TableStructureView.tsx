@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { SeasonTypeBadge } from "./SeasonTypeBadge"
+import { SeasynTypeBadge } from "./SeasynTypeBadge"
 import { getDatabaseTerminology } from "@/lib/constants/databaseViewers"
 import type { TableSchema } from "@/types/schema"
 import { cn } from "@/lib/utils"
@@ -45,15 +45,15 @@ export function TableStructureView({
       table.columns.forEach((col) => {
         properties[col.name] = {
           bsonType:
-            col.season_type === "int"
+            col.seasyn_type === "int"
               ? "int"
-              : col.season_type === "float" || col.season_type === "decimal"
+              : col.seasyn_type === "float" || col.seasyn_type === "decimal"
                 ? "double"
-                : col.season_type === "bool"
+                : col.seasyn_type === "bool"
                   ? "bool"
-                  : col.season_type === "json"
+                  : col.seasyn_type === "json"
                     ? "object"
-                    : col.season_type === "array"
+                    : col.seasyn_type === "array"
                       ? "array"
                       : "string",
           description: `${col.name} field${col.is_primary_key ? " (Document Identifier)" : ""}`,
@@ -243,7 +243,7 @@ export function TableStructureView({
                       </td>
 
                       <td className="px-3 py-2.5">
-                        <SeasonTypeBadge type={col.season_type} />
+                        <SeasynTypeBadge type={col.seasyn_type} />
                       </td>
 
                       <td className="text-muted-foreground px-3 py-2.5">

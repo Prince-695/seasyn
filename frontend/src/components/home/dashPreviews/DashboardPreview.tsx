@@ -157,13 +157,7 @@ export function DashboardPreview() {
 
         <div className="bg-primary/5 pointer-events-none absolute top-1/2 left-1/2 h-80 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 28, scale: 0.985 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 w-full"
-        >
+        <div className="relative z-10 w-full">
           <div
             className="-mx-4 -mt-8 -mb-16 px-4 pt-8 pb-16"
             style={{
@@ -208,9 +202,9 @@ export function DashboardPreview() {
                     </span>
                   </div>
 
-                  {/* Scrollable content */}
-                  <div className="flex-1 overflow-y-auto">
-                    <div className="flex flex-col p-4 pb-16 sm:p-5 sm:pb-16">
+                  {/* Content (non-scrollable inside preview) */}
+                  <div className="flex-1 overflow-hidden">
+                    <div className="flex flex-col p-4 sm:p-5">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={activeNav}
@@ -230,7 +224,7 @@ export function DashboardPreview() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
     </MotionConfig>
   )

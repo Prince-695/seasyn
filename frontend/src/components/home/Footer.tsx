@@ -10,16 +10,16 @@ interface FooterLink {
 }
 
 const productLinks: FooterLink[] = [
-  { name: "Features", href: "/#features" },
-  { name: "How It Works", href: "/#workflow" },
-  { name: "Technical FAQ", href: "/#faq" },
+  // { name: "Features", href: "/#features" },
+  // { name: "How It Works", href: "/#workflow" },
+  // { name: "Technical FAQ", href: "/#faq" },
   { name: "Migration Studio", href: "/migration" },
 ]
 
 const resourceLinks: FooterLink[] = [
   { name: "Documentation", href: "/docs" },
-  { name: "Schema Inspector", href: "/docs" },
-  { name: "Zero-Retention Security", href: "/docs" },
+  // { name: "Schema Inspector", href: "/docs" },
+  // { name: "Zero-Retention Security", href: "/docs" },
 ]
 
 const platformLinks: FooterLink[] = [
